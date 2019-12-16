@@ -1,2 +1,2 @@
 # Nethereum.eShop
-Nethereum eShop, a partial decentralised shopping cart based on https://github.com/dotnet-architecture/eShopOnWeb.
+Nethereum eShop, a partially decentralised shopping cart based on https://github.com/dotnet-architecture/eShopOnWeb.
