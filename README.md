@@ -27,21 +27,24 @@ Nethereum eShop, a partially decentralised shopping cart based on https://github
 * Mix and match cloud allows for privacy
 
 ## Phase 1 Tasks
-- [ ] Clone eShopOnWeb and migrate namespaces
+- [x] Clone eShopOnWeb and migrate namespaces
 - [ ] Migrate front end to Blazor
 - [ ] Data schema changes. 
+
       - [ ] Identify, remove and design storage areas that will be on the blochain
       - [ ] Users, Authorisation linked to Ethereum accounts
       - [ ] Change data schema for the specific business domain (BookStore)
 - [ ] Create new specific blockchain services and smart contracts
+
       - [ ] DAI payment
       - [ ] Purchasing process
       - [ ] Escrow
       - [ ] Cancelation
       - [ ] Delivery
       - [ ] Dispute / Return
-      - ...
+
 - [ ] Authentication and authorisation
+
     - [ ] Integrate with Nethereum.UI
     - [ ] Login screens
     - [ ] Admin areas
