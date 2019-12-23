@@ -53,7 +53,13 @@ Nethereum eShop, a partially decentralised shopping cart based on https://github
 + Proxys of smart contracts
 + Upgrade storage
 + Validation and verification of smart contracts
-+ Different front ends for Desktop, Mobile, IoT, Gaming and VR. (Moving to the common framework and capability to change front ends, Avalonia, Xamarin Forms, etc and ReactiveUI)
++ Different front ends:
+     - Desktop
+     - Mobile
+     - IoT
+     - Gaming (ie vbucks style purchasing of skins, etc)
+     - VR. 
++ Moving to a common framework and capability to change front ends, Avalonia, Xamarin Forms, etc and leveraging ReactiveUI (see https://github.com/Nethereum/NethereumBlazor Readme for motivation).
 + Integration with other Ethereum connection provides using Netheruem.UI (Nethereum :), Hardware Wallets, Gnosis, etc)
 + Provide integration / demo to UBI tokens (Circles, Idena)
 + Other framework integrations
