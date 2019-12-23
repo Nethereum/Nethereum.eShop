@@ -3,14 +3,15 @@
 Nethereum eShop, a partially decentralised shopping cart based on https://github.com/dotnet-architecture/eShopOnWeb.
 
 ## Phase 1 Goals.
-+ Demonstrate business privacy by combining Blazor Server with sql server storage, in conjunction with public mainnet smart contracts.
++ Provide an out of the box solution for anyone to create an eShop integrated with Ethereum or use the infrastructure as a template for other solutions.
++ Demonstrate business integration with an Ethereum blockchain.
 + Demontrate authentication and authorisation on a web site using an Ethereum account
 + Demonstrate integrationg using Nethereum.UI with a connection with Metamask
-+ Demonstrate a usual a business process leveraging chain smart contracts (Purchasing, Escrow)
-+ Demonstrate upgradable rules using a rule engine (Wonka)
++ Demonstrate a familiar business process and benefits of integrating then with mainnet smart contracts (Purchasing, Escrow, Trust, Proof of purchage)
++ Demonstrate upgradable rules using a rule engine (Wonka) which could be on chain.
 + Demonstrate other business usages outside of a wallet and token launches.
 + Demonstrate integration with an stable token DAI
-
++ Demonstrate business privacy by combining Blazor Server with sql server storage, in conjunction with public mainnet smart contracts.
 
 ## Why an eShop using Ethereum
 * Consumer protection (proof of purchase)
@@ -49,9 +50,13 @@ Nethereum eShop, a partially decentralised shopping cart based on https://github
     - [ ] Admin areas
 
 ## Phase 2 
-Different front ends for Desktop, Mobile, IoT, Gaming and VR.
-Integration with other Ethereum connection provides using Netheruem.UI (Nethereum :), Harware Wallets, Gnosis, etc)
-Provide integration / demo to UBI tokens (Circles, Idena)
++ Proxys of smart contracts
++ Upgrade storage
++ Validation and verification of smart contracts
++ Different front ends for Desktop, Mobile, IoT, Gaming and VR. (Moving to the common framework and capability to change front ends, Avalonia, Xamarin Forms, etc and ReactiveUI)
++ Integration with other Ethereum connection provides using Netheruem.UI (Nethereum :), Hardware Wallets, Gnosis, etc)
++ Provide integration / demo to UBI tokens (Circles, Idena)
++ Other framework integrations
 
 ## Phase 3
 Provide solutions and integrations (ie supply chain, finance, reputation (idena?) )
