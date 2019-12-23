@@ -34,6 +34,7 @@ Nethereum eShop, a partially decentralised shopping cart based on https://github
       - [ ] Identify, remove and design storage areas that will be on the blochain
       - [ ] Users, Authorisation linked to Ethereum accounts
       - [ ] Change data schema for the specific business domain (BookStore)
+      
 - [ ] Create new specific blockchain services and smart contracts
 
       - [ ] DAI payment
@@ -42,6 +43,7 @@ Nethereum eShop, a partially decentralised shopping cart based on https://github
       - [ ] Cancelation
       - [ ] Delivery
       - [ ] Dispute / Return
+      - [ ] Upgradable business rules (Wonka rules, related to book purchasing)
 
 - [ ] Authentication and authorisation
 
