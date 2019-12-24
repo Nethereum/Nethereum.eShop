@@ -2,24 +2,24 @@
 
 Nethereum eShop, a partially decentralised shopping cart based on https://github.com/dotnet-architecture/eShopOnWeb.
 
-## Phase 1 Goals.
-+ Provide an out of the box solution for anyone to create an eShop integrated with Ethereum or use the infrastructure as a template for other solutions.
+## Phase 1 Goals
++ Providing an out of the box solution for anyone to create an eShop integrated with Ethereum or use the infrastructure as a template for other solutions.
 + Demonstrate business integration with an Ethereum blockchain.
 + Demontrate authentication and authorisation on a web site using an Ethereum account
-+ Demonstrate integrationg using Nethereum.UI with a connection with Metamask
-+ Demonstrate a familiar business process and benefits of integrating then with mainnet smart contracts (Purchasing, Escrow, Trust, Proof of purchage)
++ Demonstrate integration using Nethereum.UI with a connection with Metamask
++ Demonstrate a familiar business process and benefits of integratin with mainnet smart contracts (Purchasing, Escrow, Trust, Proof of purchase)
 + Demonstrate upgradable rules using a rule engine (Wonka) which could be on chain.
 + Demonstrate other business usages outside of a wallet and token launches.
 + Demonstrate integration with an stable token DAI
 + Demonstrate business privacy by combining Blazor Server with sql server storage, in conjunction with public mainnet smart contracts.
 
-## Why an eShop using Ethereum
+## Why an eShop using Ethereum?
 * Consumer protection (proof of purchase)
 * Consumer protection (escrow of funds)
 * Consumer protection (new "untrusted" shop)
-* Shops don't rely on third parties for
+* Shops don't rely on third parties for:
 * Trust (ie ebay, amazon, etc)
-* Hold reputation (ie ebay, amazon, etc)
+* Holding reputation (ie ebay, amazon, etc)
 * Capability in the future to enable supply chain
 * Capability in the future to enable finance based on invoices
 * Capability to enable reputation systems (out of the box)
@@ -45,7 +45,7 @@ Nethereum eShop, a partially decentralised shopping cart based on https://github
      - [ ] Upgradable business rules (Wonka rules, related to book purchasing)
 
 - [ ] Authentication and authorisation
-    - [ ] Integrate with Nethereum.UI
+    - [ ] Integration  with Nethereum.UI
     - [ ] Login screens
     - [ ] Admin areas
 
@@ -58,11 +58,11 @@ Nethereum eShop, a partially decentralised shopping cart based on https://github
      - Mobile
      - IoT
      - Gaming (ie vbucks style purchasing of skins, etc)
-     - VR. 
+     - VR 
 + Moving to a common framework and capability to change front ends, Avalonia, Xamarin Forms, etc and leveraging ReactiveUI (see https://github.com/Nethereum/NethereumBlazor Readme for motivation).
 + Integration with other Ethereum connection provides using Netheruem.UI (Nethereum :), Hardware Wallets, Gnosis, etc)
 + Provide integration / demo to UBI tokens (Circles, Idena)
 + Other framework integrations
 
 ## Phase 3
-Provide solutions and integrations (ie supply chain, finance, reputation (idena?) )
+Providing solutions and integrations (ie supply chain, finance, reputation (idena?) )
