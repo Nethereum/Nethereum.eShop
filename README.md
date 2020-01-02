@@ -1,6 +1,6 @@
 # Nethereum.eShop
 
-Nethereum eShop, a partially decentralised shopping cart based on https://github.com/dotnet-architecture/eShopOnWeb.
+Nethereum eShop, a partially decentralised shopping cart based on https://github.com/dotnet-architecture/eShopOnWeb. The "IBuySpy" for Ethereum.
 
 ## Phase 1 Goals
 + Providing an out of the box solution for anyone to create an eShop integrated with Ethereum or use the infrastructure as a template for other solutions.
@@ -55,6 +55,8 @@ Nethereum eShop, a partially decentralised shopping cart based on https://github
 ## Phase 2 
 + Proxys of smart contracts
 + Upgrade storage
++ Product (book) / Shop ratings
++ GSN integration (Gas Station) to pay for ratings and other user state changes.
 + Validation and verification of smart contracts
 + Different front ends:
      - Desktop
