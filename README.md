@@ -1,6 +1,6 @@
 # Nethereum.eShop
 
-Nethereum eShop, a partially decentralised shopping cart based on https://github.com/dotnet-architecture/eShopOnWeb. The "IBuySpy" for Ethereum.
+Nethereum eShop, a partially decentralised shopping cart based on https://github.com/dotnet-architecture/eShopOnWeb. The ["IBuySpy Store"](#why-the-ibuyspy-store) for Ethereum.
 
 ## Phase 1 Goals
 + Providing an out of the box solution for anyone to create an eShop integrated with Ethereum or use the infrastructure as a template for other solutions.
@@ -71,3 +71,8 @@ Nethereum eShop, a partially decentralised shopping cart based on https://github
 
 ## Phase 3
 Providing solutions and integrations (ie supply chain, finance, reputation (idena?) )
+
+
+
+#### Why the IBuySpy store
+The IBuySpy store was the first reference implementation on how to use .Net and Asp.net. It was a three tier architecture of a store selling spy products. It included easy to follow explanations in each of the pages of the flow of data from the database to the front end. Later on another reference application was created, in this case a portal, the IBuySpy portal. This was later forked and enhanced to become DNN (DotNetNuke).
