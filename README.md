@@ -7,13 +7,14 @@ Nethereum eShop, a partially decentralised shopping cart based on https://github
 + Demonstrate business integration with an Ethereum blockchain.
 + Demonstrate authentication and authorisation on a web site using an Ethereum account.
 + Demonstrate integration using Nethereum.UI with a connection with Metamask.
-+ Demonstrate a familiar business process and benefits of integrating with mainnet smart contracts (Purchasing, Escrow, Trust, Proof of purchage).
++ Demonstrate a familiar business process and benefits of integrating with mainnet smart contracts (Purchasing, Escrow, Trust, Proof of purchase).
 + Demonstrate upgradable rules using a rules engine (Wonka) which could be on chain.
 + Demonstrate other business usages outside of a wallet and token launches.
 + Demonstrate integration with a stable token DAI.
 + Demonstrate business privacy by combining Blazor Server with sql server storage, in conjunction with public mainnet smart contracts.
 
 ## Why an eShop using Ethereum?
+* Receive payments from customers using cryptocurrency
 * Consumer protection (proof of purchase)
 * Consumer protection (escrow of funds)
 * Consumer protection (new "untrusted" shop)
@@ -31,7 +32,7 @@ Nethereum eShop, a partially decentralised shopping cart based on https://github
 - [x] Clone eShopOnWeb and migrate namespaces
 - [ ] Migrate front end to Blazor
 - [ ] Data schema changes. 
-     - [ ] Identify, remove and design storage areas that will be on the blochain
+     - [ ] Identify, remove and design storage areas that will be on the blockchain
      - [ ] Users, Authorisation linked to Ethereum accounts
      - [ ] Change data schema for the specific business domain (BookStore)
      - [ ] Identify general process flow for transactions (business rules, etc.)
