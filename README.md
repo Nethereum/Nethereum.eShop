@@ -2,6 +2,13 @@
 
 Nethereum eShop, a partially decentralised shopping cart based on https://github.com/dotnet-architecture/eShopOnWeb. The ["IBuySpy Store"](#why-the-ibuyspy-store) for Ethereum.
 
+
+## Why are you building this eShop?
+This functional eShop template is meant to help businesses and projects who want to take advantage of .NET and Ethereum in the context of eCommerce. It's also a way to demonstrate the p
+
+## Can I Steal this code?
+You not only can, but you should, since it's provided with an MIT license, it's meant to be forked and put to use. Mentions and feedback are always appreciated, although not mandatory.
+
 ## Phase 1 Goals
 + Providing an out of the box solution for anyone to create an eShop integrated with Ethereum or use the infrastructure as a template for other solutions.
 + Demonstrate business integration with an Ethereum blockchain.
