@@ -13,6 +13,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "utils", "utils", "{11EFE1E8
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Books.ImportUtil", "utils\Books.ImportUtil\Books.ImportUtil.csproj", "{3A6E7DC1-79B8-41DE-B9AD-A5E60F7C9CA7}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nethereum.Commerce.Contracts", "Nethereum.Commerce.Contracts\Nethereum.Commerce.Contracts.csproj", "{C22EF243-52C6-4976-8ADE-5504B40A37C3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,6 +33,10 @@ Global
 		{3A6E7DC1-79B8-41DE-B9AD-A5E60F7C9CA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3A6E7DC1-79B8-41DE-B9AD-A5E60F7C9CA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3A6E7DC1-79B8-41DE-B9AD-A5E60F7C9CA7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C22EF243-52C6-4976-8ADE-5504B40A37C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C22EF243-52C6-4976-8ADE-5504B40A37C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C22EF243-52C6-4976-8ADE-5504B40A37C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C22EF243-52C6-4976-8ADE-5504B40A37C3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

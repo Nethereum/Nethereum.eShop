@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Compile Remove="Contracts\bin\**" />
+      <EmbeddedResource Remove="Contracts\bin\**" />
+      <None Remove="Contracts\bin\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Nethereum.Web3" Version="3.4.0" />
+    </ItemGroup>
+    
+</Project>
