@@ -24,12 +24,13 @@ interface IPoTypes
         uint64 poNumber;                   // contract managed, PO header key
 
         address buyerAddress;              // contract managed, buyer EoA address holding currency and "owner" of the PO
-        address buyerWalletAddress;        // contract managed, buyer wallet contract address, needed to locate contract when sending events from PoMain contract
+        address buyerWalletAddress;        // contract managed, buyer wallet contract address, needed to locate contract when sending events from PoMain contract        
         bytes32 buyerSysId;                // [B2B only] contract managed, global id of the buyer system
         bytes32 buyerPurchaseOrderNumber;  // [B2B only] buyer system managed
         bytes32 buyerViewVendorId;         // [B2B only] buyer system managed, vendor (the seller from the buyer viewpoint)
 
         bytes32 sellerSysId;               // TODO QUESTION - how does this get specified? contract managed, global id of the seller system
+        bytes32 sellerCorrelationId        // seller system managed, used to correlate e.g. a shopping cart from the UI (which could hold postal address) with a on-chain PO creation request (which does not have postal address)
         bytes32 sellerViewCustomerId;      // [B2B only] seller system managed, customer (the buyer from the seller viewpoint)
 
         uint poCreateDate;                 // buyer UI managed, po creation unix timestamp
