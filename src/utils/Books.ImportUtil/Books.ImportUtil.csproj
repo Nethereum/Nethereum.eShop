@@ -9,13 +9,12 @@
 
   <ItemGroup>
     <PackageReference Include="CsvHelper" Version="12.2.3" />
+    <PackageReference Include="Ipfs.Http.Client" Version="0.33.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Ipfs">
-      <HintPath>..\..\..\Books.ImportUtil\lib\Ipfs.dll</HintPath>
-    </Reference>
+    <Folder Include="lib\" />
   </ItemGroup>
 
 </Project>
