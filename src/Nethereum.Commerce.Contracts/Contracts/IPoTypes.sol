@@ -25,14 +25,10 @@ interface IPoTypes
 
         address buyerAddress;              // contract managed, buyer EoA address holding currency and "owner" of the PO
         address buyerWalletAddress;        // contract managed, buyer wallet contract address, needed to locate contract when sending events from PoMain contract        
-        bytes32 buyerSysId;                // [B2B only] contract managed, global id of the buyer system
-        bytes32 buyerPurchaseOrderNumber;  // [B2B only] buyer system managed
-        bytes32 buyerViewVendorId;         // [B2B only] buyer system managed, vendor (the seller from the buyer viewpoint)
-
+        
         bytes32 sellerSysId;               // TODO QUESTION - how does this get specified? contract managed, global id of the seller system
         bytes32 sellerCorrelationId        // seller system managed, used to correlate e.g. a shopping cart from the UI (which could hold postal address) with a on-chain PO creation request (which does not have postal address)
-        bytes32 sellerViewCustomerId;      // [B2B only] seller system managed, customer (the buyer from the seller viewpoint)
-
+        
         uint poCreateDate;                 // buyer UI managed, po creation unix timestamp
         
         PoItem poItems[];                  // dynamic array of po items, TODO impose configurable max of eg 16, low enough that contract can iterate all
@@ -44,11 +40,9 @@ interface IPoTypes
         
         bytes32 soNumber                   // seller system (eg eShop) managed (any numbering allowed, could be same as PO number and PO item)
         bytes32 soItemNumer                // seller system (eg eShop) managed (any numbering allowed, could be same as PO number and PO item)
-        
-        bytes32 buyerProductId;            // [B2B only] buyer system managed, material that represents productId (if different)
-        bytes32 productId;                 // buyer UI managed, product id from product registry
-        bytes32 sellerProductId;           // [B2B only] seller system managed, material that represents productId (if different)        
                 
+        bytes32 productId;                 // buyer UI managed, product id from product registry
+                        
         uint32 quantity;                   // buyer UI managed, regular quantity, eg 4
         bytes32 unit;                      // buyer UI managed, regular quantity units, eg PC pieces (TODO are there ISO codes for this?)        
         bytes32 quantityErc20Symbol;       // TODO who manages, symbol of the ERC20 that represents this productId (assume token quantity same as quantity above)
