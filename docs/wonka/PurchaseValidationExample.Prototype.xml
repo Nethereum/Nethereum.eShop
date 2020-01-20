@@ -20,7 +20,7 @@
                    <eval id="dm1">(N.BuyerResidentCountry) IN (N.ProductSalesRightsList)</eval>
                </criteria>
 
-               <failure_message>ERROR!  Buyer did not have sales rights for item.</failure_message>
+               <failure_message>ERROR!  Sales rights for item do not exist in buyer's country of residence.</failure_message>
                <success_message/>
            </validate>           
        </if>
