@@ -1,0 +1,58 @@
+' PlantUML Diagram
+@startuml
+title __PO Create__
+' Swimlanes
+|eShop UI|
+|eShop Backend|
+|eShop Admin UI|
+|#AntiqueWhite|Contracts| 
+
+|eShop UI|
+start
+:Request **PO** Creation;
+
+|eShop Backend|
+:**PO Draft** Created
+(with postal address).;
+:Inform user **PO** has
+been requested.;
+
+|eShop UI|
+:User Sees: **PO** Status Requested
+on all items;
+
+|Contracts| 
+:**PO** Created
+(without postal address).
+(Function: PoCreate());
+:**PO** Funded, DAI are
+in Escrow contract.;
+:Emit Events; 
+
+|eShop Backend|
+:Correlate the **PO Draft** (with postal address) and
+the on-chain **PO** (without postal address);
+:Create **Sales Order**;
+
+|eShop Admin UI|
+:Approve or Reject
+**Sales Order**;
+
+|Contracts|
+:Update **PO** status on all items.
+(Function: PoApproved());
+:(Possibly) add **Sales Order**;
+:Emit Events;
+
+|eShop Backend|
+:Inform user **PO** has been
+approved or rejected;
+
+|eShop UI|
+:User Sees: **PO** Status
+Approved or Rejected
+on all items;
+
+stop
+
+@enduml
