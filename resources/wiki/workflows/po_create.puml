@@ -23,7 +23,8 @@ on all items;
 
 |Contracts| 
 :**PO** Created
-(without postal address).
+(without postal address)
+(with buyer system id)
 (Function: PoCreate());
 :**PO** Funded, DAI are
 in Escrow contract.;
