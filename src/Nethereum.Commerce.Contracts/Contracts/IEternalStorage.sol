@@ -3,10 +3,6 @@ pragma experimental ABIEncoderV2;
 
 interface IEternalStorage
 {
-    // Governance
-    function bindAddress(address a) external;
-    function unBindAddress(address a) external;
-    
     // Base Types
     function getInt256Value(bytes32 key) external view returns (int256);
     function setInt256Value(bytes32 key, int256 value) external;

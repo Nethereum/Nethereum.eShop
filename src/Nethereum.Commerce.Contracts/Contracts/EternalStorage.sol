@@ -2,20 +2,13 @@ pragma solidity ^0.6.1;
 
 import "./IEternalStorage.sol";
 import "./Ownable.sol";
+import "./Bindable.sol";
 
 /// @title Eternal Storage
 /// @dev A key value storage container for contracts.
 /// Allows the bound contracts to be upgraded whilst maintaining storage data
-contract EternalStorage is IEternalStorage, Ownable
+contract EternalStorage is IEternalStorage, Ownable, Bindable
 {
-    // Governance - Bound addresses are able to call storage functions
-    event AddressBound(address indexed a);
-    event AddressUnBound(address indexed a);
-    event AddressAlreadyBound(address indexed a);
-    event AddressAlreadyUnBound(address indexed a);
-    mapping(address => bool) public BoundAddresses;
-    int public BoundAddressCount;
- 
     // Storage
     mapping(bytes32 => uint256) private UIntStorage;
     mapping(bytes32 => int) private IntStorage;
@@ -29,53 +22,6 @@ contract EternalStorage is IEternalStorage, Ownable
     mapping(bytes32 => mapping(bytes32 => bytes32)) private MappingBytes32ToBytes32Storage;
     mapping(bytes32 => mapping(bytes32 => address)) private MappingBytes32ToAddressStorage;
     mapping(bytes32 => mapping(bytes32 => bool)) private MappingBytes32ToBoolStorage;
-
-    //-------------------------------------------------------------------------------------------
-    // Governance functions
-    //-------------------------------------------------------------------------------------------
-    /// @dev Modifier throws if sender is not owner and not a bound contract address
-    modifier onlyRegisteredCaller()
-    {
-        if (msg.sender == owner() || BoundAddresses[msg.sender] )
-        {
-           _;    
-        }
-        else
-        {
-            revert("Only contract owner or a bound address may call this function.");
-        }
-    }
-
-    /// @dev Binds the eternal storage contract to a specific address
-    /// @param a the contract address to attach to
-    function bindAddress(address a) override onlyOwner() public
-    {
-        if (BoundAddresses[a])
-        {
-            emit AddressAlreadyBound(a);
-        }
-        else
-        {
-            BoundAddresses[a] = true;
-            BoundAddressCount++;
-            emit AddressBound(a);
-        }
-    }
-
-    /// @dev Un-binds the eternal storage contract from the specified address
-    function unBindAddress(address a) override onlyOwner() public
-    {
-        if (BoundAddresses[a])
-        {
-            BoundAddresses[a] = false;
-            BoundAddressCount--;
-            emit AddressUnBound(a);
-        }
-        else
-        {
-            emit AddressAlreadyUnBound(a);
-        }
-    }
 
     //-------------------------------------------------------------------------------------------
     // Storage functions
