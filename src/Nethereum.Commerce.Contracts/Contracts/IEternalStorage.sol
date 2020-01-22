@@ -4,7 +4,6 @@ pragma experimental ABIEncoderV2;
 interface IEternalStorage
 {
     // Governance
-    function isAddressBound(address a) external view returns (bool isBound);
     function bindAddress(address a) external;
     function unBindAddress(address a) external;
     

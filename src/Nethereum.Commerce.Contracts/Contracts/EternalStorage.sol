@@ -8,15 +8,14 @@ import "./Ownable.sol";
 /// Allows the bound contracts to be upgraded whilst maintaining storage data
 contract EternalStorage is IEternalStorage, Ownable
 {
-    // Governance - Bound Addresses are able to call storage functions
+    // Governance - Bound addresses are able to call storage functions
     event AddressBound(address indexed a);
     event AddressUnBound(address indexed a);
-    mapping(address => bool) private BoundAddresses;
+    event AddressAlreadyBound(address indexed a);
+    event AddressAlreadyUnBound(address indexed a);
+    mapping(address => bool) public BoundAddresses;
+    int public BoundAddressCount;
  
-    // Field names
-    bytes constant private CONTRACT_ADDRESS = "contract.address";
-    bytes constant private CONTRACT_STORAGE_INITIALISED = "contract.storage.initialised";
-
     // Storage
     mapping(bytes32 => uint256) private UIntStorage;
     mapping(bytes32 => int) private IntStorage;
@@ -37,7 +36,7 @@ contract EternalStorage is IEternalStorage, Ownable
     /// @dev Modifier throws if sender is not owner and not a bound contract address
     modifier onlyRegisteredCaller()
     {
-        if (msg.sender == owner() || isAddressBound(msg.sender))
+        if (msg.sender == owner() || BoundAddresses[msg.sender] )
         {
            _;    
         }
@@ -46,25 +45,36 @@ contract EternalStorage is IEternalStorage, Ownable
             revert("Only contract owner or a bound address may call this function.");
         }
     }
-    
-    function isAddressBound(address a) override public view returns (bool isBound)
-    {
-        return BoundAddresses[a];
-    }
-    
+
     /// @dev Binds the eternal storage contract to a specific address
     /// @param a the contract address to attach to
     function bindAddress(address a) override onlyOwner() public
     {
-        BoundAddresses[a] = true;
-        emit AddressBound(a);
+        if (BoundAddresses[a])
+        {
+            emit AddressAlreadyBound(a);
+        }
+        else
+        {
+            BoundAddresses[a] = true;
+            BoundAddressCount++;
+            emit AddressBound(a);
+        }
     }
 
     /// @dev Un-binds the eternal storage contract from the specified address
     function unBindAddress(address a) override onlyOwner() public
     {
-        BoundAddresses[a] = false;
-        emit AddressUnBound(a);
+        if (BoundAddresses[a])
+        {
+            BoundAddresses[a] = false;
+            BoundAddressCount--;
+            emit AddressUnBound(a);
+        }
+        else
+        {
+            emit AddressAlreadyUnBound(a);
+        }
     }
 
     //-------------------------------------------------------------------------------------------
