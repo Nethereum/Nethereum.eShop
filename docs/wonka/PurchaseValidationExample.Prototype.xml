@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<RuleTree xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+   <if description="Start a new sales transaction">
+      <criteria op="AND">
+         <eval id="pop1">(N.NewSalesTransSeq) POPULATED</eval>
+      </criteria>
+
+      <if description="Check the input values">
+           <criteria op="AND">
+               <eval id="pop2">(N.ProductEAN) POPULATED</eval>
+               <eval id="pop3">(N.ProductSalesRightsList) POPULATED</eval>               
+               <eval id="pop4">(N.Buyer) POPULATED</eval>
+               <eval id="pop5">(N.BuyerResidentCountry) POPULATED</eval>               
+           </criteria>
+
+           <validate err="severe">
+               <criteria op="OR">
+                   <eval id="eq1">(N.ProductSalesRightsList) == ('WORLD')</eval>
+                   <eval id="dm1">(N.BuyerResidentCountry) IN (N.ProductSalesRightsList)</eval>
+               </criteria>
+
+               <failure_message>ERROR!  Sales rights for item do not exist in buyer's country of residence.</failure_message>
+               <success_message/>
+           </validate>           
+       </if>
+
+   </if>    
+    
+</RuleTree>
