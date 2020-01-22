@@ -1,14 +1,18 @@
-pragma solidity ^0.5.3;
+pragma solidity ^0.6.1;
 
 import "./IEternalStorage.sol";
-import "./Claimable.sol";
-import "./IAddressRegistry.sol";
+import "./Ownable.sol";
 
 /// @title Eternal Storage
 /// @dev A key value storage container for contracts.
-/// Allows the bound contract to be upgraded whilst maintaining storage data
-contract EternalStorage is IEternalStorage, Claimable
+/// Allows the bound contracts to be upgraded whilst maintaining storage data
+contract EternalStorage is IEternalStorage, Ownable
 {
+    // Governance - Bound Addresses are able to call storage functions
+    event AddressBound(address indexed a);
+    event AddressUnBound(address indexed a);
+    mapping(address => bool) private BoundAddresses;
+ 
     // Field names
     bytes constant private CONTRACT_ADDRESS = "contract.address";
     bytes constant private CONTRACT_STORAGE_INITIALISED = "contract.storage.initialised";
@@ -27,171 +31,157 @@ contract EternalStorage is IEternalStorage, Claimable
     mapping(bytes32 => mapping(bytes32 => address)) private MappingBytes32ToAddressStorage;
     mapping(bytes32 => mapping(bytes32 => bool)) private MappingBytes32ToBoolStorage;
 
-    /// @dev Modifier throws when A: is initialised and sender isn't the bound contract address.  B: not initialised and sender is not owner.
+    //-------------------------------------------------------------------------------------------
+    // Governance functions
+    //-------------------------------------------------------------------------------------------
+    /// @dev Modifier throws if sender is not owner and not a bound contract address
     modifier onlyRegisteredCaller()
     {
-        //TODO
-        //if(getStorageInitialised()) {
-        //    require(getContractAddress() == msg.sender, "Once storage is initialised - only the contract address can invoke this function");
-        //}
-        //else{
-        //    require(msg.sender == owner, "Until the storage is initialised - only the owner can invoke this function");
-        //}
-        _;
+        if (msg.sender == owner() || isAddressBound(msg.sender))
+        {
+           _;    
+        }
+        else
+        {
+            revert("Only contract owner or a bound address may call this function.");
+        }
     }
-
-    /// @dev Binds the eternal storage contract to a specific calling contract
-    /// @param _contractAddress the contract address to attach to
-    function bindToContract(address _contractAddress) onlyOwner() public
+    
+    function isAddressBound(address a) override public view returns (bool isBound)
     {
-        setContractAddress(_contractAddress);
-        setStorageInitialised(true);
+        return BoundAddresses[a];
     }
-
-    /// @dev Un-Binds the eternal storage contract from the calling contract - returning control to the owner
-    function unBindFromContract() onlyOwner() public
+    
+    /// @dev Binds the eternal storage contract to a specific address
+    /// @param a the contract address to attach to
+    function bindAddress(address a) override onlyOwner() public
     {
-        setContractAddress(address(0));
-        setStorageInitialised(false);
+        BoundAddresses[a] = true;
+        emit AddressBound(a);
     }
 
-    /// @dev Binds the eternal storage to a specific contract.
-    /// @param _address the contract address to attach to
-    function setContractAddress(address _address) onlyOwner() private
+    /// @dev Un-binds the eternal storage contract from the specified address
+    function unBindAddress(address a) override onlyOwner() public
     {
-        AddressStorage[keccak256(CONTRACT_ADDRESS)] = _address;
+        BoundAddresses[a] = false;
+        emit AddressUnBound(a);
     }
 
-    /// @dev Returns the contract address the eternal storage is bound to.
-    function getContractAddress() public view returns (address)
-    {
-        return AddressStorage[keccak256(CONTRACT_ADDRESS)];
-    }
-
-    /// @dev Setting the storage as initialized prevents anyone but the contract address calling setters.
-    /// @param _initialised A bool flag to indicate whether or not the storage should be initialised.
-    function setStorageInitialised(bool _initialised) private
-    {
-        BooleanStorage[keccak256(CONTRACT_STORAGE_INITIALISED)] = _initialised;
-    }
-
-    function getStorageInitialised() public view returns (bool)
-    {
-        return BooleanStorage[keccak256(CONTRACT_STORAGE_INITIALISED)];
-    }
-
-    function getInt256Value(bytes32 key) public view returns (int256)
+    //-------------------------------------------------------------------------------------------
+    // Storage functions
+    //-------------------------------------------------------------------------------------------
+    function getInt256Value(bytes32 key) override public view returns (int256)
     {
         return IntStorage[key];
     }
 
-    function setInt256Value(bytes32 key, int256 value) onlyRegisteredCaller() public
+    function setInt256Value(bytes32 key, int256 value) onlyRegisteredCaller() override public
     {
         IntStorage[key] = value;
     }
     
-    function getUint256Value(bytes32 key) public view returns (uint256)
+    function getUint256Value(bytes32 key) override public view returns (uint256)
     {
         return UIntStorage[key];
     }
 
-    function setUint256Value(bytes32 key, uint256 value) onlyRegisteredCaller() public
+    function setUint256Value(bytes32 key, uint256 value) onlyRegisteredCaller() override public
     {
         UIntStorage[key] = value;
     }
 
-    function getStringValue(bytes32 key)  public view returns (string memory)
+    function getStringValue(bytes32 key) override public view returns (string memory)
     {
         return StringStorage[key];
     }
 
-    function setStringValue(bytes32 key, string memory value) onlyRegisteredCaller() public
+    function setStringValue(bytes32 key, string memory value) onlyRegisteredCaller() override public
     {
         StringStorage[key] = value;
     }
 
-    function getAddressValue(bytes32 key)  public view returns (address)
+    function getAddressValue(bytes32 key) override public view returns (address)
     {
         return AddressStorage[key];
     }
 
-    function setAddressValue(bytes32 key, address value) onlyRegisteredCaller() public
+    function setAddressValue(bytes32 key, address value) onlyRegisteredCaller() override public
     {
         AddressStorage[key] = value;
     }
 
-    function getBytes32Value(bytes32 key)  public view returns (bytes32)
+    function getBytes32Value(bytes32 key) override public view returns (bytes32)
     {
         return BytesStorage[key];
     }
 
-    function setBytes32Value(bytes32 key, bytes32 value) onlyRegisteredCaller() public
+    function setBytes32Value(bytes32 key, bytes32 value) onlyRegisteredCaller() override public
     {
         BytesStorage[key] = value;
     }
 
-    function getBooleanValue(bytes32 key)  public view returns (bool)
+    function getBooleanValue(bytes32 key) override public view returns (bool)
     {
         return BooleanStorage[key];
     }
 
-    function setBooleanValue(bytes32 key, bool value) onlyRegisteredCaller() public
+    function setBooleanValue(bytes32 key, bool value) onlyRegisteredCaller() override public
     {
         BooleanStorage[key] = value;
     }
 
     /// @param storageKey identifies what mapping to use in storage
     /// @param mappingKey identifies what mapping KEY to use inside the mapping identified by storageKey
-    function getMappingBytes32ToUint256Value(bytes32 storageKey, bytes32 mappingKey)  public view returns (uint256)
+    function getMappingBytes32ToUint256Value(bytes32 storageKey, bytes32 mappingKey) override public view returns (uint256)
     {
         return MappingBytes32ToUintStorage[storageKey][mappingKey];
     }
 
     /// @param storageKey identifies what mapping to use in storage
     /// @param mappingKey identifies what mapping KEY to use inside the mapping identified by storageKey
-    function setMappingBytes32ToUint256Value(bytes32 storageKey, bytes32 mappingKey, uint256 value) onlyRegisteredCaller() public
+    function setMappingBytes32ToUint256Value(bytes32 storageKey, bytes32 mappingKey, uint256 value) onlyRegisteredCaller() override public
     {
         MappingBytes32ToUintStorage[storageKey][mappingKey] = value;
     }
 
     /// @param storageKey identifies what mapping to use in storage
     /// @param mappingKey identifies what mapping KEY to use inside the mapping identified by storageKey
-    function getMappingBytes32ToBytes32Value(bytes32 storageKey, bytes32 mappingKey) public view returns (bytes32)
+    function getMappingBytes32ToBytes32Value(bytes32 storageKey, bytes32 mappingKey) override public view returns (bytes32)
     {
         return MappingBytes32ToBytes32Storage[storageKey][mappingKey];
     }
 
     /// @param storageKey identifies what mapping to use in storage
     /// @param mappingKey identifies what mapping KEY to use inside the mapping identified by storageKey
-    function setMappingBytes32ToBytes32Value(bytes32 storageKey, bytes32 mappingKey, bytes32 value) public
+    function setMappingBytes32ToBytes32Value(bytes32 storageKey, bytes32 mappingKey, bytes32 value) onlyRegisteredCaller() override public
     {
         MappingBytes32ToBytes32Storage[storageKey][mappingKey] = value;
     }
 
     /// @param storageKey identifies what mapping to use in storage
     /// @param mappingKey identifies what mapping KEY to use inside the mapping identified by storageKey
-    function getMappingBytes32ToAddressValue(bytes32 storageKey, bytes32 mappingKey) public view returns (address)
+    function getMappingBytes32ToAddressValue(bytes32 storageKey, bytes32 mappingKey) override public view returns (address)
     {
         return MappingBytes32ToAddressStorage[storageKey][mappingKey];
     }
 
     /// @param storageKey identifies what mapping to use in storage
     /// @param mappingKey identifies what mapping KEY to use inside the mapping identified by storageKey
-    function setMappingBytes32ToAddressValue(bytes32 storageKey, bytes32 mappingKey, address value) public
+    function setMappingBytes32ToAddressValue(bytes32 storageKey, bytes32 mappingKey, address value) onlyRegisteredCaller() override public
     {
         MappingBytes32ToAddressStorage[storageKey][mappingKey] = value;
     }
 
     /// @param storageKey identifies what mapping to use in storage
     /// @param mappingKey identifies what mapping KEY to use inside the mapping identified by storageKey
-    function getMappingBytes32ToBoolValue(bytes32 storageKey, bytes32 mappingKey) public view returns (bool)
+    function getMappingBytes32ToBoolValue(bytes32 storageKey, bytes32 mappingKey) override public view returns (bool)
     {
         return MappingBytes32ToBoolStorage[storageKey][mappingKey];
     }
 
     /// @param storageKey identifies what mapping to use in storage
     /// @param mappingKey identifies what mapping KEY to use inside the mapping identified by storageKey
-    function setMappingBytes32ToBoolValue(bytes32 storageKey, bytes32 mappingKey, bool value) public
+    function setMappingBytes32ToBoolValue(bytes32 storageKey, bytes32 mappingKey, bool value) onlyRegisteredCaller() override public
     {
         MappingBytes32ToBoolStorage[storageKey][mappingKey] = value;
     }
