@@ -12,9 +12,10 @@ namespace Nethereum.eShop.ApplicationCore.Entities.OrderAggregate
             // required by EF
         }
 
-        public Order(string buyerId, Address shipToAddress, List<OrderItem> items)
+        public Order(string buyerId, Address billToAddress, Address shipToAddress, List<OrderItem> items)
         {
             Guard.Against.NullOrEmpty(buyerId, nameof(buyerId));
+            Guard.Against.Null(billToAddress, nameof(billToAddress));
             Guard.Against.Null(shipToAddress, nameof(shipToAddress));
             Guard.Against.Null(items, nameof(items));
 
@@ -22,10 +23,24 @@ namespace Nethereum.eShop.ApplicationCore.Entities.OrderAggregate
             ShipToAddress = shipToAddress;
             _orderItems = items;
         }
-        public string BuyerId { get; private set; }
+        public string BuyerId { get; private set; } //ethereum address
+
+        public long PurchaseOrderNumber { get; private set; }
+
+        public long BuyerNonce { get; set; } // po order counter per buyer
+
+        public string BuyerWallet { get; set; } // buyer wallet address
+
+        public string SellerSysId { get; set; } // eshop id - allow multiple shops to use same order table?
+
+        public DateTimeOffset PurchaseOrderDate { get; set; }
 
         public DateTimeOffset OrderDate { get; private set; } = DateTimeOffset.Now;
+
+        public Address BillToAddress { get; private set; }
         public Address ShipToAddress { get; private set; }
+
+
 
         // DDD Patterns comment
         // Using a private collection field, better for DDD Aggregate's encapsulation
@@ -44,7 +59,7 @@ namespace Nethereum.eShop.ApplicationCore.Entities.OrderAggregate
             var total = 0m;
             foreach (var item in _orderItems)
             {
-                total += item.UnitPrice * item.Units;
+                total += item.UnitPrice * item.Quantity;
             }
             return total;
         }

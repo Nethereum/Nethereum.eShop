@@ -36,7 +36,7 @@ namespace Nethereum.eShop.Web.Features.OrderDetails
                     ProductId = oi.ItemOrdered.CatalogItemId,
                     ProductName = oi.ItemOrdered.ProductName,
                     UnitPrice = oi.UnitPrice,
-                    Units = oi.Units
+                    Units = oi.Quantity
                 }).ToList(),
                 OrderNumber = order.Id,
                 ShippingAddress = order.ShipToAddress,
