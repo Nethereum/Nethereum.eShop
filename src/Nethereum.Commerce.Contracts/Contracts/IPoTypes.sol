@@ -30,12 +30,12 @@ interface IPoTypes
 
         bytes32 productId;                 // buyer UI managed, product id from product registry
 
-        uint32 quantity;                   // buyer UI managed, regular quantity, eg 4
+        uint quantity;                     // buyer UI managed, regular quantity, eg 4
         bytes32 unit;                      // buyer UI managed, regular quantity units, eg PC pieces (TODO are there ISO codes for this?)        
         bytes32 quantityErc20Symbol;       // TODO who manages, symbol of the ERC20 that represents this productId (assume token quantity same as quantity above)
         address quantityErc20Address;      // TODO who manages, contract address of the ERC20 that represents this productId
 
-        uint32 value;                      // buyer UI managed, value in the units of the ERC20 that is making the payment eg DAI has token precision 18, so 1120000000000000000 DAI is 1.12 USD
+        uint value;                        // buyer UI managed, value in the units of the ERC20 that is making the payment eg DAI has token precision 18, so 1120000000000000000 DAI is 1.12 USD
         bytes32 currencyErc20Symbol;       // buyer UI managed, symbol of the ERC20 that is making payment, eg DAI
         address currencyErc20Address;      // buyer UI managed, contract address of the ERC20 that is making payment 
 
