@@ -14,24 +14,31 @@ import "./StringConvertible.sol";
 contract PoStorage is IPoStorage, Ownable, Bindable, StringConvertible
 {
     // PO record field names
-    string constant private ETH_PO_NUMBER = "ethPurchaseOrderNumber";
-    string constant private BUYER_SYS_ID = "buyerSysId";
-    string constant private BUYER_PO_NUMBER = "buyerPurchaseOrderNumber";
-    string constant private BUYER_VIEW_VENDOR_ID = "buyerViewVendorId";
+    // Header
+    string constant private PO_NUMBER = "poNumber";
+    string constant private BUYER_ADDRESS = "buyerAddress";
+    string constant private BUYER_WALLET_ADDRESS = "buyerWalletAddress";
+    string constant private BUYER_NONCE = "buyerNonce";
     string constant private SELLER_SYS_ID = "sellerSysId";
-    string constant private SELLER_SO_NUMBER = "sellerSalesOrderNumber";
-    string constant private SELLER_VIEW_CUSTOMER_ID = "sellerViewCustomerId";
-    string constant private BUYER_PRODUCT_ID = "buyerProductId";
-    string constant private SELLER_PRODUCT_ID = "sellerProductId";
-    string constant private CURRENCY = "currency";
-    string constant private CURRENCY_ADDRESS = "currencyAddress";
-    string constant private TOTAL_QUANTITY = "totalQuantity";
-    string constant private TOTAL_VALUE = "totalValue";
-    string constant private OPEN_INVOICE_QUANTITY = "openInvoiceQuantity";
-    string constant private OPEN_INVOICE_VALUE = "openInvoiceValue";
-    string constant private PO_STATUS = "poStatus";
-    string constant private WI_PROCESS_STATUS = "wiProcessStatus";
+    string constant private PO_CREATE_DATE = "poCreateDate";
 
+    // Line Items
+    string constant private PO_ITEM_NUMBER = "poItemNumber";
+    string constant private SO_NUMBER = "soNumber";
+    string constant private SO_ITEM_NUMBER = "soItemNumber";
+    string constant private PRODUCT_ID = "productId";
+    string constant private QUANTITY = "quantity";
+    string constant private UNIT = "unit";
+    string constant private QUANTITY_ERC20_SYMBOL = "quantityErc20Symbol";
+    string constant private QUANTITY_ERC20_ADDRESS = "quantityErc20Address";
+    string constant private VALUE = "value";
+    string constant private CURRENCY_ERC20_SYMBOL = "currencyErc20Symbol";
+    string constant private CURRENCY_ERC20_ADDRESS = "currencyErc20Address";
+    string constant private STATUS = "status";
+    string constant private GOODS_ISSUE_DATE = "goodsIssueDate";
+    string constant private ESCROW_RELEASE_DATE = "escrowReleaseDate";
+    string constant private CANCEL_STATUS = "cancelStatus";
+    
     // Number range field names
     string constant private PO_GLOBAL_NUMBER = "po.global.number";
 
@@ -141,13 +148,12 @@ contract PoStorage is IPoStorage, Ownable, Bindable, StringConvertible
 
     function setPo(IPoTypes.Po memory po) override public
     {
-        IPoTypes.PoItem memory poItem;
-        bytes32 lineItemMappingKey = keccak256(abi.encodePacked(po.poNumber, poItem.poItemNumber));
-        
         // Update main PO storage
-        /*
-        eternalStorage.setUint256Value(keccak256(abi.encodePacked(po.ethPurchaseOrderNumber, ETH_PO_NUMBER)), po.ethPurchaseOrderNumber);
+        // Header
+        
+        eternalStorage.setUint256Value(keccak256(abi.encodePacked(po.poNumber, PO_NUMBER)), po.poNumber);
 
+        /*
         eternalStorage.setBytes32Value(keccak256(abi.encodePacked(po.ethPurchaseOrderNumber, BUYER_SYS_ID)), po.buyerSysId);
         eternalStorage.setBytes32Value(keccak256(abi.encodePacked(po.ethPurchaseOrderNumber, BUYER_PO_NUMBER)), po.buyerPurchaseOrderNumber);
         eternalStorage.setBytes32Value(keccak256(abi.encodePacked(po.ethPurchaseOrderNumber, BUYER_VIEW_VENDOR_ID)), po.buyerViewVendorId);
@@ -169,7 +175,20 @@ contract PoStorage is IPoStorage, Ownable, Bindable, StringConvertible
 
         eternalStorage.setUint256Value(keccak256(abi.encodePacked(po.ethPurchaseOrderNumber, PO_STATUS)), uint256(po.poStatus));
         eternalStorage.setUint256Value(keccak256(abi.encodePacked(po.ethPurchaseOrderNumber, WI_PROCESS_STATUS)), uint256(po.wiProcessStatus));
-
+        */
+        
+        // Line Items
+        uint len = po.poItems.length;
+        for (uint i = 0; i < len; i++)
+        {
+            bytes32 lineItemKey = keccak256(abi.encodePacked(po.poNumber, po.poItems[i].poItemNumber));
+            eternalStorage.setUint256Value(lineItemKey, po.poItems[i].poItemNumber);
+            
+        }
+        
+        
+        
+        /*
         // Update mappings (indexes)
         bytes32 mappingKey = keccak256(abi.encodePacked(po.buyerSysId, po.buyerPurchaseOrderNumber));
         eternalStorage.setMappingBytes32ToUint256Value(stringToBytes32(MAP_BUYER_PO_TO_ETH_PO), mappingKey,

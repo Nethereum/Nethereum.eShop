@@ -26,7 +26,7 @@ interface IPoTypes
         uint8 poItemNumber;                // contract managed, PO item key
 
         bytes32 soNumber;                  // seller system (eg eShop) managed (any numbering allowed, could be same as PO number and PO item)
-        bytes32 soItemNumer;               // seller system (eg eShop) managed (any numbering allowed, could be same as PO number and PO item)
+        bytes32 soItemNumber;              // seller system (eg eShop) managed (any numbering allowed, could be same as PO number and PO item)
 
         bytes32 productId;                 // buyer UI managed, product id from product registry
 
