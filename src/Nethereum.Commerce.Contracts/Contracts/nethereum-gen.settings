@@ -2,6 +2,6 @@
     "projectName": "Nethereum.Commerce.Contracts",
     "namespace": "Nethereum.Commerce.Contracts",
     "lang": 0,
-    "autoCodeGen": true,
+    "autoCodeGen": false,
     "projectPath": "../"
 }
