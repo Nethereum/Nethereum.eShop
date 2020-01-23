@@ -21,3 +21,5 @@ Contract owner: 0x32A555F2328e85E489f9a5f03669DC820CE7EBe9
 | Eternal Storage | 0xf20a3d6e2f3f81cf69812d3ad175cd614004519c | https://oneclickdapp.com/tokyo-life/ |
 | Business Partner Storage | 0xd3f89e888985712393fb679eb2aa018245a82e10 | https://oneclickdapp.com/spend-marion/ |
 | PO Storage |  |  |
+|  |  |  |
+| Dynamic Array Test | 0xcbed36768d911e4947a45186afa456db4abab17f | https://oneclickdapp.com/vacuum-almanac |

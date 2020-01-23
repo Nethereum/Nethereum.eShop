@@ -5,6 +5,8 @@ import "./IPoTypes.sol";
 
 contract DynamicArrayTest 
 {
+    event PoLog(IPoTypes.Po po);
+    
     IPoTypes.Po poInStorage;
     
     function testStoringAPo(IPoTypes.Po memory po) public
@@ -32,18 +34,7 @@ contract DynamicArrayTest
         }
     }
     
-    function testReadingPoItemCount() public view returns (uint)
-    {
-        return poInStorage.poItems.length;
-    }
-    
-    function testGettingPoItem(uint i) public view returns (IPoTypes.PoItem memory item)
-    {
-        return poInStorage.poItems[i];
-    }
-    
-    // This fn should return value 3
-    function testPassingPoBetweenFunctions_Sender() public view returns (uint)
+    function testStoringADummyPo() public
     {
         IPoTypes.Po memory poToSend;
         
@@ -56,25 +47,37 @@ contract DynamicArrayTest
         // Items
         poToSend.poItems = new IPoTypes.PoItem[](3);
         
-        IPoTypes.PoItem memory poItemToSend;
-        poItemToSend.poItemNumber = 10;
-        poItemToSend.quantity = 400;
-        poToSend.poItems[0] = poItemToSend;
+        IPoTypes.PoItem memory poItemToSend0;
+        poItemToSend0.poItemNumber = 10;
+        poItemToSend0.quantity = 400;
+        poToSend.poItems[0] = poItemToSend0;
         
-        poItemToSend.poItemNumber = 20;
-        poItemToSend.quantity = 800;
-        poToSend.poItems[1] = poItemToSend;
+        IPoTypes.PoItem memory poItemToSend1;
+        poItemToSend1.poItemNumber = 20;
+        poItemToSend1.quantity = 800;
+        poToSend.poItems[1] = poItemToSend1;
         
-        poItemToSend.poItemNumber = 30;
-        poItemToSend.quantity = 1200;
-        poToSend.poItems[2] = poItemToSend;
+        IPoTypes.PoItem memory poItemToSend2;
+        poItemToSend2.poItemNumber = 30;
+        poItemToSend2.quantity = 1200;
+        poToSend.poItems[2] = poItemToSend2;
         
-        return testPassingPoBetweenFunctions_Receiver(poToSend);
+        testStoringAPo(poToSend);
     }
     
-    function testPassingPoBetweenFunctions_Receiver(IPoTypes.Po memory poPassedIn) public view returns (uint)
+    function testEmittingWholePoInLog() public
     {
-        return poPassedIn.poItems.length;
+        emit PoLog(poInStorage);
+    }
+    
+    function testReadingPoItemCount() public view returns (uint)
+    {
+        return poInStorage.poItems.length;
+    }
+    
+    function testGettingPoItem(uint i) public view returns (IPoTypes.PoItem memory item)
+    {
+        return poInStorage.poItems[i];
     }
     
 }
