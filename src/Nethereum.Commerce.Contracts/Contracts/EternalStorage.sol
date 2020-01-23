@@ -22,6 +22,7 @@ contract EternalStorage is IEternalStorage, Ownable, Bindable
     mapping(bytes32 => mapping(bytes32 => bytes32)) private MappingBytes32ToBytes32Storage;
     mapping(bytes32 => mapping(bytes32 => address)) private MappingBytes32ToAddressStorage;
     mapping(bytes32 => mapping(bytes32 => bool)) private MappingBytes32ToBoolStorage;
+    mapping(bytes32 => mapping(address => uint256)) private MappingAddressToUintStorage;
 
     //-------------------------------------------------------------------------------------------
     // Storage functions
@@ -140,5 +141,19 @@ contract EternalStorage is IEternalStorage, Ownable, Bindable
     function setMappingBytes32ToBoolValue(bytes32 storageKey, bytes32 mappingKey, bool value) onlyRegisteredCaller() override public
     {
         MappingBytes32ToBoolStorage[storageKey][mappingKey] = value;
+    }
+    
+    /// @param storageKey identifies what mapping to use in storage
+    /// @param mappingKey identifies what mapping KEY to use inside the mapping identified by storageKey
+    function getMappingAddressToUint256Value(bytes32 storageKey, address mappingKey) override public view returns (uint256)
+    {
+        return MappingAddressToUintStorage[storageKey][mappingKey];
+    }
+
+    /// @param storageKey identifies what mapping to use in storage
+    /// @param mappingKey identifies what mapping KEY to use inside the mapping identified by storageKey
+    function setMappingAddressToUint256Value(bytes32 storageKey, address mappingKey, uint256 value) onlyRegisteredCaller() override public
+    {
+        MappingAddressToUintStorage[storageKey][mappingKey] = value;
     }
 }

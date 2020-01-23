@@ -4,12 +4,14 @@ pragma experimental ABIEncoderV2;
 import "./IPoStorage.sol";
 import "./IEternalStorage.sol";
 import "./IAddressRegistry.sol";
+import "./Ownable.sol";
+import "./Bindable.sol";
 import "./StringConvertible.sol";
 
 /// @title Po Storage
 /// @dev Wraps eternal storage, provides PO get/set storage functions. Stateless, no business logic other than table lookups.
-/// @dev Offers a relation-db-like api over the key-value-pair eternal storage.
-contract PoStorage is IPoStorage, StringConvertible
+/// @dev Offers a table-like api over the key-value-pair eternal storage.
+contract PoStorage is IPoStorage, Ownable, Bindable, StringConvertible
 {
     // PO record field names
     string constant private ETH_PO_NUMBER = "ethPurchaseOrderNumber";
@@ -33,10 +35,9 @@ contract PoStorage is IPoStorage, StringConvertible
     // Number range field names
     string constant private PO_GLOBAL_NUMBER = "po.global.number";
 
-    // Mapping names
-    /// @dev Name of a mapping in eternal storage.
-    /// @dev This is used like an index, knowing hash(buyerid + buyerPO) return the EthPO number
-    string constant private MAP_BUYER_PO_TO_ETH_PO = "mapBuyerPoToEthPO";
+    // Names of mappings in eternal storage
+    // Mapping from a buyer address (type address) to their current nonce (uint)
+    string constant private MAP_ADDRESS_TO_NONCE = "mapAddressToNonce";
 
     IEternalStorage public eternalStorage;
     IAddressRegistry public addressRegistry;
@@ -48,48 +49,65 @@ contract PoStorage is IPoStorage, StringConvertible
 
     /// Configure contract
     /// @param nameOfEternalStorage key of the entry in the address registry that holds the eternal storage contract address
-    function configure(string memory nameOfEternalStorage) override public
+    function configure(string memory nameOfEternalStorage) onlyOwner() override public
     {
         // Eternal storage
         eternalStorage = IEternalStorage(addressRegistry.getAddressString(nameOfEternalStorage));
         require(address(eternalStorage) != address(0), "Could not find EternalStorage address in registry");
     }
-
-    function getEternalStorageAddress() public view returns (address eternalStorageAddress)
+    
+    //------------------------------------------------------------------------------------------
+    // Number ranges
+    //------------------------------------------------------------------------------------------
+    function incrementNonce(address a) onlyRegisteredCaller() override public
     {
-        return address(eternalStorage);
+        uint newNonce = getCurrentNonce(a);
+        newNonce++;
+        eternalStorage.setMappingAddressToUint256Value(stringToBytes32(MAP_ADDRESS_TO_NONCE), a, newNonce);
     }
 
-    function getCurrentPoNumber() override public view returns (uint64 poNumber)
+    function getCurrentNonce(address a) onlyRegisteredCaller() override public view returns (uint nonce)
     {
-        return uint64(eternalStorage.getUint256Value(keccak256(abi.encodePacked(PO_GLOBAL_NUMBER))));
+        nonce = eternalStorage.getMappingAddressToUint256Value(stringToBytes32(MAP_ADDRESS_TO_NONCE), a);
+    }
+
+    function getCurrentPoNumber() onlyRegisteredCaller() override public view returns (uint poNumber)
+    {
+        poNumber = uint(eternalStorage.getUint256Value(keccak256(abi.encodePacked(PO_GLOBAL_NUMBER))));
     }
     
     /// @dev gets next po number and then increments it for next caller
-    function getNextPoNumber() override public returns (uint64 poNumber)
+    function incrementPoNumber() onlyRegisteredCaller() override public
     {
-        uint64 currentPoNumber = getCurrentPoNumber();
+        uint currentPoNumber = getCurrentPoNumber();
         currentPoNumber++;
         setCurrentPoNumber(currentPoNumber);
-        return currentPoNumber;
     }
 
-    function setCurrentPoNumber(uint64 poNumber) private
+    function setCurrentPoNumber(uint poNumber) private
     {
         eternalStorage.setUint256Value(keccak256(abi.encodePacked(PO_GLOBAL_NUMBER)), poNumber);
     }
-
-    function getPoByBuyerPoNumber(bytes32 buyerSystemId, bytes32 buyerPoNumber) override public view returns (IPoTypes.Po memory po)
+    
+    //------------------------------------------------------------------------------------------
+    // PO data
+    //------------------------------------------------------------------------------------------
+    function getPoNumberByBuyerAddressAndNonce(address a, uint nonce) override public view returns (uint poNumber)
     {
-        // Use mapping index to get eth PO number from hash(buyer id + buyer po number)
-        bytes32 mappingKey = keccak256(abi.encodePacked(buyerSystemId, buyerPoNumber));
-        uint64 ethPoNumber = uint64(eternalStorage.getMappingBytes32ToUint256Value(stringToBytes32(MAP_BUYER_PO_TO_ETH_PO), mappingKey));
-
-        // Retrieve  PO
-        po = getPoByEthPoNumber(ethPoNumber);
+       return 4;   
     }
+    
+    //function getPoByBuyerPoNumber(bytes32 buyerSystemId, bytes32 buyerPoNumber) override public view returns (IPoTypes.Po memory po)
+    //{
+    //    //// Use mapping index to get eth PO number from hash(buyer id + buyer po number)
+    //    //bytes32 mappingKey = keccak256(abi.encodePacked(buyerSystemId, buyerPoNumber));
+    //    //uint64 ethPoNumber = uint64(eternalStorage.getMappingBytes32ToUint256Value(stringToBytes32(MAP_BUYER_PO_TO_ETH_PO), mappingKey));
+    //
+    //        // Retrieve  PO
+    //    //po = getPoByEthPoNumber(ethPoNumber);
+    //}
 
-    function getPoByEthPoNumber(uint64 ethPoNumber) override public view returns (IPoTypes.Po memory po)
+    function getPo(uint poNumber) override public view returns (IPoTypes.Po memory po)
     {
         //po = IPoTypes.Po
         //({
@@ -123,6 +141,9 @@ contract PoStorage is IPoStorage, StringConvertible
 
     function setPo(IPoTypes.Po memory po) override public
     {
+        IPoTypes.PoItem memory poItem;
+        bytes32 lineItemMappingKey = keccak256(abi.encodePacked(po.poNumber, poItem.poItemNumber));
+        
         // Update main PO storage
         /*
         eternalStorage.setUint256Value(keccak256(abi.encodePacked(po.ethPurchaseOrderNumber, ETH_PO_NUMBER)), po.ethPurchaseOrderNumber);

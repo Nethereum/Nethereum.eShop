@@ -34,4 +34,7 @@ interface IEternalStorage
 
     function getMappingBytes32ToBoolValue(bytes32 storageKey, bytes32 mappingKey) external view returns (bool);
     function setMappingBytes32ToBoolValue(bytes32 storageKey, bytes32 mappingKey, bool value) external;
+    
+    function getMappingAddressToUint256Value(bytes32 storageKey, address mappingKey) external view returns (uint256);
+    function setMappingAddressToUint256Value(bytes32 storageKey, address mappingKey, uint256 value) external;
 }

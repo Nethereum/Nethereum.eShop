@@ -18,6 +18,6 @@ Contract owner: 0x32A555F2328e85E489f9a5f03669DC820CE7EBe9
 | Contract Name | Address | Link to dApp | 
 |--|--|--|
 | Address Registry | 0x2d6efd93953ed8d5a8b2c6c01b2a603b4dc844e5 | https://oneclickdapp.com/giant-single/ |
-| Eternal Storage | 0x1b22f0b285beebf7e38908fc5737efd508aabef7 | https://oneclickdapp.com/info-melon/ |
-| Business Partner Storage | 0xd3f89e888985712393fb679eb2aa018245a82e10 | https://oneclickdapp.com/spend-marion |
+| Eternal Storage | 0xf20a3d6e2f3f81cf69812d3ad175cd614004519c | https://oneclickdapp.com/tokyo-life/ |
+| Business Partner Storage | 0xd3f89e888985712393fb679eb2aa018245a82e10 | https://oneclickdapp.com/spend-marion/ |
 | PO Storage |  |  |

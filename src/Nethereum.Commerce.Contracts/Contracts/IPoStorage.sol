@@ -8,12 +8,15 @@ interface IPoStorage
     function configure(string calldata nameOfEternalStorage) external;
 
     // PO number range
-    function getNextPoNumber() external returns (uint64 poNumber);
-    function getCurrentPoNumber() external view returns (uint64 poNumber);
+    function incrementNonce(address a) external;
+    function getCurrentNonce(address a) external view returns (uint nonce);
+    
+    function incrementPoNumber() external;
+    function getCurrentPoNumber() external view returns (uint poNumber);
 
     // PO documents
     function setPo(IPoTypes.Po calldata po) external;
-    function getPoByEthPoNumber(uint64 ethPoNumber) external view returns (IPoTypes.Po memory po);
-    function getPoByBuyerPoNumber(bytes32 buyerSystemId, bytes32 buyerPoNumber) external view returns (IPoTypes.Po memory po);
+    function getPo(uint poNumber) external view returns (IPoTypes.Po memory po);
+    function getPoNumberByBuyerAddressAndNonce(address a, uint nonce) external view returns (uint poNumber);
 }
 
