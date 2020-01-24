@@ -29,6 +29,9 @@ namespace Nethereum.Commerce.ContractDeployments.Console
                 var account = new Account(privateKey);
                 var web3 = new Web3.Web3(account, url);
 
+                //-----------------------------------------------------------------------------------
+                // Contract deployments
+                //-----------------------------------------------------------------------------------
                 // Deploy Address Registry
                 var contractName = CONTRACT_NAME_ADDRESS_REGISTRY;
                 System.Console.WriteLine($"Deploying {contractName}...");
@@ -59,6 +62,7 @@ namespace Nethereum.Commerce.ContractDeployments.Console
                 // Deploy PO Storage
 
 
+
                 //-----------------------------------------------------------------------------------
                 // Configure Address Registry
                 //-----------------------------------------------------------------------------------
@@ -75,6 +79,20 @@ namespace Nethereum.Commerce.ContractDeployments.Console
                 System.Console.WriteLine($"Config tx status: {r.Status.Value}");
 
                 // Add entry for PO storage
+
+
+                //-----------------------------------------------------------------------------------
+                // Configure BP Storage
+                //-----------------------------------------------------------------------------------
+                // call .configure
+                // and add some master data
+
+                //-----------------------------------------------------------------------------------
+                // Configure PO Storage
+                //-----------------------------------------------------------------------------------
+                // call .configure
+
+                // then separate test project
 
             }
             catch (Exception ex)
