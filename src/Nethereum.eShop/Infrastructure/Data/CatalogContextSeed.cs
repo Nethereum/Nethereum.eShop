@@ -18,6 +18,8 @@ namespace Nethereum.eShop.Infrastructure.Data
                 // TODO: Only run this if using a real database
                 // context.Database.Migrate();
 
+                //context.Database.ExecuteSqlCommand("SET IDENTITY_INSERT dbo.Students ON");
+
                 if (!catalogContext.CatalogBrands.Any())
                 {
                     catalogContext.CatalogBrands.AddRange(

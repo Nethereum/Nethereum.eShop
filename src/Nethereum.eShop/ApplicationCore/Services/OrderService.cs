@@ -30,6 +30,8 @@ namespace Nethereum.eShop.ApplicationCore.Services
             var items = new List<OrderItem>();
             foreach (var item in basket.Items)
             {
+                // TODO: Create purchase order
+
                 var catalogItem = await _itemRepository.GetByIdAsync(item.CatalogItemId);
                 var itemOrdered = new CatalogItemOrdered(catalogItem.Id, catalogItem.Name, catalogItem.PictureUri);
                 var orderItem = new OrderItem(itemOrdered, item.UnitPrice, item.Quantity);

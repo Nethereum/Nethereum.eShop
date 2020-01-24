@@ -1,13 +1,12 @@
-﻿namespace Nethereum.eShop.ApplicationCore.Entities
+﻿using Nethereum.eShop.ApplicationCore.Interfaces;
+
+namespace Nethereum.eShop.ApplicationCore.Entities
 {
-    public class StockItem: BaseEntity
+    public class StockItem: BaseEntity, IAggregateRoot
     {
-        public string GTIN { get; set; }
-        /// <summary>
-        /// warehouse, shop, shelf etc etc
-        /// </summary>
+        public CatalogItem CatalogItem { get; set; }
+        public int CatalogItemId { get; set; }
         public string Location { get; set; }
         public int Quantity { get; set; }
-
     }
 }

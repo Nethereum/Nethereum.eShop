@@ -23,15 +23,22 @@ namespace Nethereum.eShop.ApplicationCore.Entities.OrderAggregate
             ShipToAddress = shipToAddress;
             _orderItems = items;
         }
-        public string BuyerId { get; private set; } //ethereum address
+
+        /// <summary>
+        /// The Buyer Address
+        /// </summary>
+        public string BuyerId { get; private set; }
 
         public long PurchaseOrderNumber { get; private set; }
 
         public long BuyerNonce { get; set; } // po order counter per buyer
 
-        public string BuyerWallet { get; set; } // buyer wallet address
+        public string BuyerWalletAddress { get; set; } // buyer wallet address
 
-        public string SellerSysId { get; set; } // eshop id - allow multiple shops to use same order table?
+        /// <summary>
+        /// eShop Id - allow orders in the db to reference multiple shops
+        /// </summary>
+        public string SellerSysId { get; set; } 
 
         public DateTimeOffset PurchaseOrderDate { get; set; }
 
@@ -39,8 +46,6 @@ namespace Nethereum.eShop.ApplicationCore.Entities.OrderAggregate
 
         public Address BillToAddress { get; private set; }
         public Address ShipToAddress { get; private set; }
-
-
 
         // DDD Patterns comment
         // Using a private collection field, better for DDD Aggregate's encapsulation
