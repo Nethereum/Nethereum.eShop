@@ -13,7 +13,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "utils", "utils", "{11EFE1E8
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Books.ImportUtil", "utils\Books.ImportUtil\Books.ImportUtil.csproj", "{3A6E7DC1-79B8-41DE-B9AD-A5E60F7C9CA7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nethereum.Commerce.Contracts", "Nethereum.Commerce.Contracts\Nethereum.Commerce.Contracts.csproj", "{C22EF243-52C6-4976-8ADE-5504B40A37C3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nethereum.Commerce.Contracts", "contracts\Nethereum.Commerce.Contracts\Nethereum.Commerce.Contracts.csproj", "{C22EF243-52C6-4976-8ADE-5504B40A37C3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nethereum.Commerce.ContractDeployments.Console", "contracts\Nethereum.Commerce.ContractDeployments.Console\Nethereum.Commerce.ContractDeployments.Console.csproj", "{00A4F0A0-5BB2-45EA-8214-F0B901E9CDC0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "contracts", "contracts", "{5CC42B8D-582C-47C1-814A-E12B75FAC69E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,12 +41,18 @@ Global
 		{C22EF243-52C6-4976-8ADE-5504B40A37C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C22EF243-52C6-4976-8ADE-5504B40A37C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C22EF243-52C6-4976-8ADE-5504B40A37C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{00A4F0A0-5BB2-45EA-8214-F0B901E9CDC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{00A4F0A0-5BB2-45EA-8214-F0B901E9CDC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{00A4F0A0-5BB2-45EA-8214-F0B901E9CDC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{00A4F0A0-5BB2-45EA-8214-F0B901E9CDC0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{3A6E7DC1-79B8-41DE-B9AD-A5E60F7C9CA7} = {11EFE1E8-51CF-4528-BC17-545478FE3BD0}
+		{C22EF243-52C6-4976-8ADE-5504B40A37C3} = {5CC42B8D-582C-47C1-814A-E12B75FAC69E}
+		{00A4F0A0-5BB2-45EA-8214-F0B901E9CDC0} = {5CC42B8D-582C-47C1-814A-E12B75FAC69E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8BEA2189-D111-472E-BA29-993E206C6CE3}

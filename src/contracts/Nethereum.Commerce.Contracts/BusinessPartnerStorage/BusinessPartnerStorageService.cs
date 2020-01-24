@@ -42,6 +42,31 @@ namespace Nethereum.Commerce.Contracts.BusinessPartnerStorage
             ContractHandler = web3.Eth.GetContractHandler(contractAddress);
         }
 
+        public Task<BigInteger> BoundAddressCountQueryAsync(BoundAddressCountFunction boundAddressCountFunction, BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<BoundAddressCountFunction, BigInteger>(boundAddressCountFunction, blockParameter);
+        }
+
+        
+        public Task<BigInteger> BoundAddressCountQueryAsync(BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<BoundAddressCountFunction, BigInteger>(null, blockParameter);
+        }
+
+        public Task<bool> BoundAddressesQueryAsync(BoundAddressesFunction boundAddressesFunction, BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<BoundAddressesFunction, bool>(boundAddressesFunction, blockParameter);
+        }
+
+        
+        public Task<bool> BoundAddressesQueryAsync(string returnValue1, BlockParameter blockParameter = null)
+        {
+            var boundAddressesFunction = new BoundAddressesFunction();
+                boundAddressesFunction.ReturnValue1 = returnValue1;
+            
+            return ContractHandler.QueryAsync<BoundAddressesFunction, bool>(boundAddressesFunction, blockParameter);
+        }
+
         public Task<string> AddressRegistryQueryAsync(AddressRegistryFunction addressRegistryFunction, BlockParameter blockParameter = null)
         {
             return ContractHandler.QueryAsync<AddressRegistryFunction, string>(addressRegistryFunction, blockParameter);
@@ -51,6 +76,32 @@ namespace Nethereum.Commerce.Contracts.BusinessPartnerStorage
         public Task<string> AddressRegistryQueryAsync(BlockParameter blockParameter = null)
         {
             return ContractHandler.QueryAsync<AddressRegistryFunction, string>(null, blockParameter);
+        }
+
+        public Task<string> BindAddressRequestAsync(BindAddressFunction bindAddressFunction)
+        {
+             return ContractHandler.SendRequestAsync(bindAddressFunction);
+        }
+
+        public Task<TransactionReceipt> BindAddressRequestAndWaitForReceiptAsync(BindAddressFunction bindAddressFunction, CancellationTokenSource cancellationToken = null)
+        {
+             return ContractHandler.SendRequestAndWaitForReceiptAsync(bindAddressFunction, cancellationToken);
+        }
+
+        public Task<string> BindAddressRequestAsync(string a)
+        {
+            var bindAddressFunction = new BindAddressFunction();
+                bindAddressFunction.A = a;
+            
+             return ContractHandler.SendRequestAsync(bindAddressFunction);
+        }
+
+        public Task<TransactionReceipt> BindAddressRequestAndWaitForReceiptAsync(string a, CancellationTokenSource cancellationToken = null)
+        {
+            var bindAddressFunction = new BindAddressFunction();
+                bindAddressFunction.A = a;
+            
+             return ContractHandler.SendRequestAndWaitForReceiptAsync(bindAddressFunction, cancellationToken);
         }
 
         public Task<string> Bytes32ToStringQueryAsync(Bytes32ToStringFunction bytes32ToStringFunction, BlockParameter blockParameter = null)
@@ -133,6 +184,28 @@ namespace Nethereum.Commerce.Contracts.BusinessPartnerStorage
             return ContractHandler.QueryAsync<GetWalletAddressFunction, string>(getWalletAddressFunction, blockParameter);
         }
 
+        public Task<bool> IsOwnerQueryAsync(IsOwnerFunction isOwnerFunction, BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<IsOwnerFunction, bool>(isOwnerFunction, blockParameter);
+        }
+
+        
+        public Task<bool> IsOwnerQueryAsync(BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<IsOwnerFunction, bool>(null, blockParameter);
+        }
+
+        public Task<string> OwnerQueryAsync(OwnerFunction ownerFunction, BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<OwnerFunction, string>(ownerFunction, blockParameter);
+        }
+
+        
+        public Task<string> OwnerQueryAsync(BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<OwnerFunction, string>(null, blockParameter);
+        }
+
         public Task<string> SetSystemDescriptionRequestAsync(SetSystemDescriptionFunction setSystemDescriptionFunction)
         {
              return ContractHandler.SendRequestAsync(setSystemDescriptionFunction);
@@ -201,6 +274,58 @@ namespace Nethereum.Commerce.Contracts.BusinessPartnerStorage
                 stringToBytes32Function.Source = source;
             
             return ContractHandler.QueryAsync<StringToBytes32Function, byte[]>(stringToBytes32Function, blockParameter);
+        }
+
+        public Task<string> TransferOwnershipRequestAsync(TransferOwnershipFunction transferOwnershipFunction)
+        {
+             return ContractHandler.SendRequestAsync(transferOwnershipFunction);
+        }
+
+        public Task<TransactionReceipt> TransferOwnershipRequestAndWaitForReceiptAsync(TransferOwnershipFunction transferOwnershipFunction, CancellationTokenSource cancellationToken = null)
+        {
+             return ContractHandler.SendRequestAndWaitForReceiptAsync(transferOwnershipFunction, cancellationToken);
+        }
+
+        public Task<string> TransferOwnershipRequestAsync(string newOwner)
+        {
+            var transferOwnershipFunction = new TransferOwnershipFunction();
+                transferOwnershipFunction.NewOwner = newOwner;
+            
+             return ContractHandler.SendRequestAsync(transferOwnershipFunction);
+        }
+
+        public Task<TransactionReceipt> TransferOwnershipRequestAndWaitForReceiptAsync(string newOwner, CancellationTokenSource cancellationToken = null)
+        {
+            var transferOwnershipFunction = new TransferOwnershipFunction();
+                transferOwnershipFunction.NewOwner = newOwner;
+            
+             return ContractHandler.SendRequestAndWaitForReceiptAsync(transferOwnershipFunction, cancellationToken);
+        }
+
+        public Task<string> UnBindAddressRequestAsync(UnBindAddressFunction unBindAddressFunction)
+        {
+             return ContractHandler.SendRequestAsync(unBindAddressFunction);
+        }
+
+        public Task<TransactionReceipt> UnBindAddressRequestAndWaitForReceiptAsync(UnBindAddressFunction unBindAddressFunction, CancellationTokenSource cancellationToken = null)
+        {
+             return ContractHandler.SendRequestAndWaitForReceiptAsync(unBindAddressFunction, cancellationToken);
+        }
+
+        public Task<string> UnBindAddressRequestAsync(string a)
+        {
+            var unBindAddressFunction = new UnBindAddressFunction();
+                unBindAddressFunction.A = a;
+            
+             return ContractHandler.SendRequestAsync(unBindAddressFunction);
+        }
+
+        public Task<TransactionReceipt> UnBindAddressRequestAndWaitForReceiptAsync(string a, CancellationTokenSource cancellationToken = null)
+        {
+            var unBindAddressFunction = new UnBindAddressFunction();
+                unBindAddressFunction.A = a;
+            
+             return ContractHandler.SendRequestAndWaitForReceiptAsync(unBindAddressFunction, cancellationToken);
         }
     }
 }
