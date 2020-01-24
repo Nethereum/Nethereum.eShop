@@ -9,8 +9,7 @@ import "./Bindable.sol";
 import "./StringConvertible.sol";
 
 /// @title Po Storage
-/// @dev Wraps eternal storage, provides PO get/set storage functions. Stateless, no business logic other than table lookups.
-/// @dev Offers a table-like api over the key-value-pair eternal storage.
+/// @dev Wraps eternal storage, provides PO get/set storage functions.
 contract PoStorage is IPoStorage, Ownable, Bindable, StringConvertible
 {
     // PO record field names
@@ -44,13 +43,16 @@ contract PoStorage is IPoStorage, Ownable, Bindable, StringConvertible
     string constant private PO_GLOBAL_NUMBER = "po.global.number";
 
     // Names of mappings in eternal storage
-    // Mapping from a buyer address (type address) to their current nonce (uint)
+    // Mapping buyer address => their current nonce
     string constant private MAP_ADDRESS_TO_NONCE = "mapAddressToNonce";
+
+    // Mapping [buyer address + nonce] => po number
+    string constant private MAP_ADDRESS_AND_NONCE_TO_PO_NUMBER = "mapAddressAndNonceToPoNumber";
 
     IEternalStorage public eternalStorage;
     IAddressRegistry public addressRegistry;
 
-    constructor (address contractAddressOfRegistry) public payable
+    constructor (address contractAddressOfRegistry) public
     {
         addressRegistry = IAddressRegistry(contractAddressOfRegistry);
     }
@@ -74,12 +76,12 @@ contract PoStorage is IPoStorage, Ownable, Bindable, StringConvertible
         eternalStorage.setMappingAddressToUint256Value(stringToBytes32(MAP_ADDRESS_TO_NONCE), a, newNonce);
     }
 
-    function getCurrentNonce(address a) onlyRegisteredCaller() override public view returns (uint nonce)
+    function getCurrentNonce(address a) override public view returns (uint nonce)
     {
         nonce = eternalStorage.getMappingAddressToUint256Value(stringToBytes32(MAP_ADDRESS_TO_NONCE), a);
     }
 
-    function getCurrentPoNumber() onlyRegisteredCaller() override public view returns (uint poNumber)
+    function getCurrentPoNumber() override public view returns (uint poNumber)
     {
         poNumber = uint(eternalStorage.getUint256Value(keccak256(abi.encodePacked(PO_GLOBAL_NUMBER))));
     }
@@ -100,12 +102,11 @@ contract PoStorage is IPoStorage, Ownable, Bindable, StringConvertible
     //------------------------------------------------------------------------------------------
     // PO data
     //------------------------------------------------------------------------------------------
-    function getPoNumberByBuyerAddressAndNonce(address a, uint nonce) override public view returns (uint poNumber)
+    function getPoNumberByAddressAndNonce(address a, uint nonce) override public view returns (uint poNumber)
     {
-        //    //// Use mapping index to get eth PO number from hash(buyer id + buyer po number)
-        //    //bytes32 mappingKey = keccak256(abi.encodePacked(buyerSystemId, buyerPoNumber));
-        //    //uint64 ethPoNumber = uint64(eternalStorage.getMappingBytes32ToUint256Value(stringToBytes32(MAP_BUYER_PO_TO_ETH_PO), mappingKey));
-        return 4;
+        // Use mapping to get PO number from [buyer address + buyer nonce]
+        bytes32 mappingKey = keccak256(abi.encodePacked(a, nonce));
+        poNumber = eternalStorage.getMappingBytes32ToUint256Value(stringToBytes32(MAP_ADDRESS_AND_NONCE_TO_PO_NUMBER), mappingKey);
     }
     
     function getPo(uint poNumber) override public view returns (IPoTypes.Po memory po)
@@ -144,7 +145,7 @@ contract PoStorage is IPoStorage, Ownable, Bindable, StringConvertible
         }
     }
 
-    function setPo(IPoTypes.Po memory po) override public
+    function setPo(IPoTypes.Po memory po) onlyRegisteredCaller() override public
     {
         // Update main PO storage
         uint len = po.poItems.length;
@@ -179,12 +180,9 @@ contract PoStorage is IPoStorage, Ownable, Bindable, StringConvertible
             eternalStorage.setUint256Value(keccak256(abi.encodePacked(lineItemKey, CANCEL_STATUS)), uint256(po.poItems[i].cancelStatus));
         }
         
-        /*
-        // Update mappings (indexes)
-        bytes32 mappingKey = keccak256(abi.encodePacked(po.buyerSysId, po.buyerPurchaseOrderNumber));
-        eternalStorage.setMappingBytes32ToUint256Value(stringToBytes32(MAP_BUYER_PO_TO_ETH_PO), mappingKey,
-            uint256(po.ethPurchaseOrderNumber));
-        */
+        // Update mapping of [buyer address + nonce] => po number
+        bytes32 mappingKey = keccak256(abi.encodePacked(po.buyerAddress, po.buyerNonce));
+        eternalStorage.setMappingBytes32ToUint256Value(stringToBytes32(MAP_ADDRESS_AND_NONCE_TO_PO_NUMBER), mappingKey, uint256(po.poNumber));
     }
 }
 

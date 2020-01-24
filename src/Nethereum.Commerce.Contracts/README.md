@@ -20,6 +20,6 @@ Contract owner: 0x32A555F2328e85E489f9a5f03669DC820CE7EBe9
 | Address Registry | 0x2d6efd93953ed8d5a8b2c6c01b2a603b4dc844e5 | https://oneclickdapp.com/giant-single/ |
 | Eternal Storage | 0xf20a3d6e2f3f81cf69812d3ad175cd614004519c | https://oneclickdapp.com/tokyo-life/ |
 | Business Partner Storage | 0xd3f89e888985712393fb679eb2aa018245a82e10 | https://oneclickdapp.com/spend-marion/ |
-| PO Storage |  |  |
+| PO Storage | 0x69eb37d48db5aa41864b7e324636980640f1a002 | https://oneclickdapp.com/vision-jason |
 |  |  |  |
-| Dynamic Array Test | 0xcbed36768d911e4947a45186afa456db4abab17f | https://oneclickdapp.com/vacuum-almanac |
+| Dynamic Array Test | 0x7bd949a2e445dbc9a975f503628679d4fab27d93 | https://oneclickdapp.com/circle-jacket |
