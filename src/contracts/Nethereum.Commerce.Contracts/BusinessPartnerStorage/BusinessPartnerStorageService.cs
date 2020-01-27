@@ -216,23 +216,23 @@ namespace Nethereum.Commerce.Contracts.BusinessPartnerStorage
              return ContractHandler.SendRequestAndWaitForReceiptAsync(setSystemDescriptionFunction, cancellationToken);
         }
 
-        public Task<string> SetSystemDescriptionRequestAsync(byte[] systemId, byte[] systemDescription)
-        {
-            var setSystemDescriptionFunction = new SetSystemDescriptionFunction();
-                setSystemDescriptionFunction.SystemId = systemId;
-                setSystemDescriptionFunction.SystemDescription = systemDescription;
+        //public Task<string> SetSystemDescriptionRequestAsync(byte[] systemId, byte[] systemDescription)
+        //{
+        //    var setSystemDescriptionFunction = new SetSystemDescriptionFunction();
+        //        setSystemDescriptionFunction.SystemId = systemId;
+        //        setSystemDescriptionFunction.SystemDescription = systemDescription;
             
-             return ContractHandler.SendRequestAsync(setSystemDescriptionFunction);
-        }
+        //     return ContractHandler.SendRequestAsync(setSystemDescriptionFunction);
+        //}
 
-        public Task<TransactionReceipt> SetSystemDescriptionRequestAndWaitForReceiptAsync(byte[] systemId, byte[] systemDescription, CancellationTokenSource cancellationToken = null)
-        {
-            var setSystemDescriptionFunction = new SetSystemDescriptionFunction();
-                setSystemDescriptionFunction.SystemId = systemId;
-                setSystemDescriptionFunction.SystemDescription = systemDescription;
+        //public Task<TransactionReceipt> SetSystemDescriptionRequestAndWaitForReceiptAsync(byte[] systemId, byte[] systemDescription, CancellationTokenSource cancellationToken = null)
+        //{
+        //    var setSystemDescriptionFunction = new SetSystemDescriptionFunction();
+        //        setSystemDescriptionFunction.SystemId = systemId;
+        //        setSystemDescriptionFunction.SystemDescription = systemDescription;
             
-             return ContractHandler.SendRequestAndWaitForReceiptAsync(setSystemDescriptionFunction, cancellationToken);
-        }
+        //     return ContractHandler.SendRequestAndWaitForReceiptAsync(setSystemDescriptionFunction, cancellationToken);
+        //}
 
         public Task<string> SetWalletAddressRequestAsync(SetWalletAddressFunction setWalletAddressFunction)
         {
@@ -244,23 +244,23 @@ namespace Nethereum.Commerce.Contracts.BusinessPartnerStorage
              return ContractHandler.SendRequestAndWaitForReceiptAsync(setWalletAddressFunction, cancellationToken);
         }
 
-        public Task<string> SetWalletAddressRequestAsync(byte[] systemId, string walletAddress)
-        {
-            var setWalletAddressFunction = new SetWalletAddressFunction();
-                setWalletAddressFunction.SystemId = systemId;
-                setWalletAddressFunction.WalletAddress = walletAddress;
+        //public Task<string> SetWalletAddressRequestAsync(byte[] systemId, string walletAddress)
+        //{
+        //    var setWalletAddressFunction = new SetWalletAddressFunction();
+        //        setWalletAddressFunction.SystemId = systemId;
+        //        setWalletAddressFunction.WalletAddress = walletAddress;
             
-             return ContractHandler.SendRequestAsync(setWalletAddressFunction);
-        }
+        //     return ContractHandler.SendRequestAsync(setWalletAddressFunction);
+        //}
 
-        public Task<TransactionReceipt> SetWalletAddressRequestAndWaitForReceiptAsync(byte[] systemId, string walletAddress, CancellationTokenSource cancellationToken = null)
-        {
-            var setWalletAddressFunction = new SetWalletAddressFunction();
-                setWalletAddressFunction.SystemId = systemId;
-                setWalletAddressFunction.WalletAddress = walletAddress;
+        //public Task<TransactionReceipt> SetWalletAddressRequestAndWaitForReceiptAsync(byte[] systemId, string walletAddress, CancellationTokenSource cancellationToken = null)
+        //{
+        //    var setWalletAddressFunction = new SetWalletAddressFunction();
+        //        setWalletAddressFunction.SystemId = systemId;
+        //        setWalletAddressFunction.WalletAddress = walletAddress;
             
-             return ContractHandler.SendRequestAndWaitForReceiptAsync(setWalletAddressFunction, cancellationToken);
-        }
+        //     return ContractHandler.SendRequestAndWaitForReceiptAsync(setWalletAddressFunction, cancellationToken);
+        //}
 
         public Task<byte[]> StringToBytes32QueryAsync(StringToBytes32Function stringToBytes32Function, BlockParameter blockParameter = null)
         {
