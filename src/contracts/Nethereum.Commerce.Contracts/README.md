@@ -10,6 +10,10 @@ Smart Contract Solidity source code and the generated C# APIs to interact with t
 | `Contracts` | `.sol` source files and the `nethereum-gen.settings` file used to control API generation.
 | _contractname_ | Generated API for _contractname_. |
 
+### Generated Contract Folder Contents
+
+The files here are all produced by code gen, with the exception of the `contractname.Extend.cs` file. This file contains a partial class with additional overloads of service methods.
+![Overview](codegen-folder-contents.png)
 
 ### Contract Deployments on Rinkeby
 

@@ -1,4 +1,10 @@
-﻿using Nethereum;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Xunit;
+using Nethereum;
 using Nethereum.Web3.Accounts;
 using Nethereum.Web3;
 using System;
@@ -12,9 +18,9 @@ using Nethereum.Commerce.Contracts.BusinessPartnerStorage;
 using Nethereum.Commerce.Contracts.PoStorage.ContractDefinition;
 using Nethereum.Commerce.Contracts.PoStorage;
 
-namespace Nethereum.Commerce.ContractDeployments.Console
+namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 {
-    class Program
+    public class ContractDeploymentsFixture : IAsyncLifetime, IDisposable
     {
         private const string ESHOP_SYSTEM_ID = "Nethereum.eShop";
         private const string ESHOP_SYSTEM_DESCRIPTION = "Satoshi's Books";
@@ -22,8 +28,12 @@ namespace Nethereum.Commerce.ContractDeployments.Console
         private const string CONTRACT_NAME_ETERNAL_STORAGE = "EternalStorage";
         private const string CONTRACT_NAME_BUSINESS_PARTNER_STORAGE = "BusinessPartnerStorage";
         private const string CONTRACT_NAME_PO_STORAGE = "PoStorage";
-                
-        static async Task Main(string[] args)
+
+        public ContractDeploymentsFixture()
+        {
+
+        }
+        public async Task InitializeAsync()
         {
             try
             {
@@ -86,7 +96,7 @@ namespace Nethereum.Commerce.ContractDeployments.Console
                 // Add address entry for eternal storage
                 contractName = CONTRACT_NAME_ETERNAL_STORAGE;
                 System.Console.Write($"Configuring Address Registry, adding {contractName}...");
-                var txReceipt = await addressRegService.RegisterAddressStringRequestAndWaitForReceiptAsync(contractName, eternalStorageService.ContractHandler.ContractAddress);                
+                var txReceipt = await addressRegService.RegisterAddressStringRequestAndWaitForReceiptAsync(contractName, eternalStorageService.ContractHandler.ContractAddress);
                 System.Console.WriteLine($"Tx status: {txReceipt.Status.Value}");
 
                 // Add address entry for BP storage 
@@ -130,12 +140,11 @@ namespace Nethereum.Commerce.ContractDeployments.Console
 
                 // Add some BP master data
                 System.Console.Write($"Adding eShop master data...");
-                var sdf = new SetSystemDescriptionFunction() { SystemId = ESHOP_SYSTEM_ID, SystemDescription = ESHOP_SYSTEM_DESCRIPTION };
-                txReceipt = await bpStorageService.SetSystemDescriptionRequestAndWaitForReceiptAsync(sdf);
+                txReceipt = await bpStorageService.SetSystemDescriptionRequestStringAndWaitForReceiptAsync(ESHOP_SYSTEM_ID, ESHOP_SYSTEM_DESCRIPTION);
                 System.Console.WriteLine($"Tx status: {txReceipt.Status.Value}");
 
                 // TODO Cant configure this till next layer deployed
-                var waf = new SetWalletAddressFunction() { SystemId = ESHOP_SYSTEM_ID, WalletAddress = "" };
+                //var waf = new SetWalletAddressFunction() { SystemId = ESHOP_SYSTEM_ID, WalletAddress = "" };
                 //await bpStorageService.SetWalletAddressRequestAndWaitForReceiptAsync(waf);
 
                 // Authorisations. Bind all contracts that will use BP storage
@@ -167,6 +176,15 @@ namespace Nethereum.Commerce.ContractDeployments.Console
                 System.Console.WriteLine($"Press Enter to close.");
                 System.Console.ReadLine();
             }
+        }
+
+        public Task DisposeAsync()
+        {
+            return Task.CompletedTask;
+        }
+
+        public void Dispose()
+        {
         }
     }
 }
