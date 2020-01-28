@@ -35,7 +35,7 @@ namespace Nethereum.Commerce.Contracts.PoStorage.ContractDefinition
         public new DateTime GoodsIssueDate { get; set; }
 
         [Parameter("uint256", "escrowReleaseDate", 14)]
-        public new BigInteger EscrowReleaseDate { get; set; }
+        public new DateTime EscrowReleaseDate { get; set; }
 
         [Parameter("uint8", "cancelStatus", 15)]
         public new PoItemCancelStatus CancelStatus { get; set; }
