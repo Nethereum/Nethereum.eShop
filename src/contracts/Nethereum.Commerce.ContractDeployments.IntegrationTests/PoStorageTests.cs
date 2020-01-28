@@ -29,12 +29,78 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         {
             // Create a PO to store
             uint poNumber = 314159;
-            Po poExpected = new Po()
+            string buyerAddress = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610";
+            uint buyerNonce = 2;
+            Po poExpected = CreateTestPo(poNumber, buyerAddress, buyerNonce);
+
+            // Store PO
+            var txReceipt = await _contracts.PoStorageService.SetPoRequestAndWaitForReceiptAsync(poExpected);
+            txReceipt.Status.Value.Should().Be(1);
+
+            // Retrieve PO 
+            var poActual = (await _contracts.PoStorageService.GetPoQueryAsync(poNumber)).Po;
+
+            // They should be the same
+            CheckEveryPoFieldMatches(poExpected, poActual);
+        }
+
+        [Fact]
+        public async void ShouldStoreAndRetrievePoByAddressAndNonce()
+        {
+            // Create a PO to store
+            uint poNumberExpected = 314159;
+            string buyerAddress = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610";
+            uint buyerNonce = 2;
+            Po poExpected = CreateTestPo(poNumberExpected, buyerAddress, buyerNonce);
+
+            // Store PO
+            var txReceipt = await _contracts.PoStorageService.SetPoRequestAndWaitForReceiptAsync(poExpected);
+            txReceipt.Status.Value.Should().Be(1);
+
+            // Retrieve PO number by address and nonce
+            var poNumberActual = await _contracts.PoStorageService.GetPoNumberByAddressAndNonceQueryAsync(buyerAddress, buyerNonce);
+
+            // They should be the same
+            poNumberActual.Should().Be(poNumberExpected);
+        }
+
+        private static void CheckEveryPoFieldMatches(Po poExpected, Po poActual)
+        {
+            poActual.PoNumber.Should().Be(poExpected.PoNumber);
+            poActual.BuyerAddress.Should().Be(poExpected.BuyerAddress);
+            poActual.BuyerWalletAddress.Should().Be(poExpected.BuyerWalletAddress);
+            poActual.BuyerNonce.Should().Be(poExpected.BuyerNonce);
+            poActual.SellerSysId.Should().Be(poExpected.SellerSysId);
+            poActual.PoCreateDate.Should().Be(poExpected.PoCreateDate);
+            poActual.PoItemCount.Should().Be(poExpected.PoItemCount);
+            for (int i = 0; i < poActual.PoItemCount; i++)
+            {
+                poActual.PoItems[i].PoItemNumber.Should().Be(poExpected.PoItems[i].PoItemNumber);
+                poActual.PoItems[i].SoNumber.Should().Be(poExpected.PoItems[i].SoNumber);
+                poActual.PoItems[i].SoItemNumber.Should().Be(poExpected.PoItems[i].SoItemNumber);
+                poActual.PoItems[i].ProductId.Should().Be(poExpected.PoItems[i].ProductId);
+                poActual.PoItems[i].Quantity.Should().Be(poExpected.PoItems[i].Quantity);
+                poActual.PoItems[i].Unit.Should().Be(poExpected.PoItems[i].Unit);
+                poActual.PoItems[i].QuantityErc20Symbol.Should().Be(poExpected.PoItems[i].QuantityErc20Symbol);
+                poActual.PoItems[i].QuantityErc20Address.Should().Be(poExpected.PoItems[i].QuantityErc20Address);
+                poActual.PoItems[i].Value.Should().Be(poExpected.PoItems[i].Value);
+                poActual.PoItems[i].CurrencyErc20Symbol.Should().Be(poExpected.PoItems[i].CurrencyErc20Symbol);
+                poActual.PoItems[i].CurrencyErc20Address.Should().Be(poExpected.PoItems[i].CurrencyErc20Address);
+                poActual.PoItems[i].Status.Should().Be(poExpected.PoItems[i].Status);
+                poActual.PoItems[i].GoodsIssueDate.Should().Be(poExpected.PoItems[i].GoodsIssueDate);
+                poActual.PoItems[i].EscrowReleaseDate.Should().Be(poExpected.PoItems[i].EscrowReleaseDate);
+                poActual.PoItems[i].CancelStatus.Should().Be(poExpected.PoItems[i].CancelStatus);
+            }
+        }
+
+        private static Po CreateTestPo(uint poNumber, string buyerAddress, uint buyerNonce)
+        {
+            return new Po()
             {
                 PoNumber = poNumber,
-                BuyerAddress = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
+                BuyerAddress = buyerAddress,
                 BuyerWalletAddress = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
-                BuyerNonce = 2,
+                BuyerNonce = buyerNonce,
                 SellerSysId = "Nethereum.eShop",
                 PoCreateDate = 100,
                 PoItemCount = 2,
@@ -78,40 +144,6 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                     }
                 }
             };
-
-            // Store it
-            var txReceipt = await _contracts.PoStorageService.SetPoRequestAndWaitForReceiptAsync(poExpected);
-            txReceipt.Status.Value.Should().Be(1);
-       
-            // Retrieve it
-            var poActual = (await _contracts.PoStorageService.GetPoQueryAsync(poNumber)).Po;
-
-            // They should be the same
-            poActual.PoNumber.Should().Be(poExpected.PoNumber);
-            poActual.BuyerAddress.Should().Be(poExpected.BuyerAddress);
-            poActual.BuyerWalletAddress.Should().Be(poExpected.BuyerWalletAddress);
-            poActual.BuyerNonce.Should().Be(poExpected.BuyerNonce);
-            poActual.SellerSysId.Should().Be(poExpected.SellerSysId);
-            poActual.PoCreateDate.Should().Be(poExpected.PoCreateDate);
-            poActual.PoItemCount.Should().Be(poExpected.PoItemCount);
-            for (int i = 0; i < poActual.PoItemCount; i++)
-            {
-                poActual.PoItems[i].PoItemNumber.Should().Be(poExpected.PoItems[i].PoItemNumber);
-                poActual.PoItems[i].SoNumber.Should().Be(poExpected.PoItems[i].SoNumber);
-                poActual.PoItems[i].SoItemNumber.Should().Be(poExpected.PoItems[i].SoItemNumber);
-                poActual.PoItems[i].ProductId.Should().Be(poExpected.PoItems[i].ProductId);
-                poActual.PoItems[i].Quantity.Should().Be(poExpected.PoItems[i].Quantity);
-                poActual.PoItems[i].Unit.Should().Be(poExpected.PoItems[i].Unit);
-                poActual.PoItems[i].QuantityErc20Symbol.Should().Be(poExpected.PoItems[i].QuantityErc20Symbol);
-                poActual.PoItems[i].QuantityErc20Address.Should().Be(poExpected.PoItems[i].QuantityErc20Address);
-                poActual.PoItems[i].Value.Should().Be(poExpected.PoItems[i].Value);
-                poActual.PoItems[i].CurrencyErc20Symbol.Should().Be(poExpected.PoItems[i].CurrencyErc20Symbol);
-                poActual.PoItems[i].CurrencyErc20Address.Should().Be(poExpected.PoItems[i].CurrencyErc20Address);
-                poActual.PoItems[i].Status.Should().Be(poExpected.PoItems[i].Status);
-                poActual.PoItems[i].GoodsIssueDate.Should().Be(poExpected.PoItems[i].GoodsIssueDate);
-                poActual.PoItems[i].EscrowReleaseDate.Should().Be(poExpected.PoItems[i].EscrowReleaseDate);
-                poActual.PoItems[i].CancelStatus.Should().Be(poExpected.PoItems[i].CancelStatus);
-            }
         }
     }
 }
