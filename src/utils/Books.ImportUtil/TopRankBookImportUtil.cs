@@ -1,4 +1,5 @@
 ﻿using Nethereum.eShop.ApplicationCore.Entities;
+using Nethereum.eShop.Infrastructure.Data;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -41,6 +42,8 @@ namespace Books.ImportUtil
 
         public static async Task Main(string[] args)
         {
+            throw new Exception("Check/change hardcoded config and uncomment code in Main method");
+
             CheckImportFiles(ImportFiles);
 
             /*
@@ -53,7 +56,7 @@ namespace Books.ImportUtil
             var booksWithDescriptions = await AddBookDescriptions(books, BookDescriptionFiles);
             var bookCovers = GetBookCoverDictionary(COVER_MAPPING_OUTPUT_FILE_PATH);
 
-            CatalogImport booksInCatalogForm = GenerateCatalogImport(booksWithDescriptions, bookCovers);
+            CatalogImportDto booksInCatalogForm = GenerateCatalogImport(booksWithDescriptions, bookCovers);
 
             using (var textWriter = File.CreateText(CATALOG_IMPORT_FILE_PATH))
             {
@@ -63,16 +66,8 @@ namespace Books.ImportUtil
 
             PrintSummary(booksWithDescriptions);
 
-
-            throw new Exception("Check/change hardcoded config and uncomment code in Main method");
         }
 
-        public class CatalogImport
-        {
-            public List<CatalogBrand> CatalogBrands { get; set; } = new List<CatalogBrand>();
-            public List<CatalogType> CatalogTypes { get; set; } = new List<CatalogType>();
-            public List<CatalogItem> CatalogItems { get; set; } = new List<CatalogItem>();
-        }
 
         private static Dictionary<string, Dictionary<string, IpfsBookCoverMapping>> GetBookCoverDictionary(string bookCoverIndexFilePath)
         {
@@ -100,9 +95,9 @@ namespace Books.ImportUtil
             return dictionary;
         }
 
-        private static CatalogImport GenerateCatalogImport(IEnumerable<BookWithDescription> books, Dictionary<string, Dictionary<string, IpfsBookCoverMapping>> bookCoverDictionary)
+        private static CatalogImportDto GenerateCatalogImport(IEnumerable<BookWithDescription> books, Dictionary<string, Dictionary<string, IpfsBookCoverMapping>> bookCoverDictionary)
         {
-            var excerpt = new CatalogImport();
+            var excerpt = new CatalogImportDto();
             var bookCatalogType = new CatalogType { Id = 1, Type = "Book" };
             excerpt.CatalogTypes.Add(bookCatalogType);
 
@@ -168,7 +163,7 @@ namespace Books.ImportUtil
                 Height = ConvertInchesAsTextToMM(book.Book.LENGTH),
                 Price = Decimal.TryParse(book.Book.PRICE, out var p) ? p : 0,
 
-                PictureUri = FindBookCoverUrl(book.Book.EAN, "s"),
+                PictureUri = FindBookCoverUrl(book.Book.EAN, "m"),
                 PictureSmallUri = FindBookCoverUrl(book.Book.EAN, "s"),
                 PictureMediumUri = FindBookCoverUrl(book.Book.EAN, "m"),
                 PictureLargeUri = FindBookCoverUrl(book.Book.EAN, "l")

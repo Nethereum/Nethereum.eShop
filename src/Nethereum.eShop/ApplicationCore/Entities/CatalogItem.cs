@@ -33,12 +33,6 @@ namespace Nethereum.eShop.ApplicationCore.Entities
 
         public string PictureUri { get; set; }
 
-        /// <summary>
-        /// The ipfs hash for the source product metadata
-        /// Assume the product metadata might be in a JSON file
-        /// </summary>
-        public string ProductMetadataIpfsHash { get; set; }
-
         public string PictureSmallUri { get; set; }
 
         public string PictureMediumUri { get; set; }

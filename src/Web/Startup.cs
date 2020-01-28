@@ -100,7 +100,17 @@ namespace Nethereum.eShop.Web
             services.AddScoped<CatalogViewModelService>();
             services.AddScoped<ICatalogItemViewModelService, CatalogItemViewModelService>();
             services.Configure<CatalogSettings>(Configuration);
-            services.AddSingleton<IUriComposer>(new UriComposer(Configuration.Get<CatalogSettings>()));
+
+            var catalogSettings = Configuration.Get<CatalogSettings>();
+
+            services.AddSingleton<IUriComposer>(new UriComposer(catalogSettings));
+
+            var catalogContextSeeder = string.IsNullOrEmpty(catalogSettings.CatalogSeedJsonFile) ? 
+                (ICatalogContextSeeder)new HardCodedCatalogContextSeeder() : 
+                (ICatalogContextSeeder)new JsonCatalogContextSeeder(catalogSettings.CatalogSeedJsonFile);
+
+            services.AddSingleton(catalogContextSeeder);
+
             services.AddScoped(typeof(IAppLogger<>), typeof(LoggerAdapter<>));
             services.AddTransient<IEmailSender, EmailSender>();
 

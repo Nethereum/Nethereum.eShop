@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Nethereum.eShop.ApplicationCore.Entities.OrderAggregate
+namespace Nethereum.eShop.ApplicationCore.Entities
 {
     public class Address // ValueObject
     {

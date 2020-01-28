@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Nethereum.eShop.ApplicationCore.Entities;
 using Nethereum.eShop.ApplicationCore.Entities.OrderAggregate;
 using Nethereum.eShop.ApplicationCore.Interfaces;
 using Nethereum.eShop.Infrastructure.Identity;

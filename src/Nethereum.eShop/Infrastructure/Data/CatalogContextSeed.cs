@@ -1,5 +1,5 @@
-﻿using Nethereum.eShop.ApplicationCore.Entities;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
+using Nethereum.eShop.ApplicationCore.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,9 +7,10 @@ using System.Threading.Tasks;
 
 namespace Nethereum.eShop.Infrastructure.Data
 {
-    public class CatalogContextSeed
+
+    public class HardCodedCatalogContextSeeder: ICatalogContextSeeder
     {
-        public static async Task SeedAsync(CatalogContext catalogContext,
+        public async Task SeedAsync(CatalogContext catalogContext,
             ILoggerFactory loggerFactory, int? retry = 0)
         {
             int retryForAvailability = retry.Value;
@@ -17,8 +18,6 @@ namespace Nethereum.eShop.Infrastructure.Data
             {
                 // TODO: Only run this if using a real database
                 // context.Database.Migrate();
-
-                //context.Database.ExecuteSqlCommand("SET IDENTITY_INSERT dbo.Students ON");
 
                 if (!catalogContext.CatalogBrands.Any())
                 {
@@ -49,7 +48,7 @@ namespace Nethereum.eShop.Infrastructure.Data
                 if (retryForAvailability < 10)
                 {
                     retryForAvailability++;
-                    var log = loggerFactory.CreateLogger<CatalogContextSeed>();
+                    var log = loggerFactory.CreateLogger<HardCodedCatalogContextSeeder>();
                     log.LogError(ex.Message);
                     await SeedAsync(catalogContext, loggerFactory, retryForAvailability);
                 }

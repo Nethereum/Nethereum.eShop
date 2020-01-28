@@ -1,4 +1,5 @@
-﻿using Nethereum.eShop.ApplicationCore.Entities.OrderAggregate;
+﻿using Nethereum.eShop.ApplicationCore.Entities;
+using Nethereum.eShop.ApplicationCore.Entities.OrderAggregate;
 using System.Threading.Tasks;
 
 namespace Nethereum.eShop.ApplicationCore.Interfaces
