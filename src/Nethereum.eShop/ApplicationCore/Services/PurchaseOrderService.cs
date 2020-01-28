@@ -23,8 +23,11 @@ namespace Nethereum.eShop.ApplicationCore.Services
 
         public async Task CreateOrderAsync(int basketId, Address billingAddress, Address shippingAddress)
         {
-            // TODO: Create purchase order
+            // TODO: 
+            // write address to buyer, to be looked up on po creation
+            // Create purchase order on chain
             // using basket to populate
+            // we need the buyer nonce
 
             var basket = await _basketRepository.GetByIdAsync(basketId);
             Guard.Against.NullBasket(basketId, basket);

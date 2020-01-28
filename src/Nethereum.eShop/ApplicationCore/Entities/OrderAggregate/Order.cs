@@ -29,7 +29,10 @@ namespace Nethereum.eShop.ApplicationCore.Entities.OrderAggregate
         /// </summary>
         public string BuyerId { get; private set; }
 
-        public long PurchaseOrderNumber { get; private set; }
+        /// <summary>
+        /// The Purhase Order Number
+        /// </summary>
+        public long PONumber { get; private set; }
 
         public long BuyerNonce { get; set; } // po order counter per buyer
 
@@ -40,7 +43,7 @@ namespace Nethereum.eShop.ApplicationCore.Entities.OrderAggregate
         /// </summary>
         public string SellerSysId { get; set; } 
 
-        public DateTimeOffset PurchaseOrderDate { get; set; }
+        public DateTimeOffset PODate { get; set; }
 
         public DateTimeOffset OrderDate { get; private set; } = DateTimeOffset.Now;
 

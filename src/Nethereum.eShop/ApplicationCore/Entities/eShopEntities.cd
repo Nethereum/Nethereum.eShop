@@ -1,31 +1,31 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="NameAndType">
   <Comment CommentText="BuyerId and IdentityGuid are both expected to be the Ethereum Address.">
-    <Position X="13.592" Y="0.5" Height="0.75" Width="1.7" />
+    <Position X="8.05" Y="8.568" Height="0.75" Width="3.533" />
   </Comment>
   <Comment CommentText="ShipTo and BillTo Addresses stored against buyer and copied to Order.  Allowing customer to change their address for future orders without changing previous orders.">
-    <Position X="13.608" Y="1.483" Height="1.217" Width="1.7" />
+    <Position X="7.533" Y="12.458" Height="1.217" Width="1.7" />
   </Comment>
   <Comment CommentText="ApplicationUser - abstracted to Identity and expected to be little more than Ethereum address.">
-    <Position X="6.792" Y="6.367" Height="0.75" Width="1.7" />
+    <Position X="1.525" Y="7.067" Height="0.75" Width="1.7" />
   </Comment>
   <Comment CommentText="Buyer - &#xD;&#xA;Represents an application user placing/has placed an order&#xD;&#xA;&#xD;&#xA;IdentityGuid = Ethereum Address">
-    <Position X="9.017" Y="7.25" Height="0.955" Width="3.492" />
+    <Position X="8.075" Y="7.425" Height="0.955" Width="3.492" />
   </Comment>
   <Comment CommentText="Represents a Sales Order which is linked to a purchase order on the chain.">
-    <Position X="9.425" Y="0.5" Height="0.55" Width="2.967" />
+    <Position X="3.108" Y="11.918" Height="0.55" Width="2.967" />
   </Comment>
   <Comment CommentText="TO DO:&#xD;&#xA;&#xD;&#xA;CatalogItem ranking.  Consider review count, best seller rank, price etc.&#xD;&#xA;&#xD;&#xA;">
-    <Position X="4.942" Y="5.433" Height="1.792" Width="1.7" />
+    <Position X="6.992" Y="4.067" Height="1.117" Width="3.517" />
   </Comment>
-  <Comment CommentText="CatalogItem = Product&#xD;&#xA;&#xD;&#xA;CatalogItem.Id is PK.&#xD;&#xA;&#xD;&#xA;Gtin - is global product identifier&#xD;&#xA;&#xD;&#xA;GtinRegistry - allows different registries for different products.&#xD;&#xA;&#xD;&#xA;For now - both CatalogBrand and Catalogtype are one to one with CatalogItem.&#xD;&#xA;">
-    <Position X="2.258" Y="5.108" Height="2.717" Width="1.7" />
+  <Comment CommentText="CatalogItem = Product&#xD;&#xA;&#xD;&#xA;CatalogItem.Id is PK.&#xD;&#xA;&#xD;&#xA;Gtin - is global product identifier&#xD;&#xA;&#xD;&#xA;GtinRegistry - allows different registries for different products.&#xD;&#xA;&#xD;&#xA;CatalogBrand and Catalogtype are one to one with CatalogItem (for now).&#xD;&#xA;">
+    <Position X="6.983" Y="1.788" Height="2.083" Width="3.517" />
   </Comment>
   <Comment CommentText="A snapshot of the product on the order safe from subsequent catalog updates.">
-    <Position X="13.808" Y="5.317" Height="0.75" Width="1.7" />
+    <Position X="7.567" Y="16.267" Height="0.75" Width="1.7" />
   </Comment>
   <Class Name="Nethereum.eShop.ApplicationCore.Entities.CatalogBrand">
-    <Position X="0.5" Y="0.5" Width="1.5" />
+    <Position X="2.25" Y="1.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAA=</HashCode>
       <FileName>ApplicationCore\Entities\CatalogBrand.cs</FileName>
@@ -33,7 +33,7 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="Nethereum.eShop.ApplicationCore.Entities.CatalogItem">
-    <Position X="2.25" Y="0.5" Width="2.75" />
+    <Position X="4" Y="1.75" Width="2.75" />
     <TypeIdentifier>
       <HashCode>AAgAAAAQF4AkAgAAAAAAAEQAAAAAAABgAAAAAQgACAA=</HashCode>
       <FileName>ApplicationCore\Entities\CatalogItem.cs</FileName>
@@ -41,7 +41,7 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="Nethereum.eShop.ApplicationCore.Entities.CatalogType">
-    <Position X="0.5" Y="2" Width="1.5" />
+    <Position X="2.25" Y="3.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAA=</HashCode>
       <FileName>ApplicationCore\Entities\CatalogType.cs</FileName>
@@ -49,7 +49,7 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="Nethereum.eShop.ApplicationCore.Entities.StockItem">
-    <Position X="0.5" Y="5.25" Width="1.5" />
+    <Position X="2.25" Y="5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAKAAAAAAAAIAAAAAAAAAAAAAAAAAgAAAAAA=</HashCode>
       <FileName>ApplicationCore\Entities\StockItem.cs</FileName>
@@ -57,7 +57,7 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="Nethereum.eShop.ApplicationCore.Entities.BasketAggregate.Basket">
-    <Position X="5.5" Y="0.5" Width="2" />
+    <Position X="1.5" Y="9.5" Width="2" />
     <Compartments>
       <Compartment Name="Methods" Collapsed="true" />
     </Compartments>
@@ -68,14 +68,14 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="Nethereum.eShop.ApplicationCore.Entities.BasketAggregate.BasketItem">
-    <Position X="5.5" Y="3" Width="2" />
+    <Position X="3.75" Y="9.75" Width="2" />
     <TypeIdentifier>
       <HashCode>JAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAA=</HashCode>
       <FileName>ApplicationCore\Entities\BasketAggregate\BasketItem.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Nethereum.eShop.ApplicationCore.Entities.BuyerAggregate.Buyer">
-    <Position X="9" Y="5" Width="3.5" />
+    <Position X="3.75" Y="7.5" Width="3.5" />
     <TypeIdentifier>
       <HashCode>AAAAAQAAAAAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>ApplicationCore\Entities\BuyerAggregate\Buyer.cs</FileName>
@@ -83,38 +83,45 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="Nethereum.eShop.ApplicationCore.Entities.OrderAggregate.Order">
-    <Position X="7.75" Y="1" Width="2.75" />
+    <Position X="1.5" Y="12.5" Width="2.75" />
     <Compartments>
       <Compartment Name="Methods" Collapsed="true" />
     </Compartments>
     <TypeIdentifier>
-      <HashCode>CAAAAQAAAAEAAAAAAAAAEAAAAUAAQwABAAAAIAQAAAA=</HashCode>
+      <HashCode>CAAAAQAAAAEAAAAAAAAAEAAAAUAAQQABAAAAAAQARAA=</HashCode>
       <FileName>ApplicationCore\Entities\OrderAggregate\Order.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
-  <Class Name="Nethereum.eShop.ApplicationCore.Entities.OrderAggregate.OrderItem">
-    <Position X="10.75" Y="1" Width="2.75" />
+  <Class Name="Nethereum.eShop.ApplicationCore.Entities.OrderAggregate.OrderItem" HideInheritanceLine="true">
+    <Position X="4.5" Y="12.5" Width="2.75" />
     <Compartments>
       <Compartment Name="Methods" Collapsed="true" />
     </Compartments>
     <TypeIdentifier>
-      <HashCode>IQAAAAAgAAEAAEAAYAAAAAAAAAAAAAAIAAAigAAAAAA=</HashCode>
+      <HashCode>IQAAAQAkAAEAAEAAIAAAAAAAAAAAAAAIAAAigAAAAAA=</HashCode>
       <FileName>ApplicationCore\Entities\OrderAggregate\OrderItem.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Nethereum.eShop.Infrastructure.Identity.ApplicationUser">
-    <Position X="6.75" Y="5.25" Width="1.5" />
+    <Position X="1.5" Y="8" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Infrastructure\Identity\ApplicationUser.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Nethereum.eShop.ApplicationCore.Entities.OrderAggregate.CatalogItemOrdered">
-    <Position X="13.75" Y="3.25" Width="2" />
+    <Position X="5.25" Y="16.5" Width="2" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAACAAAgAAAAAAAAAAAAAAAAAAAAAAAAAIAAA=</HashCode>
+      <HashCode>AAAAAAAAAKAAAgAAAAAAAAAAAAAAAABAAAAAAAAIAAA=</HashCode>
       <FileName>ApplicationCore\Entities\OrderAggregate\CatalogItemOrdered.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Nethereum.eShop.ApplicationCore.Entities.BaseEntity">
+    <Position X="0.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ApplicationCore\Entities\BaseEntity.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Font Name="Segoe UI" Size="9" />
