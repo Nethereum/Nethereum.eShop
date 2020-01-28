@@ -3,19 +3,53 @@ Smart Contract Solidity source code and the generated C# APIs to interact with t
 
 ![Overview](contracts.png)
 
-### Project Folders
+## Project Structure
 
-| Folder | Contents |
-|--|--| 
-| `Contracts` | `.sol` source files and the `nethereum-gen.settings` file used to control API generation.
-| _contractname_ | Generated API for _contractname_. |
+| Folder | File(s) | Description |
+|--|--|--|
+| `Contracts` | `*.sol` | Solidity source files. |
+|  | `nethereum-gen.settings` | File used to control C# API generation. |
+| _contractname_ | | Generated C# API for the Solidity contract called _contractname_. |
+| _root_ | `ConversionUtils.cs` | For converting `byte[]` to string and back. |
+|  | `ContractEnums.cs` | Solidity enums are manually replicated here. | 
 
-### Generated Contract Folder Contents
+## Code Generation
+(document code gen process here)
 
-The files here are all produced by code gen, with the exception of the `contractname.Extend.cs` file. This file contains a partial class with additional overloads of service methods.
-![Overview](codegen-folder-contents.png)
+## Adjusting Generated Code
+Files that follow the naming convention of `contractname.Extend.cs` are not code generated, but are manually maintained. When code is regenerated the `*.Extend.cs` files will remain unchanged.
 
-### Contract Deployments on Rinkeby
+Why might you want to adjust the generated code? One case is as follows. During code generation the Solidity type `bytes32` becomes `byte[]` in C#. However, we might know that for a particular field the `bytes32` will always hold a `string`. We can adjust the generated service code to reflect this, which in turn will simplify the C# code that consumes the service.
+
+There are some examples of this in this project:
+
+### Adjusting Generated Code - Overloading Service Methods
+See the generated API for **Business Partner Storage**:
+
+![Overview](contracts-folder-contents-bp.png)
+
+The file `BusinessPartnerStorageService.Extend.cs` contains some additional overloads of the service methods.
+
+### Adjusting Generated Code - Redefining Types
+See the generated API for **PO Storage**:
+
+![Overview](contracts-folder-contents-po.png)
+
+The files `Po.Extend.cs` and `PoItem.Extend.cs` contain partial classes that adjust the `Po` and `PoItem` structures. Notice that members there are redefined with `new` to allow them to change data type (rather than simply being overridden). For example the code gen process produces this in class `PoItemBase`:
+
+```csharp
+    [Parameter("bytes32", "soNumber", 2)]
+    public virtual byte[] SoNumber { get; set; }
+```
+We know that the sales order number is really a string, so in file `PoItem.Extend.cs` we use partial class `PoItem`:
+
+```csharp
+    [Parameter("bytes32", "soNumber", 2)]
+    public new string SoNumber { get; set; }
+```
+Notice the use of `new` above, required since we are changing data type.
+
+## Contract Deployments on Rinkeby
 
 Contract owner: 0x32A555F2328e85E489f9a5f03669DC820CE7EBe9
 

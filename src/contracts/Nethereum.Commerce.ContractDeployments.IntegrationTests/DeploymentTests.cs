@@ -9,13 +9,13 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
     public class DeploymentTests
     {
         private readonly ITestOutputHelper _output;
-        private readonly ContractDeploymentsFixture _contractDeployments;
+        private readonly ContractDeploymentsFixture _contracts;
 
         public DeploymentTests(ContractDeploymentsFixture fixture, ITestOutputHelper output)
         {
             // ContractDeploymentsFixture performed a complete deployment.
             // See Output window -> Tests for deployment logs.
-            _contractDeployments = fixture;
+            _contracts = fixture;
             _output = output;
         }
 
@@ -24,8 +24,8 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         {
             // If all contracts deployed and configured ok, then the PO storage contract
             // should be configured to point to the eternal storage contract.
-            var actualContractAddress = await _contractDeployments.PoStorageService.EternalStorageQueryAsync();
-            var expectedContractAddress = _contractDeployments.EternalStorageService.ContractHandler.ContractAddress;
+            var actualContractAddress = await _contracts.PoStorageService.EternalStorageQueryAsync();
+            var expectedContractAddress = _contracts.EternalStorageService.ContractHandler.ContractAddress;
             actualContractAddress.Should().Be(expectedContractAddress);
         }
     }
