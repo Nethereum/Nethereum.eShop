@@ -1,154 +1,188 @@
-pragma solidity ^0.5.3;
+pragma solidity ^0.6.1;
 pragma experimental ABIEncoderV2;
 
 import "./IPoStorage.sol";
 import "./IEternalStorage.sol";
 import "./IAddressRegistry.sol";
-import "./StringLib.sol";
+import "./Ownable.sol";
+import "./Bindable.sol";
+import "./StringConvertible.sol";
 
 /// @title Po Storage
-/// @dev Wraps eternal storage, provides PO get/set storage functions. Stateless, no business logic other than table lookups.
-/// @dev Offers a relation-db-like api over the key-value-pair eternal storage.
-contract PoStorage is IPoStorage
+/// @dev Wraps eternal storage, provides PO get/set storage functions.
+contract PoStorage is IPoStorage, Ownable, Bindable, StringConvertible
 {
     // PO record field names
-    string constant private ETH_PO_NUMBER = "ethPurchaseOrderNumber";
-    string constant private BUYER_SYS_ID = "buyerSysId";
-    string constant private BUYER_PO_NUMBER = "buyerPurchaseOrderNumber";
-    string constant private BUYER_VIEW_VENDOR_ID = "buyerViewVendorId";
+    // Header
+    string constant private PO_NUMBER = "poNumber";
+    string constant private BUYER_ADDRESS = "buyerAddress";
+    string constant private BUYER_WALLET_ADDRESS = "buyerWalletAddress";
+    string constant private BUYER_NONCE = "buyerNonce";
     string constant private SELLER_SYS_ID = "sellerSysId";
-    string constant private SELLER_SO_NUMBER = "sellerSalesOrderNumber";
-    string constant private SELLER_VIEW_CUSTOMER_ID = "sellerViewCustomerId";
-    string constant private BUYER_PRODUCT_ID = "buyerProductId";
-    string constant private SELLER_PRODUCT_ID = "sellerProductId";
-    string constant private CURRENCY = "currency";
-    string constant private CURRENCY_ADDRESS = "currencyAddress";
-    string constant private TOTAL_QUANTITY = "totalQuantity";
-    string constant private TOTAL_VALUE = "totalValue";
-    string constant private OPEN_INVOICE_QUANTITY = "openInvoiceQuantity";
-    string constant private OPEN_INVOICE_VALUE = "openInvoiceValue";
-    string constant private PO_STATUS = "poStatus";
-    string constant private WI_PROCESS_STATUS = "wiProcessStatus";
+    string constant private PO_CREATE_DATE = "poCreateDate";
+    string constant private PO_ITEM_COUNT = "poItemCount";
 
+    // Line Items
+    string constant private PO_ITEM_NUMBER = "poItemNumber";
+    string constant private SO_NUMBER = "soNumber";
+    string constant private SO_ITEM_NUMBER = "soItemNumber";
+    string constant private PRODUCT_ID = "productId";
+    string constant private QUANTITY = "quantity";
+    string constant private UNIT = "unit";
+    string constant private QUANTITY_ERC20_SYMBOL = "quantityErc20Symbol";
+    string constant private QUANTITY_ERC20_ADDRESS = "quantityErc20Address";
+    string constant private VALUE = "value";
+    string constant private CURRENCY_ERC20_SYMBOL = "currencyErc20Symbol";
+    string constant private CURRENCY_ERC20_ADDRESS = "currencyErc20Address";
+    string constant private STATUS = "status";
+    string constant private GOODS_ISSUE_DATE = "goodsIssueDate";
+    string constant private ESCROW_RELEASE_DATE = "escrowReleaseDate";
+    string constant private CANCEL_STATUS = "cancelStatus";
+    
     // Number range field names
     string constant private PO_GLOBAL_NUMBER = "po.global.number";
 
-    // Mapping names
-    /// @dev Name of a mapping in eternal storage.
-    /// @dev This is used like an index, knowing hash(buyerid + buyerPO) return the EthPO number
-    string constant private MAP_BUYER_PO_TO_ETH_PO = "mapBuyerPoToEthPO";
+    // Names of mappings in eternal storage
+    // Mapping buyer address => their current nonce
+    string constant private MAP_ADDRESS_TO_NONCE = "mapAddressToNonce";
+
+    // Mapping [buyer address + nonce] => po number
+    string constant private MAP_ADDRESS_AND_NONCE_TO_PO_NUMBER = "mapAddressAndNonceToPoNumber";
 
     IEternalStorage public eternalStorage;
     IAddressRegistry public addressRegistry;
 
-    constructor (address contractAddressOfRegistry) public payable
+    constructor (address contractAddressOfRegistry) public
     {
         addressRegistry = IAddressRegistry(contractAddressOfRegistry);
     }
 
     /// Configure contract
     /// @param nameOfEternalStorage key of the entry in the address registry that holds the eternal storage contract address
-    function configure(string memory nameOfEternalStorage) public
+    function configure(string memory nameOfEternalStorage) onlyOwner() override public
     {
         // Eternal storage
         eternalStorage = IEternalStorage(addressRegistry.getAddressString(nameOfEternalStorage));
         require(address(eternalStorage) != address(0), "Could not find EternalStorage address in registry");
     }
-
-    function getEternalStorageAddress() public view returns (address eternalStorageAddress)
+    
+    //------------------------------------------------------------------------------------------
+    // Number ranges
+    //------------------------------------------------------------------------------------------
+    function incrementNonce(address a) onlyRegisteredCaller() override public
     {
-        return address(eternalStorage);
+        uint newNonce = getCurrentNonce(a);
+        newNonce++;
+        eternalStorage.setMappingAddressToUint256Value(stringToBytes32(MAP_ADDRESS_TO_NONCE), a, newNonce);
     }
 
-    function getCurrentPoNumber() public view returns (uint64 poNumber)
+    function getCurrentNonce(address a) override public view returns (uint nonce)
     {
-        return uint64(eternalStorage.getUint256Value(keccak256(abi.encodePacked(PO_GLOBAL_NUMBER))));
+        nonce = eternalStorage.getMappingAddressToUint256Value(stringToBytes32(MAP_ADDRESS_TO_NONCE), a);
     }
 
-    function getNextPoNumber() public returns (uint64 poNumber)
+    function getCurrentPoNumber() override public view returns (uint poNumber)
     {
-        uint64 currentPoNumber = getCurrentPoNumber();
+        poNumber = uint(eternalStorage.getUint256Value(keccak256(abi.encodePacked(PO_GLOBAL_NUMBER))));
+    }
+    
+    /// @dev gets next po number and then increments it for next caller
+    function incrementPoNumber() onlyRegisteredCaller() override public
+    {
+        uint currentPoNumber = getCurrentPoNumber();
         currentPoNumber++;
         setCurrentPoNumber(currentPoNumber);
-        return currentPoNumber;
     }
 
-    function setCurrentPoNumber(uint64 poNumber) private
+    function setCurrentPoNumber(uint poNumber) private
     {
         eternalStorage.setUint256Value(keccak256(abi.encodePacked(PO_GLOBAL_NUMBER)), poNumber);
     }
-
-    function getPoByBuyerPoNumber(bytes32 buyerSystemId, bytes32 buyerPoNumber) public view returns (IPoTypes.Po memory po)
+    
+    //------------------------------------------------------------------------------------------
+    // PO data
+    //------------------------------------------------------------------------------------------
+    function getPoNumberByAddressAndNonce(address a, uint nonce) override public view returns (uint poNumber)
     {
-        // Use mapping index to get eth PO number from hash(buyer id + buyer po number)
-        bytes32 mappingKey = keccak256(abi.encodePacked(buyerSystemId, buyerPoNumber));
-        uint64 ethPoNumber = uint64(eternalStorage.getMappingBytes32ToUint256Value(StringLib.stringToBytes32(MAP_BUYER_PO_TO_ETH_PO), mappingKey));
-
-        // Retrieve  PO
-        po = getPoByEthPoNumber(ethPoNumber);
+        // Use mapping to get PO number from [buyer address + buyer nonce]
+        bytes32 mappingKey = keccak256(abi.encodePacked(a, nonce));
+        poNumber = eternalStorage.getMappingBytes32ToUint256Value(stringToBytes32(MAP_ADDRESS_AND_NONCE_TO_PO_NUMBER), mappingKey);
+    }
+    
+    function getPo(uint poNumber) override public view returns (IPoTypes.Po memory po)
+    {
+        // Retrieve PO from storage
+        // Header
+        po.poNumber = eternalStorage.getUint256Value(keccak256(abi.encodePacked(poNumber, PO_NUMBER)));
+        po.buyerAddress = eternalStorage.getAddressValue(keccak256(abi.encodePacked(poNumber, BUYER_ADDRESS)));
+        po.buyerWalletAddress = eternalStorage.getAddressValue(keccak256(abi.encodePacked(poNumber, BUYER_WALLET_ADDRESS)));
+        po.buyerNonce = eternalStorage.getUint256Value(keccak256(abi.encodePacked(poNumber, BUYER_NONCE)));
+        po.sellerSysId = eternalStorage.getBytes32Value(keccak256(abi.encodePacked(poNumber, SELLER_SYS_ID)));
+        po.poCreateDate = eternalStorage.getUint256Value(keccak256(abi.encodePacked(poNumber, PO_CREATE_DATE)));
+        po.poItemCount = uint8(eternalStorage.getUint256Value(keccak256(abi.encodePacked(poNumber, PO_ITEM_COUNT))));
+        uint len = po.poItemCount;
+        
+        // Line items
+        po.poItems = new IPoTypes.PoItem[](len);
+        for (uint i = 0; i < len; i++)
+        {
+            bytes32 lineItemKey = keccak256(abi.encodePacked(po.poNumber, i));
+            po.poItems[i].poItemNumber = uint8(eternalStorage.getUint256Value(keccak256(abi.encodePacked(lineItemKey, PO_ITEM_NUMBER))));
+            po.poItems[i].soNumber = eternalStorage.getBytes32Value(keccak256(abi.encodePacked(lineItemKey, SO_NUMBER)));
+            po.poItems[i].soItemNumber = eternalStorage.getBytes32Value(keccak256(abi.encodePacked(lineItemKey, SO_ITEM_NUMBER)));
+            po.poItems[i].productId = eternalStorage.getBytes32Value(keccak256(abi.encodePacked(lineItemKey, PRODUCT_ID)));
+            po.poItems[i].quantity = eternalStorage.getUint256Value(keccak256(abi.encodePacked(lineItemKey, QUANTITY)));
+            po.poItems[i].unit = eternalStorage.getBytes32Value(keccak256(abi.encodePacked(lineItemKey, UNIT)));
+            po.poItems[i].quantityErc20Symbol = eternalStorage.getBytes32Value(keccak256(abi.encodePacked(lineItemKey, QUANTITY_ERC20_SYMBOL)));
+            po.poItems[i].quantityErc20Address = eternalStorage.getAddressValue(keccak256(abi.encodePacked(lineItemKey, QUANTITY_ERC20_ADDRESS)));
+            po.poItems[i].value = eternalStorage.getUint256Value(keccak256(abi.encodePacked(lineItemKey, VALUE)));
+            po.poItems[i].currencyErc20Symbol = eternalStorage.getBytes32Value(keccak256(abi.encodePacked(lineItemKey, CURRENCY_ERC20_SYMBOL)));
+            po.poItems[i].currencyErc20Address = eternalStorage.getAddressValue(keccak256(abi.encodePacked(lineItemKey, CURRENCY_ERC20_ADDRESS)));
+            po.poItems[i].status = IPoTypes.PoItemStatus(eternalStorage.getUint256Value(keccak256(abi.encodePacked(lineItemKey, STATUS))));
+            po.poItems[i].goodsIssueDate = eternalStorage.getUint256Value(keccak256(abi.encodePacked(lineItemKey, GOODS_ISSUE_DATE)));
+            po.poItems[i].escrowReleaseDate = eternalStorage.getUint256Value(keccak256(abi.encodePacked(lineItemKey, ESCROW_RELEASE_DATE)));
+            po.poItems[i].cancelStatus = IPoTypes.PoItemCancelStatus(eternalStorage.getUint256Value(keccak256(abi.encodePacked(lineItemKey, CANCEL_STATUS))));
+        }
     }
 
-    function getPoByEthPoNumber(uint64 ethPoNumber) public view returns (IPoTypes.Po memory po)
-    {
-        po = IPoTypes.Po
-        ({
-            ethPurchaseOrderNumber: uint64(eternalStorage.getUint256Value(keccak256(abi.encodePacked(ethPoNumber, ETH_PO_NUMBER)))),
-
-            buyerSysId: eternalStorage.getBytes32Value(keccak256(abi.encodePacked(ethPoNumber, BUYER_SYS_ID))),
-            buyerPurchaseOrderNumber: eternalStorage.getBytes32Value(keccak256(abi.encodePacked(ethPoNumber, BUYER_PO_NUMBER))),
-            buyerViewVendorId: eternalStorage.getBytes32Value(keccak256(abi.encodePacked(ethPoNumber, BUYER_VIEW_VENDOR_ID))),
-
-            sellerSysId: eternalStorage.getBytes32Value(keccak256(abi.encodePacked(ethPoNumber, SELLER_SYS_ID))),
-            sellerSalesOrderNumber: eternalStorage.getBytes32Value(keccak256(abi.encodePacked(ethPoNumber, SELLER_SO_NUMBER))),
-            sellerViewCustomerId: eternalStorage.getBytes32Value(keccak256(abi.encodePacked(ethPoNumber, SELLER_VIEW_CUSTOMER_ID))),
-
-            buyerProductId: eternalStorage.getBytes32Value(keccak256(abi.encodePacked(ethPoNumber, BUYER_PRODUCT_ID))),
-            sellerProductId: eternalStorage.getBytes32Value(keccak256(abi.encodePacked(ethPoNumber, SELLER_PRODUCT_ID))),
-
-            currency: eternalStorage.getBytes32Value(keccak256(abi.encodePacked(ethPoNumber, CURRENCY))),
-            currencyAddress: eternalStorage.getAddressValue(keccak256(abi.encodePacked(ethPoNumber, CURRENCY_ADDRESS))),
-            totalQuantity: uint32(eternalStorage.getUint256Value(keccak256(abi.encodePacked(ethPoNumber, TOTAL_QUANTITY)))),
-            totalValue: uint32(eternalStorage.getUint256Value(keccak256(abi.encodePacked(ethPoNumber, TOTAL_VALUE)))),
-
-            openInvoiceQuantity: uint32(eternalStorage.getUint256Value(keccak256(abi.encodePacked(ethPoNumber, OPEN_INVOICE_QUANTITY)))),
-            openInvoiceValue: uint32(eternalStorage.getUint256Value(keccak256(abi.encodePacked(ethPoNumber, OPEN_INVOICE_VALUE)))),
-
-            poStatus: IPoTypes.PoStatus(eternalStorage.getUint256Value(keccak256(abi.encodePacked(ethPoNumber, PO_STATUS)))),
-            wiProcessStatus: IPoTypes.WiProcessStatus(eternalStorage.getUint256Value(keccak256(abi.encodePacked(ethPoNumber, WI_PROCESS_STATUS))))
-        });
-    }
-
-    function setPo(IPoTypes.Po memory po) public
+    function setPo(IPoTypes.Po memory po) onlyRegisteredCaller() override public
     {
         // Update main PO storage
-        eternalStorage.setUint256Value(keccak256(abi.encodePacked(po.ethPurchaseOrderNumber, ETH_PO_NUMBER)), po.ethPurchaseOrderNumber);
-
-        eternalStorage.setBytes32Value(keccak256(abi.encodePacked(po.ethPurchaseOrderNumber, BUYER_SYS_ID)), po.buyerSysId);
-        eternalStorage.setBytes32Value(keccak256(abi.encodePacked(po.ethPurchaseOrderNumber, BUYER_PO_NUMBER)), po.buyerPurchaseOrderNumber);
-        eternalStorage.setBytes32Value(keccak256(abi.encodePacked(po.ethPurchaseOrderNumber, BUYER_VIEW_VENDOR_ID)), po.buyerViewVendorId);
-
-        eternalStorage.setBytes32Value(keccak256(abi.encodePacked(po.ethPurchaseOrderNumber, SELLER_SYS_ID)), po.sellerSysId);
-        eternalStorage.setBytes32Value(keccak256(abi.encodePacked(po.ethPurchaseOrderNumber, SELLER_SO_NUMBER)), po.sellerSalesOrderNumber);
-        eternalStorage.setBytes32Value(keccak256(abi.encodePacked(po.ethPurchaseOrderNumber, SELLER_VIEW_CUSTOMER_ID)), po.sellerViewCustomerId);
-
-        eternalStorage.setBytes32Value(keccak256(abi.encodePacked(po.ethPurchaseOrderNumber, BUYER_PRODUCT_ID)), po.buyerProductId);
-        eternalStorage.setBytes32Value(keccak256(abi.encodePacked(po.ethPurchaseOrderNumber, SELLER_PRODUCT_ID)), po.sellerProductId);
-
-        eternalStorage.setBytes32Value(keccak256(abi.encodePacked(po.ethPurchaseOrderNumber, CURRENCY)), po.currency);
-        eternalStorage.setAddressValue(keccak256(abi.encodePacked(po.ethPurchaseOrderNumber, CURRENCY_ADDRESS)), po.currencyAddress);
-        eternalStorage.setUint256Value(keccak256(abi.encodePacked(po.ethPurchaseOrderNumber, TOTAL_QUANTITY)), po.totalQuantity);
-        eternalStorage.setUint256Value(keccak256(abi.encodePacked(po.ethPurchaseOrderNumber, TOTAL_VALUE)), po.totalValue);
-
-        eternalStorage.setUint256Value(keccak256(abi.encodePacked(po.ethPurchaseOrderNumber, OPEN_INVOICE_QUANTITY)), po.openInvoiceQuantity);
-        eternalStorage.setUint256Value(keccak256(abi.encodePacked(po.ethPurchaseOrderNumber, OPEN_INVOICE_VALUE)), po.openInvoiceValue);
-
-        eternalStorage.setUint256Value(keccak256(abi.encodePacked(po.ethPurchaseOrderNumber, PO_STATUS)), uint256(po.poStatus));
-        eternalStorage.setUint256Value(keccak256(abi.encodePacked(po.ethPurchaseOrderNumber, WI_PROCESS_STATUS)), uint256(po.wiProcessStatus));
-
-        // Update mappings (indexes)
-        bytes32 mappingKey = keccak256(abi.encodePacked(po.buyerSysId, po.buyerPurchaseOrderNumber));
-        eternalStorage.setMappingBytes32ToUint256Value(StringLib.stringToBytes32(MAP_BUYER_PO_TO_ETH_PO), mappingKey,
-            uint256(po.ethPurchaseOrderNumber));
+        uint len = po.poItems.length;
+        
+        // Header
+        eternalStorage.setUint256Value(keccak256(abi.encodePacked(po.poNumber, PO_NUMBER)), po.poNumber);
+        eternalStorage.setAddressValue(keccak256(abi.encodePacked(po.poNumber, BUYER_ADDRESS)), po.buyerAddress);
+        eternalStorage.setAddressValue(keccak256(abi.encodePacked(po.poNumber, BUYER_WALLET_ADDRESS)), po.buyerWalletAddress);
+        eternalStorage.setUint256Value(keccak256(abi.encodePacked(po.poNumber, BUYER_NONCE)), po.buyerNonce);
+        eternalStorage.setBytes32Value(keccak256(abi.encodePacked(po.poNumber, SELLER_SYS_ID)), po.sellerSysId);
+        eternalStorage.setUint256Value(keccak256(abi.encodePacked(po.poNumber, PO_CREATE_DATE)), po.poCreateDate);
+        eternalStorage.setUint256Value(keccak256(abi.encodePacked(po.poNumber, PO_ITEM_COUNT)), len);
+        
+        // Line Items
+        for (uint i = 0; i < len; i++)
+        {
+            bytes32 lineItemKey = keccak256(abi.encodePacked(po.poNumber, i));
+            eternalStorage.setUint256Value(keccak256(abi.encodePacked(lineItemKey, PO_ITEM_NUMBER)), po.poItems[i].poItemNumber);
+            eternalStorage.setBytes32Value(keccak256(abi.encodePacked(lineItemKey, SO_NUMBER)), po.poItems[i].soNumber);
+            eternalStorage.setBytes32Value(keccak256(abi.encodePacked(lineItemKey, SO_ITEM_NUMBER)), po.poItems[i].soItemNumber);
+            eternalStorage.setBytes32Value(keccak256(abi.encodePacked(lineItemKey, PRODUCT_ID)), po.poItems[i].productId);
+            eternalStorage.setUint256Value(keccak256(abi.encodePacked(lineItemKey, QUANTITY)), po.poItems[i].quantity);
+            eternalStorage.setBytes32Value(keccak256(abi.encodePacked(lineItemKey, UNIT)), po.poItems[i].unit);
+            eternalStorage.setBytes32Value(keccak256(abi.encodePacked(lineItemKey, QUANTITY_ERC20_SYMBOL)), po.poItems[i].quantityErc20Symbol);
+            eternalStorage.setAddressValue(keccak256(abi.encodePacked(lineItemKey, QUANTITY_ERC20_ADDRESS)), po.poItems[i].quantityErc20Address);
+            eternalStorage.setUint256Value(keccak256(abi.encodePacked(lineItemKey, VALUE)), uint256(po.poItems[i].value));
+            eternalStorage.setBytes32Value(keccak256(abi.encodePacked(lineItemKey, CURRENCY_ERC20_SYMBOL)), po.poItems[i].currencyErc20Symbol);
+            eternalStorage.setAddressValue(keccak256(abi.encodePacked(lineItemKey, CURRENCY_ERC20_ADDRESS)), po.poItems[i].currencyErc20Address);
+            eternalStorage.setUint256Value(keccak256(abi.encodePacked(lineItemKey, STATUS)), uint256(po.poItems[i].status));
+            eternalStorage.setUint256Value(keccak256(abi.encodePacked(lineItemKey, GOODS_ISSUE_DATE)), po.poItems[i].goodsIssueDate);
+            eternalStorage.setUint256Value(keccak256(abi.encodePacked(lineItemKey, ESCROW_RELEASE_DATE)), po.poItems[i].escrowReleaseDate);
+            eternalStorage.setUint256Value(keccak256(abi.encodePacked(lineItemKey, CANCEL_STATUS)), uint256(po.poItems[i].cancelStatus));
+        }
+        
+        // Update mapping of [buyer address + nonce] => po number
+        bytes32 mappingKey = keccak256(abi.encodePacked(po.buyerAddress, po.buyerNonce));
+        eternalStorage.setMappingBytes32ToUint256Value(stringToBytes32(MAP_ADDRESS_AND_NONCE_TO_PO_NUMBER), mappingKey, uint256(po.poNumber));
     }
 }
 
