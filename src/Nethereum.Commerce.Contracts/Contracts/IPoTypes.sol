@@ -24,21 +24,16 @@ interface IPoTypes
     struct PoItem
     {
         uint8 poItemNumber;                // contract managed, PO item key
-
         bytes32 soNumber;                  // seller system (eg eShop) managed (any numbering allowed, could be same as PO number and PO item)
-        bytes32 soItemNumer;               // seller system (eg eShop) managed (any numbering allowed, could be same as PO number and PO item)
-
+        bytes32 soItemNumber;              // seller system (eg eShop) managed (any numbering allowed, could be same as PO number and PO item)
         bytes32 productId;                 // buyer UI managed, product id from product registry
-
         uint quantity;                     // buyer UI managed, regular quantity, eg 4
         bytes32 unit;                      // buyer UI managed, regular quantity units, eg PC pieces (TODO are there ISO codes for this?)        
         bytes32 quantityErc20Symbol;       // TODO who manages, symbol of the ERC20 that represents this productId (assume token quantity same as quantity above)
         address quantityErc20Address;      // TODO who manages, contract address of the ERC20 that represents this productId
-
         uint value;                        // buyer UI managed, value in the units of the ERC20 that is making the payment eg DAI has token precision 18, so 1120000000000000000 DAI is 1.12 USD
         bytes32 currencyErc20Symbol;       // buyer UI managed, symbol of the ERC20 that is making payment, eg DAI
         address currencyErc20Address;      // buyer UI managed, contract address of the ERC20 that is making payment 
-
         PoItemStatus status;               // contract managed for create, then seller system managed
         uint goodsIssueDate;               // contract managed at point of goods issue, the goods issue unix timestamp
         uint escrowReleaseDate;            // contract managed at point of goods issue, it is the goods issue unix timestamp + escrow days eg 30 days        
@@ -48,15 +43,12 @@ interface IPoTypes
     struct Po
     {
         uint poNumber;                     // contract managed, PO header key, leave blank at PO creation time
-
         address buyerAddress;              // contract managed, buyer EoA address holding currency and "owner" of the PO
         address buyerWalletAddress;        // contract managed, buyer wallet contract address, needed to locate contract when sending events from PoMain contract        
         uint buyerNonce;                   // contract managed, buyer UI assigned. buyerAddress+buyerNonce uniquely identifies a single poNumber
-
         bytes32 sellerSysId;               // buyer UI managed, allocated by seller system to identify their shop
-
         uint poCreateDate;                 // buyer UI managed, po creation unix timestamp
-
+        uint8 poItemCount;                 // contract managed, count of line items written to storage
         PoItem[] poItems;                  // dynamic array of po items, TODO impose configurable max of eg 16, low enough that contract can iterate all
     }
 

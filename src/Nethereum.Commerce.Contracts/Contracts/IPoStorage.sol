@@ -1,18 +1,21 @@
-pragma solidity ^0.5.3;
+pragma solidity ^0.6.1;
 pragma experimental ABIEncoderV2;
 
 import "./IPoTypes.sol";
 
-contract IPoStorage
+interface IPoStorage
 {
-    function configure(string memory nameOfEternalStorage) public;
+    function configure(string calldata nameOfEternalStorage) external;
 
     // PO number range
-    function getNextPoNumber() public returns (uint64 poNumber);
-    function getCurrentPoNumber() public view returns (uint64 poNumber);
+    function incrementNonce(address a) external;
+    function getCurrentNonce(address a) external view returns (uint nonce);
+    function incrementPoNumber() external;
+    function getCurrentPoNumber() external view returns (uint poNumber);
 
     // PO documents
-    function setPo(IPoTypes.Po memory po) public;
-    function getPoByEthPoNumber(uint64 ethPoNumber) public view returns (IPoTypes.Po memory po);
-    function getPoByBuyerPoNumber(bytes32 buyerSystemId, bytes32 buyerPoNumber) public view returns (IPoTypes.Po memory po);
+    function setPo(IPoTypes.Po calldata po) external;
+    function getPo(uint poNumber) external view returns (IPoTypes.Po memory po);
+    function getPoNumberByAddressAndNonce(address a, uint nonce) external view returns (uint poNumber);
 }
+
