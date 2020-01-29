@@ -24,8 +24,8 @@ namespace Nethereum.Commerce.Contracts.PoStorage.ContractDefinition
         [Parameter("bytes32", "sellerSysId", 5)]
         public new string SellerSysId { get; set; }
 
-        [Parameter("uint256", "poCreateDate", 6)]
-        public new BigInteger PoCreateDate { get; set; }
+        [Parameter("uint256", "poCreateDate", 6)]  // comment out to see error
+        public new BigInteger PoCreateDate { get; set; } // comment out to see error
 
         [Parameter("uint8", "poItemCount", 7)]
         public new uint PoItemCount { get; set; }
