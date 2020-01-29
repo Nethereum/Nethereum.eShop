@@ -2,8 +2,10 @@
 
 namespace Nethereum.eShop.ApplicationCore.Entities
 {
-    public class Address // ValueObject
+    public class PostalAddress // ValueObject
     {
+        public String Name { get; private set; }
+
         public String Street { get; private set; }
 
         public String City { get; private set; }
@@ -14,10 +16,11 @@ namespace Nethereum.eShop.ApplicationCore.Entities
 
         public String ZipCode { get; private set; }
 
-        private Address() { }
+        private PostalAddress() { }
 
-        public Address(string street, string city, string state, string country, string zipcode)
+        public PostalAddress(string name, string street, string city, string state, string country, string zipcode)
         {
+            Name = name;
             Street = street;
             City = city;
             State = state;

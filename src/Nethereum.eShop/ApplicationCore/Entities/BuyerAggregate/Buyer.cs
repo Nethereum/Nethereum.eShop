@@ -1,6 +1,5 @@
-﻿using Nethereum.eShop.ApplicationCore.Interfaces;
-using Ardalis.GuardClauses;
-using System.Collections.Generic;
+﻿using Ardalis.GuardClauses;
+using Nethereum.eShop.ApplicationCore.Interfaces;
 
 namespace Nethereum.eShop.ApplicationCore.Entities.BuyerAggregate
 {
@@ -8,24 +7,23 @@ namespace Nethereum.eShop.ApplicationCore.Entities.BuyerAggregate
     {
         // Expected To Be Ethereum Address
         public string BuyerId { get; private set; }
-
-        public Address ShipToAddress { get; private set; }
-        public Address BillToAddress { get; private set; }
+        public PostalAddress ShipTo { get; private set; }
+        public PostalAddress BillTo { get; private set; }
 
         private Buyer()
         {
             // required by EF
         }
 
-        public Buyer(string identity, Address shipToAddress, Address billToAddress) : this()
+        public Buyer(string identity, PostalAddress shipToAddress, PostalAddress billToAddress) : this()
         {
             Guard.Against.NullOrEmpty(identity, nameof(identity));
             Guard.Against.Null(shipToAddress, nameof(shipToAddress));
             Guard.Against.Null(billToAddress, nameof(billToAddress));
 
             BuyerId = identity;
-            ShipToAddress = shipToAddress;
-            BillToAddress = billToAddress;
+            ShipTo = shipToAddress;
+            BillTo = billToAddress;
         }
     }
 }

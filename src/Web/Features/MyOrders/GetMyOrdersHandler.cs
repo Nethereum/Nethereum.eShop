@@ -35,7 +35,7 @@ namespace Nethereum.eShop.Web.Features.MyOrders
                     Units = oi.Quantity
                 }).ToList(),
                 OrderNumber = o.Id,
-                ShippingAddress = o.ShipToAddress,
+                ShippingAddress = o.ShipTo,
                 Total = o.Total()
             });
         }

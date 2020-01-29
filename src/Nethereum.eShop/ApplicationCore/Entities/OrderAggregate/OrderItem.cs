@@ -9,14 +9,25 @@ namespace Nethereum.eShop.ApplicationCore.Entities.OrderAggregate
         public decimal UnitPrice { get; private set; }
         public int Quantity { get; private set; }
         public string Unit { get; set; }
-        public int POItemNumber { get; set; }
+
+        // TODO: change to enum
+        public int? PoItemStatus { get; set; }
+        public int? PoItemNumber { get; set; }
+
+        /// <summary>
+        /// eShop assigned issue date (gets sent to smart contract)
+        /// </summary>
         public DateTimeOffset? GoodsIssueDate { get; set; }
-        public DateTimeOffset EscrowReleaseDate { get; set; }
-        public string Value { get; set; }
-        public string QuantityErc20Symbol { get; set; }
-        public string QuantityErc20Address { get; set; }
-        public string CurrencyErc20Symbol { get; set; }
-        public string CurrencyErc20Address { get; set; }
+
+        /// <summary>
+        /// Smart contract assigned date
+        /// </summary>
+        public DateTimeOffset? EscrowReleaseDate { get; set; }
+        public string QuantitySymbol { get; set; }
+        public string QuantityAddress { get; set; }
+        public string CurrencySymbol { get; set; }
+        public string CurrencyAddress { get; set; }
+        public string CurrencyValue { get; set; }
 
         private OrderItem()
         {

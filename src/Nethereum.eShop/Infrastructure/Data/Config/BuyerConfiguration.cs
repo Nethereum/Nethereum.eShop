@@ -10,52 +10,14 @@ namespace Nethereum.eShop.Infrastructure.Data.Config
         {
             builder.HasIndex(b => b.BuyerId).IsUnique();
 
-            builder.OwnsOne(o => o.ShipToAddress, a =>
+            builder.OwnsOne(o => o.ShipTo, a =>
             {
-                a.WithOwner();
-                
-                a.Property(a => a.ZipCode)
-                    .HasMaxLength(18)
-                    .IsRequired();
-
-                a.Property(a => a.Street)
-                    .HasMaxLength(180)
-                    .IsRequired();
-
-                a.Property(a => a.State)
-                    .HasMaxLength(60);
-
-                a.Property(a => a.Country)
-                    .HasMaxLength(90)
-                    .IsRequired();
-
-                a.Property(a => a.City)
-                    .HasMaxLength(100)
-                    .IsRequired();
+                a.ConfigureAddress();
             });
 
-            builder.OwnsOne(o => o.BillToAddress, a =>
+            builder.OwnsOne(o => o.BillTo, a =>
             {
-                a.WithOwner();
-
-                a.Property(a => a.ZipCode)
-                    .HasMaxLength(18)
-                    .IsRequired();
-
-                a.Property(a => a.Street)
-                    .HasMaxLength(180)
-                    .IsRequired();
-
-                a.Property(a => a.State)
-                    .HasMaxLength(60);
-
-                a.Property(a => a.Country)
-                    .HasMaxLength(90)
-                    .IsRequired();
-
-                a.Property(a => a.City)
-                    .HasMaxLength(100)
-                    .IsRequired();
+                a.ConfigureAddress();
             });
         }
     }

@@ -21,7 +21,7 @@ namespace Nethereum.eShop.ApplicationCore.Services
             _itemRepository = itemRepository;
         }
 
-        public async Task CreateOrderAsync(int basketId, Address billingAddress, Address shippingAddress)
+        public async Task CreateOrderAsync(int basketId, PostalAddress billingAddress, PostalAddress shippingAddress)
         {
             // TODO: 
             // write address to buyer, to be looked up on po creation

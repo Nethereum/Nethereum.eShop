@@ -36,6 +36,9 @@ namespace Nethereum.eShop.Infrastructure.Data.Config
             builder.HasOne(ci => ci.CatalogType)
                 .WithMany()
                 .HasForeignKey(ci => ci.CatalogTypeId);
+
+            builder.Property(ci => ci.Unit)
+                .HasMaxLength(8);
         }
     }
 }

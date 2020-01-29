@@ -2,8 +2,14 @@
 
 namespace Nethereum.eShop.ApplicationCore.Entities
 {
+
     public class CatalogItem : BaseEntity, IAggregateRoot
     {
+        /// <summary>
+        /// Is the item available for sale
+        /// </summary>
+        public CatalogItemStatus Status { get; set; }
+
         /// <summary>
         /// identififer for a product outside of the eShop
         /// in some cases it could be a globally understood id
@@ -26,6 +32,12 @@ namespace Nethereum.eShop.ApplicationCore.Entities
         /// The price in the eShop's base currency
         /// </summary>
         public decimal Price { get; set; }
+
+        /// <summary>
+        /// unit of measure, required for PO's
+        /// </summary>
+        public string Unit { get; set; }
+
         public int CatalogTypeId { get; set; }
         public CatalogType CatalogType { get; set; }
         public int CatalogBrandId { get; set; }
@@ -44,8 +56,15 @@ namespace Nethereum.eShop.ApplicationCore.Entities
         /// </summary>
         public string AttributeJson { get; set; }
 
+        /// <summary>
+        /// for sorting
+        /// most likely computed elsewhere based on lots of different factors
+        /// </summary>
+        public int Rank { get; set; }
+
         public int Height { get; set; }
         public int Width { get; set; }
         public int Depth { get; set; }
+        public int Weight { get; set; }
     }
 }

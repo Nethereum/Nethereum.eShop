@@ -1,6 +1,6 @@
 ﻿using Ardalis.GuardClauses;
 
-namespace Nethereum.eShop.ApplicationCore.Entities
+namespace Nethereum.eShop.ApplicationCore.Entities.OrderAggregate
 {
     /// <summary>
     /// Represents a snapshot of the item that was ordered. If catalog item details change, details of
@@ -8,6 +8,12 @@ namespace Nethereum.eShop.ApplicationCore.Entities
     /// </summary>
     public class CatalogItemOrdered // ValueObject
     {
+        public int CatalogItemId { get; private set; }
+        public string Gtin { get; private set; }
+        public int? GtinRegistryId { get; private set; }
+        public string ProductName { get; private set; }
+        public string PictureUri { get; private set; }
+
         public CatalogItemOrdered(int catalogItemId, string gtin, int? gtinRegistryId, string productName, string pictureUri)
         {
             Guard.Against.OutOfRange(catalogItemId, nameof(catalogItemId), 1, int.MaxValue);
@@ -25,14 +31,5 @@ namespace Nethereum.eShop.ApplicationCore.Entities
         {
             // required by EF
         }
-
-        public int CatalogItemId { get; private set; }
-
-        public string Gtin { get; private set; }
-
-        public int? GtinRegistryId { get; private set; }
-
-        public string ProductName { get; private set; }
-        public string PictureUri { get; private set; }
     }
 }

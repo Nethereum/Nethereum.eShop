@@ -2,6 +2,6 @@
 {
     public enum OrderItemStatus
     {
-        Open, Closed
+        Draft, Open, Closed
     }
 }

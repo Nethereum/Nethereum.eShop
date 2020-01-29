@@ -23,7 +23,7 @@ namespace Nethereum.eShop.ApplicationCore.Services
             _itemRepository = itemRepository;
         }
 
-        public async Task CreateOrderAsync(int basketId, Address billingAddress, Address shippingAddress)
+        public async Task CreateOrderAsync(int basketId, PostalAddress billingAddress, PostalAddress shippingAddress)
         {
             // TODO: 
             // Validate
@@ -41,7 +41,7 @@ namespace Nethereum.eShop.ApplicationCore.Services
                 var orderItem = new OrderItem(itemOrdered, item.UnitPrice, item.Quantity);
                 items.Add(orderItem);
             }
-            var order = new Order(basket.BuyerId, billingAddress, shippingAddress, items);
+            var order = new Order(basket.BuyerAddress, billingAddress, shippingAddress, items);
 
             await _orderRepository.AddAsync(order);
         }

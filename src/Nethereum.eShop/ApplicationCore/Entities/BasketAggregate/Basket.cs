@@ -9,13 +9,7 @@ namespace Nethereum.eShop.ApplicationCore.Entities.BasketAggregate
         /// <summary>
         /// The Ethereum Address
         /// </summary>
-        public string BuyerId { get; set; }
-
-        /// <summary>
-        /// The nonce associated with the BuyerId
-        /// It allows the basket to be associated with a purchase order
-        /// </summary>
-        public long? BuyerNonce { get; set; }
+        public string BuyerAddress { get; set; }
 
         private readonly List<BasketItem> _items = new List<BasketItem>();
         public IReadOnlyCollection<BasketItem> Items => _items.AsReadOnly();
