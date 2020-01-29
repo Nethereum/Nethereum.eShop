@@ -1,7 +1,6 @@
 ﻿using Ipfs;
-using System;
-using System.IO;
-using System.Net.Http;
+using Ipfs.CoreApi;
+using Ipfs.Http;
 using System.Threading.Tasks;
 
 namespace Books.ImportUtil
@@ -9,14 +8,13 @@ namespace Books.ImportUtil
 
     public class IpfsService
     {
-
-        private string ipfsUrl;
         private string getUrl;
-        public IpfsService(string ipfsUrl)
+        private IpfsClient ipfsClient;
+
+        public IpfsService(string host)
         {
-            this.ipfsUrl = ipfsUrl;
-            var uri = new Uri(ipfsUrl);
-            getUrl = $"{uri.Scheme}://{uri.Host}/ipfs/".ToString();
+            ipfsClient = new IpfsClient(host);
+            getUrl = $"{ipfsClient.ApiUri.Scheme}://{ipfsClient.ApiUri.Host}/ipfs/".ToString();
         }
 
         public string GetUrl(string hash)
@@ -24,33 +22,14 @@ namespace Books.ImportUtil
             return getUrl + hash;
         }
 
-        public async Task<MerkleNode> AddFileAsync(string filePath)
+        public async Task<Cid> AddFileAsync(string filePath, bool pin = true)
         {
-            var fileName = Path.GetFileName(filePath);
-            using (var fileStream = new FileStream(filePath, FileMode.Open))
-            {
-                return await AddAsync(fileName, fileStream).ConfigureAwait(false);
-            }
-        }
+            var cid = await ipfsClient
+                .FileSystem
+                .AddFileAsync(
+                filePath, new AddFileOptions() { Pin = pin }).ConfigureAwait(false);
 
-        public async Task<MerkleNode> AddAsync(string name, Stream stream)
-        {
-            using (var ipfs = new IpfsClient(ipfsUrl))
-            {
-                var inputStream = new IpfsStream(name, stream);
-
-                var merkleNode = await ipfs.Add(inputStream).ConfigureAwait(false);
-                var multiHash = ipfs.Pin.Add(merkleNode.Hash.ToString());
-                return merkleNode;
-            }
-        }
-
-        public async Task<HttpContent> PinListAsync()
-        {
-            using (var ipfs = new IpfsClient(ipfsUrl))
-            {
-                return await ipfs.Pin.Ls();
-            }
+            return cid.Id;
         }
     }
 }
