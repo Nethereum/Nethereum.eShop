@@ -12,7 +12,11 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Nethereum.Web3" Version="3.4.0" />
+      <None Remove="README.md.saved.bak" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Nethereum.Web3" Version="3.6.0" />
     </ItemGroup>
 
     <ItemGroup>

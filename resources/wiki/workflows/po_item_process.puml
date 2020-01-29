@@ -1,0 +1,54 @@
+' PlantUML Diagram
+@startuml
+title __PO Item Process__
+
+' Swimlanes
+|eShop UI|
+|eShop Backend|
+|eShop Admin UI|
+|#AntiqueWhite|Contracts| 
+
+|eShop Admin UI|
+start
+:Admin user marks **PO Item**
+as Goods Issued;
+
+|Contracts|
+:Update **PO Item** Status.
+(Function: PoItemGoodsIssued());
+:Update Escrow Release
+date = Today + 30 days;
+
+|eShop Backend|
+:Inform user **PO Item** 
+has been goods issued;
+
+|eShop UI|
+:User Sees: **PO Item** Status
+Goods Issued;
+
+|eShop Admin UI|
+:...30 days pass...;
+:Admin user marks **PO Item**
+as Goods Received;
+:Admin user requests fund
+release for **PO Item**.;
+
+|Contracts|
+:Update **PO Item** Status.
+(Function: PoItemGoodsReceived());
+:Escrow funds released
+to seller.;
+:Emit Events;
+
+|eShop Backend|
+:Inform user **PO Item** has had
+funds released.;
+
+|eShop UI|
+:User Sees: **PO Item** complete,
+no further dispute possible.;
+
+stop
+
+@enduml

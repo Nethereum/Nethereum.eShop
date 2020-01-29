@@ -4,9 +4,11 @@ pragma experimental ABIEncoderV2;
 import "./IBusinessPartnerStorage.sol";
 import "./IEternalStorage.sol";
 import "./IAddressRegistry.sol";
+import "./Ownable.sol";
+import "./Bindable.sol";
 import "./StringConvertible.sol";
 
-contract BusinessPartnerStorage is IBusinessPartnerStorage, StringConvertible
+contract BusinessPartnerStorage is IBusinessPartnerStorage, Ownable, Bindable, StringConvertible
 {
     IEternalStorage public eternalStorage;
     IAddressRegistry public addressRegistry;
@@ -21,7 +23,7 @@ contract BusinessPartnerStorage is IBusinessPartnerStorage, StringConvertible
 
     /// Configure contract
     /// @param nameOfEternalStorage key of the entry in the address registry that holds the eternal storage contract address
-    function configure(string memory nameOfEternalStorage) override public
+    function configure(string memory nameOfEternalStorage) onlyOwner() override public
     {
         // Eternal storage
         eternalStorage = IEternalStorage(addressRegistry.getAddressString(nameOfEternalStorage));
@@ -36,7 +38,7 @@ contract BusinessPartnerStorage is IBusinessPartnerStorage, StringConvertible
     }
 
     /// @dev Store mapping with key [system id] to store [wallet address for that system id]
-    function setWalletAddress(bytes32 systemId, address walletAddress) override external
+    function setWalletAddress(bytes32 systemId, address walletAddress) onlyRegisteredCaller() override external
     {
         bytes32 mappingKey = keccak256(abi.encodePacked(systemId));
         eternalStorage.setMappingBytes32ToAddressValue(stringToBytes32(MAP_SYSTEM_ID_TO_WALLET_ADDRESS), mappingKey, walletAddress);
@@ -50,7 +52,7 @@ contract BusinessPartnerStorage is IBusinessPartnerStorage, StringConvertible
     }
 
     /// @dev Store mapping with key [system id] to store [description for that system id]
-    function setSystemDescription(bytes32 systemId, bytes32 systemDescription) override external
+    function setSystemDescription(bytes32 systemId, bytes32 systemDescription) onlyRegisteredCaller() override external
     {
         bytes32 mappingKey = keccak256(abi.encodePacked(systemId));
         eternalStorage.setMappingBytes32ToBytes32Value(stringToBytes32(MAP_SYSTEM_ID_TO_DESCRIPTION), mappingKey, systemDescription);

@@ -1,0 +1,25 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using System.Linq;
+
+namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
+{
+    public class ContractDeploymentsConfigFactory
+    {
+        public static ContractDeploymentsConfig Get(IConfigurationRoot config)
+        {
+            var configDict = config.GetSection("NewDeployments").GetChildren().ToDictionary(x => x.Key, x => x.Value);
+
+            ContractDeploymentsConfig deploymentConfig = new ContractDeploymentsConfig();
+            deploymentConfig.BlockchainUrl = ConfigurationUtils.GetOrThrow(configDict, "BlockchainUrl");
+            deploymentConfig.EShopSystemId = ConfigurationUtils.GetOrThrow(configDict, "EShopSystemId");
+            deploymentConfig.EShopDescription = ConfigurationUtils.GetOrThrow(configDict, "EShopDescription");
+            deploymentConfig.ContractDeploymentOwnerPrivateKey = ConfigurationUtils.GetOrThrow(configDict, "ContractDeploymentOwnerPrivateKey");
+            return deploymentConfig;
+        }
+    }
+}
