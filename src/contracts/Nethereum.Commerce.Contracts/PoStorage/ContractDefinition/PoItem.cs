@@ -1,9 +1,5 @@
-using System;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.Numerics;
-using Nethereum.Hex.HexTypes;
 using Nethereum.ABI.FunctionEncoding.Attributes;
+using System.Numerics;
 
 namespace Nethereum.Commerce.Contracts.PoStorage.ContractDefinition
 {
@@ -23,16 +19,16 @@ namespace Nethereum.Commerce.Contracts.PoStorage.ContractDefinition
         public virtual BigInteger Quantity { get; set; }
         [Parameter("bytes32", "unit", 6)]
         public virtual byte[] Unit { get; set; }
-        [Parameter("bytes32", "quantityErc20Symbol", 7)]
-        public virtual byte[] QuantityErc20Symbol { get; set; }
-        [Parameter("address", "quantityErc20Address", 8)]
-        public virtual string QuantityErc20Address { get; set; }
-        [Parameter("uint256", "value", 9)]
-        public virtual BigInteger Value { get; set; }
-        [Parameter("bytes32", "currencyErc20Symbol", 10)]
-        public virtual byte[] CurrencyErc20Symbol { get; set; }
-        [Parameter("address", "currencyErc20Address", 11)]
-        public virtual string CurrencyErc20Address { get; set; }
+        [Parameter("bytes32", "quantitySymbol", 7)]
+        public virtual byte[] QuantitySymbol { get; set; }
+        [Parameter("address", "quantityAddress", 8)]
+        public virtual string QuantityAddress { get; set; }
+        [Parameter("uint256", "currencyValue", 9)]
+        public virtual BigInteger CurrencyValue { get; set; }
+        [Parameter("bytes32", "currencySymbol", 10)]
+        public virtual byte[] CurrencySymbol { get; set; }
+        [Parameter("address", "currencyAddress", 11)]
+        public virtual string CurrencyAddress { get; set; }
         [Parameter("uint8", "status", 12)]
         public virtual byte Status { get; set; }
         [Parameter("uint256", "goodsIssueDate", 13)]

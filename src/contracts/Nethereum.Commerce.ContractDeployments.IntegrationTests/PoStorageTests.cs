@@ -1,11 +1,9 @@
-using Nethereum.Commerce.ContractDeployments.IntegrationTests.Config;
-using Xunit;
-using Xunit.Abstractions;
 using FluentAssertions;
+using Nethereum.Commerce.ContractDeployments.IntegrationTests.Config;
 using Nethereum.Commerce.Contracts.PoStorage.ContractDefinition;
 using System.Collections.Generic;
-using System;
-using Nethereum.Commerce.Contracts;
+using Xunit;
+using Xunit.Abstractions;
 using static Nethereum.Commerce.Contracts.ContractEnums;
 
 namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
@@ -81,11 +79,11 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                 poActual.PoItems[i].ProductId.Should().Be(poExpected.PoItems[i].ProductId);
                 poActual.PoItems[i].Quantity.Should().Be(poExpected.PoItems[i].Quantity);
                 poActual.PoItems[i].Unit.Should().Be(poExpected.PoItems[i].Unit);
-                poActual.PoItems[i].QuantityErc20Symbol.Should().Be(poExpected.PoItems[i].QuantityErc20Symbol);
-                poActual.PoItems[i].QuantityErc20Address.Should().Be(poExpected.PoItems[i].QuantityErc20Address);
-                poActual.PoItems[i].Value.Should().Be(poExpected.PoItems[i].Value);
-                poActual.PoItems[i].CurrencyErc20Symbol.Should().Be(poExpected.PoItems[i].CurrencyErc20Symbol);
-                poActual.PoItems[i].CurrencyErc20Address.Should().Be(poExpected.PoItems[i].CurrencyErc20Address);
+                poActual.PoItems[i].QuantitySymbol.Should().Be(poExpected.PoItems[i].QuantitySymbol);
+                poActual.PoItems[i].QuantityAddress.Should().Be(poExpected.PoItems[i].QuantityAddress);
+                poActual.PoItems[i].CurrencyValue.Should().Be(poExpected.PoItems[i].CurrencyValue);
+                poActual.PoItems[i].CurrencySymbol.Should().Be(poExpected.PoItems[i].CurrencySymbol);
+                poActual.PoItems[i].CurrencyAddress.Should().Be(poExpected.PoItems[i].CurrencyAddress);
                 poActual.PoItems[i].Status.Should().Be(poExpected.PoItems[i].Status);
                 poActual.PoItems[i].GoodsIssueDate.Should().Be(poExpected.PoItems[i].GoodsIssueDate);
                 poActual.PoItems[i].EscrowReleaseDate.Should().Be(poExpected.PoItems[i].EscrowReleaseDate);
@@ -114,11 +112,11 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                         ProductId = "gtin1111",
                         Quantity = 1,
                         Unit = "EA",
-                        QuantityErc20Symbol = "NA",
-                        QuantityErc20Address = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
-                        Value = 11,
-                        CurrencyErc20Symbol = "DAI",
-                        CurrencyErc20Address = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
+                        QuantitySymbol = "NA",
+                        QuantityAddress = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
+                        CurrencyValue = 11,
+                        CurrencySymbol = "DAI",
+                        CurrencyAddress = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
                         Status = PoItemStatus.PoCreated,
                         GoodsIssueDate = 100,
                         EscrowReleaseDate = 100,
@@ -132,11 +130,11 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                         ProductId = "gtin2222",
                         Quantity = 2,
                         Unit = "EA",
-                        QuantityErc20Symbol = "NA",
-                        QuantityErc20Address = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
-                        Value = 22,
-                        CurrencyErc20Symbol = "DAI",
-                        CurrencyErc20Address = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
+                        QuantitySymbol = "NA",
+                        QuantityAddress = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
+                        CurrencyValue = 22,
+                        CurrencySymbol = "DAI",
+                        CurrencyAddress = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
                         Status = PoItemStatus.PoCreated,
                         GoodsIssueDate = 200,
                         EscrowReleaseDate = 200,

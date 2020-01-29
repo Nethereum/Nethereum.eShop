@@ -1,9 +1,6 @@
-using System;
-using System.Threading.Tasks;
+using Nethereum.ABI.FunctionEncoding.Attributes;
 using System.Collections.Generic;
 using System.Numerics;
-using Nethereum.Hex.HexTypes;
-using Nethereum.ABI.FunctionEncoding.Attributes;
 
 namespace Nethereum.Commerce.Contracts.PoStorage.ContractDefinition
 {

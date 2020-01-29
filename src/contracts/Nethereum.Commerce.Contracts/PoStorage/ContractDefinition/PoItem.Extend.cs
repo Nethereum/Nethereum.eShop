@@ -1,5 +1,4 @@
 using Nethereum.ABI.FunctionEncoding.Attributes;
-using System;
 using System.Numerics;
 using static Nethereum.Commerce.Contracts.ContractEnums;
 
@@ -25,20 +24,20 @@ namespace Nethereum.Commerce.Contracts.PoStorage.ContractDefinition
         [Parameter("bytes32", "unit", 6)]
         public new string Unit { get; set; }
 
-        [Parameter("bytes32", "quantityErc20Symbol", 7)]
-        public new string QuantityErc20Symbol { get; set; }
+        [Parameter("bytes32", "quantitySymbol", 7)]
+        public new string QuantitySymbol { get; set; }
 
-        [Parameter("address", "quantityErc20Address", 8)]
-        public new string QuantityErc20Address { get; set; }
+        [Parameter("address", "quantityAddress", 8)]
+        public new string QuantityAddress { get; set; }
 
-        [Parameter("uint256", "value", 9)]
-        public new BigInteger Value { get; set; }
+        [Parameter("uint256", "currencyValue", 9)]
+        public new BigInteger CurrencyValue { get; set; }
 
-        [Parameter("bytes32", "currencyErc20Symbol", 10)]
-        public new string CurrencyErc20Symbol { get; set; }
+        [Parameter("bytes32", "currencySymbol", 10)]
+        public new string CurrencySymbol { get; set; }
 
-        [Parameter("address", "currencyErc20Address", 11)]
-        public new string CurrencyErc20Address { get; set; }
+        [Parameter("address", "currencyAddress", 11)]
+        public new string CurrencyAddress { get; set; }
 
         [Parameter("uint8", "status", 12)]
         public new PoItemStatus Status { get; set; }
