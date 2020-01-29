@@ -7,7 +7,7 @@ namespace Nethereum.eShop.ApplicationCore.Entities.BuyerAggregate
     public class Buyer : BaseEntity, IAggregateRoot
     {
         // Expected To Be Ethereum Address
-        public string IdentityGuid { get; private set; }
+        public string BuyerId { get; private set; }
 
         public Address ShipToAddress { get; private set; }
         public Address BillToAddress { get; private set; }
@@ -23,7 +23,7 @@ namespace Nethereum.eShop.ApplicationCore.Entities.BuyerAggregate
             Guard.Against.Null(shipToAddress, nameof(shipToAddress));
             Guard.Against.Null(billToAddress, nameof(billToAddress));
 
-            IdentityGuid = identity;
+            BuyerId = identity;
             ShipToAddress = shipToAddress;
             BillToAddress = billToAddress;
         }

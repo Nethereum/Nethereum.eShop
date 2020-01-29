@@ -1,18 +1,20 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Nethereum.eShop.ApplicationCore.Entities.OrderAggregate;
+using Nethereum.eShop.ApplicationCore.Entities.PurchaseOrderAggregate;
 
 namespace Nethereum.eShop.Infrastructure.Data.Config
 {
-    public class OrderConfiguration : IEntityTypeConfiguration<Order>
+    public class PurchaseOrderRequestConfiguration : IEntityTypeConfiguration<PurchaseOrderRequest>
     {
-        public void Configure(EntityTypeBuilder<Order> builder)
+        public void Configure(EntityTypeBuilder<PurchaseOrderRequest> builder)
         {
-            var navigation = builder.Metadata.FindNavigation(nameof(Order.OrderItems));
+            var navigation = builder.Metadata.FindNavigation(nameof(PurchaseOrderRequest.OrderItems));
 
             navigation.SetPropertyAccessMode(PropertyAccessMode.Field);
 
             builder.HasIndex(b => b.BuyerId);
+            builder.HasIndex(b => b.BuyerNonce);
 
             builder.OwnsOne(o => o.ShipToAddress, a =>
             {

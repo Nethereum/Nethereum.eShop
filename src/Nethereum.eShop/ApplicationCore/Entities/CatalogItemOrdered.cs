@@ -1,6 +1,6 @@
 ﻿using Ardalis.GuardClauses;
 
-namespace Nethereum.eShop.ApplicationCore.Entities.OrderAggregate
+namespace Nethereum.eShop.ApplicationCore.Entities
 {
     /// <summary>
     /// Represents a snapshot of the item that was ordered. If catalog item details change, details of

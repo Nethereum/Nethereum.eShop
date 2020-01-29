@@ -8,6 +8,8 @@ namespace Nethereum.eShop.Infrastructure.Data.Config
     {
         public void Configure(EntityTypeBuilder<Buyer> builder)
         {
+            builder.HasIndex(b => b.BuyerId).IsUnique();
+
             builder.OwnsOne(o => o.ShipToAddress, a =>
             {
                 a.WithOwner();
