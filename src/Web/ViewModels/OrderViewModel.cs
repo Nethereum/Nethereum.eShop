@@ -1,4 +1,5 @@
-﻿using Nethereum.eShop.ApplicationCore.Entities.OrderAggregate;
+﻿using Nethereum.eShop.ApplicationCore.Entities;
+using Nethereum.eShop.ApplicationCore.Entities.OrderAggregate;
 using System;
 using System.Collections.Generic;
 
@@ -12,7 +13,7 @@ namespace Nethereum.eShop.Web.ViewModels
         public DateTimeOffset OrderDate { get; set; }
         public decimal Total { get; set; }
         public string Status => DEFAULT_STATUS;
-        public Address ShippingAddress { get; set; }
+        public PostalAddress ShippingAddress { get; set; }
         public List<OrderItemViewModel> OrderItems { get; set; } = new List<OrderItemViewModel>();
     }
 }

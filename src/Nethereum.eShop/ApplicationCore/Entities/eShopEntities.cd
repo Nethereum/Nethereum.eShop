@@ -1,0 +1,132 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="NameAndType">
+  <Comment CommentText="ShipTo and BillTo Addresses stored against buyer and copied to Order.  Allowing customer to change their address for future orders without changing previous orders.">
+    <Position X="6.891" Y="15.066" Height="1.217" Width="1.7" />
+  </Comment>
+  <Comment CommentText="ApplicationUser - abstracted to Identity and expected to be little more than Ethereum address.">
+    <Position X="1.525" Y="7.067" Height="0.75" Width="1.7" />
+  </Comment>
+  <Comment CommentText="Buyer - &#xD;&#xA;Represents an application user who has placed or is placing an order.&#xD;&#xA;&#xD;&#xA;Buyer Id = Ethereum Address">
+    <Position X="7.592" Y="6.8" Height="0.955" Width="3.492" />
+  </Comment>
+  <Comment CommentText="Represents a Sales Order which is linked to a purchase order on the chain.">
+    <Position X="2.2" Y="13.834" Height="0.55" Width="2.967" />
+  </Comment>
+  <Comment CommentText="CatalogItem = Product&#xD;&#xA;&#xD;&#xA;CatalogItem.Id is PK.&#xD;&#xA;&#xD;&#xA;Gtin - is global product identifier&#xD;&#xA;&#xD;&#xA;GtinRegistry - allows different registries for different products.&#xD;&#xA;&#xD;&#xA;CatalogBrand and Catalogtype are one to one with CatalogItem (for now).&#xD;&#xA;">
+    <Position X="6.983" Y="1.788" Height="2.083" Width="3.517" />
+  </Comment>
+  <Comment CommentText="CatalogItemOrdered&#xD;&#xA;&#xD;&#xA;A snapshot of the product on the order safe from subsequent catalog updates.&#xD;&#xA;&#xD;&#xA;Referenced by both Order and PurchaseOrderRequest">
+    <Position X="7.592" Y="19.21" Height="2.033" Width="1.7" />
+  </Comment>
+  <Comment CommentText="On checkout - if basic validation passes an Order is created at a status of draft.">
+    <Position X="1.825" Y="12.208" Height="1.083" Width="3.917" />
+  </Comment>
+  <Comment CommentText="Addresses&#xD;&#xA;&#xD;&#xA;We need to distinguish between a Blockchain address and a more traditional postal address.&#xD;&#xA;&#xD;&#xA;A blockchain account address is always stored as a string and the field name has an &quot;Address&quot; suffix.&#xD;&#xA;&#xD;&#xA;A physical address (for invoice or shipping) is represented by the PostalAddress type.  We do not add the &quot;Address&quot; suffix to the name.  ">
+    <Position X="7.517" Y="10.817" Height="2.592" Width="2.433" />
+  </Comment>
+  <Class Name="Nethereum.eShop.ApplicationCore.Entities.CatalogBrand">
+    <Position X="2.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAA=</HashCode>
+      <FileName>ApplicationCore\Entities\CatalogBrand.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Nethereum.eShop.ApplicationCore.Entities.CatalogItem">
+    <Position X="4" Y="1.75" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAgBAAAUF4AkAgAAIAAAAEQAACAAAABgAAAAAQgACAA=</HashCode>
+      <FileName>ApplicationCore\Entities\CatalogItem.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Nethereum.eShop.ApplicationCore.Entities.CatalogType">
+    <Position X="2.25" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAA=</HashCode>
+      <FileName>ApplicationCore\Entities\CatalogType.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Nethereum.eShop.ApplicationCore.Entities.StockItem">
+    <Position X="2.25" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAKAAAAAAAAIAAAAAAAAAAAAAAAAAgAAAAAA=</HashCode>
+      <FileName>ApplicationCore\Entities\StockItem.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Nethereum.eShop.ApplicationCore.Entities.BasketAggregate.Basket">
+    <Position X="1.5" Y="9.5" Width="2" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAACAAAAAAAAAAAgBAAAAAAAAACAAAAEAA=</HashCode>
+      <FileName>ApplicationCore\Entities\BasketAggregate\Basket.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Nethereum.eShop.ApplicationCore.Entities.BasketAggregate.BasketItem">
+    <Position X="3.75" Y="9.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>JAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAA=</HashCode>
+      <FileName>ApplicationCore\Entities\BasketAggregate\BasketItem.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Nethereum.eShop.ApplicationCore.Entities.BuyerAggregate.Buyer">
+    <Position X="3.75" Y="7.5" Width="3.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAgAAAAIAAAAAA=</HashCode>
+      <FileName>ApplicationCore\Entities\BuyerAggregate\Buyer.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Nethereum.eShop.ApplicationCore.Entities.OrderAggregate.OrderItem" HideInheritanceLine="true">
+    <Position X="3.75" Y="15" Width="2.75" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>IQAIAAAEAAAAAAAAIgAAMQAAAAAAAAAIABAAgAQAAAA=</HashCode>
+      <FileName>ApplicationCore\Entities\OrderAggregate\OrderItem.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Nethereum.eShop.Infrastructure.Identity.ApplicationUser">
+    <Position X="1.5" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Infrastructure\Identity\ApplicationUser.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Nethereum.eShop.ApplicationCore.Entities.BaseEntity">
+    <Position X="0.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ApplicationCore\Entities\BaseEntity.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Nethereum.eShop.ApplicationCore.Entities.OrderAggregate.Order">
+    <Position X="0.5" Y="15" Width="3" />
+    <TypeIdentifier>
+      <HashCode>CAAAAAAAAAEAAEAAAAAAEAAAAAAAQQAhAAAAIAQAFAA=</HashCode>
+      <FileName>ApplicationCore\Entities\OrderAggregate\Order.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Nethereum.eShop.ApplicationCore.Entities.PostalAddress">
+    <Position X="7" Y="16.5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAIAAAAAAQAAAIAAAABAAIABAAAAAA=</HashCode>
+      <FileName>ApplicationCore\Entities\PostalAddress.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Nethereum.eShop.ApplicationCore.Entities.OrderAggregate.CatalogItemOrdered">
+    <Position X="5" Y="19.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAKAAAgAAAAAAAAAAAAAAAABAAAAAAAAIAAA=</HashCode>
+      <FileName>ApplicationCore\Entities\OrderAggregate\CatalogItemOrdered.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

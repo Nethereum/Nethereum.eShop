@@ -11,7 +11,7 @@ namespace Nethereum.eShop.Infrastructure.Data.Config
             var navigation = builder.Metadata.FindNavigation(nameof(Basket.Items));
             navigation.SetPropertyAccessMode(PropertyAccessMode.Field);
 
-            builder.Property(b => b.BuyerId)
+            builder.Property(b => b.BuyerAddress)
                 .IsRequired()
                 .HasMaxLength(40);
         }

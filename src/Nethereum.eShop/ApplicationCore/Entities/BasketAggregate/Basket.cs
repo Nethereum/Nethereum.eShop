@@ -6,7 +6,11 @@ namespace Nethereum.eShop.ApplicationCore.Entities.BasketAggregate
 {
     public class Basket : BaseEntity, IAggregateRoot
     {
-        public string BuyerId { get; set; }
+        /// <summary>
+        /// The Ethereum Address
+        /// </summary>
+        public string BuyerAddress { get; set; }
+
         private readonly List<BasketItem> _items = new List<BasketItem>();
         public IReadOnlyCollection<BasketItem> Items => _items.AsReadOnly();
 
