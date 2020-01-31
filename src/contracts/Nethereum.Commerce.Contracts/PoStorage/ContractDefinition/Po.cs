@@ -19,13 +19,15 @@ namespace Nethereum.Commerce.Contracts.PoStorage.ContractDefinition
         public virtual string BuyerWalletAddress { get; set; }
         [Parameter("uint256", "buyerNonce", 4)]
         public virtual BigInteger BuyerNonce { get; set; }
-        [Parameter("bytes32", "sellerSysId", 5)]
+        [Parameter("uint8", "poType", 5)]
+        public virtual byte PoType { get; set; }
+        [Parameter("bytes32", "sellerSysId", 6)]
         public virtual byte[] SellerSysId { get; set; }
-        [Parameter("uint256", "poCreateDate", 6)]
+        [Parameter("uint256", "poCreateDate", 7)]
         public virtual BigInteger PoCreateDate { get; set; }
-        [Parameter("uint8", "poItemCount", 7)]
+        [Parameter("uint8", "poItemCount", 8)]
         public virtual byte PoItemCount { get; set; }
-        [Parameter("tuple[]", "poItems", 8)]
+        [Parameter("tuple[]", "poItems", 9)]
         public virtual List<PoItem> PoItems { get; set; }
     }
 }

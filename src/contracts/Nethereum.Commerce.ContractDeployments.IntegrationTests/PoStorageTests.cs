@@ -68,6 +68,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             poActual.BuyerAddress.Should().Be(poExpected.BuyerAddress);
             poActual.BuyerWalletAddress.Should().Be(poExpected.BuyerWalletAddress);
             poActual.BuyerNonce.Should().Be(poExpected.BuyerNonce);
+            poActual.PoType.Should().Be(poExpected.PoType);
             poActual.SellerSysId.Should().Be(poExpected.SellerSysId);
             poActual.PoCreateDate.Should().Be(poExpected.PoCreateDate);
             poActual.PoItemCount.Should().Be(poExpected.PoItemCount);
@@ -99,6 +100,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                 BuyerAddress = buyerAddress,
                 BuyerWalletAddress = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
                 BuyerNonce = buyerNonce,
+                PoType = PoType.Cash,
                 SellerSysId = "Nethereum.eShop",
                 PoCreateDate = 100,
                 PoItemCount = 2,
@@ -117,7 +119,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                         CurrencyValue = 11,
                         CurrencySymbol = "DAI",
                         CurrencyAddress = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
-                        Status = PoItemStatus.PoCreated,
+                        Status = PoItemStatus.Created,
                         GoodsIssueDate = 100,
                         EscrowReleaseDate = 100,
                         CancelStatus = PoItemCancelStatus.Initial
@@ -135,7 +137,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                         CurrencyValue = 22,
                         CurrencySymbol = "DAI",
                         CurrencyAddress = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
-                        Status = PoItemStatus.PoCreated,
+                        Status = PoItemStatus.Created,
                         GoodsIssueDate = 200,
                         EscrowReleaseDate = 200,
                         CancelStatus = PoItemCancelStatus.Initial

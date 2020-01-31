@@ -18,6 +18,7 @@ contract PoStorage is IPoStorage, Ownable, Bindable, StringConvertible
     string constant private BUYER_ADDRESS = "buyerAddress";
     string constant private BUYER_WALLET_ADDRESS = "buyerWalletAddress";
     string constant private BUYER_NONCE = "buyerNonce";
+    string constant private PO_TYPE = "poType";
     string constant private SELLER_SYS_ID = "sellerSysId";
     string constant private PO_CREATE_DATE = "poCreateDate";
     string constant private PO_ITEM_COUNT = "poItemCount";
@@ -117,6 +118,7 @@ contract PoStorage is IPoStorage, Ownable, Bindable, StringConvertible
         po.buyerAddress = eternalStorage.getAddressValue(keccak256(abi.encodePacked(poNumber, BUYER_ADDRESS)));
         po.buyerWalletAddress = eternalStorage.getAddressValue(keccak256(abi.encodePacked(poNumber, BUYER_WALLET_ADDRESS)));
         po.buyerNonce = eternalStorage.getUint256Value(keccak256(abi.encodePacked(poNumber, BUYER_NONCE)));
+        po.poType = IPoTypes.PoType(eternalStorage.getUint256Value(keccak256(abi.encodePacked(poNumber, PO_TYPE))));
         po.sellerSysId = eternalStorage.getBytes32Value(keccak256(abi.encodePacked(poNumber, SELLER_SYS_ID)));
         po.poCreateDate = eternalStorage.getUint256Value(keccak256(abi.encodePacked(poNumber, PO_CREATE_DATE)));
         po.poItemCount = uint8(eternalStorage.getUint256Value(keccak256(abi.encodePacked(poNumber, PO_ITEM_COUNT))));
@@ -155,6 +157,7 @@ contract PoStorage is IPoStorage, Ownable, Bindable, StringConvertible
         eternalStorage.setAddressValue(keccak256(abi.encodePacked(po.poNumber, BUYER_ADDRESS)), po.buyerAddress);
         eternalStorage.setAddressValue(keccak256(abi.encodePacked(po.poNumber, BUYER_WALLET_ADDRESS)), po.buyerWalletAddress);
         eternalStorage.setUint256Value(keccak256(abi.encodePacked(po.poNumber, BUYER_NONCE)), po.buyerNonce);
+        eternalStorage.setUint256Value(keccak256(abi.encodePacked(po.poNumber, PO_TYPE)), uint256(po.poType));
         eternalStorage.setBytes32Value(keccak256(abi.encodePacked(po.poNumber, SELLER_SYS_ID)), po.sellerSysId);
         eternalStorage.setUint256Value(keccak256(abi.encodePacked(po.poNumber, PO_CREATE_DATE)), po.poCreateDate);
         eternalStorage.setUint256Value(keccak256(abi.encodePacked(po.poNumber, PO_ITEM_COUNT)), len);
