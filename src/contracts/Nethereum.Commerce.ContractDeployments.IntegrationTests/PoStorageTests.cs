@@ -27,9 +27,9 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         {
             // Create a PO to store
             uint poNumber = 314159;
-            string buyerAddress = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610";
-            uint buyerNonce = 2;
-            Po poExpected = CreateTestPo(poNumber, buyerAddress, buyerNonce);
+            string approverAddress = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610";
+            uint quoteId = 2;
+            Po poExpected = CreateTestPo(poNumber, approverAddress, quoteId);
 
             // Store PO
             var txReceipt = await _contracts.PoStorageService.SetPoRequestAndWaitForReceiptAsync(poExpected);
@@ -43,20 +43,20 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         }
 
         [Fact]
-        public async void ShouldStoreAndRetrievePoByAddressAndNonce()
+        public async void ShouldStoreAndRetrievePoByApproverAndQuote()
         {
             // Create a PO to store
             uint poNumberExpected = 314159;
-            string buyerAddress = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610";
-            uint buyerNonce = 2;
-            Po poExpected = CreateTestPo(poNumberExpected, buyerAddress, buyerNonce);
+            string approverAddress = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610";
+            uint quoteId = 2;
+            Po poExpected = CreateTestPo(poNumberExpected, approverAddress, quoteId);
 
             // Store PO
             var txReceipt = await _contracts.PoStorageService.SetPoRequestAndWaitForReceiptAsync(poExpected);
             txReceipt.Status.Value.Should().Be(1);
 
             // Retrieve PO number by address and nonce
-            var poNumberActual = await _contracts.PoStorageService.GetPoNumberByAddressAndNonceQueryAsync(buyerAddress, buyerNonce);
+            var poNumberActual = await _contracts.PoStorageService.GetPoNumberByApproverAndQuoteQueryAsync(approverAddress, quoteId);
 
             // They should be the same
             poNumberActual.Should().Be(poNumberExpected);
@@ -66,10 +66,13 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         {
             poActual.PoNumber.Should().Be(poExpected.PoNumber);
             poActual.BuyerAddress.Should().Be(poExpected.BuyerAddress);
+            poActual.ReceiverAddress.Should().Be(poExpected.ReceiverAddress);
             poActual.BuyerWalletAddress.Should().Be(poExpected.BuyerWalletAddress);
-            poActual.BuyerNonce.Should().Be(poExpected.BuyerNonce);
+            poActual.QuoteId.Should().Be(poExpected.QuoteId);
+            poActual.QuoteExpiryDate.Should().Be(poExpected.QuoteExpiryDate);
+            poActual.ApproverAddress.Should().Be(poExpected.ApproverAddress);
             poActual.PoType.Should().Be(poExpected.PoType);
-            poActual.SellerSysId.Should().Be(poExpected.SellerSysId);
+            poActual.SellerId.Should().Be(poExpected.SellerId);
             poActual.PoCreateDate.Should().Be(poExpected.PoCreateDate);
             poActual.PoItemCount.Should().Be(poExpected.PoItemCount);
             for (int i = 0; i < poActual.PoItemCount; i++)
@@ -93,16 +96,19 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             }
         }
 
-        private static Po CreateTestPo(uint poNumber, string buyerAddress, uint buyerNonce)
+        private static Po CreateTestPo(uint poNumber, string approverAddress, uint quoteId)
         {
             return new Po()
             {
                 PoNumber = poNumber,
-                BuyerAddress = buyerAddress,
-                BuyerWalletAddress = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
-                BuyerNonce = buyerNonce,
+                BuyerAddress = "0x37ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
+                ReceiverAddress = "0x36ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
+                BuyerWalletAddress = "0x39ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
+                QuoteId = quoteId,
+                QuoteExpiryDate = 1,
+                ApproverAddress = approverAddress,
                 PoType = PoType.Cash,
-                SellerSysId = "Nethereum.eShop",
+                SellerId = "Nethereum.eShop",
                 PoCreateDate = 100,
                 PoItemCount = 2,
                 PoItems = new List<PoItem>()
@@ -117,10 +123,10 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                         Quantity = 1,
                         Unit = "EA",
                         QuantitySymbol = "NA",
-                        QuantityAddress = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
+                        QuantityAddress = "0x40ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
                         CurrencyValue = 11,
                         CurrencySymbol = "DAI",
-                        CurrencyAddress = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
+                        CurrencyAddress = "0x41ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
                         Status = PoItemStatus.Created,
                         GoodsIssueDate = 100,
                         EscrowReleaseDate = 100,
@@ -136,10 +142,10 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                         Quantity = 2,
                         Unit = "EA",
                         QuantitySymbol = "NA",
-                        QuantityAddress = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
+                        QuantityAddress = "0x42ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
                         CurrencyValue = 22,
                         CurrencySymbol = "DAI",
-                        CurrencyAddress = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
+                        CurrencyAddress = "0x43ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
                         Status = PoItemStatus.Created,
                         GoodsIssueDate = 200,
                         EscrowReleaseDate = 200,

@@ -156,20 +156,6 @@ namespace Nethereum.Commerce.Contracts.PoStorage
             return ContractHandler.QueryAsync<EternalStorageFunction, string>(null, blockParameter);
         }
 
-        public Task<BigInteger> GetCurrentNonceQueryAsync(GetCurrentNonceFunction getCurrentNonceFunction, BlockParameter blockParameter = null)
-        {
-            return ContractHandler.QueryAsync<GetCurrentNonceFunction, BigInteger>(getCurrentNonceFunction, blockParameter);
-        }
-
-        
-        public Task<BigInteger> GetCurrentNonceQueryAsync(string a, BlockParameter blockParameter = null)
-        {
-            var getCurrentNonceFunction = new GetCurrentNonceFunction();
-                getCurrentNonceFunction.A = a;
-            
-            return ContractHandler.QueryAsync<GetCurrentNonceFunction, BigInteger>(getCurrentNonceFunction, blockParameter);
-        }
-
         public Task<BigInteger> GetCurrentPoNumberQueryAsync(GetCurrentPoNumberFunction getCurrentPoNumberFunction, BlockParameter blockParameter = null)
         {
             return ContractHandler.QueryAsync<GetCurrentPoNumberFunction, BigInteger>(getCurrentPoNumberFunction, blockParameter);
@@ -194,45 +180,19 @@ namespace Nethereum.Commerce.Contracts.PoStorage
             return ContractHandler.QueryDeserializingToObjectAsync<GetPoFunction, GetPoOutputDTO>(getPoFunction, blockParameter);
         }
 
-        public Task<BigInteger> GetPoNumberByAddressAndNonceQueryAsync(GetPoNumberByAddressAndNonceFunction getPoNumberByAddressAndNonceFunction, BlockParameter blockParameter = null)
+        public Task<BigInteger> GetPoNumberByApproverAndQuoteQueryAsync(GetPoNumberByApproverAndQuoteFunction getPoNumberByApproverAndQuoteFunction, BlockParameter blockParameter = null)
         {
-            return ContractHandler.QueryAsync<GetPoNumberByAddressAndNonceFunction, BigInteger>(getPoNumberByAddressAndNonceFunction, blockParameter);
+            return ContractHandler.QueryAsync<GetPoNumberByApproverAndQuoteFunction, BigInteger>(getPoNumberByApproverAndQuoteFunction, blockParameter);
         }
 
         
-        public Task<BigInteger> GetPoNumberByAddressAndNonceQueryAsync(string a, BigInteger nonce, BlockParameter blockParameter = null)
+        public Task<BigInteger> GetPoNumberByApproverAndQuoteQueryAsync(string approverAddress, BigInteger quoteId, BlockParameter blockParameter = null)
         {
-            var getPoNumberByAddressAndNonceFunction = new GetPoNumberByAddressAndNonceFunction();
-                getPoNumberByAddressAndNonceFunction.A = a;
-                getPoNumberByAddressAndNonceFunction.Nonce = nonce;
+            var getPoNumberByApproverAndQuoteFunction = new GetPoNumberByApproverAndQuoteFunction();
+                getPoNumberByApproverAndQuoteFunction.ApproverAddress = approverAddress;
+                getPoNumberByApproverAndQuoteFunction.QuoteId = quoteId;
             
-            return ContractHandler.QueryAsync<GetPoNumberByAddressAndNonceFunction, BigInteger>(getPoNumberByAddressAndNonceFunction, blockParameter);
-        }
-
-        public Task<string> IncrementNonceRequestAsync(IncrementNonceFunction incrementNonceFunction)
-        {
-             return ContractHandler.SendRequestAsync(incrementNonceFunction);
-        }
-
-        public Task<TransactionReceipt> IncrementNonceRequestAndWaitForReceiptAsync(IncrementNonceFunction incrementNonceFunction, CancellationTokenSource cancellationToken = null)
-        {
-             return ContractHandler.SendRequestAndWaitForReceiptAsync(incrementNonceFunction, cancellationToken);
-        }
-
-        public Task<string> IncrementNonceRequestAsync(string a)
-        {
-            var incrementNonceFunction = new IncrementNonceFunction();
-                incrementNonceFunction.A = a;
-            
-             return ContractHandler.SendRequestAsync(incrementNonceFunction);
-        }
-
-        public Task<TransactionReceipt> IncrementNonceRequestAndWaitForReceiptAsync(string a, CancellationTokenSource cancellationToken = null)
-        {
-            var incrementNonceFunction = new IncrementNonceFunction();
-                incrementNonceFunction.A = a;
-            
-             return ContractHandler.SendRequestAndWaitForReceiptAsync(incrementNonceFunction, cancellationToken);
+            return ContractHandler.QueryAsync<GetPoNumberByApproverAndQuoteFunction, BigInteger>(getPoNumberByApproverAndQuoteFunction, blockParameter);
         }
 
         public Task<string> IncrementPoNumberRequestAsync(IncrementPoNumberFunction incrementPoNumberFunction)

@@ -19,16 +19,7 @@ Smart Contract Solidity source code and the generated C# APIs to interact with t
 ## Adjusting Generated Code
 Files that follow the naming convention of `contractname.Extend.cs` are not code generated, but are manually maintained. When code is regenerated the `*.Extend.cs` files will remain unchanged.
 
-Why might you want to adjust the generated code? One case is as follows. During code generation the Solidity type `bytes32` becomes `byte[]` in C#. However, we might know that for a particular field the `bytes32` will always hold a `string`. We can adjust the generated service code to reflect this, which in turn will simplify the C# code that consumes the service.
-
-There are some examples of this in this project:
-
-### Adjusting Generated Code - Overloading Service Methods
-See the generated API for **Business Partner Storage**:
-
-![Overview](contracts-folder-contents-bp.png)
-
-The file `BusinessPartnerStorageService.Extend.cs` contains some additional overloads of the service methods.
+Why might you want to adjust the generated code? One case is as follows. During code generation the Solidity type `bytes32` becomes `byte[]` in C#. However, we might know that for a particular field the `bytes32` will always hold a `string`. We can adjust the generated service code to reflect this, which in turn will simplify the C# code that consumes the service. An example:
 
 ### Adjusting Generated Code - Redefining Types
 See the generated API for **PO Storage**:
@@ -57,6 +48,6 @@ Contract owner: 0x32A555F2328e85E489f9a5f03669DC820CE7EBe9
 |--|--|--|
 | Address Registry | 0x2d6efd93953ed8d5a8b2c6c01b2a603b4dc844e5 | https://oneclickdapp.com/giant-single/ |
 | Eternal Storage | 0xf20a3d6e2f3f81cf69812d3ad175cd614004519c | https://oneclickdapp.com/tokyo-life/ |
-| Business Partner Storage | 0xd3f89e888985712393fb679eb2aa018245a82e10 | https://oneclickdapp.com/spend-marion/ |
-| PO Storage | 0x51e229135e6e424b0b327ac981c75b7129326391 | https://oneclickdapp.com/gossip-garcia |
+| Business Partner Storage |  |  |
+| PO Storage |  |  |
 

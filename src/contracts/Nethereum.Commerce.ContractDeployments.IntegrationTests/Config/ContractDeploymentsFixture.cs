@@ -30,7 +30,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
         public const string CONTRACT_NAME_ETERNAL_STORAGE = "EternalStorage";
         public const string CONTRACT_NAME_BUSINESS_PARTNER_STORAGE = "BusinessPartnerStorage";
         public const string CONTRACT_NAME_PO_STORAGE = "PoStorage";
- 
+
         private readonly IMessageSink _diagnosticMessageSink;
 
         public ContractDeploymentsFixture(IMessageSink diagnosticMessageSink)
@@ -49,7 +49,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
         {
             try
             {
-                Log($"Deploying eShop: {ContractDeploymentConfig.EShopSystemId} {ContractDeploymentConfig.EShopDescription}...");
+                Log($"Deploying eShop: {ContractDeploymentConfig.EShopSellerId} {ContractDeploymentConfig.EShopDescription}...");
                 var url = ContractDeploymentConfig.BlockchainUrl;
                 var privateKey = ContractDeploymentConfig.ContractDeploymentOwnerPrivateKey;
                 var account = new Account(privateKey);
@@ -151,9 +151,15 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
 
                 // Add some BP master data
                 Log($"Adding eShop master data...");
-                txReceipt = await BusinessPartnerStorageService.SetSystemDescriptionRequestStringAndWaitForReceiptAsync(
-                    ContractDeploymentConfig.EShopSystemId, 
-                    ContractDeploymentConfig.EShopDescription);
+                txReceipt = await BusinessPartnerStorageService.SetSellerRequestAndWaitForReceiptAsync(
+                    new Seller()
+                    {
+                        SellerId = ContractDeploymentConfig.EShopSellerId,
+                        SellerDescription = ContractDeploymentConfig.EShopDescription,
+                        FinanceAddress = ContractDeploymentConfig.EShopFinanceAddress,
+                        ApproverAddress = ContractDeploymentConfig.EShopApproverAddress,
+                        IsActive = true
+                    });
                 Log($"Tx status: {txReceipt.Status.Value}");
 
                 // TODO Cant configure this till next layer deployed

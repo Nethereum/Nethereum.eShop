@@ -58,9 +58,10 @@ interface IPoTypes
         uint poNumber;                     // contract managed, PO header key, leave blank at PO creation time
         address buyerAddress;              // buyer UI managed, buyer EoA address handling currency and "owner" of the PO ("finance address")
         address receiverAddress;           // buyer UI managed, buyer EoA address will receive product ownership tokens at end ("logistics address")
-        address buyerWalletAddress;        // contract managed, buyer contract address, needed to locate contract whose functions are called by buyer UI
+        address buyerWalletAddress;        // buyer UI managed, buyer contract address, needed to locate contract whose functions are called by buyer UI
         uint quoteId;                      // buyer UI managed, a quote signed by seller system, sellerId+quoteId uniquely identifies a single poNumber
         uint quoteExpiryDate;              // buyer UI managed, a quote signed by seller system, sellerId+quoteId uniquely identifies a single poNumber
+        address approverAddress;           // contract managed, signer of quote, looked up from seller master data during PO creation
         PoType poType;                     // buyer UI managed, specifies what workflow PO will use
         bytes32 sellerId;                  // buyer UI managed, allocated by seller admin to uniquely identify their shop
         uint poCreateDate;                 // buyer UI managed, po creation unix timestamp
@@ -75,7 +76,7 @@ interface IPoTypes
     {
         bytes32 sellerId;                  // uniquely identifies a seller/shop
         bytes32 sellerDescription;         // free text short description
-        address financeAddress;            // EoA or contract address, where money sent after a successful sale
+        address financeAddress;            // EoA or contract address, the shop owner, where money sent after a sale
         address approverAddress;           // EoA or contract address, the signer who can a sign a quotation tx to prove shop approves it
         bool isActive;                     // flag true if seller is active
     }
