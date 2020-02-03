@@ -39,8 +39,6 @@ namespace Nethereum.eShop.ApplicationCore.Entities.QuoteAggregate
          */
         public int PoType { get; private set; }
 
-        public long BuyerNonce { get; set; } // po order counter per buyer
-
         /// <summary>
         /// eShop constant - one wallet expected per shop
         /// </summary>
