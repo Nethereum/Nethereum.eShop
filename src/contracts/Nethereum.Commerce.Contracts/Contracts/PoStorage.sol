@@ -129,6 +129,7 @@ contract PoStorage is IPoStorage, Ownable, Bindable, StringConvertible
         for (uint i = 0; i < len; i++)
         {
             bytes32 lineItemKey = keccak256(abi.encodePacked(po.poNumber, i));
+            po.poItems[i].poNumber = eternalStorage.getUint256Value(keccak256(abi.encodePacked(lineItemKey, PO_NUMBER)));
             po.poItems[i].poItemNumber = uint8(eternalStorage.getUint256Value(keccak256(abi.encodePacked(lineItemKey, PO_ITEM_NUMBER))));
             po.poItems[i].soNumber = eternalStorage.getBytes32Value(keccak256(abi.encodePacked(lineItemKey, SO_NUMBER)));
             po.poItems[i].soItemNumber = eternalStorage.getBytes32Value(keccak256(abi.encodePacked(lineItemKey, SO_ITEM_NUMBER)));
@@ -166,6 +167,7 @@ contract PoStorage is IPoStorage, Ownable, Bindable, StringConvertible
         for (uint i = 0; i < len; i++)
         {
             bytes32 lineItemKey = keccak256(abi.encodePacked(po.poNumber, i));
+            eternalStorage.setUint256Value(keccak256(abi.encodePacked(lineItemKey, PO_NUMBER)), po.poItems[i].poNumber);
             eternalStorage.setUint256Value(keccak256(abi.encodePacked(lineItemKey, PO_ITEM_NUMBER)), po.poItems[i].poItemNumber);
             eternalStorage.setBytes32Value(keccak256(abi.encodePacked(lineItemKey, SO_NUMBER)), po.poItems[i].soNumber);
             eternalStorage.setBytes32Value(keccak256(abi.encodePacked(lineItemKey, SO_ITEM_NUMBER)), po.poItems[i].soItemNumber);

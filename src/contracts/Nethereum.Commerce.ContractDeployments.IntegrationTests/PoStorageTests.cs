@@ -74,6 +74,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             poActual.PoItemCount.Should().Be(poExpected.PoItemCount);
             for (int i = 0; i < poActual.PoItemCount; i++)
             {
+                poActual.PoItems[i].PoNumber.Should().Be(poExpected.PoItems[i].PoNumber);
                 poActual.PoItems[i].PoItemNumber.Should().Be(poExpected.PoItems[i].PoItemNumber);
                 poActual.PoItems[i].SoNumber.Should().Be(poExpected.PoItems[i].SoNumber);
                 poActual.PoItems[i].SoItemNumber.Should().Be(poExpected.PoItems[i].SoItemNumber);
@@ -108,6 +109,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                 {
                     new PoItem()
                     {
+                        PoNumber = poNumber,
                         PoItemNumber = 10,
                         SoNumber = "so1",
                         SoItemNumber = "100",
@@ -126,6 +128,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                     },
                     new PoItem()
                     {
+                        PoNumber = poNumber,
                         PoItemNumber = 20,
                         SoNumber = "so1",
                         SoItemNumber = "200",
