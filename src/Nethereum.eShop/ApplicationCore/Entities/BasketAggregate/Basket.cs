@@ -11,6 +11,12 @@ namespace Nethereum.eShop.ApplicationCore.Entities.BasketAggregate
         /// </summary>
         public string BuyerAddress { get; set; }
 
+        public PostalAddress BillTo { get; set; }
+
+        public PostalAddress ShipTo { get; set; }
+
+        public string TransactionHash { get; set; }
+
         private readonly List<BasketItem> _items = new List<BasketItem>();
         public IReadOnlyCollection<BasketItem> Items => _items.AsReadOnly();
 

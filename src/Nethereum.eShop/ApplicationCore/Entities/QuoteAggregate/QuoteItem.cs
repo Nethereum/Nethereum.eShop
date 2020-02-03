@@ -1,23 +1,15 @@
 ﻿using System;
 
-namespace Nethereum.eShop.ApplicationCore.Entities.OrderAggregate
+namespace Nethereum.eShop.ApplicationCore.Entities.QuoteAggregate
 {
-    public class OrderItem : BaseEntity
+    public class QuoteItem: BaseEntity
     {
-        public OrderItemStatus Status { get; set; }
         public CatalogItemExcerpt ItemOrdered { get; private set; }
         public decimal UnitPrice { get; private set; }
         public int Quantity { get; private set; }
         public string Unit { get; set; }
 
-        // TODO: change to enum
-        public int? PoItemStatus { get; set; }
         public int? PoItemNumber { get; set; }
-
-        /// <summary>
-        /// eShop assigned issue date (gets sent to smart contract)
-        /// </summary>
-        public DateTimeOffset? GoodsIssueDate { get; set; }
 
         /// <summary>
         /// Smart contract assigned date
@@ -29,16 +21,9 @@ namespace Nethereum.eShop.ApplicationCore.Entities.OrderAggregate
         public string CurrencyAddress { get; set; }
         public string CurrencyValue { get; set; }
 
-        private OrderItem()
+        public QuoteItem()
         {
-            // required by EF
-        }
 
-        public OrderItem(CatalogItemExcerpt itemOrdered, decimal unitPrice, int units)
-        {
-            ItemOrdered = itemOrdered;
-            UnitPrice = unitPrice;
-            Quantity = units;
         }
     }
 }

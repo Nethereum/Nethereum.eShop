@@ -1,12 +1,8 @@
 ﻿using Ardalis.GuardClauses;
 
-namespace Nethereum.eShop.ApplicationCore.Entities.OrderAggregate
+namespace Nethereum.eShop.ApplicationCore.Entities
 {
-    /// <summary>
-    /// Represents a snapshot of the item that was ordered. If catalog item details change, details of
-    /// the item that was part of a completed order should not change.
-    /// </summary>
-    public class CatalogItemOrdered // ValueObject
+    public class CatalogItemExcerpt
     {
         public int CatalogItemId { get; private set; }
         public string Gtin { get; private set; }
@@ -14,7 +10,7 @@ namespace Nethereum.eShop.ApplicationCore.Entities.OrderAggregate
         public string ProductName { get; private set; }
         public string PictureUri { get; private set; }
 
-        public CatalogItemOrdered(int catalogItemId, string gtin, int? gtinRegistryId, string productName, string pictureUri)
+        public CatalogItemExcerpt(int catalogItemId, string gtin, int? gtinRegistryId, string productName, string pictureUri)
         {
             Guard.Against.OutOfRange(catalogItemId, nameof(catalogItemId), 1, int.MaxValue);
             Guard.Against.NullOrEmpty(productName, nameof(productName));
@@ -27,7 +23,7 @@ namespace Nethereum.eShop.ApplicationCore.Entities.OrderAggregate
             GtinRegistryId = gtinRegistryId;
         }
 
-        private CatalogItemOrdered()
+        private CatalogItemExcerpt()
         {
             // required by EF
         }

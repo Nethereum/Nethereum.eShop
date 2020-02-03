@@ -7,22 +7,14 @@ namespace Nethereum.eShop.ApplicationCore.Entities.OrderAggregate
 {
     public class Order : BaseEntity, IAggregateRoot
     {
-        private Order()
-        {
-            // required by EF
-        }
+        public int? QuoteId { get; set; }
 
-        public Order(string buyerId, PostalAddress billToAddress, PostalAddress shipToAddress, List<OrderItem> items)
-        {
-            Guard.Against.NullOrEmpty(buyerId, nameof(buyerId));
-            Guard.Against.Null(billToAddress, nameof(billToAddress));
-            Guard.Against.Null(shipToAddress, nameof(shipToAddress));
-            Guard.Against.Null(items, nameof(items));
+        public OrderStatus Status { get; set; }
 
-            BuyerAddress = buyerId;
-            ShipTo = shipToAddress;
-            _orderItems = items;
-        }
+        /// <summary>
+        /// The transaction hash for Purchase Order creation
+        /// </summary>
+        public string TransactionHash { get; private set; }
 
         /// <summary>
         /// The Buyer Address
@@ -32,7 +24,18 @@ namespace Nethereum.eShop.ApplicationCore.Entities.OrderAggregate
         /// <summary>
         /// The Purhase Order Number
         /// </summary>
-        public long? PONumber { get; private set; }
+        public long? PoNumber { get; private set; }
+
+        // TODO: Change to enum when it is ready
+        /*
+         * enum PoType
+    {
+        Initial,                // 0  expect never to see this
+        Cash,                   // 1  PO is paid up front by the buyer
+        Invoice                 // 2  PO is paid later after buyer receives an invoice
+    }
+         */
+        public int PoType { get; private set; }
 
         public long BuyerNonce { get; set; } // po order counter per buyer
 
@@ -44,7 +47,7 @@ namespace Nethereum.eShop.ApplicationCore.Entities.OrderAggregate
         /// <summary>
         /// eShop Id - allow orders in the db to reference multiple shops
         /// </summary>
-        public string SellerSysId { get; set; } 
+        public string SellerId { get; set; } 
 
         public DateTimeOffset? PoDate { get; set; }
 
@@ -64,6 +67,23 @@ namespace Nethereum.eShop.ApplicationCore.Entities.OrderAggregate
         // It's much cheaper than .ToList() because it will not have to copy all items in a new collection. (Just one heap alloc for the wrapper instance)
         //https://msdn.microsoft.com/en-us/library/e78dcd75(v=vs.110).aspx 
         public IReadOnlyCollection<OrderItem> OrderItems => _orderItems.AsReadOnly();
+
+        private Order()
+        {
+            // required by EF
+        }
+
+        public Order(string buyerAddress, PostalAddress billTo, PostalAddress shipTo, List<OrderItem> items)
+        {
+            Guard.Against.NullOrEmpty(buyerAddress, nameof(buyerAddress));
+            Guard.Against.Null(billTo, nameof(billTo));
+            Guard.Against.Null(shipTo, nameof(shipTo));
+            Guard.Against.Null(items, nameof(items));
+
+            BuyerAddress = buyerAddress;
+            ShipTo = shipTo;
+            _orderItems = items;
+        }
 
         public decimal Total()
         {

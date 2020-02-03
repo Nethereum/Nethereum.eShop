@@ -12,7 +12,7 @@ namespace Nethereum.eShop.Infrastructure.Data.Config
         {
             a.WithOwner();
 
-            a.Property(a => a.Name)
+            a.Property(a => a.RecipientName)
                 .HasMaxLength(255)
                 .IsRequired();
 

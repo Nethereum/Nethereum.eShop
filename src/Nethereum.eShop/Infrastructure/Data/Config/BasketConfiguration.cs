@@ -14,6 +14,16 @@ namespace Nethereum.eShop.Infrastructure.Data.Config
             builder.Property(b => b.BuyerAddress)
                 .IsRequired()
                 .HasMaxLength(40);
+
+            builder.OwnsOne(o => o.ShipTo, a =>
+            {
+                a.ConfigureAddress();
+            });
+
+            builder.OwnsOne(o => o.BillTo, a =>
+            {
+                a.ConfigureAddress();
+            });
         }
     }
 }

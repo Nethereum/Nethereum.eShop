@@ -44,7 +44,7 @@ namespace Books.ImportUtil
         {
             throw new Exception("Check/change hardcoded config and uncomment code in Main method");
 
-            CheckImportFiles(ImportFiles);
+            // CheckImportFiles(ImportFiles);
 
             /*
 
@@ -101,18 +101,18 @@ namespace Books.ImportUtil
             var bookCatalogType = new CatalogType { Id = 1, Type = "Book" };
             excerpt.CatalogTypes.Add(bookCatalogType);
 
-            var brandDictionary = new Dictionary<string, CatalogBrand>(StringComparer.OrdinalIgnoreCase);
+            var authorDictionary = new Dictionary<string, CatalogBrand>(StringComparer.OrdinalIgnoreCase);
 
             int id = 0;
-            int brandIdCounter = 0;
+            int authorIdCounter = 0;
             foreach(var book in books)
             {
                 id++;
-                var item = Convert(bookCatalogType.Id, book, bookCoverDictionary, id, brandDictionary, ref brandIdCounter);
+                var item = Convert(bookCatalogType.Id, book, bookCoverDictionary, id, authorDictionary, ref authorIdCounter);
                 excerpt.CatalogItems.Add(item);
             }
 
-            excerpt.CatalogBrands = brandDictionary.Values.ToList();
+            excerpt.CatalogBrands = authorDictionary.Values.ToList();
 
             return excerpt;
         }
@@ -122,17 +122,17 @@ namespace Books.ImportUtil
             BookWithDescription book, 
             Dictionary<string, Dictionary<string, IpfsBookCoverMapping>> bookCoverDictionary, 
             int id, 
-            Dictionary<string, CatalogBrand> brandDictionary, 
-            ref int brandIdCounter)
+            Dictionary<string, CatalogBrand> authorDictionary, 
+            ref int authorIdCounter)
         {
 
-            if (!brandDictionary.ContainsKey(book.Book.PUB_NAME))
+            if (!authorDictionary.ContainsKey(book.Book.AUTHOR))
             {
-                brandIdCounter++;
-                brandDictionary[book.Book.PUB_NAME] = new CatalogBrand { Id = brandIdCounter, Brand = book.Book.PUB_NAME };
+                authorIdCounter++;
+                authorDictionary[book.Book.AUTHOR] = new CatalogBrand { Id = authorIdCounter, Brand = book.Book.AUTHOR };
             }
 
-            var brand = brandDictionary[book.Book.PUB_NAME];
+            var author = authorDictionary[book.Book.AUTHOR];
 
             // a func to find the url for a book cover of a certain size
             Func<string, string, string> FindBookCoverUrl = (ean, size) =>
@@ -154,9 +154,10 @@ namespace Books.ImportUtil
 
             var catalogItem = new CatalogItem {
                 Id = id,
+                Rank = id,
                 Gtin = book.Book.EAN,
                 CatalogTypeId = catalogTypeIdForBooks,
-                CatalogBrandId = brand.Id,
+                CatalogBrandId = author.Id,
                 Name = book.Book.TITLE,
                 Depth = ConvertInchesAsTextToMM(book.Book.DEPTH),
                 Width = ConvertInchesAsTextToMM(book.Book.WIDTH),
@@ -173,6 +174,8 @@ namespace Books.ImportUtil
 
             var attributes = new Dictionary<string, string>();
             attributes.Add("Publication Date", book.Book.PUB_DATE);
+            attributes.Add("Author", book.Book.AUTHOR);
+            attributes.Add("Publisher", book.Book.PUB_NAME);
             attributes.Add("Number Of Pages", book.Book.PAGE_NUM);
             attributes.Add("Subject Time", book.Book.SUBJECT_TIME);
             attributes.Add("Subject", book.Book.SUBJECT);
