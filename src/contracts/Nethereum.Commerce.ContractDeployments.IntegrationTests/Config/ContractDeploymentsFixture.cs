@@ -6,6 +6,8 @@ using Nethereum.Commerce.Contracts.EternalStorage;
 using Nethereum.Commerce.Contracts.EternalStorage.ContractDefinition;
 using Nethereum.Commerce.Contracts.PoStorage;
 using Nethereum.Commerce.Contracts.PoStorage.ContractDefinition;
+using Nethereum.Commerce.Contracts.WalletBuyer;
+using Nethereum.Commerce.Contracts.WalletSeller;
 using Nethereum.Web3.Accounts;
 using System;
 using System.Threading.Tasks;
@@ -22,6 +24,8 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
         public EternalStorageService EternalStorageService { get; internal set; }
         public BusinessPartnerStorageService BusinessPartnerStorageService { get; internal set; }
         public PoStorageService PoStorageService { get; internal set; }
+        public WalletBuyerService WalletBuyerService { get; internal set; }
+        public WalletSellerService WalletSellerService { get; internal set; }
 
         // Configuration
         public readonly ContractDeploymentsConfig ContractDeploymentConfig;
