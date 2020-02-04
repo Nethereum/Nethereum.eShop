@@ -50,8 +50,8 @@ contract PoStorage is IPoStorage, Ownable, Bindable, StringConvertible
     string constant private PO_GLOBAL_NUMBER = "po.global.number";
 
     // Names of mappings in eternal storage
-    // Mapping [approver address + quote id] => po number
-    string constant private MAP_APPROVER_AND_QUOTE_TO_PO = "mapApproverAndQuoteToPo";
+    // Mapping [seller Id + quote id] => po number
+    string constant private MAP_SELLER_AND_QUOTE_TO_PO = "maSellerAndQuoteToPo";
 
     IEternalStorage public eternalStorage;
     IAddressRegistry public addressRegistry;
@@ -94,11 +94,11 @@ contract PoStorage is IPoStorage, Ownable, Bindable, StringConvertible
     //------------------------------------------------------------------------------------------
     // PO data
     //------------------------------------------------------------------------------------------
-    function getPoNumberByApproverAndQuote(address approverAddress, uint quoteId) override public view returns (uint poNumber)
+    function getPoNumberBySellerAndQuote(bytes32 sellerId, uint quoteId) override public view returns (uint poNumber)
     {
-        // Use mapping to get PO number from [approver address + quote Id]
-        bytes32 mappingKey = keccak256(abi.encodePacked(CLIENT, approverAddress, quoteId));
-        poNumber = eternalStorage.getMappingBytes32ToUint256Value(stringToBytes32(MAP_APPROVER_AND_QUOTE_TO_PO), mappingKey);
+        // Use mapping to get PO number from [seller Id + quote Id]
+        bytes32 mappingKey = keccak256(abi.encodePacked(CLIENT, sellerId, quoteId));
+        poNumber = eternalStorage.getMappingBytes32ToUint256Value(stringToBytes32(MAP_SELLER_AND_QUOTE_TO_PO), mappingKey);
     }
     
     function getPo(uint poNumber) override public view returns (IPoTypes.Po memory po)
@@ -183,8 +183,8 @@ contract PoStorage is IPoStorage, Ownable, Bindable, StringConvertible
         }
         
         // Update mapping of [buyer address + nonce] => po number
-        bytes32 mappingKey = keccak256(abi.encodePacked(CLIENT, po.approverAddress, po.quoteId));
-        eternalStorage.setMappingBytes32ToUint256Value(stringToBytes32(MAP_APPROVER_AND_QUOTE_TO_PO), mappingKey, uint256(po.poNumber));
+        bytes32 mappingKey = keccak256(abi.encodePacked(CLIENT, po.sellerId, po.quoteId));
+        eternalStorage.setMappingBytes32ToUint256Value(stringToBytes32(MAP_SELLER_AND_QUOTE_TO_PO), mappingKey, uint256(po.poNumber));
     }
 }
 

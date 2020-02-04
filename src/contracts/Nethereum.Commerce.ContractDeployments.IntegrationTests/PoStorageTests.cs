@@ -43,7 +43,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         }
 
         [Fact]
-        public async void ShouldStoreAndRetrievePoByApproverAndQuote()
+        public async void ShouldStoreAndRetrievePoBySellerAndQuote()
         {
             // Create a PO to store
             uint poNumberExpected = 314159;
@@ -56,7 +56,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             txReceipt.Status.Value.Should().Be(1);
 
             // Retrieve PO number by address and nonce
-            var poNumberActual = await _contracts.PoStorageService.GetPoNumberByApproverAndQuoteQueryAsync(approverAddress, quoteId);
+            var poNumberActual = await _contracts.PoStorageService.GetPoNumberBySellerAndQuoteQueryAsync(poExpected.SellerId, poExpected.QuoteId);
 
             // They should be the same
             poNumberActual.Should().Be(poNumberExpected);
