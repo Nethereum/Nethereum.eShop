@@ -45,13 +45,19 @@ namespace Nethereum.Commerce.Contracts.PoStorage.ContractDefinition
         [Parameter("uint8", "status", 13)]
         public new PoItemStatus Status { get; set; }
 
-        [Parameter("uint256", "goodsIssueDate", 14)]
-        public new BigInteger GoodsIssueDate { get; set; }
+        [Parameter("uint256", "goodsIssuedDate", 14)]
+        public new BigInteger GoodsIssuedDate { get; set; }
 
-        [Parameter("uint256", "escrowReleaseDate", 15)]
-        public new BigInteger EscrowReleaseDate { get; set; }
+        [Parameter("uint256", "goodsReceivedDate", 15)]
+        public new BigInteger GoodsReceivedDate { get; set; }
 
-        [Parameter("uint8", "cancelStatus", 16)]
+        [Parameter("uint256", "plannedEscrowReleaseDate", 16)]
+        public new BigInteger PlannedEscrowReleaseDate { get; set; }
+
+        [Parameter("bool", "isEscrowReleased", 17)]
+        public new bool IsEscrowReleased { get; set; }
+
+        [Parameter("uint8", "cancelStatus", 18)]
         public new PoItemCancelStatus CancelStatus { get; set; }
     }
 }

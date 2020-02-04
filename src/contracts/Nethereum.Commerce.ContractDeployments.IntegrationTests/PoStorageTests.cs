@@ -90,8 +90,8 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                 poActual.PoItems[i].CurrencySymbol.Should().Be(poExpected.PoItems[i].CurrencySymbol);
                 poActual.PoItems[i].CurrencyAddress.Should().Be(poExpected.PoItems[i].CurrencyAddress);
                 poActual.PoItems[i].Status.Should().Be(poExpected.PoItems[i].Status);
-                poActual.PoItems[i].GoodsIssueDate.Should().Be(poExpected.PoItems[i].GoodsIssueDate);
-                poActual.PoItems[i].EscrowReleaseDate.Should().Be(poExpected.PoItems[i].EscrowReleaseDate);
+                poActual.PoItems[i].GoodsIssuedDate.Should().Be(poExpected.PoItems[i].GoodsIssuedDate);
+                poActual.PoItems[i].PlannedEscrowReleaseDate.Should().Be(poExpected.PoItems[i].PlannedEscrowReleaseDate);
                 poActual.PoItems[i].CancelStatus.Should().Be(poExpected.PoItems[i].CancelStatus);
             }
         }
@@ -128,8 +128,10 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                         CurrencySymbol = "DAI",
                         CurrencyAddress = "0x41ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
                         Status = PoItemStatus.Created,
-                        GoodsIssueDate = 100,
-                        EscrowReleaseDate = 100,
+                        GoodsIssuedDate = 100,
+                        GoodsReceivedDate = 0,
+                        PlannedEscrowReleaseDate = 100,
+                        IsEscrowReleased = false,
                         CancelStatus = PoItemCancelStatus.Initial
                     },
                     new PoItem()
@@ -147,8 +149,10 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                         CurrencySymbol = "DAI",
                         CurrencyAddress = "0x43ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
                         Status = PoItemStatus.Created,
-                        GoodsIssueDate = 200,
-                        EscrowReleaseDate = 200,
+                        GoodsIssuedDate = 200,
+                        GoodsReceivedDate = 0,
+                        PlannedEscrowReleaseDate = 200,
+                        IsEscrowReleased = false,
                         CancelStatus = PoItemCancelStatus.Initial
                     }
                 }

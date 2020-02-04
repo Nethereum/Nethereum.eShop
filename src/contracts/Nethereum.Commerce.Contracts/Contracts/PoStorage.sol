@@ -42,8 +42,10 @@ contract PoStorage is IPoStorage, Ownable, Bindable, StringConvertible
     string constant private CURRENCY_SYMBOL = "currencySymbol";
     string constant private CURRENCY_ADDRESS = "currencyAddress";
     string constant private STATUS = "status";
-    string constant private GOODS_ISSUE_DATE = "goodsIssueDate";
-    string constant private ESCROW_RELEASE_DATE = "escrowReleaseDate";
+    string constant private GOODS_ISSUED_DATE = "goodsIssuedDate";
+    string constant private GOODS_RECEIVED_DATE = "goodsReceivedDate";
+    string constant private PLANNED_ESCROW_RELEASE_DATE = "plannedEscrowReleaseDate";
+    string constant private IS_ESCROW_RELEASED = "isEscrowReleased";
     string constant private CANCEL_STATUS = "cancelStatus";
     
     // Number range field names
@@ -136,8 +138,10 @@ contract PoStorage is IPoStorage, Ownable, Bindable, StringConvertible
             po.poItems[i].currencySymbol = eternalStorage.getBytes32Value(keccak256(abi.encodePacked(lineItemKey, CURRENCY_SYMBOL)));
             po.poItems[i].currencyAddress = eternalStorage.getAddressValue(keccak256(abi.encodePacked(lineItemKey, CURRENCY_ADDRESS)));
             po.poItems[i].status = IPoTypes.PoItemStatus(eternalStorage.getUint256Value(keccak256(abi.encodePacked(lineItemKey, STATUS))));
-            po.poItems[i].goodsIssueDate = eternalStorage.getUint256Value(keccak256(abi.encodePacked(lineItemKey, GOODS_ISSUE_DATE)));
-            po.poItems[i].escrowReleaseDate = eternalStorage.getUint256Value(keccak256(abi.encodePacked(lineItemKey, ESCROW_RELEASE_DATE)));
+            po.poItems[i].goodsIssuedDate = eternalStorage.getUint256Value(keccak256(abi.encodePacked(lineItemKey, GOODS_ISSUED_DATE)));
+            po.poItems[i].goodsReceivedDate = eternalStorage.getUint256Value(keccak256(abi.encodePacked(lineItemKey, GOODS_RECEIVED_DATE)));
+            po.poItems[i].plannedEscrowReleaseDate = eternalStorage.getUint256Value(keccak256(abi.encodePacked(lineItemKey, PLANNED_ESCROW_RELEASE_DATE)));
+            po.poItems[i].isEscrowReleased = eternalStorage.getBooleanValue(keccak256(abi.encodePacked(lineItemKey, IS_ESCROW_RELEASED)));
             po.poItems[i].cancelStatus = IPoTypes.PoItemCancelStatus(eternalStorage.getUint256Value(keccak256(abi.encodePacked(lineItemKey, CANCEL_STATUS))));
         }
     }
@@ -177,8 +181,10 @@ contract PoStorage is IPoStorage, Ownable, Bindable, StringConvertible
             eternalStorage.setBytes32Value(keccak256(abi.encodePacked(lineItemKey, CURRENCY_SYMBOL)), po.poItems[i].currencySymbol);
             eternalStorage.setAddressValue(keccak256(abi.encodePacked(lineItemKey, CURRENCY_ADDRESS)), po.poItems[i].currencyAddress);
             eternalStorage.setUint256Value(keccak256(abi.encodePacked(lineItemKey, STATUS)), uint256(po.poItems[i].status));
-            eternalStorage.setUint256Value(keccak256(abi.encodePacked(lineItemKey, GOODS_ISSUE_DATE)), po.poItems[i].goodsIssueDate);
-            eternalStorage.setUint256Value(keccak256(abi.encodePacked(lineItemKey, ESCROW_RELEASE_DATE)), po.poItems[i].escrowReleaseDate);
+            eternalStorage.setUint256Value(keccak256(abi.encodePacked(lineItemKey, GOODS_ISSUED_DATE)), po.poItems[i].goodsIssuedDate);
+            eternalStorage.setUint256Value(keccak256(abi.encodePacked(lineItemKey, GOODS_RECEIVED_DATE)), po.poItems[i].goodsReceivedDate);
+            eternalStorage.setUint256Value(keccak256(abi.encodePacked(lineItemKey, PLANNED_ESCROW_RELEASE_DATE)), po.poItems[i].plannedEscrowReleaseDate);
+            eternalStorage.setBooleanValue(keccak256(abi.encodePacked(lineItemKey, IS_ESCROW_RELEASED)), po.poItems[i].isEscrowReleased);
             eternalStorage.setUint256Value(keccak256(abi.encodePacked(lineItemKey, CANCEL_STATUS)), uint256(po.poItems[i].cancelStatus));
         }
         

@@ -37,11 +37,15 @@ namespace Nethereum.Commerce.Contracts.PoStorage.ContractDefinition
         public virtual string CurrencyAddress { get; set; }
         [Parameter("uint8", "status", 13)]
         public virtual byte Status { get; set; }
-        [Parameter("uint256", "goodsIssueDate", 14)]
-        public virtual BigInteger GoodsIssueDate { get; set; }
-        [Parameter("uint256", "escrowReleaseDate", 15)]
-        public virtual BigInteger EscrowReleaseDate { get; set; }
-        [Parameter("uint8", "cancelStatus", 16)]
+        [Parameter("uint256", "goodsIssuedDate", 14)]
+        public virtual BigInteger GoodsIssuedDate { get; set; }
+        [Parameter("uint256", "goodsReceivedDate", 15)]
+        public virtual BigInteger GoodsReceivedDate { get; set; }
+        [Parameter("uint256", "plannedEscrowReleaseDate", 16)]
+        public virtual BigInteger PlannedEscrowReleaseDate { get; set; }
+        [Parameter("bool", "isEscrowReleased", 17)]
+        public virtual bool IsEscrowReleased { get; set; }
+        [Parameter("uint8", "cancelStatus", 18)]
         public virtual byte CancelStatus { get; set; }
     }
 }

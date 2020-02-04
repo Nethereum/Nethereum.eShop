@@ -17,7 +17,7 @@ interface IPoTypes
         Completed,              // 7  PO item is complete and escrow funds released to the buyer wallet           | 6->7 managed by seller wallet contract fn call from seller UI
         Cancelled               // 8  PO item has been successfully cancelled and funds refunded to buyer wallet  | 1->8 or 2->8 managed by seller wallet contract fn call from seller UI, at discretion of seller (poss break out into own field of po item payment status)
     }
-
+    
     enum PoItemCancelStatus
     {
         Initial,                // 0  default to empty, no request made
@@ -48,8 +48,10 @@ interface IPoTypes
         bytes32 currencySymbol;            // buyer UI managed, symbol of the ERC20 that is making payment, eg DAI
         address currencyAddress;           // buyer UI managed, contract address of the ERC20 that is making payment
         PoItemStatus status;               // contract managed for create, then seller system managed
-        uint goodsIssueDate;               // contract managed at point of goods issue, the goods issue unix timestamp
-        uint escrowReleaseDate;            // contract managed at point of goods issue, it is the goods issue unix timestamp + escrow days eg 30 days
+        uint goodsIssuedDate;              // contract managed at point of goods issue, unix timestamp
+        uint goodsReceivedDate;            // contract managed at point of goods received (or time out), unix timestamp
+        uint plannedEscrowReleaseDate;     // contract managed at point of goods issue, it is the planned escrow release date = goods issue + escrow days eg 30 days
+        bool isEscrowReleased;             // contract managed, defaults to false, true when escrow funds released to seller
         PoItemCancelStatus cancelStatus;   // contract managed from buyer UI and seller UI fn calls
     }
 
