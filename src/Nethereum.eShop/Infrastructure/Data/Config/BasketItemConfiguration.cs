@@ -10,7 +10,7 @@ namespace Nethereum.eShop.Infrastructure.Data.Config
         {
             builder.Property(bi => bi.UnitPrice)
                 .IsRequired(true)
-                .HasColumnType("decimal(18,2)");
+                .IsPrice();
         }
     }
 }

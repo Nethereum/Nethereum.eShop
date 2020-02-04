@@ -1,15 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Nethereum.eShop.ApplicationCore.Entities;
-using Nethereum.eShop.ApplicationCore.Entities.OrderAggregate;
+using Nethereum.eShop.ApplicationCore.Entities.QuoteAggregate;
 
 namespace Nethereum.eShop.Infrastructure.Data.Config
 {
-    public class OrderConfiguration : IEntityTypeConfiguration<Order>
+    public class QuoteConfiguration : IEntityTypeConfiguration<Quote>
     {
-        public void Configure(EntityTypeBuilder<Order> builder)
+        public void Configure(EntityTypeBuilder<Quote> builder)
         {
-            var navigation = builder.Metadata.FindNavigation(nameof(Order.OrderItems));
+            var navigation = builder.Metadata.FindNavigation(nameof(Quote.QuoteItems));
 
             navigation.SetPropertyAccessMode(PropertyAccessMode.Field);
 
@@ -27,6 +26,7 @@ namespace Nethereum.eShop.Infrastructure.Data.Config
 
             builder.Property(o => o.BuyerAddress).IsAddress();
             builder.Property(o => o.BuyerWalletAddress).IsAddress();
+            builder.Property(o => o.TransactionHash).IsHash();
         }
     }
 }
