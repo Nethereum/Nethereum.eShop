@@ -30,6 +30,9 @@ contract WalletSeller is IWalletSeller, Ownable, Bindable, StringConvertible
     function getPo(uint poNumber) override external view returns (IPoTypes.Po memory po)
     {}
     
+    function getPoNumberBySellerAndQuote(string calldata sellerIdString, uint quoteId) override external view returns (uint poNumber)
+    {}
+    
     function setPoItemAccepted(uint poNumber, uint8 poItemNumber, bytes32 soNumber, bytes32 soItemNumber) override external
     {}
     

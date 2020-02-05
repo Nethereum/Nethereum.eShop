@@ -26,6 +26,11 @@ contract WalletBuyer is IWalletBuyer, Ownable, Bindable
     
     // Purchasing
     function getPo(uint poNumber) override external view returns (IPoTypes.Po memory po)
+    {
+        
+    }
+    
+    function getPoNumberBySellerAndQuote(string calldata sellerIdString, uint quoteId) override external view returns (uint poNumber)
     {}
     
     function createPurchaseOrder(IPoTypes.Po calldata po) override external

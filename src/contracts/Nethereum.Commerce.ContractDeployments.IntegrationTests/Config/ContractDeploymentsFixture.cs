@@ -6,6 +6,8 @@ using Nethereum.Commerce.Contracts.EternalStorage;
 using Nethereum.Commerce.Contracts.EternalStorage.ContractDefinition;
 using Nethereum.Commerce.Contracts.PoStorage;
 using Nethereum.Commerce.Contracts.PoStorage.ContractDefinition;
+using Nethereum.Commerce.Contracts.Purchasing;
+using Nethereum.Commerce.Contracts.Purchasing.ContractDefinition;
 using Nethereum.Commerce.Contracts.WalletBuyer;
 using Nethereum.Commerce.Contracts.WalletBuyer.ContractDefinition;
 using Nethereum.Commerce.Contracts.WalletSeller;
@@ -28,6 +30,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
         public PoStorageService PoStorageService { get; internal set; }
         public WalletBuyerService WalletBuyerService { get; internal set; }
         public WalletSellerService WalletSellerService { get; internal set; }
+        public PurchasingService PurchasingService { get; internal set; }
 
         // Configuration
         public readonly ContractDeploymentsConfig ContractDeploymentConfig;
@@ -38,6 +41,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
         public const string CONTRACT_NAME_PO_STORAGE = "PoStorage";
         public const string CONTRACT_NAME_WALLET_BUYER = "WalletBuyer";
         public const string CONTRACT_NAME_WALLET_SELLER = "WalletSeller";
+        public const string CONTRACT_NAME_PURCHASING = "Purchasing";
 
         private readonly IMessageSink _diagnosticMessageSink;
 
@@ -126,6 +130,16 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
                 var walletSellerOwner = await WalletSellerService.OwnerQueryAsync();
                 Log($"{contractName} address is: {WalletSellerService.ContractHandler.ContractAddress}");
                 Log($"{contractName} owner is  : {walletSellerOwner}");
+
+                // Deploy Purchasing
+                Log();
+                contractName = CONTRACT_NAME_PURCHASING;
+                Log($"Deploying {contractName}...");
+                var purchasingDeployment = new PurchasingDeployment() { ContractAddressOfRegistry = AddressRegService.ContractHandler.ContractAddress };
+                PurchasingService = await PurchasingService.DeployContractAndGetServiceAsync(web3, purchasingDeployment);
+                var purchasingOwner = await PurchasingService.OwnerQueryAsync();
+                Log($"{contractName} address is: {PurchasingService.ContractHandler.ContractAddress}");
+                Log($"{contractName} owner is  : {purchasingOwner}");
 
                 #endregion
 

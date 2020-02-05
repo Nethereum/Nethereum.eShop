@@ -33,12 +33,16 @@ interface IPurchasing
     // Contract setup
     function configure(string calldata nameOfPoStorage, string calldata nameOfBusinessPartnerStorage, string calldata nameOfFundingContract) external;
     
-    // Buyer Wallet => Purchasing
+    // Purchasing
+    function getPo(uint poNumber) external view returns (IPoTypes.Po memory po);
+    function getPoNumberBySellerAndQuote(bytes32 sellerId, uint quoteId) external view returns (uint poNumber);
+    
+    // Only from Buyer Wallet
     function createPurchaseOrder(IPoTypes.Po calldata po) external;
     function cancelPurchaseOrderItem(uint poNumber, uint8 poItemNumber) external;
     function setPoItemGoodsReceivedBuyer(uint poNumber, uint8 poItemNumber) external;
     
-    // Purchasing <= Seller Wallet
+    // Only from Seller Wallet
     function setPoItemAccepted(uint poNumber, uint8 poItemNumber, bytes32 soNumber, bytes32 soItemNumber) external;
     function setPoItemRejected(uint poNumber, uint8 poItemNumber) external;
     function setPoItemReadyForGoodsIssue(uint poNumber, uint8 poItemNumber) external;

@@ -10,33 +10,33 @@ using Nethereum.Contracts.CQS;
 using Nethereum.Contracts.ContractHandlers;
 using Nethereum.Contracts;
 using System.Threading;
-using Nethereum.Commerce.Contracts.WalletSeller.ContractDefinition;
+using Nethereum.Commerce.Contracts.Purchasing.ContractDefinition;
 
-namespace Nethereum.Commerce.Contracts.WalletSeller
+namespace Nethereum.Commerce.Contracts.Purchasing
 {
-    public partial class WalletSellerService
+    public partial class PurchasingService
     {
-        public static Task<TransactionReceipt> DeployContractAndWaitForReceiptAsync(Nethereum.Web3.Web3 web3, WalletSellerDeployment walletSellerDeployment, CancellationTokenSource cancellationTokenSource = null)
+        public static Task<TransactionReceipt> DeployContractAndWaitForReceiptAsync(Nethereum.Web3.Web3 web3, PurchasingDeployment purchasingDeployment, CancellationTokenSource cancellationTokenSource = null)
         {
-            return web3.Eth.GetContractDeploymentHandler<WalletSellerDeployment>().SendRequestAndWaitForReceiptAsync(walletSellerDeployment, cancellationTokenSource);
+            return web3.Eth.GetContractDeploymentHandler<PurchasingDeployment>().SendRequestAndWaitForReceiptAsync(purchasingDeployment, cancellationTokenSource);
         }
 
-        public static Task<string> DeployContractAsync(Nethereum.Web3.Web3 web3, WalletSellerDeployment walletSellerDeployment)
+        public static Task<string> DeployContractAsync(Nethereum.Web3.Web3 web3, PurchasingDeployment purchasingDeployment)
         {
-            return web3.Eth.GetContractDeploymentHandler<WalletSellerDeployment>().SendRequestAsync(walletSellerDeployment);
+            return web3.Eth.GetContractDeploymentHandler<PurchasingDeployment>().SendRequestAsync(purchasingDeployment);
         }
 
-        public static async Task<WalletSellerService> DeployContractAndGetServiceAsync(Nethereum.Web3.Web3 web3, WalletSellerDeployment walletSellerDeployment, CancellationTokenSource cancellationTokenSource = null)
+        public static async Task<PurchasingService> DeployContractAndGetServiceAsync(Nethereum.Web3.Web3 web3, PurchasingDeployment purchasingDeployment, CancellationTokenSource cancellationTokenSource = null)
         {
-            var receipt = await DeployContractAndWaitForReceiptAsync(web3, walletSellerDeployment, cancellationTokenSource);
-            return new WalletSellerService(web3, receipt.ContractAddress);
+            var receipt = await DeployContractAndWaitForReceiptAsync(web3, purchasingDeployment, cancellationTokenSource);
+            return new PurchasingService(web3, receipt.ContractAddress);
         }
 
         protected Nethereum.Web3.Web3 Web3{ get; }
 
         public ContractHandler ContractHandler { get; }
 
-        public WalletSellerService(Nethereum.Web3.Web3 web3, string contractAddress)
+        public PurchasingService(Nethereum.Web3.Web3 web3, string contractAddress)
         {
             Web3 = web3;
             ContractHandler = web3.Eth.GetContractHandler(contractAddress);
@@ -119,6 +119,34 @@ namespace Nethereum.Commerce.Contracts.WalletSeller
             return ContractHandler.QueryAsync<Bytes32ToStringFunction, string>(bytes32ToStringFunction, blockParameter);
         }
 
+        public Task<string> CancelPurchaseOrderItemRequestAsync(CancelPurchaseOrderItemFunction cancelPurchaseOrderItemFunction)
+        {
+             return ContractHandler.SendRequestAsync(cancelPurchaseOrderItemFunction);
+        }
+
+        public Task<TransactionReceipt> CancelPurchaseOrderItemRequestAndWaitForReceiptAsync(CancelPurchaseOrderItemFunction cancelPurchaseOrderItemFunction, CancellationTokenSource cancellationToken = null)
+        {
+             return ContractHandler.SendRequestAndWaitForReceiptAsync(cancelPurchaseOrderItemFunction, cancellationToken);
+        }
+
+        public Task<string> CancelPurchaseOrderItemRequestAsync(BigInteger poNumber, byte poItemNumber)
+        {
+            var cancelPurchaseOrderItemFunction = new CancelPurchaseOrderItemFunction();
+                cancelPurchaseOrderItemFunction.PoNumber = poNumber;
+                cancelPurchaseOrderItemFunction.PoItemNumber = poItemNumber;
+            
+             return ContractHandler.SendRequestAsync(cancelPurchaseOrderItemFunction);
+        }
+
+        public Task<TransactionReceipt> CancelPurchaseOrderItemRequestAndWaitForReceiptAsync(BigInteger poNumber, byte poItemNumber, CancellationTokenSource cancellationToken = null)
+        {
+            var cancelPurchaseOrderItemFunction = new CancelPurchaseOrderItemFunction();
+                cancelPurchaseOrderItemFunction.PoNumber = poNumber;
+                cancelPurchaseOrderItemFunction.PoItemNumber = poItemNumber;
+            
+             return ContractHandler.SendRequestAndWaitForReceiptAsync(cancelPurchaseOrderItemFunction, cancellationToken);
+        }
+
         public Task<string> ConfigureRequestAsync(ConfigureFunction configureFunction)
         {
              return ContractHandler.SendRequestAsync(configureFunction);
@@ -129,24 +157,50 @@ namespace Nethereum.Commerce.Contracts.WalletSeller
              return ContractHandler.SendRequestAndWaitForReceiptAsync(configureFunction, cancellationToken);
         }
 
-        public Task<string> ConfigureRequestAsync(string sellerIdString, string nameOfPurchasing, string nameOfFunding)
+        public Task<string> ConfigureRequestAsync(string nameOfPoStorage, string nameOfBusinessPartnerStorage, string nameOfFundingContract)
         {
             var configureFunction = new ConfigureFunction();
-                configureFunction.SellerIdString = sellerIdString;
-                configureFunction.NameOfPurchasing = nameOfPurchasing;
-                configureFunction.NameOfFunding = nameOfFunding;
+                configureFunction.NameOfPoStorage = nameOfPoStorage;
+                configureFunction.NameOfBusinessPartnerStorage = nameOfBusinessPartnerStorage;
+                configureFunction.NameOfFundingContract = nameOfFundingContract;
             
              return ContractHandler.SendRequestAsync(configureFunction);
         }
 
-        public Task<TransactionReceipt> ConfigureRequestAndWaitForReceiptAsync(string sellerIdString, string nameOfPurchasing, string nameOfFunding, CancellationTokenSource cancellationToken = null)
+        public Task<TransactionReceipt> ConfigureRequestAndWaitForReceiptAsync(string nameOfPoStorage, string nameOfBusinessPartnerStorage, string nameOfFundingContract, CancellationTokenSource cancellationToken = null)
         {
             var configureFunction = new ConfigureFunction();
-                configureFunction.SellerIdString = sellerIdString;
-                configureFunction.NameOfPurchasing = nameOfPurchasing;
-                configureFunction.NameOfFunding = nameOfFunding;
+                configureFunction.NameOfPoStorage = nameOfPoStorage;
+                configureFunction.NameOfBusinessPartnerStorage = nameOfBusinessPartnerStorage;
+                configureFunction.NameOfFundingContract = nameOfFundingContract;
             
              return ContractHandler.SendRequestAndWaitForReceiptAsync(configureFunction, cancellationToken);
+        }
+
+        public Task<string> CreatePurchaseOrderRequestAsync(CreatePurchaseOrderFunction createPurchaseOrderFunction)
+        {
+             return ContractHandler.SendRequestAsync(createPurchaseOrderFunction);
+        }
+
+        public Task<TransactionReceipt> CreatePurchaseOrderRequestAndWaitForReceiptAsync(CreatePurchaseOrderFunction createPurchaseOrderFunction, CancellationTokenSource cancellationToken = null)
+        {
+             return ContractHandler.SendRequestAndWaitForReceiptAsync(createPurchaseOrderFunction, cancellationToken);
+        }
+
+        public Task<string> CreatePurchaseOrderRequestAsync(Po po)
+        {
+            var createPurchaseOrderFunction = new CreatePurchaseOrderFunction();
+                createPurchaseOrderFunction.Po = po;
+            
+             return ContractHandler.SendRequestAsync(createPurchaseOrderFunction);
+        }
+
+        public Task<TransactionReceipt> CreatePurchaseOrderRequestAndWaitForReceiptAsync(Po po, CancellationTokenSource cancellationToken = null)
+        {
+            var createPurchaseOrderFunction = new CreatePurchaseOrderFunction();
+                createPurchaseOrderFunction.Po = po;
+            
+             return ContractHandler.SendRequestAndWaitForReceiptAsync(createPurchaseOrderFunction, cancellationToken);
         }
 
         public Task<GetPoOutputDTO> GetPoQueryAsync(GetPoFunction getPoFunction, BlockParameter blockParameter = null)
@@ -168,10 +222,10 @@ namespace Nethereum.Commerce.Contracts.WalletSeller
         }
 
         
-        public Task<BigInteger> GetPoNumberBySellerAndQuoteQueryAsync(string sellerIdString, BigInteger quoteId, BlockParameter blockParameter = null)
+        public Task<BigInteger> GetPoNumberBySellerAndQuoteQueryAsync(byte[] sellerId, BigInteger quoteId, BlockParameter blockParameter = null)
         {
             var getPoNumberBySellerAndQuoteFunction = new GetPoNumberBySellerAndQuoteFunction();
-                getPoNumberBySellerAndQuoteFunction.SellerIdString = sellerIdString;
+                getPoNumberBySellerAndQuoteFunction.SellerId = sellerId;
                 getPoNumberBySellerAndQuoteFunction.QuoteId = quoteId;
             
             return ContractHandler.QueryAsync<GetPoNumberBySellerAndQuoteFunction, BigInteger>(getPoNumberBySellerAndQuoteFunction, blockParameter);
@@ -197,17 +251,6 @@ namespace Nethereum.Commerce.Contracts.WalletSeller
         public Task<string> OwnerQueryAsync(BlockParameter blockParameter = null)
         {
             return ContractHandler.QueryAsync<OwnerFunction, string>(null, blockParameter);
-        }
-
-        public Task<byte[]> SellerIdQueryAsync(SellerIdFunction sellerIdFunction, BlockParameter blockParameter = null)
-        {
-            return ContractHandler.QueryAsync<SellerIdFunction, byte[]>(sellerIdFunction, blockParameter);
-        }
-
-        
-        public Task<byte[]> SellerIdQueryAsync(BlockParameter blockParameter = null)
-        {
-            return ContractHandler.QueryAsync<SellerIdFunction, byte[]>(null, blockParameter);
         }
 
         public Task<string> SetPoItemAcceptedRequestAsync(SetPoItemAcceptedFunction setPoItemAcceptedFunction)
@@ -270,32 +313,60 @@ namespace Nethereum.Commerce.Contracts.WalletSeller
              return ContractHandler.SendRequestAndWaitForReceiptAsync(setPoItemGoodsIssuedFunction, cancellationToken);
         }
 
-        public Task<string> SetPoItemGoodsReceivedRequestAsync(SetPoItemGoodsReceivedFunction setPoItemGoodsReceivedFunction)
+        public Task<string> SetPoItemGoodsReceivedBuyerRequestAsync(SetPoItemGoodsReceivedBuyerFunction setPoItemGoodsReceivedBuyerFunction)
         {
-             return ContractHandler.SendRequestAsync(setPoItemGoodsReceivedFunction);
+             return ContractHandler.SendRequestAsync(setPoItemGoodsReceivedBuyerFunction);
         }
 
-        public Task<TransactionReceipt> SetPoItemGoodsReceivedRequestAndWaitForReceiptAsync(SetPoItemGoodsReceivedFunction setPoItemGoodsReceivedFunction, CancellationTokenSource cancellationToken = null)
+        public Task<TransactionReceipt> SetPoItemGoodsReceivedBuyerRequestAndWaitForReceiptAsync(SetPoItemGoodsReceivedBuyerFunction setPoItemGoodsReceivedBuyerFunction, CancellationTokenSource cancellationToken = null)
         {
-             return ContractHandler.SendRequestAndWaitForReceiptAsync(setPoItemGoodsReceivedFunction, cancellationToken);
+             return ContractHandler.SendRequestAndWaitForReceiptAsync(setPoItemGoodsReceivedBuyerFunction, cancellationToken);
         }
 
-        public Task<string> SetPoItemGoodsReceivedRequestAsync(BigInteger poNumber, byte poItemNumber)
+        public Task<string> SetPoItemGoodsReceivedBuyerRequestAsync(BigInteger poNumber, byte poItemNumber)
         {
-            var setPoItemGoodsReceivedFunction = new SetPoItemGoodsReceivedFunction();
-                setPoItemGoodsReceivedFunction.PoNumber = poNumber;
-                setPoItemGoodsReceivedFunction.PoItemNumber = poItemNumber;
+            var setPoItemGoodsReceivedBuyerFunction = new SetPoItemGoodsReceivedBuyerFunction();
+                setPoItemGoodsReceivedBuyerFunction.PoNumber = poNumber;
+                setPoItemGoodsReceivedBuyerFunction.PoItemNumber = poItemNumber;
             
-             return ContractHandler.SendRequestAsync(setPoItemGoodsReceivedFunction);
+             return ContractHandler.SendRequestAsync(setPoItemGoodsReceivedBuyerFunction);
         }
 
-        public Task<TransactionReceipt> SetPoItemGoodsReceivedRequestAndWaitForReceiptAsync(BigInteger poNumber, byte poItemNumber, CancellationTokenSource cancellationToken = null)
+        public Task<TransactionReceipt> SetPoItemGoodsReceivedBuyerRequestAndWaitForReceiptAsync(BigInteger poNumber, byte poItemNumber, CancellationTokenSource cancellationToken = null)
         {
-            var setPoItemGoodsReceivedFunction = new SetPoItemGoodsReceivedFunction();
-                setPoItemGoodsReceivedFunction.PoNumber = poNumber;
-                setPoItemGoodsReceivedFunction.PoItemNumber = poItemNumber;
+            var setPoItemGoodsReceivedBuyerFunction = new SetPoItemGoodsReceivedBuyerFunction();
+                setPoItemGoodsReceivedBuyerFunction.PoNumber = poNumber;
+                setPoItemGoodsReceivedBuyerFunction.PoItemNumber = poItemNumber;
             
-             return ContractHandler.SendRequestAndWaitForReceiptAsync(setPoItemGoodsReceivedFunction, cancellationToken);
+             return ContractHandler.SendRequestAndWaitForReceiptAsync(setPoItemGoodsReceivedBuyerFunction, cancellationToken);
+        }
+
+        public Task<string> SetPoItemGoodsReceivedSellerRequestAsync(SetPoItemGoodsReceivedSellerFunction setPoItemGoodsReceivedSellerFunction)
+        {
+             return ContractHandler.SendRequestAsync(setPoItemGoodsReceivedSellerFunction);
+        }
+
+        public Task<TransactionReceipt> SetPoItemGoodsReceivedSellerRequestAndWaitForReceiptAsync(SetPoItemGoodsReceivedSellerFunction setPoItemGoodsReceivedSellerFunction, CancellationTokenSource cancellationToken = null)
+        {
+             return ContractHandler.SendRequestAndWaitForReceiptAsync(setPoItemGoodsReceivedSellerFunction, cancellationToken);
+        }
+
+        public Task<string> SetPoItemGoodsReceivedSellerRequestAsync(BigInteger poNumber, byte poItemNumber)
+        {
+            var setPoItemGoodsReceivedSellerFunction = new SetPoItemGoodsReceivedSellerFunction();
+                setPoItemGoodsReceivedSellerFunction.PoNumber = poNumber;
+                setPoItemGoodsReceivedSellerFunction.PoItemNumber = poItemNumber;
+            
+             return ContractHandler.SendRequestAsync(setPoItemGoodsReceivedSellerFunction);
+        }
+
+        public Task<TransactionReceipt> SetPoItemGoodsReceivedSellerRequestAndWaitForReceiptAsync(BigInteger poNumber, byte poItemNumber, CancellationTokenSource cancellationToken = null)
+        {
+            var setPoItemGoodsReceivedSellerFunction = new SetPoItemGoodsReceivedSellerFunction();
+                setPoItemGoodsReceivedSellerFunction.PoNumber = poNumber;
+                setPoItemGoodsReceivedSellerFunction.PoItemNumber = poItemNumber;
+            
+             return ContractHandler.SendRequestAndWaitForReceiptAsync(setPoItemGoodsReceivedSellerFunction, cancellationToken);
         }
 
         public Task<string> SetPoItemReadyForGoodsIssueRequestAsync(SetPoItemReadyForGoodsIssueFunction setPoItemReadyForGoodsIssueFunction)

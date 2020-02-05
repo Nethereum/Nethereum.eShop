@@ -199,6 +199,21 @@ namespace Nethereum.Commerce.Contracts.WalletBuyer
             return ContractHandler.QueryDeserializingToObjectAsync<GetPoFunction, GetPoOutputDTO>(getPoFunction, blockParameter);
         }
 
+        public Task<BigInteger> GetPoNumberBySellerAndQuoteQueryAsync(GetPoNumberBySellerAndQuoteFunction getPoNumberBySellerAndQuoteFunction, BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<GetPoNumberBySellerAndQuoteFunction, BigInteger>(getPoNumberBySellerAndQuoteFunction, blockParameter);
+        }
+
+        
+        public Task<BigInteger> GetPoNumberBySellerAndQuoteQueryAsync(string sellerIdString, BigInteger quoteId, BlockParameter blockParameter = null)
+        {
+            var getPoNumberBySellerAndQuoteFunction = new GetPoNumberBySellerAndQuoteFunction();
+                getPoNumberBySellerAndQuoteFunction.SellerIdString = sellerIdString;
+                getPoNumberBySellerAndQuoteFunction.QuoteId = quoteId;
+            
+            return ContractHandler.QueryAsync<GetPoNumberBySellerAndQuoteFunction, BigInteger>(getPoNumberBySellerAndQuoteFunction, blockParameter);
+        }
+
         public Task<bool> IsOwnerQueryAsync(IsOwnerFunction isOwnerFunction, BlockParameter blockParameter = null)
         {
             return ContractHandler.QueryAsync<IsOwnerFunction, bool>(isOwnerFunction, blockParameter);
