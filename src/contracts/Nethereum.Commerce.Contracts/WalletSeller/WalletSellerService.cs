@@ -67,6 +67,17 @@ namespace Nethereum.Commerce.Contracts.WalletSeller
             return ContractHandler.QueryAsync<BoundAddressesFunction, bool>(boundAddressesFunction, blockParameter);
         }
 
+        public Task<string> AddressRegistryQueryAsync(AddressRegistryFunction addressRegistryFunction, BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<AddressRegistryFunction, string>(addressRegistryFunction, blockParameter);
+        }
+
+        
+        public Task<string> AddressRegistryQueryAsync(BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<AddressRegistryFunction, string>(null, blockParameter);
+        }
+
         public Task<string> BindAddressRequestAsync(BindAddressFunction bindAddressFunction)
         {
              return ContractHandler.SendRequestAsync(bindAddressFunction);
@@ -93,6 +104,21 @@ namespace Nethereum.Commerce.Contracts.WalletSeller
              return ContractHandler.SendRequestAndWaitForReceiptAsync(bindAddressFunction, cancellationToken);
         }
 
+        public Task<string> Bytes32ToStringQueryAsync(Bytes32ToStringFunction bytes32ToStringFunction, BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<Bytes32ToStringFunction, string>(bytes32ToStringFunction, blockParameter);
+        }
+
+        
+        public Task<string> Bytes32ToStringQueryAsync(byte[] x, BigInteger truncateToLength, BlockParameter blockParameter = null)
+        {
+            var bytes32ToStringFunction = new Bytes32ToStringFunction();
+                bytes32ToStringFunction.X = x;
+                bytes32ToStringFunction.TruncateToLength = truncateToLength;
+            
+            return ContractHandler.QueryAsync<Bytes32ToStringFunction, string>(bytes32ToStringFunction, blockParameter);
+        }
+
         public Task<string> ConfigureRequestAsync(ConfigureFunction configureFunction)
         {
              return ContractHandler.SendRequestAsync(configureFunction);
@@ -103,24 +129,37 @@ namespace Nethereum.Commerce.Contracts.WalletSeller
              return ContractHandler.SendRequestAndWaitForReceiptAsync(configureFunction, cancellationToken);
         }
 
-        public Task<string> ConfigureRequestAsync(string sellerId, string nameOfPurchasing, string nameOfFunding)
+        public Task<string> ConfigureRequestAsync(string sellerIdString, string nameOfPurchasing, string nameOfFunding)
         {
             var configureFunction = new ConfigureFunction();
-                configureFunction.SellerId = sellerId;
+                configureFunction.SellerIdString = sellerIdString;
                 configureFunction.NameOfPurchasing = nameOfPurchasing;
                 configureFunction.NameOfFunding = nameOfFunding;
             
              return ContractHandler.SendRequestAsync(configureFunction);
         }
 
-        public Task<TransactionReceipt> ConfigureRequestAndWaitForReceiptAsync(string sellerId, string nameOfPurchasing, string nameOfFunding, CancellationTokenSource cancellationToken = null)
+        public Task<TransactionReceipt> ConfigureRequestAndWaitForReceiptAsync(string sellerIdString, string nameOfPurchasing, string nameOfFunding, CancellationTokenSource cancellationToken = null)
         {
             var configureFunction = new ConfigureFunction();
-                configureFunction.SellerId = sellerId;
+                configureFunction.SellerIdString = sellerIdString;
                 configureFunction.NameOfPurchasing = nameOfPurchasing;
                 configureFunction.NameOfFunding = nameOfFunding;
             
              return ContractHandler.SendRequestAndWaitForReceiptAsync(configureFunction, cancellationToken);
+        }
+
+        public Task<GetPoOutputDTO> GetPoQueryAsync(GetPoFunction getPoFunction, BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryDeserializingToObjectAsync<GetPoFunction, GetPoOutputDTO>(getPoFunction, blockParameter);
+        }
+
+        public Task<GetPoOutputDTO> GetPoQueryAsync(BigInteger poNumber, BlockParameter blockParameter = null)
+        {
+            var getPoFunction = new GetPoFunction();
+                getPoFunction.PoNumber = poNumber;
+            
+            return ContractHandler.QueryDeserializingToObjectAsync<GetPoFunction, GetPoOutputDTO>(getPoFunction, blockParameter);
         }
 
         public Task<bool> IsOwnerQueryAsync(IsOwnerFunction isOwnerFunction, BlockParameter blockParameter = null)
@@ -143,6 +182,17 @@ namespace Nethereum.Commerce.Contracts.WalletSeller
         public Task<string> OwnerQueryAsync(BlockParameter blockParameter = null)
         {
             return ContractHandler.QueryAsync<OwnerFunction, string>(null, blockParameter);
+        }
+
+        public Task<byte[]> SellerIdQueryAsync(SellerIdFunction sellerIdFunction, BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<SellerIdFunction, byte[]>(sellerIdFunction, blockParameter);
+        }
+
+        
+        public Task<byte[]> SellerIdQueryAsync(BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<SellerIdFunction, byte[]>(null, blockParameter);
         }
 
         public Task<string> SetPoItemAcceptedRequestAsync(SetPoItemAcceptedFunction setPoItemAcceptedFunction)
@@ -287,6 +337,20 @@ namespace Nethereum.Commerce.Contracts.WalletSeller
                 setPoItemRejectedFunction.PoItemNumber = poItemNumber;
             
              return ContractHandler.SendRequestAndWaitForReceiptAsync(setPoItemRejectedFunction, cancellationToken);
+        }
+
+        public Task<byte[]> StringToBytes32QueryAsync(StringToBytes32Function stringToBytes32Function, BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<StringToBytes32Function, byte[]>(stringToBytes32Function, blockParameter);
+        }
+
+        
+        public Task<byte[]> StringToBytes32QueryAsync(string source, BlockParameter blockParameter = null)
+        {
+            var stringToBytes32Function = new StringToBytes32Function();
+                stringToBytes32Function.Source = source;
+            
+            return ContractHandler.QueryAsync<StringToBytes32Function, byte[]>(stringToBytes32Function, blockParameter);
         }
 
         public Task<string> TransferOwnershipRequestAsync(TransferOwnershipFunction transferOwnershipFunction)

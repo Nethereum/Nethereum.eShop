@@ -18,11 +18,6 @@
         public string EShopDescription { get; set; }
 
         /// <summary>
-        /// EoA or contract address, the shop owner, where money sent after a sale
-        /// </summary>
-        public string EShopFinanceAddress { get; set; }
-
-        /// <summary>
         /// EoA or contract address, the signer who can a sign a quotation tx to prove shop approves it
         /// </summary>
         public string EShopApproverAddress { get; set; }

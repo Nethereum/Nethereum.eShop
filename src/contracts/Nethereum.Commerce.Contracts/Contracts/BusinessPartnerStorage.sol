@@ -16,7 +16,7 @@ contract BusinessPartnerStorage is IBusinessPartnerStorage, Ownable, Bindable, S
     // Seller Id
     string constant private SELLER_ID = "sellerId";
     string constant private SELLER_DESC = "sellerDescription";
-    string constant private FINANCE_ADDRESS = "financeAddress";
+    string constant private CONTRACT_ADDRESS = "contractAddress";
     string constant private APPROVER_ADDRESS = "approverAddress";
     string constant private IS_ACTIVE = "isActive";
 
@@ -41,7 +41,7 @@ contract BusinessPartnerStorage is IBusinessPartnerStorage, Ownable, Bindable, S
     {
         seller.sellerId = eternalStorage.getBytes32Value(keccak256(abi.encodePacked(CLIENT, sellerId, SELLER_ID)));
         seller.sellerDescription = eternalStorage.getBytes32Value(keccak256(abi.encodePacked(CLIENT, sellerId, SELLER_DESC)));
-        seller.financeAddress = eternalStorage.getAddressValue(keccak256(abi.encodePacked(CLIENT, sellerId, FINANCE_ADDRESS)));
+        seller.contractAddress = eternalStorage.getAddressValue(keccak256(abi.encodePacked(CLIENT, sellerId, CONTRACT_ADDRESS)));
         seller.approverAddress = eternalStorage.getAddressValue(keccak256(abi.encodePacked(CLIENT, sellerId, APPROVER_ADDRESS)));
         seller.isActive = eternalStorage.getBooleanValue(keccak256(abi.encodePacked(CLIENT, sellerId, IS_ACTIVE)));
     }
@@ -50,7 +50,7 @@ contract BusinessPartnerStorage is IBusinessPartnerStorage, Ownable, Bindable, S
     {
         eternalStorage.setBytes32Value(keccak256(abi.encodePacked(CLIENT, seller.sellerId, SELLER_ID)), seller.sellerId);
         eternalStorage.setBytes32Value(keccak256(abi.encodePacked(CLIENT, seller.sellerId, SELLER_DESC)), seller.sellerDescription);
-        eternalStorage.setAddressValue(keccak256(abi.encodePacked(CLIENT, seller.sellerId, FINANCE_ADDRESS)), seller.financeAddress);
+        eternalStorage.setAddressValue(keccak256(abi.encodePacked(CLIENT, seller.sellerId, CONTRACT_ADDRESS)), seller.contractAddress);
         eternalStorage.setAddressValue(keccak256(abi.encodePacked(CLIENT, seller.sellerId, APPROVER_ADDRESS)), seller.approverAddress);
         eternalStorage.setBooleanValue(keccak256(abi.encodePacked(CLIENT, seller.sellerId, IS_ACTIVE)), seller.isActive);
     }

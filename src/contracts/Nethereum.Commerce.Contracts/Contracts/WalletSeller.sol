@@ -1,18 +1,35 @@
 pragma solidity ^0.6.1;
-//pragma experimental ABIEncoderV2;
+pragma experimental ABIEncoderV2;
 
 import "./IWalletSeller.sol";
+import "./IAddressRegistry.sol";
 import "./Ownable.sol";
 import "./Bindable.sol";
+import "./StringConvertible.sol";
 
 /// @title WalletSeller
-contract WalletSeller is IWalletSeller, Ownable, Bindable
+contract WalletSeller is IWalletSeller, Ownable, Bindable, StringConvertible
 {
+    IAddressRegistry public addressRegistry;
+    //IPurchasing public purchasing;
+    //IFunding public fundingContract;
+    bytes32 public sellerId;
+
+    constructor (address contractAddressOfRegistry) public
+    {
+        addressRegistry = IAddressRegistry(contractAddressOfRegistry);
+    }
+    
     // Contract setup
-    function configure(string calldata sellerId, string calldata nameOfPurchasing, string calldata nameOfFunding) override external
+    function configure(string calldata sellerIdString, string calldata nameOfPurchasing, string calldata nameOfFunding) override external
+    {
+          sellerId = stringToBytes32(sellerIdString);
+    }
+    
+    // Purchasing
+    function getPo(uint poNumber) override external view returns (IPoTypes.Po memory po)
     {}
     
-    // Purchasing <= Seller Wallet
     function setPoItemAccepted(uint poNumber, uint8 poItemNumber, bytes32 soNumber, bytes32 soItemNumber) override external
     {}
     

@@ -7,7 +7,7 @@ using Nethereum.ABI.FunctionEncoding.Attributes;
 
 namespace Nethereum.Commerce.Contracts.BusinessPartnerStorage.ContractDefinition
 {
-    public partial class Seller 
+    public partial class Seller
     {
         [Parameter("bytes32", "sellerId", 1)]
         public new string SellerId { get; set; }
@@ -15,8 +15,8 @@ namespace Nethereum.Commerce.Contracts.BusinessPartnerStorage.ContractDefinition
         [Parameter("bytes32", "sellerDescription", 2)]
         public new string SellerDescription { get; set; }
 
-        [Parameter("address", "financeAddress", 3)]
-        public new string FinanceAddress { get; set; }
+        [Parameter("address", "contractAddress", 3)]
+        public new string ContractAddress { get; set; }
 
         [Parameter("address", "approverAddress", 4)]
         public new string ApproverAddress { get; set; }

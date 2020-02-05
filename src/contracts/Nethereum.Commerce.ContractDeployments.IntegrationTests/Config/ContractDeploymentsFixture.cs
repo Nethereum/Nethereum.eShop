@@ -7,7 +7,9 @@ using Nethereum.Commerce.Contracts.EternalStorage.ContractDefinition;
 using Nethereum.Commerce.Contracts.PoStorage;
 using Nethereum.Commerce.Contracts.PoStorage.ContractDefinition;
 using Nethereum.Commerce.Contracts.WalletBuyer;
+using Nethereum.Commerce.Contracts.WalletBuyer.ContractDefinition;
 using Nethereum.Commerce.Contracts.WalletSeller;
+using Nethereum.Commerce.Contracts.WalletSeller.ContractDefinition;
 using Nethereum.Web3.Accounts;
 using System;
 using System.Threading.Tasks;
@@ -34,6 +36,8 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
         public const string CONTRACT_NAME_ETERNAL_STORAGE = "EternalStorage";
         public const string CONTRACT_NAME_BUSINESS_PARTNER_STORAGE = "BusinessPartnerStorage";
         public const string CONTRACT_NAME_PO_STORAGE = "PoStorage";
+        public const string CONTRACT_NAME_WALLET_BUYER = "WalletBuyer";
+        public const string CONTRACT_NAME_WALLET_SELLER = "WalletSeller";
 
         private readonly IMessageSink _diagnosticMessageSink;
 
@@ -62,6 +66,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
                 //-----------------------------------------------------------------------------------
                 // Contract deployments
                 //-----------------------------------------------------------------------------------
+                #region contract deployments
                 // Deploy Address Registry
                 Log();
                 var contractName = CONTRACT_NAME_ADDRESS_REGISTRY;
@@ -102,9 +107,32 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
                 Log($"{contractName} address is: {PoStorageService.ContractHandler.ContractAddress}");
                 Log($"{contractName} owner is  : {poStorageOwner}");
 
+                // Deploy Wallet Buyer
+                Log();
+                contractName = CONTRACT_NAME_WALLET_BUYER;
+                Log($"Deploying {contractName}...");
+                var walletBuyerDeployment = new WalletBuyerDeployment() { ContractAddressOfRegistry = AddressRegService.ContractHandler.ContractAddress };
+                WalletBuyerService = await WalletBuyerService.DeployContractAndGetServiceAsync(web3, walletBuyerDeployment);
+                var walletBuyerOwner = await WalletBuyerService.OwnerQueryAsync();
+                Log($"{contractName} address is: {WalletBuyerService.ContractHandler.ContractAddress}");
+                Log($"{contractName} owner is  : {walletBuyerOwner}");
+
+                // Deploy Wallet Seller
+                Log();
+                contractName = CONTRACT_NAME_WALLET_SELLER;
+                Log($"Deploying {contractName}...");
+                var walletSellerDeployment = new WalletSellerDeployment() { ContractAddressOfRegistry = AddressRegService.ContractHandler.ContractAddress };
+                WalletSellerService = await WalletSellerService.DeployContractAndGetServiceAsync(web3, walletSellerDeployment);
+                var walletSellerOwner = await WalletSellerService.OwnerQueryAsync();
+                Log($"{contractName} address is: {WalletSellerService.ContractHandler.ContractAddress}");
+                Log($"{contractName} owner is  : {walletSellerOwner}");
+
+                #endregion
+
                 //-----------------------------------------------------------------------------------
                 // Configure Address Registry
                 //-----------------------------------------------------------------------------------
+                #region configure address registry
                 Log();
                 Log($"Configuring Address Registry...");
 
@@ -127,10 +155,12 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
                 Log($"Tx status: {txReceipt.Status.Value}");
 
                 // Authorisations. Nothing needed.
+                #endregion
 
                 //-----------------------------------------------------------------------------------
                 // Configure Eternal Storage
                 //-----------------------------------------------------------------------------------
+                #region configure eternal storage
                 // Authorisations. Bind all contracts that will use eternal storage
                 Log();
                 Log($"Authorisations for Eternal Storage...");
@@ -143,6 +173,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
                 Log($"Configuring Eternal Storage, binding {contractName}...");
                 txReceipt = await EternalStorageService.BindAddressRequestAndWaitForReceiptAsync(PoStorageService.ContractHandler.ContractAddress);
                 Log($"Tx status: {txReceipt.Status.Value}");
+                #endregion
 
                 //-----------------------------------------------------------------------------------
                 // Configure Business Partner Storage
@@ -160,15 +191,11 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
                     {
                         SellerId = ContractDeploymentConfig.EShopSellerId,
                         SellerDescription = ContractDeploymentConfig.EShopDescription,
-                        FinanceAddress = ContractDeploymentConfig.EShopFinanceAddress,
+                        ContractAddress = WalletSellerService.ContractHandler.ContractAddress,
                         ApproverAddress = ContractDeploymentConfig.EShopApproverAddress,
                         IsActive = true
                     });
                 Log($"Tx status: {txReceipt.Status.Value}");
-
-                // TODO Cant configure this till next layer deployed
-                //var waf = new SetWalletAddressFunction() { SystemId = ESHOP_SYSTEM_ID, WalletAddress = "" };
-                //await bpStorageService.SetWalletAddressRequestAndWaitForReceiptAsync(waf);
 
                 // Authorisations. Bind all contracts that will use BP storage
                 // TODO Cant configure this till next layer deployed

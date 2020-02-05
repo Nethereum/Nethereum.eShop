@@ -26,12 +26,14 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         [Fact]
         public async void ShouldStoreAndRetrieveSeller()
         {
+            var sellerContractAddress = _contracts.WalletSellerService.ContractHandler.ContractAddress;
+
             // Create a Seller to store
             var sellerExpected = new Seller()
             {
                 SellerId = "SellerToTest",
                 SellerDescription = _contracts.ContractDeploymentConfig.EShopDescription,
-                FinanceAddress = _contracts.ContractDeploymentConfig.EShopFinanceAddress,
+                ContractAddress = sellerContractAddress,
                 ApproverAddress = _contracts.ContractDeploymentConfig.EShopApproverAddress,
                 IsActive = true
             };
@@ -51,7 +53,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         {
             sellerActual.SellerId.Should().Be(sellerExpected.SellerId);
             sellerActual.SellerDescription.Should().Be(sellerExpected.SellerDescription);
-            sellerActual.FinanceAddress.Should().Be(sellerExpected.FinanceAddress);
+            sellerActual.ContractAddress.Should().Be(sellerExpected.ContractAddress);
             sellerActual.ApproverAddress.Should().Be(sellerExpected.ApproverAddress);
             sellerActual.IsActive.Should().Be(sellerExpected.IsActive);
         }

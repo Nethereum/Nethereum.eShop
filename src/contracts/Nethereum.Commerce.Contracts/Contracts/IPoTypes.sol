@@ -78,7 +78,7 @@ interface IPoTypes
     {
         bytes32 sellerId;                  // uniquely identifies a seller/shop
         bytes32 sellerDescription;         // free text short description
-        address financeAddress;            // EoA or contract address, the shop owner, where money sent after a sale
+        address contractAddress;           // Contract address of seller wallet, where money sent after a sale
         address approverAddress;           // EoA or contract address, the signer who can a sign a quotation tx to prove shop approves it
         bool isActive;                     // flag true if seller is active
     }

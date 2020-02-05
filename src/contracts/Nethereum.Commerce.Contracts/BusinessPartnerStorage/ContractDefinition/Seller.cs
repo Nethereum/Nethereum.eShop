@@ -15,8 +15,8 @@ namespace Nethereum.Commerce.Contracts.BusinessPartnerStorage.ContractDefinition
         public virtual byte[] SellerId { get; set; }
         [Parameter("bytes32", "sellerDescription", 2)]
         public virtual byte[] SellerDescription { get; set; }
-        [Parameter("address", "financeAddress", 3)]
-        public virtual string FinanceAddress { get; set; }
+        [Parameter("address", "contractAddress", 3)]
+        public virtual string ContractAddress { get; set; }
         [Parameter("address", "approverAddress", 4)]
         public virtual string ApproverAddress { get; set; }
         [Parameter("bool", "isActive", 5)]

@@ -8,7 +8,8 @@ interface IWalletSeller
     // Contract setup
     function configure(string calldata sellerId, string calldata nameOfPurchasing, string calldata nameOfFunding) external;
     
-    // Purchasing <= Seller Wallet
+    // Purchasing
+    function getPo(uint poNumber) external view returns (IPoTypes.Po memory po);
     function setPoItemAccepted(uint poNumber, uint8 poItemNumber, bytes32 soNumber, bytes32 soItemNumber) external;
     function setPoItemRejected(uint poNumber, uint8 poItemNumber) external;
     function setPoItemReadyForGoodsIssue(uint poNumber, uint8 poItemNumber) external;

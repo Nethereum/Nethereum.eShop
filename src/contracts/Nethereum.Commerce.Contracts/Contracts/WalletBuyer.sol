@@ -2,17 +2,32 @@ pragma solidity ^0.6.1;
 pragma experimental ABIEncoderV2;
 
 import "./IWalletBuyer.sol";
+import "./IAddressRegistry.sol";
 import "./Ownable.sol";
 import "./Bindable.sol";
 
 /// @title WalletBuyer
 contract WalletBuyer is IWalletBuyer, Ownable, Bindable
 {
+    IAddressRegistry public addressRegistry;
+    //IPurchasing public purchasing;
+    //IFunding public fundingContract;
+
+    constructor (address contractAddressOfRegistry) public
+    {
+        addressRegistry = IAddressRegistry(contractAddressOfRegistry);
+    }
+    
     // Contract setup
     function configure(string calldata nameOfPurchasing, string calldata nameOfFunding) override external
+    {
+        
+    }
+    
+    // Purchasing
+    function getPo(uint poNumber) override external view returns (IPoTypes.Po memory po)
     {}
     
-    // Buyer Wallet => Purchasing
     function createPurchaseOrder(IPoTypes.Po calldata po) override external
     {}
     

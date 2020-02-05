@@ -67,6 +67,17 @@ namespace Nethereum.Commerce.Contracts.WalletBuyer
             return ContractHandler.QueryAsync<BoundAddressesFunction, bool>(boundAddressesFunction, blockParameter);
         }
 
+        public Task<string> AddressRegistryQueryAsync(AddressRegistryFunction addressRegistryFunction, BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<AddressRegistryFunction, string>(addressRegistryFunction, blockParameter);
+        }
+
+        
+        public Task<string> AddressRegistryQueryAsync(BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<AddressRegistryFunction, string>(null, blockParameter);
+        }
+
         public Task<string> BindAddressRequestAsync(BindAddressFunction bindAddressFunction)
         {
              return ContractHandler.SendRequestAsync(bindAddressFunction);
@@ -173,6 +184,19 @@ namespace Nethereum.Commerce.Contracts.WalletBuyer
                 createPurchaseOrderFunction.Po = po;
             
              return ContractHandler.SendRequestAndWaitForReceiptAsync(createPurchaseOrderFunction, cancellationToken);
+        }
+
+        public Task<GetPoOutputDTO> GetPoQueryAsync(GetPoFunction getPoFunction, BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryDeserializingToObjectAsync<GetPoFunction, GetPoOutputDTO>(getPoFunction, blockParameter);
+        }
+
+        public Task<GetPoOutputDTO> GetPoQueryAsync(BigInteger poNumber, BlockParameter blockParameter = null)
+        {
+            var getPoFunction = new GetPoFunction();
+                getPoFunction.PoNumber = poNumber;
+            
+            return ContractHandler.QueryDeserializingToObjectAsync<GetPoFunction, GetPoOutputDTO>(getPoFunction, blockParameter);
         }
 
         public Task<bool> IsOwnerQueryAsync(IsOwnerFunction isOwnerFunction, BlockParameter blockParameter = null)
