@@ -1,0 +1,60 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29609.76
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E5F8708E-5EA5-453F-A94E-8F0CD9D1B5AA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nethereum.eShop", "Nethereum.eShop\Nethereum.eShop.csproj", "{BA120028-FA8C-4EBD-8F2B-161F0C16A38C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web", "Web\Web.csproj", "{F01D9C50-41B3-4975-AF7C-E6E5D4F24337}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "utils", "utils", "{11EFE1E8-51CF-4528-BC17-545478FE3BD0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Books.ImportUtil", "utils\Books.ImportUtil\Books.ImportUtil.csproj", "{3A6E7DC1-79B8-41DE-B9AD-A5E60F7C9CA7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nethereum.Commerce.Contracts", "contracts\Nethereum.Commerce.Contracts\Nethereum.Commerce.Contracts.csproj", "{C22EF243-52C6-4976-8ADE-5504B40A37C3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "contracts", "contracts", "{5CC42B8D-582C-47C1-814A-E12B75FAC69E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nethereum.Commerce.ContractDeployments.IntegrationTests", "contracts\Nethereum.Commerce.ContractDeployments.IntegrationTests\Nethereum.Commerce.ContractDeployments.IntegrationTests.csproj", "{0281AF81-6DB5-48C4-9137-671D5E95E958}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BA120028-FA8C-4EBD-8F2B-161F0C16A38C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA120028-FA8C-4EBD-8F2B-161F0C16A38C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA120028-FA8C-4EBD-8F2B-161F0C16A38C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA120028-FA8C-4EBD-8F2B-161F0C16A38C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F01D9C50-41B3-4975-AF7C-E6E5D4F24337}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F01D9C50-41B3-4975-AF7C-E6E5D4F24337}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F01D9C50-41B3-4975-AF7C-E6E5D4F24337}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F01D9C50-41B3-4975-AF7C-E6E5D4F24337}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A6E7DC1-79B8-41DE-B9AD-A5E60F7C9CA7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A6E7DC1-79B8-41DE-B9AD-A5E60F7C9CA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A6E7DC1-79B8-41DE-B9AD-A5E60F7C9CA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A6E7DC1-79B8-41DE-B9AD-A5E60F7C9CA7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C22EF243-52C6-4976-8ADE-5504B40A37C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C22EF243-52C6-4976-8ADE-5504B40A37C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C22EF243-52C6-4976-8ADE-5504B40A37C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C22EF243-52C6-4976-8ADE-5504B40A37C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0281AF81-6DB5-48C4-9137-671D5E95E958}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0281AF81-6DB5-48C4-9137-671D5E95E958}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0281AF81-6DB5-48C4-9137-671D5E95E958}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0281AF81-6DB5-48C4-9137-671D5E95E958}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{3A6E7DC1-79B8-41DE-B9AD-A5E60F7C9CA7} = {11EFE1E8-51CF-4528-BC17-545478FE3BD0}
+		{C22EF243-52C6-4976-8ADE-5504B40A37C3} = {5CC42B8D-582C-47C1-814A-E12B75FAC69E}
+		{0281AF81-6DB5-48C4-9137-671D5E95E958} = {5CC42B8D-582C-47C1-814A-E12B75FAC69E}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8BEA2189-D111-472E-BA29-993E206C6CE3}
+	EndGlobalSection
+EndGlobal

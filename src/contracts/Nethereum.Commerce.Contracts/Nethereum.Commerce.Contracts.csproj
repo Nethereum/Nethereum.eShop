@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Compile Remove="Contracts\bin\**" />
+      <EmbeddedResource Remove="Contracts\bin\**" />
+      <None Remove="Contracts\bin\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="README.md.saved.bak" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Nethereum.Web3" Version="3.6.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="Contracts\nethereum-gen.settings">
+        <Generator>SettingsSingleFileGenerator</Generator>
+      </None>
+    </ItemGroup>
+    
+</Project>

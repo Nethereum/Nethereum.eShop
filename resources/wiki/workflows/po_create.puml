@@ -1,0 +1,80 @@
+' PlantUML Diagram
+@startuml
+title __PO Create__
+' Swimlanes
+|eShop UI|
+|#AntiqueWhite|Buyer| 
+|#AntiqueWhite|Purchasing-Escrow| 
+|#AntiqueWhite|Seller| 
+|eShop Backend|
+|eShop Admin UI|
+
+
+|eShop UI|
+start
+:Request **PO** Creation;
+
+|eShop Backend|
+:**Quotation** Created.
+**Seller.ApproverAddress** signs
+the quote.;
+
+|eShop UI|
+:User Sees: **PO** Status Requested
+on all items;
+
+|Buyer| 
+:Function: **CreatePurchaseOrder()**;
+
+'-----------------------------------------------------------------
+' Main Purchasing Creation
+'-----------------------------------------------------------------
+|Purchasing-Escrow| 
+:Function: **CreatePurchaseOrder()**
+
+Check:
+* That approver signed quote
+* That PO is funded, DAI in Escrow contract.
+* May fail (whole PO or nothing);
+
+#LightSkyBlue:Emits:
+* **PurchaseOrderCreateRequestLog** and
+* **PurchaseOrderCreatedLog** or 
+* **PurchaseOrderNotCreatedLog**
+
+If PO was created ok, then also emits:
+* **PurchaseItemCreatedLog** per line item
+(Po Item status 1 Created);
+
+|eShop Backend|
+:Correlate the **Quotation** (with postal address)
+with the on-chain **PO** (no postal address);
+:Create **Sales Order**;
+
+|eShop Admin UI|
+:Approve or Reject
+**Sales Order** item
+by item;
+
+|Seller|
+:Function: **setPoItemAccepted()**
+Function: **setPoItemRejected()**
+(Po Item Status: 2 Accepted)
+(Po Item Status: 3 Rejected);
+
+|Purchasing-Escrow|
+:Function: **setPoItemAccepted()**
+Function: **setPoItemRejected()**;
+
+#LightSkyBLue:Emits:
+* **PurchaseItemAcceptedLog** or
+* **PurchaseItemRejectedLog**;
+
+|eShop UI|
+:User Sees: **PO** Status
+Approved or Rejected
+on all items;
+
+stop
+
+@enduml
