@@ -23,19 +23,25 @@ namespace Nethereum.eShop.ApplicationCore.Services
             _itemRepository = itemRepository;
         }
 
-        public async Task CreateOrderAsync(int basketId, Address shippingAddress)
+        public async Task CreateOrderAsync(int basketId, PostalAddress billingAddress, PostalAddress shippingAddress)
         {
+            // TODO: 
+            // Validate
+            // CheckStock
+            // store the contents of the basket which aren't going on chain somewhere
+            // Create purchase order
+
             var basket = await _basketRepository.GetByIdAsync(basketId);
             Guard.Against.NullBasket(basketId, basket);
             var items = new List<OrderItem>();
             foreach (var item in basket.Items)
             {
                 var catalogItem = await _itemRepository.GetByIdAsync(item.CatalogItemId);
-                var itemOrdered = new CatalogItemOrdered(catalogItem.Id, catalogItem.Name, catalogItem.PictureUri);
+                var itemOrdered = new CatalogItemOrdered(catalogItem.Id, catalogItem.Gtin, catalogItem.GtinRegistryId, catalogItem.Name, catalogItem.PictureUri);
                 var orderItem = new OrderItem(itemOrdered, item.UnitPrice, item.Quantity);
                 items.Add(orderItem);
             }
-            var order = new Order(basket.BuyerId, shippingAddress, items);
+            var order = new Order(basket.BuyerAddress, billingAddress, shippingAddress, items);
 
             await _orderRepository.AddAsync(order);
         }

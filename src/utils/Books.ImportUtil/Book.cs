@@ -35,4 +35,22 @@
         public string BISAC_SUBJ_CD { get; set; }
     }
 
+    public class BookDescription
+    {
+        public string EAN { get; set; }
+        public string DESCRIPTION { get; set; }
+    }
+
+    public class BookWithDescription
+    {
+        public BookWithDescription(Book book, BookDescription bookDescription)
+        {
+            Book = book;
+            BookDescription = bookDescription;
+        }
+
+        public Book Book { get; }
+        public BookDescription BookDescription { get; }
+    }
+
 }

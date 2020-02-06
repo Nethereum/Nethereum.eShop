@@ -8,7 +8,13 @@ namespace Nethereum.eShop.ApplicationCore.Entities.OrderAggregate
     /// </summary>
     public class CatalogItemOrdered // ValueObject
     {
-        public CatalogItemOrdered(int catalogItemId, string productName, string pictureUri)
+        public int CatalogItemId { get; private set; }
+        public string Gtin { get; private set; }
+        public int? GtinRegistryId { get; private set; }
+        public string ProductName { get; private set; }
+        public string PictureUri { get; private set; }
+
+        public CatalogItemOrdered(int catalogItemId, string gtin, int? gtinRegistryId, string productName, string pictureUri)
         {
             Guard.Against.OutOfRange(catalogItemId, nameof(catalogItemId), 1, int.MaxValue);
             Guard.Against.NullOrEmpty(productName, nameof(productName));
@@ -17,15 +23,13 @@ namespace Nethereum.eShop.ApplicationCore.Entities.OrderAggregate
             CatalogItemId = catalogItemId;
             ProductName = productName;
             PictureUri = pictureUri;
+            Gtin = gtin;
+            GtinRegistryId = gtinRegistryId;
         }
 
         private CatalogItemOrdered()
         {
             // required by EF
         }
-
-        public int CatalogItemId { get; private set; }
-        public string ProductName { get; private set; }
-        public string PictureUri { get; private set; }
     }
 }

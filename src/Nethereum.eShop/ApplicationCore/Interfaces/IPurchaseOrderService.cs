@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Nethereum.eShop.ApplicationCore.Interfaces
 {
-    public interface IOrderService
+    public interface IPurchaseOrderService
     {
         Task CreateOrderAsync(int basketId, PostalAddress billingAddress, PostalAddress shippingAddress);
     }

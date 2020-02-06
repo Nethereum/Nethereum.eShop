@@ -24,7 +24,8 @@ namespace Nethereum.eShop.Web
                 try
                 {
                     var catalogContext = services.GetRequiredService<CatalogContext>();
-                    await CatalogContextSeed.SeedAsync(catalogContext, loggerFactory);
+                    var catalogContextSeeder = services.GetRequiredService<ICatalogContextSeeder>();
+                    await catalogContextSeeder.SeedAsync(catalogContext, loggerFactory);
 
                     var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
                     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();

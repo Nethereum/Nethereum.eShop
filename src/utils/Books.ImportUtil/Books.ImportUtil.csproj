@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
@@ -15,6 +15,10 @@
 
   <ItemGroup>
     <Folder Include="lib\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Nethereum.eShop\Nethereum.eShop.csproj" />
   </ItemGroup>
 
 </Project>

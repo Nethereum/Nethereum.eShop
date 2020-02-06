@@ -18,6 +18,10 @@ namespace Nethereum.eShop.Infrastructure.Data.Config
                 .IsRequired(true)
                 .HasMaxLength(50);
 
+            builder.Property(ci => ci.Gtin)
+                .IsRequired(true)
+                .HasMaxLength(14);
+
             builder.Property(ci => ci.Price)
                 .IsRequired(true)
                 .HasColumnType("decimal(18,2)");
@@ -32,6 +36,9 @@ namespace Nethereum.eShop.Infrastructure.Data.Config
             builder.HasOne(ci => ci.CatalogType)
                 .WithMany()
                 .HasForeignKey(ci => ci.CatalogTypeId);
+
+            builder.Property(ci => ci.Unit)
+                .HasMaxLength(8);
         }
     }
 }

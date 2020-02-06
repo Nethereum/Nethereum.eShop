@@ -18,5 +18,11 @@
     <ItemGroup>
         <PackageReference Include="Nethereum.Web3" Version="3.6.0" />
     </ItemGroup>
+
+    <ItemGroup>
+      <None Update="Contracts\nethereum-gen.settings">
+        <Generator>SettingsSingleFileGenerator</Generator>
+      </None>
+    </ItemGroup>
     
 </Project>
