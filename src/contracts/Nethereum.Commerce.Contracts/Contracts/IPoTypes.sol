@@ -51,6 +51,7 @@ interface IPoTypes
         uint goodsIssuedDate;              // contract managed at point of goods issue, unix timestamp
         uint goodsReceivedDate;            // contract managed at point of goods received (or time out), unix timestamp
         uint plannedEscrowReleaseDate;     // contract managed at point of goods issue, it is the planned escrow release date = goods issue + escrow days eg 30 days
+        uint actualEscrowReleaseDate;      // contract managed at point of successful escrow release
         bool isEscrowReleased;             // contract managed, defaults to false, true when escrow funds released to seller
         PoItemCancelStatus cancelStatus;   // contract managed from buyer UI and seller UI fn calls
     }

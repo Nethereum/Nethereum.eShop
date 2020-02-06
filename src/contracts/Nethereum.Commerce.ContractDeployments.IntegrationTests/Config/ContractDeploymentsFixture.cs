@@ -4,6 +4,8 @@ using Nethereum.Commerce.Contracts.BusinessPartnerStorage;
 using Nethereum.Commerce.Contracts.BusinessPartnerStorage.ContractDefinition;
 using Nethereum.Commerce.Contracts.EternalStorage;
 using Nethereum.Commerce.Contracts.EternalStorage.ContractDefinition;
+using Nethereum.Commerce.Contracts.Funding;
+using Nethereum.Commerce.Contracts.Funding.ContractDefinition;
 using Nethereum.Commerce.Contracts.PoStorage;
 using Nethereum.Commerce.Contracts.PoStorage.ContractDefinition;
 using Nethereum.Commerce.Contracts.Purchasing;
@@ -31,6 +33,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
         public WalletBuyerService WalletBuyerService { get; internal set; }
         public WalletSellerService WalletSellerService { get; internal set; }
         public PurchasingService PurchasingService { get; internal set; }
+        public FundingService FundingService { get; internal set; }
 
         // Configuration
         public readonly ContractDeploymentsConfig ContractDeploymentConfig;
@@ -42,6 +45,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
         public const string CONTRACT_NAME_WALLET_BUYER = "WalletBuyer";
         public const string CONTRACT_NAME_WALLET_SELLER = "WalletSeller";
         public const string CONTRACT_NAME_PURCHASING = "Purchasing";
+        public const string CONTRACT_NAME_FUNDING = "Funding";
 
         private readonly IMessageSink _diagnosticMessageSink;
 
@@ -141,6 +145,16 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
                 Log($"{contractName} address is: {PurchasingService.ContractHandler.ContractAddress}");
                 Log($"{contractName} owner is  : {purchasingOwner}");
 
+                // Deploy Funding
+                Log();
+                contractName = CONTRACT_NAME_FUNDING;
+                Log($"Deploying {contractName}...");
+                var fundingDeployment = new FundingDeployment() { ContractAddressOfRegistry = AddressRegService.ContractHandler.ContractAddress };
+                FundingService = await FundingService.DeployContractAndGetServiceAsync(web3, fundingDeployment);
+                var fundingOwner = await FundingService.OwnerQueryAsync();
+                Log($"{contractName} address is: {FundingService.ContractHandler.ContractAddress}");
+                Log($"{contractName} owner is  : {fundingOwner}");
+
                 #endregion
 
                 //-----------------------------------------------------------------------------------
@@ -192,7 +206,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
                 //-----------------------------------------------------------------------------------
                 // Configure Business Partner Storage
                 //-----------------------------------------------------------------------------------
-                // Tell BP storage the name of the eternal storage contract it needs
+                #region configure business partner storage
                 Log();
                 Log($"Configuring BP Storage...");
                 txReceipt = await BusinessPartnerStorageService.ConfigureRequestAndWaitForReceiptAsync(CONTRACT_NAME_ETERNAL_STORAGE);
@@ -210,6 +224,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
                         IsActive = true
                     });
                 Log($"Tx status: {txReceipt.Status.Value}");
+                #endregion
 
                 // Authorisations. Bind all contracts that will use BP storage
                 // TODO Cant configure this till next layer deployed
@@ -222,7 +237,6 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
                 //-----------------------------------------------------------------------------------
                 // Configure PO Storage
                 //-----------------------------------------------------------------------------------
-                // Tell PO storage the name of the eternal storage contract it needs
                 Log();
                 Log($"Configuring PO Storage...");
                 txReceipt = await PoStorageService.ConfigureRequestAndWaitForReceiptAsync(CONTRACT_NAME_ETERNAL_STORAGE);
@@ -230,6 +244,43 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
 
                 // Authorisations. Bind all contracts that will use PO storage
                 // TODO Cant configure this till next layer deployed
+
+                //-----------------------------------------------------------------------------------
+                // Configure Wallet Seller
+                //-----------------------------------------------------------------------------------
+                Log();
+                Log($"Configuring Wallet Seller...");
+                txReceipt = await WalletSellerService.ConfigureRequestAndWaitForReceiptAsync(
+                    ContractDeploymentConfig.EShopSellerId, CONTRACT_NAME_PURCHASING, CONTRACT_NAME_FUNDING);
+                Log($"Tx status: {txReceipt.Status.Value}");
+
+                //-----------------------------------------------------------------------------------
+                // Configure Wallet Buyer
+                //-----------------------------------------------------------------------------------
+                Log();
+                Log($"Configuring Wallet Buyer...");
+                txReceipt = await WalletBuyerService.ConfigureRequestAndWaitForReceiptAsync(
+                    CONTRACT_NAME_PURCHASING, CONTRACT_NAME_FUNDING);
+                Log($"Tx status: {txReceipt.Status.Value}");
+
+                //-----------------------------------------------------------------------------------
+                // Configure Purchasing
+                //-----------------------------------------------------------------------------------
+                Log();
+                Log($"Configuring Purchasing...");
+                txReceipt = await PurchasingService.ConfigureRequestAndWaitForReceiptAsync(
+                    CONTRACT_NAME_PO_STORAGE, CONTRACT_NAME_BUSINESS_PARTNER_STORAGE, CONTRACT_NAME_FUNDING);
+                Log($"Tx status: {txReceipt.Status.Value}");
+
+                //-----------------------------------------------------------------------------------
+                // Configure Funding
+                //-----------------------------------------------------------------------------------
+                Log();
+                Log($"Configuring Funding...");
+                txReceipt = await FundingService.ConfigureRequestAndWaitForReceiptAsync(
+                    CONTRACT_NAME_PO_STORAGE, CONTRACT_NAME_BUSINESS_PARTNER_STORAGE);
+                Log($"Tx status: {txReceipt.Status.Value}");
+
             }
             catch (Exception ex)
             {

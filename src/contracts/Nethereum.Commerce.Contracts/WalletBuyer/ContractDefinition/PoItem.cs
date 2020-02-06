@@ -43,9 +43,11 @@ namespace Nethereum.Commerce.Contracts.WalletBuyer.ContractDefinition
         public virtual BigInteger GoodsReceivedDate { get; set; }
         [Parameter("uint256", "plannedEscrowReleaseDate", 16)]
         public virtual BigInteger PlannedEscrowReleaseDate { get; set; }
-        [Parameter("bool", "isEscrowReleased", 17)]
+        [Parameter("uint256", "actualEscrowReleaseDate", 17)]
+        public virtual BigInteger ActualEscrowReleaseDate { get; set; }
+        [Parameter("bool", "isEscrowReleased", 18)]
         public virtual bool IsEscrowReleased { get; set; }
-        [Parameter("uint8", "cancelStatus", 18)]
+        [Parameter("uint8", "cancelStatus", 19)]
         public virtual byte CancelStatus { get; set; }
     }
 }

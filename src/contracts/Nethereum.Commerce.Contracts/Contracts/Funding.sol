@@ -1,60 +1,59 @@
-pragma solidity ^0.5.3;
-pragma experimental ABIEncoderV2;
+pragma solidity ^0.6.1;
+//pragma experimental ABIEncoderV2;
 
 import "./IAddressRegistry.sol";
 import "./IErc20.sol";
 import "./IFunding.sol";
-import "./IPoStorage.sol";
 import "./IBusinessPartnerStorage.sol";
-import "./StringLib.sol";
-import "./Debuggable.sol";
+import "./IPurchasing.sol";
+import "./Ownable.sol";
+import "./Bindable.sol";
+import "./StringConvertible.sol";
 
 /// @title Funding main contract
-/// @notice This contract address holds funding for all POs
-/// @dev TODO investments can happen here
-contract Funding is IFunding, Debuggable
+contract Funding is IFunding, Ownable, Bindable, StringConvertible
 {
     IAddressRegistry public addressRegistry;
-    IPoStorage public poStorage;
     IBusinessPartnerStorage public businessPartnerStorage;
+    IPurchasing public purchasing;
+    address public purchasingContractAddress;
 
-    address public poMainContractAddress;
-
-    modifier onlyByPoMain()
-    {
-        require(
-            msg.sender == poMainContractAddress,
-             "Function must be called from PO Main"
-        );
-        _;
-    }
-
-    constructor (address contractAddressOfRegistry) public payable
+    constructor (address contractAddressOfRegistry) public 
     {
         addressRegistry = IAddressRegistry(contractAddressOfRegistry);
     }
 
     /// @notice Configure contract
-    function configure(string memory nameOfPoStorage, string memory nameOfPoMain, string memory nameOfBusinessPartnerStorage) public
+    function configure(string calldata nameOfPurchasing, string calldata nameOfBusinessPartnerStorage) override external
     {
-        // Po Storage
-        poStorage = IPoStorage(addressRegistry.getAddressString(nameOfPoStorage));
-        require(address(poStorage) != address(0), "Could not find PoStorage address in registry");
-
         // Business partner storage
         businessPartnerStorage = IBusinessPartnerStorage(addressRegistry.getAddressString(nameOfBusinessPartnerStorage));
         require(address(businessPartnerStorage) != address(0), "Could not find BusinessPartnerStorage address in registry");
 
         // Address of the PO Main contract
-        poMainContractAddress = addressRegistry.getAddressString(nameOfPoMain);
-        require(address(poMainContractAddress) != address(0), "Could not find PoMain address in registry");
+        purchasingContractAddress = addressRegistry.getAddressString(nameOfPurchasing);
+        purchasing = IPurchasing(purchasingContractAddress);
+        require(address(purchasingContractAddress) != address(0), "Could not find Purchasing address in registry");
     }
+    
+    function transferInFundsForPoFromBuyer(uint poNumber) override external
+    {}
+    
+    function transferOutFundsForPoItemToSeller(uint poNumber, uint8 poItemNumber) override external
+    {}
+    
+    function transferOutFundsForPoItemToBuyer(uint poNumber,uint8 poItemNumber) override external
+    {}
+    
+    function getBalanceOfThis(address tokenAddress) override external view returns (uint balance)
+    {}
 
+
+/*
     /// @notice Transfer In Funds for PO from the buyer wallet
     /// @dev Pulls funds in for a PO from the buyer wallet.
     /// @dev Currently expects whole PO value to have been authorised for transfer to Funding contract.
-    /// @dev Expects caller to be PO Main.
-    function transferInFundsForPoFromBuyer(uint64 poNumber) public onlyByPoMain
+    function transferInFundsForPoFromBuyer(uint64 poNumber) public 
     {
         logDebugUint64("po number", poNumber);
         
@@ -104,16 +103,5 @@ contract Funding is IFunding, Debuggable
         bool result = token.transfer(buyerWalletAddress, po.totalValue);
         require(result == true, "Not enough funds transferred");
     }
-
-    /// @notice Get an ERC20 balance owned by this contract
-    function getBalanceOfThis(address tokenAddress) public view returns (uint balance)
-    {
-        return IErc20(tokenAddress).balanceOf(address(this));
-    }
-
-    function getPoFundingStatus(uint64 poNumber) public view returns (bool isFullyFunded)
-    {
-        // TODO add IFundingStorage, FundingStorage and store mapping there of PO numbers => bool (MappingBytes32ToBoolStorage)
-        return true;
-    }
+    */
 }

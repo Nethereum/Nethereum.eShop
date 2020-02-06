@@ -91,7 +91,10 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                 poActual.PoItems[i].CurrencyAddress.Should().Be(poExpected.PoItems[i].CurrencyAddress);
                 poActual.PoItems[i].Status.Should().Be(poExpected.PoItems[i].Status);
                 poActual.PoItems[i].GoodsIssuedDate.Should().Be(poExpected.PoItems[i].GoodsIssuedDate);
+                poActual.PoItems[i].GoodsReceivedDate.Should().Be(poExpected.PoItems[i].GoodsReceivedDate);
                 poActual.PoItems[i].PlannedEscrowReleaseDate.Should().Be(poExpected.PoItems[i].PlannedEscrowReleaseDate);
+                poActual.PoItems[i].ActualEscrowReleaseDate.Should().Be(poExpected.PoItems[i].ActualEscrowReleaseDate);
+                poActual.PoItems[i].IsEscrowReleased.Should().Be(poExpected.PoItems[i].IsEscrowReleased);
                 poActual.PoItems[i].CancelStatus.Should().Be(poExpected.PoItems[i].CancelStatus);
             }
         }
@@ -131,6 +134,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                         GoodsIssuedDate = 100,
                         GoodsReceivedDate = 0,
                         PlannedEscrowReleaseDate = 100,
+                        ActualEscrowReleaseDate = 110,
                         IsEscrowReleased = false,
                         CancelStatus = PoItemCancelStatus.Initial
                     },
@@ -152,6 +156,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                         GoodsIssuedDate = 200,
                         GoodsReceivedDate = 0,
                         PlannedEscrowReleaseDate = 200,
+                        ActualEscrowReleaseDate = 210,
                         IsEscrowReleased = false,
                         CancelStatus = PoItemCancelStatus.Initial
                     }
