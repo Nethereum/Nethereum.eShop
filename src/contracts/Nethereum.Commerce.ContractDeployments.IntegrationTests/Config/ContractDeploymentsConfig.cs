@@ -8,15 +8,20 @@
         public string BlockchainUrl { get; set; }
 
         /// <summary>
-        /// eShop system id, 32 chars max, eg "Nethereum.eShop"
+        /// eShop seller id, 32 chars max, eg "Nethereum.eShop"
         /// </summary>
-        public string EShopSystemId { get; set; }
+        public string EShopSellerId { get; set; }
 
         /// <summary>
         /// eShop description, eg "Satoshi's Books"
         /// </summary>
         public string EShopDescription { get; set; }
 
+        /// <summary>
+        /// EoA or contract address, the signer who can a sign a quotation tx to prove shop approves it
+        /// </summary>
+        public string EShopApproverAddress { get; set; }
+        
         /// <summary>
         /// Private key of the owner of the contracts that will be deployed
         /// </summary>

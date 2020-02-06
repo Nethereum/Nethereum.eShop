@@ -1,61 +1,51 @@
-pragma solidity ^0.5.3;
+pragma solidity ^0.6.1;
 pragma experimental ABIEncoderV2;
 
-import "./WalletBase.sol";
 import "./IWalletSeller.sol";
+import "./IAddressRegistry.sol";
+import "./Ownable.sol";
+import "./Bindable.sol";
+import "./StringConvertible.sol";
 
 /// @title WalletSeller
-/// @notice Store funds for seller, pass fn calls to PoMain
-contract WalletSeller is WalletBase, IWalletSeller
+contract WalletSeller is IWalletSeller, Ownable, Bindable, StringConvertible
 {
-    constructor (address contractAddressOfRegistry) WalletBase(contractAddressOfRegistry) public payable {}
-    
-    event PurchaseRaisedOkLog(bytes32 indexed buyerSysId, bytes32 indexed sellerSysId, uint64 indexed ethPurchaseOrderNumber, IPoTypes.Po po);
-    event PurchaseCancelRequestedOkLog(bytes32 indexed buyerSysId, bytes32 indexed sellerSysId, uint64 indexed ethPurchaseOrderNumber, IPoTypes.Po po);
-    
-    function onCreatePurchaseOrderRequested(IPoTypes.Po calldata po) external
+    IAddressRegistry public addressRegistry;
+    //IPurchasing public purchasing;
+    //IFunding public fundingContract;
+    bytes32 public sellerId;
+
+    constructor (address contractAddressOfRegistry) public
     {
-        emit PurchaseRaisedOkLog(po.buyerSysId, po.sellerSysId, po.ethPurchaseOrderNumber, po);    
+        addressRegistry = IAddressRegistry(contractAddressOfRegistry);
     }
     
-    function onCancelPurchaseOrderRequested(IPoTypes.Po calldata po) external
+    // Contract setup
+    function configure(string calldata sellerIdString, string calldata nameOfPurchasing, string calldata nameOfFunding) override external
     {
-        emit PurchaseCancelRequestedOkLog(po.buyerSysId, po.sellerSysId, po.ethPurchaseOrderNumber, po);
+          sellerId = stringToBytes32(sellerIdString);
     }
     
-    /// @dev Pass through to PO Main
-    function setSalesOrderNumberByEthPoNumber(uint64 ethPoNumber, bytes32 sellerSalesOrderNumber) external
-    {
-       poMain.setSalesOrderNumberByEthPoNumber(ethPoNumber, systemId, sellerSalesOrderNumber);
-    }
+    // Purchasing
+    function getPo(uint poNumber) override external view returns (IPoTypes.Po memory po)
+    {}
     
-    /// @dev Pass through to PO Main    
-    function refundPoToBuyer(uint64 ethPoNumber) external
-    {
-       poMain.refundPoToBuyer(ethPoNumber); 
-    }
+    function getPoNumberBySellerAndQuote(string calldata sellerIdString, uint quoteId) override external view returns (uint poNumber)
+    {}
     
-    /// @dev Pass through to PO Main    
-    function releasePoFundsToSeller(uint64 ethPoNumber) external
-    {
-        poMain.releasePoFundsToSeller(ethPoNumber);
-    }
+    function setPoItemAccepted(uint poNumber, uint8 poItemNumber, bytes32 soNumber, bytes32 soItemNumber) override external
+    {}
     
-    /// @dev Pass through to PO Main 
-    function reportSalesOrderNotApproved(uint64 ethPoNumber) external
-    {
-        poMain.reportSalesOrderNotApproved(ethPoNumber);
-    }
+    function setPoItemRejected(uint poNumber, uint8 poItemNumber) override external
+    {}
     
-    /// @dev Pass through to PO Main 
-    function reportSalesOrderCancelFailure(uint64 ethPoNumber) external
-    {
-        poMain.reportSalesOrderCancelFailure(ethPoNumber);
-    }
+    function setPoItemReadyForGoodsIssue(uint poNumber, uint8 poItemNumber) override external
+    {}
     
-    /// @dev Pass through to PO Main 
-    function reportSalesOrderInvoiceFault(uint64 ethPoNumber) external
-    {
-        poMain.reportSalesOrderInvoiceFault(ethPoNumber);
-    }
+    function setPoItemGoodsIssued(uint poNumber, uint8 poItemNumber) override external
+    {}
+    
+    function setPoItemGoodsReceived(uint poNumber, uint8 poItemNumber) override external
+    {}
 }
+
