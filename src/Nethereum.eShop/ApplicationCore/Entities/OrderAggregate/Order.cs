@@ -21,6 +21,8 @@ namespace Nethereum.eShop.ApplicationCore.Entities.OrderAggregate
         /// </summary>
         public string BuyerAddress { get; private set; }
 
+        public string ApproverAddress { get; private set; }
+
         /// <summary>
         /// The Purhase Order Number
         /// </summary>

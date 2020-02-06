@@ -25,6 +25,7 @@ namespace Nethereum.eShop.Infrastructure.Data.Config
             });
 
             builder.Property(o => o.BuyerAddress).IsAddress();
+            builder.Property(o => o.ApproverAddress).IsAddress();
             builder.Property(o => o.BuyerWalletAddress).IsAddress();
             builder.Property(o => o.TransactionHash).IsHash();
         }
