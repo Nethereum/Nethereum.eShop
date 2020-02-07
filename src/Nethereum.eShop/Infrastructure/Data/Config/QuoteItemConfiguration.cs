@@ -1,12 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Nethereum.eShop.ApplicationCore.Entities.OrderAggregate;
+using Nethereum.eShop.ApplicationCore.Entities.QuoteAggregate;
 
 namespace Nethereum.eShop.Infrastructure.Data.Config
 {
-    public class OrderItemConfiguration : IEntityTypeConfiguration<OrderItem>
+    public class QuoteItemConfiguration : IEntityTypeConfiguration<QuoteItem>
     {
-        public void Configure(EntityTypeBuilder<OrderItem> builder)
+        public void Configure(EntityTypeBuilder<QuoteItem> builder)
         {
             builder.OwnsOne(i => i.ItemOrdered, io =>
             {
@@ -18,8 +18,8 @@ namespace Nethereum.eShop.Infrastructure.Data.Config
             });
 
             builder.Property(oi => oi.UnitPrice)
-                .IsRequired(true)
-                .IsPrice();
+                .IsPrice()
+                .IsRequired();
         }
     }
 }

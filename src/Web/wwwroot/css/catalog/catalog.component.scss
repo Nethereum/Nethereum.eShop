@@ -141,6 +141,13 @@
         text-transform: uppercase;
     }
 
+    &-brand {
+        font-size: $font-size-s;
+        font-weight: $font-weight-semilight;
+        margin-top: .5rem;
+        text-align: center;
+    }
+
     &-price {
         font-size: 28px;
         font-weight: 900;
