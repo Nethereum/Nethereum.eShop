@@ -31,11 +31,11 @@ interface IPurchasing
     // Functions
     //---------------------------------------------------------
     // Contract setup
-    function configure(string calldata nameOfPoStorage, string calldata nameOfBusinessPartnerStorage, string calldata nameOfFundingContract) external;
+    function configure(string calldata nameOfPoStorage, string calldata nameOfBusinessPartnerStorage, string calldata nameOfFunding) external;
     
     // Purchasing
     function getPo(uint poNumber) external view returns (IPoTypes.Po memory po);
-    function getPoNumberBySellerAndQuote(bytes32 sellerId, uint quoteId) external view returns (uint poNumber);
+    function getPoBySellerAndQuote(string calldata sellerIdString, uint quoteId) external view returns (IPoTypes.Po memory po);
     
     // Only from Buyer Wallet
     function createPurchaseOrder(IPoTypes.Po calldata po) external;

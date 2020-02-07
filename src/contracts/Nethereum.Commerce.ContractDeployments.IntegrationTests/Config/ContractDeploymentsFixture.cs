@@ -182,6 +182,18 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
                 txReceipt = await AddressRegService.RegisterAddressStringRequestAndWaitForReceiptAsync(contractName, PoStorageService.ContractHandler.ContractAddress);
                 Log($"Tx status: {txReceipt.Status.Value}");
 
+                // Add address entry for Purchasing
+                contractName = CONTRACT_NAME_PURCHASING;
+                Log($"Configuring Address Registry, adding {contractName}...");
+                txReceipt = await AddressRegService.RegisterAddressStringRequestAndWaitForReceiptAsync(contractName, PurchasingService.ContractHandler.ContractAddress);
+                Log($"Tx status: {txReceipt.Status.Value}");
+
+                // Add address entry for Funding
+                contractName = CONTRACT_NAME_FUNDING;
+                Log($"Configuring Address Registry, adding {contractName}...");
+                txReceipt = await AddressRegService.RegisterAddressStringRequestAndWaitForReceiptAsync(contractName, FundingService.ContractHandler.ContractAddress);
+                Log($"Tx status: {txReceipt.Status.Value}");
+                
                 // Authorisations. Nothing needed.
                 #endregion
 

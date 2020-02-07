@@ -13,7 +13,7 @@ import "./StringConvertible.sol";
 contract PoStorage is IPoStorage, Ownable, Bindable, StringConvertible
 {
     // Client is hashed into every key to avoid collisions with other contracts using the same eternal storage
-    string constant private CLIENT = "PoStorage"; 
+    string constant private CLIENT = "PoS"; 
     
     // PO record field names
     // Header
@@ -21,6 +21,8 @@ contract PoStorage is IPoStorage, Ownable, Bindable, StringConvertible
     string constant private BUYER_ADDRESS = "buyerAddress";
     string constant private RECEIVER_ADDRESS = "receiverAddress";
     string constant private BUYER_WALLET_ADDRESS = "buyerWalletAddress";
+    string constant private CURRENCY_SYMBOL = "currencySymbol";
+    string constant private CURRENCY_ADDRESS = "currencyAddress";
     string constant private QUOTE_ID = "quoteId";
     string constant private QUOTE_EXPIRY_DATE = "quoteExpiryDate";
     string constant private APPROVER_ADDRESS = "approverAddress";
@@ -39,8 +41,6 @@ contract PoStorage is IPoStorage, Ownable, Bindable, StringConvertible
     string constant private QUANTITY_SYMBOL = "quantitySymbol";
     string constant private QUANTITY_ADDRESS = "quantityAddress";
     string constant private CURRENCY_VALUE = "currencyValue";
-    string constant private CURRENCY_SYMBOL = "currencySymbol";
-    string constant private CURRENCY_ADDRESS = "currencyAddress";
     string constant private STATUS = "status";
     string constant private GOODS_ISSUED_DATE = "goodsIssuedDate";
     string constant private GOODS_RECEIVED_DATE = "goodsReceivedDate";
@@ -108,17 +108,20 @@ contract PoStorage is IPoStorage, Ownable, Bindable, StringConvertible
     {
         // Retrieve PO from storage
         // Header
-        po.poNumber = eternalStorage.getUint256Value(keccak256(abi.encodePacked(CLIENT, poNumber, PO_NUMBER)));
-        po.buyerAddress = eternalStorage.getAddressValue(keccak256(abi.encodePacked(CLIENT, poNumber, BUYER_ADDRESS)));
-        po.receiverAddress = eternalStorage.getAddressValue(keccak256(abi.encodePacked(CLIENT, poNumber, RECEIVER_ADDRESS)));
-        po.buyerWalletAddress = eternalStorage.getAddressValue(keccak256(abi.encodePacked(CLIENT, poNumber, BUYER_WALLET_ADDRESS)));
-        po.quoteId = eternalStorage.getUint256Value(keccak256(abi.encodePacked(CLIENT, poNumber, QUOTE_ID)));
-        po.quoteExpiryDate = eternalStorage.getUint256Value(keccak256(abi.encodePacked(CLIENT, poNumber, QUOTE_EXPIRY_DATE)));
-        po.approverAddress = eternalStorage.getAddressValue(keccak256(abi.encodePacked(CLIENT, poNumber, APPROVER_ADDRESS)));
-        po.poType = IPoTypes.PoType(eternalStorage.getUint256Value(keccak256(abi.encodePacked(CLIENT, poNumber, PO_TYPE))));
-        po.sellerId = eternalStorage.getBytes32Value(keccak256(abi.encodePacked(CLIENT, poNumber, SELLER_ID)));
-        po.poCreateDate = eternalStorage.getUint256Value(keccak256(abi.encodePacked(CLIENT, poNumber, PO_CREATE_DATE)));
-        po.poItemCount = uint8(eternalStorage.getUint256Value(keccak256(abi.encodePacked(CLIENT, poNumber, PO_ITEM_COUNT))));
+        bytes32 headerKey = keccak256(abi.encodePacked(CLIENT, poNumber));
+        po.poNumber = eternalStorage.getUint256Value(keccak256(abi.encodePacked(headerKey, PO_NUMBER)));
+        po.buyerAddress = eternalStorage.getAddressValue(keccak256(abi.encodePacked(headerKey, BUYER_ADDRESS)));
+        po.receiverAddress = eternalStorage.getAddressValue(keccak256(abi.encodePacked(headerKey, RECEIVER_ADDRESS)));
+        po.buyerWalletAddress = eternalStorage.getAddressValue(keccak256(abi.encodePacked(headerKey, BUYER_WALLET_ADDRESS)));
+        po.currencySymbol = eternalStorage.getBytes32Value(keccak256(abi.encodePacked(headerKey, CURRENCY_SYMBOL)));
+        po.currencyAddress = eternalStorage.getAddressValue(keccak256(abi.encodePacked(headerKey, CURRENCY_ADDRESS)));
+        po.quoteId = eternalStorage.getUint256Value(keccak256(abi.encodePacked(headerKey, QUOTE_ID)));
+        po.quoteExpiryDate = eternalStorage.getUint256Value(keccak256(abi.encodePacked(headerKey, QUOTE_EXPIRY_DATE)));
+        po.approverAddress = eternalStorage.getAddressValue(keccak256(abi.encodePacked(headerKey, APPROVER_ADDRESS)));
+        po.poType = IPoTypes.PoType(eternalStorage.getUint256Value(keccak256(abi.encodePacked(headerKey, PO_TYPE))));
+        po.sellerId = eternalStorage.getBytes32Value(keccak256(abi.encodePacked(headerKey, SELLER_ID)));
+        po.poCreateDate = eternalStorage.getUint256Value(keccak256(abi.encodePacked(headerKey, PO_CREATE_DATE)));
+        po.poItemCount = uint8(eternalStorage.getUint256Value(keccak256(abi.encodePacked(headerKey, PO_ITEM_COUNT))));
         uint len = po.poItemCount;
         
         // Line items
@@ -136,8 +139,6 @@ contract PoStorage is IPoStorage, Ownable, Bindable, StringConvertible
             po.poItems[i].quantitySymbol = eternalStorage.getBytes32Value(keccak256(abi.encodePacked(lineItemKey, QUANTITY_SYMBOL)));
             po.poItems[i].quantityAddress = eternalStorage.getAddressValue(keccak256(abi.encodePacked(lineItemKey, QUANTITY_ADDRESS)));
             po.poItems[i].currencyValue = eternalStorage.getUint256Value(keccak256(abi.encodePacked(lineItemKey, CURRENCY_VALUE)));
-            po.poItems[i].currencySymbol = eternalStorage.getBytes32Value(keccak256(abi.encodePacked(lineItemKey, CURRENCY_SYMBOL)));
-            po.poItems[i].currencyAddress = eternalStorage.getAddressValue(keccak256(abi.encodePacked(lineItemKey, CURRENCY_ADDRESS)));
             po.poItems[i].status = IPoTypes.PoItemStatus(eternalStorage.getUint256Value(keccak256(abi.encodePacked(lineItemKey, STATUS))));
             po.poItems[i].goodsIssuedDate = eternalStorage.getUint256Value(keccak256(abi.encodePacked(lineItemKey, GOODS_ISSUED_DATE)));
             po.poItems[i].goodsReceivedDate = eternalStorage.getUint256Value(keccak256(abi.encodePacked(lineItemKey, GOODS_RECEIVED_DATE)));
@@ -154,17 +155,20 @@ contract PoStorage is IPoStorage, Ownable, Bindable, StringConvertible
         uint len = po.poItems.length;
         
         // Header
-        eternalStorage.setUint256Value(keccak256(abi.encodePacked(CLIENT, po.poNumber, PO_NUMBER)), po.poNumber);
-        eternalStorage.setAddressValue(keccak256(abi.encodePacked(CLIENT, po.poNumber, BUYER_ADDRESS)), po.buyerAddress);
-        eternalStorage.setAddressValue(keccak256(abi.encodePacked(CLIENT, po.poNumber, RECEIVER_ADDRESS)), po.receiverAddress);
-        eternalStorage.setAddressValue(keccak256(abi.encodePacked(CLIENT, po.poNumber, BUYER_WALLET_ADDRESS)), po.buyerWalletAddress);
-        eternalStorage.setUint256Value(keccak256(abi.encodePacked(CLIENT, po.poNumber, QUOTE_ID)), po.quoteId);
-        eternalStorage.setUint256Value(keccak256(abi.encodePacked(CLIENT, po.poNumber, QUOTE_EXPIRY_DATE)), po.quoteExpiryDate);
-        eternalStorage.setAddressValue(keccak256(abi.encodePacked(CLIENT, po.poNumber, APPROVER_ADDRESS)), po.approverAddress);
-        eternalStorage.setUint256Value(keccak256(abi.encodePacked(CLIENT, po.poNumber, PO_TYPE)), uint256(po.poType));
-        eternalStorage.setBytes32Value(keccak256(abi.encodePacked(CLIENT, po.poNumber, SELLER_ID)), po.sellerId);
-        eternalStorage.setUint256Value(keccak256(abi.encodePacked(CLIENT, po.poNumber, PO_CREATE_DATE)), po.poCreateDate);
-        eternalStorage.setUint256Value(keccak256(abi.encodePacked(CLIENT, po.poNumber, PO_ITEM_COUNT)), len);
+        bytes32 headerKey = keccak256(abi.encodePacked(CLIENT, po.poNumber));
+        eternalStorage.setUint256Value(keccak256(abi.encodePacked(headerKey, PO_NUMBER)), po.poNumber);
+        eternalStorage.setAddressValue(keccak256(abi.encodePacked(headerKey, BUYER_ADDRESS)), po.buyerAddress);
+        eternalStorage.setAddressValue(keccak256(abi.encodePacked(headerKey, RECEIVER_ADDRESS)), po.receiverAddress);
+        eternalStorage.setAddressValue(keccak256(abi.encodePacked(headerKey, BUYER_WALLET_ADDRESS)), po.buyerWalletAddress);
+        eternalStorage.setBytes32Value(keccak256(abi.encodePacked(headerKey, CURRENCY_SYMBOL)), po.currencySymbol);
+        eternalStorage.setAddressValue(keccak256(abi.encodePacked(headerKey, CURRENCY_ADDRESS)), po.currencyAddress);
+        eternalStorage.setUint256Value(keccak256(abi.encodePacked(headerKey, QUOTE_ID)), po.quoteId);
+        eternalStorage.setUint256Value(keccak256(abi.encodePacked(headerKey, QUOTE_EXPIRY_DATE)), po.quoteExpiryDate);
+        eternalStorage.setAddressValue(keccak256(abi.encodePacked(headerKey, APPROVER_ADDRESS)), po.approverAddress);
+        eternalStorage.setUint256Value(keccak256(abi.encodePacked(headerKey, PO_TYPE)), uint256(po.poType));
+        eternalStorage.setBytes32Value(keccak256(abi.encodePacked(headerKey, SELLER_ID)), po.sellerId);
+        eternalStorage.setUint256Value(keccak256(abi.encodePacked(headerKey, PO_CREATE_DATE)), po.poCreateDate);
+        eternalStorage.setUint256Value(keccak256(abi.encodePacked(headerKey, PO_ITEM_COUNT)), len);
         
         // Line Items
         for (uint i = 0; i < len; i++)
@@ -180,8 +184,6 @@ contract PoStorage is IPoStorage, Ownable, Bindable, StringConvertible
             eternalStorage.setBytes32Value(keccak256(abi.encodePacked(lineItemKey, QUANTITY_SYMBOL)), po.poItems[i].quantitySymbol);
             eternalStorage.setAddressValue(keccak256(abi.encodePacked(lineItemKey, QUANTITY_ADDRESS)), po.poItems[i].quantityAddress);
             eternalStorage.setUint256Value(keccak256(abi.encodePacked(lineItemKey, CURRENCY_VALUE)), uint256(po.poItems[i].currencyValue));
-            eternalStorage.setBytes32Value(keccak256(abi.encodePacked(lineItemKey, CURRENCY_SYMBOL)), po.poItems[i].currencySymbol);
-            eternalStorage.setAddressValue(keccak256(abi.encodePacked(lineItemKey, CURRENCY_ADDRESS)), po.poItems[i].currencyAddress);
             eternalStorage.setUint256Value(keccak256(abi.encodePacked(lineItemKey, STATUS)), uint256(po.poItems[i].status));
             eternalStorage.setUint256Value(keccak256(abi.encodePacked(lineItemKey, GOODS_ISSUED_DATE)), po.poItems[i].goodsIssuedDate);
             eternalStorage.setUint256Value(keccak256(abi.encodePacked(lineItemKey, GOODS_RECEIVED_DATE)), po.poItems[i].goodsReceivedDate);

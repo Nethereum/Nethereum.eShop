@@ -18,7 +18,9 @@ import "./StringConvertible.sol";
 contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
 {
     IAddressRegistry public addressRegistry;
-    //IFunding public fundingContract;
+    IPoStorage public poStorage;
+    IBusinessPartnerStorage public bpStorage;
+    IFunding public funding;
    
     constructor (address contractAddressOfRegistry) public
     {
@@ -29,20 +31,32 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
     function configure(
         string calldata nameOfPoStorage, 
         string calldata nameOfBusinessPartnerStorage,
-        string calldata nameOfFundingContract) override external
+        string calldata nameOfFunding) override external
     {
+        // PO Storage contract
+        poStorage = IPoStorage(addressRegistry.getAddressString(nameOfPoStorage));
+        require(address(poStorage) != address(0), "Could not find Purchasing contract address in registry");
         
+        // Business Partner Storage contract
+        bpStorage = IBusinessPartnerStorage(addressRegistry.getAddressString(nameOfBusinessPartnerStorage));
+        require(address(bpStorage) != address(0), "Could not find Business Partner Storage contract address in registry");
+        
+        // Funding contract
+        funding = IFunding(addressRegistry.getAddressString(nameOfFunding));
+        require(address(funding) != address(0), "Could not find Funding contract address in registry");
     }
     
     // Purchasing
     function getPo(uint poNumber) override external view returns (IPoTypes.Po memory po)
     {
-        // call po storage
+        return poStorage.getPo(poNumber);
     }
     
-    function getPoNumberBySellerAndQuote(bytes32 sellerId, uint quoteId) override external view returns (uint poNumber)
+    function getPoBySellerAndQuote(string calldata sellerIdString, uint quoteId) override external view returns (IPoTypes.Po memory po)
     {
-        // call po storage
+        bytes32 sellerId = stringToBytes32(sellerIdString);
+        uint poNumber = poStorage.getPoNumberBySellerAndQuote(sellerId, quoteId);
+        return poStorage.getPo(poNumber);
     }
     
     // Only from Buyer Wallet

@@ -68,6 +68,8 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             poActual.BuyerAddress.Should().Be(poExpected.BuyerAddress);
             poActual.ReceiverAddress.Should().Be(poExpected.ReceiverAddress);
             poActual.BuyerWalletAddress.Should().Be(poExpected.BuyerWalletAddress);
+            poActual.CurrencySymbol.Should().Be(poExpected.CurrencySymbol);
+            poActual.CurrencyAddress.Should().Be(poExpected.CurrencyAddress);
             poActual.QuoteId.Should().Be(poExpected.QuoteId);
             poActual.QuoteExpiryDate.Should().Be(poExpected.QuoteExpiryDate);
             poActual.ApproverAddress.Should().Be(poExpected.ApproverAddress);
@@ -86,9 +88,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                 poActual.PoItems[i].Unit.Should().Be(poExpected.PoItems[i].Unit);
                 poActual.PoItems[i].QuantitySymbol.Should().Be(poExpected.PoItems[i].QuantitySymbol);
                 poActual.PoItems[i].QuantityAddress.Should().Be(poExpected.PoItems[i].QuantityAddress);
-                poActual.PoItems[i].CurrencyValue.Should().Be(poExpected.PoItems[i].CurrencyValue);
-                poActual.PoItems[i].CurrencySymbol.Should().Be(poExpected.PoItems[i].CurrencySymbol);
-                poActual.PoItems[i].CurrencyAddress.Should().Be(poExpected.PoItems[i].CurrencyAddress);
+                poActual.PoItems[i].CurrencyValue.Should().Be(poExpected.PoItems[i].CurrencyValue);                
                 poActual.PoItems[i].Status.Should().Be(poExpected.PoItems[i].Status);
                 poActual.PoItems[i].GoodsIssuedDate.Should().Be(poExpected.PoItems[i].GoodsIssuedDate);
                 poActual.PoItems[i].GoodsReceivedDate.Should().Be(poExpected.PoItems[i].GoodsReceivedDate);
@@ -107,6 +107,8 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                 BuyerAddress = "0x37ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
                 ReceiverAddress = "0x36ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
                 BuyerWalletAddress = "0x39ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
+                CurrencySymbol = "DAI",
+                CurrencyAddress = "0x41ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
                 QuoteId = quoteId,
                 QuoteExpiryDate = 1,
                 ApproverAddress = approverAddress,
@@ -127,9 +129,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                         Unit = "EA",
                         QuantitySymbol = "NA",
                         QuantityAddress = "0x40ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
-                        CurrencyValue = 11,
-                        CurrencySymbol = "DAI",
-                        CurrencyAddress = "0x41ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
+                        CurrencyValue = 11,                        
                         Status = PoItemStatus.Created,
                         GoodsIssuedDate = 100,
                         GoodsReceivedDate = 0,
@@ -149,9 +149,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                         Unit = "EA",
                         QuantitySymbol = "NA",
                         QuantityAddress = "0x42ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
-                        CurrencyValue = 22,
-                        CurrencySymbol = "DAI",
-                        CurrencyAddress = "0x43ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
+                        CurrencyValue = 22,                        
                         Status = PoItemStatus.Created,
                         GoodsIssuedDate = 200,
                         GoodsReceivedDate = 0,
