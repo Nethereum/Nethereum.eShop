@@ -26,8 +26,6 @@ namespace Nethereum.eShop.ApplicationCore.Entities.OrderAggregate
         public bool? IsEscrowReleased { get; set; }
         public string QuantitySymbol { get; set; }
         public string QuantityAddress { get; set; }
-        public string CurrencySymbol { get; set; }
-        public string CurrencyAddress { get; set; }
         public string CurrencyValue { get; set; }
 
         private OrderItem()

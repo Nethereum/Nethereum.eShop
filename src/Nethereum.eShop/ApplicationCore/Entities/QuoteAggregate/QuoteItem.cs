@@ -17,8 +17,6 @@ namespace Nethereum.eShop.ApplicationCore.Entities.QuoteAggregate
         public DateTimeOffset? EscrowReleaseDate { get; set; }
         public string QuantitySymbol { get; set; }
         public string QuantityAddress { get; set; }
-        public string CurrencySymbol { get; set; }
-        public string CurrencyAddress { get; set; }
         public string CurrencyValue { get; set; }
 
         public QuoteItem()

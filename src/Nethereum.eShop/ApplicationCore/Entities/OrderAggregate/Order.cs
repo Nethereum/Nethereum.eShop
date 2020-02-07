@@ -21,6 +21,10 @@ namespace Nethereum.eShop.ApplicationCore.Entities.OrderAggregate
         /// </summary>
         public string BuyerAddress { get; private set; }
 
+        public string CurrencyAddress { get; set; }
+
+        public string CurrencySymbol { get; set; }
+
         public string ApproverAddress { get; private set; }
 
         /// <summary>

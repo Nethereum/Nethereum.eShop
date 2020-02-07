@@ -23,6 +23,9 @@ namespace Nethereum.eShop.ApplicationCore.Entities.QuoteAggregate
         /// </summary>
         public string BuyerAddress { get; private set; }
 
+        public string CurrencySymbol { get; set; }
+        public string CurrencyAddress { get; set; }
+
         public string ApproverAddress { get; private set; }
 
         /// <summary>
