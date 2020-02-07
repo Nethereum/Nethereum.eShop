@@ -19,10 +19,11 @@ namespace Nethereum.eShop.ApplicationCore.Entities.OrderAggregate
         /// </summary>
         public DateTimeOffset? GoodsIssueDate { get; set; }
 
-        /// <summary>
-        /// Smart contract assigned date
-        /// </summary>
-        public DateTimeOffset? EscrowReleaseDate { get; set; }
+        public DateTimeOffset? ActualEscrowReleaseDate { get; set; }
+
+        public DateTimeOffset? PlannedEscrowReleaseDate { get; set; }
+
+        public bool? IsEscrowReleased { get; set; }
         public string QuantitySymbol { get; set; }
         public string QuantityAddress { get; set; }
         public string CurrencySymbol { get; set; }
