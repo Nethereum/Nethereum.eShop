@@ -21,22 +21,12 @@ namespace Nethereum.Commerce.Contracts.BusinessPartnerStorage
     /// </summary>
     public partial class BusinessPartnerStorageService
     {
-        public Task<TransactionReceipt> SetSystemDescriptionRequestStringAndWaitForReceiptAsync(string systemId, string systemDescription, CancellationTokenSource cancellationToken = null)
+        public Task<GetSellerOutputDTO> GetSellerQueryAsync(string sellerId, BlockParameter blockParameter = null)
         {
-            var setSystemDescriptionFunction = new SetSystemDescriptionFunction();
-            setSystemDescriptionFunction.SystemId = ConversionUtils.ConvertStringToBytes32Array(systemId);
-            setSystemDescriptionFunction.SystemDescription = ConversionUtils.ConvertStringToBytes32Array(systemDescription);
+            var getSellerFunction = new GetSellerFunction();
+            getSellerFunction.SellerId = ConversionUtils.ConvertStringToBytes32Array(sellerId);
 
-            return ContractHandler.SendRequestAndWaitForReceiptAsync(setSystemDescriptionFunction, cancellationToken);
-        }
-
-        public Task<TransactionReceipt> SetWalletAddressRequestStringAndWaitForReceiptAsync(string systemId, string walletAddress, CancellationTokenSource cancellationToken = null)
-        {
-            var setWalletAddressFunction = new SetWalletAddressFunction();
-            setWalletAddressFunction.SystemId = ConversionUtils.ConvertStringToBytes32Array(systemId);
-            setWalletAddressFunction.WalletAddress = walletAddress;
-
-            return ContractHandler.SendRequestAndWaitForReceiptAsync(setWalletAddressFunction, cancellationToken);
+            return ContractHandler.QueryDeserializingToObjectAsync<GetSellerFunction, GetSellerOutputDTO>(getSellerFunction, blockParameter);
         }
     }
 }

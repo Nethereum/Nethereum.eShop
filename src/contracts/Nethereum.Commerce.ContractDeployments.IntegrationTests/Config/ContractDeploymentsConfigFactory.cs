@@ -16,8 +16,9 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
 
             ContractDeploymentsConfig deploymentConfig = new ContractDeploymentsConfig();
             deploymentConfig.BlockchainUrl = ConfigurationUtils.GetOrThrow(configDict, "BlockchainUrl");
-            deploymentConfig.EShopSystemId = ConfigurationUtils.GetOrThrow(configDict, "EShopSystemId");
+            deploymentConfig.EShopSellerId = ConfigurationUtils.GetOrThrow(configDict, "EShopSystemId");
             deploymentConfig.EShopDescription = ConfigurationUtils.GetOrThrow(configDict, "EShopDescription");
+            deploymentConfig.EShopApproverAddress = ConfigurationUtils.GetOrThrow(configDict, "EShopApproverAddress").ToLowerInvariant(); ;
             deploymentConfig.ContractDeploymentOwnerPrivateKey = ConfigurationUtils.GetOrThrow(configDict, "ContractDeploymentOwnerPrivateKey");
             return deploymentConfig;
         }

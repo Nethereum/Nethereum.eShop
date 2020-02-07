@@ -1,19 +1,19 @@
-pragma solidity ^0.5.3;
+pragma solidity ^0.6.1;
 pragma experimental ABIEncoderV2;
 
 import "./IPoTypes.sol";
 
 interface IWalletSeller
 {
-    // PoMain => Seller Wallet (event pass through)
-    function onCreatePurchaseOrderRequested(IPoTypes.Po calldata po) external;
-    function onCancelPurchaseOrderRequested(IPoTypes.Po calldata po) external;
+    // Contract setup
+    function configure(string calldata sellerId, string calldata nameOfPurchasing, string calldata nameOfFunding) external;
     
-    // PoMain <= Seller Wallet
-    function setSalesOrderNumberByEthPoNumber(uint64 ethPoNumber, bytes32 sellerSalesOrderNumber) external;
-    function refundPoToBuyer(uint64 ethPoNumber) external;
-    function releasePoFundsToSeller(uint64 ethPoNumber) external;
-    function reportSalesOrderNotApproved(uint64 ethPoNumber) external;
-    function reportSalesOrderCancelFailure(uint64 ethPoNumber) external;
-    function reportSalesOrderInvoiceFault(uint64 ethPoNumber) external;
+    // Purchasing
+    function getPo(uint poNumber) external view returns (IPoTypes.Po memory po);
+    function getPoNumberBySellerAndQuote(string calldata sellerIdString, uint quoteId) external view returns (uint poNumber);
+    function setPoItemAccepted(uint poNumber, uint8 poItemNumber, bytes32 soNumber, bytes32 soItemNumber) external;
+    function setPoItemRejected(uint poNumber, uint8 poItemNumber) external;
+    function setPoItemReadyForGoodsIssue(uint poNumber, uint8 poItemNumber) external;
+    function setPoItemGoodsIssued(uint poNumber, uint8 poItemNumber) external;
+    function setPoItemGoodsReceived(uint poNumber, uint8 poItemNumber) external;
 }

@@ -5,7 +5,7 @@ using System.Numerics;
 using Nethereum.Hex.HexTypes;
 using Nethereum.ABI.FunctionEncoding.Attributes;
 
-namespace Nethereum.Commerce.Contracts.PoStorage.ContractDefinition
+namespace Nethereum.Commerce.Contracts.WalletSeller.ContractDefinition
 {
     public partial class PoItem : PoItemBase { }
 

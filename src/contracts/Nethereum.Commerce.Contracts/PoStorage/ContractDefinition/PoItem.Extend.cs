@@ -6,49 +6,61 @@ namespace Nethereum.Commerce.Contracts.PoStorage.ContractDefinition
 {
     public partial class PoItem
     {
-        [Parameter("uint8", "poItemNumber", 1)]
+        [Parameter("uint256", "poNumber", 1)]
+        public new BigInteger PoNumber { get; set; }
+
+        [Parameter("uint8", "poItemNumber", 2)]
         public new uint PoItemNumber { get; set; }
 
-        [Parameter("bytes32", "soNumber", 2)]
+        [Parameter("bytes32", "soNumber", 3)]
         public new string SoNumber { get; set; }
 
-        [Parameter("bytes32", "soItemNumber", 3)]
+        [Parameter("bytes32", "soItemNumber", 4)]
         public new string SoItemNumber { get; set; }
 
-        [Parameter("bytes32", "productId", 4)]
+        [Parameter("bytes32", "productId", 5)]
         public new string ProductId { get; set; }
 
-        [Parameter("uint256", "quantity", 5)]
+        [Parameter("uint256", "quantity", 6)]
         public new BigInteger Quantity { get; set; }
 
-        [Parameter("bytes32", "unit", 6)]
+        [Parameter("bytes32", "unit", 7)]
         public new string Unit { get; set; }
 
-        [Parameter("bytes32", "quantitySymbol", 7)]
+        [Parameter("bytes32", "quantitySymbol", 8)]
         public new string QuantitySymbol { get; set; }
 
-        [Parameter("address", "quantityAddress", 8)]
+        [Parameter("address", "quantityAddress", 9)]
         public new string QuantityAddress { get; set; }
 
-        [Parameter("uint256", "currencyValue", 9)]
+        [Parameter("uint256", "currencyValue", 10)]
         public new BigInteger CurrencyValue { get; set; }
 
-        [Parameter("bytes32", "currencySymbol", 10)]
+        [Parameter("bytes32", "currencySymbol", 11)]
         public new string CurrencySymbol { get; set; }
 
-        [Parameter("address", "currencyAddress", 11)]
+        [Parameter("address", "currencyAddress", 12)]
         public new string CurrencyAddress { get; set; }
 
-        [Parameter("uint8", "status", 12)]
+        [Parameter("uint8", "status", 13)]
         public new PoItemStatus Status { get; set; }
 
-        [Parameter("uint256", "goodsIssueDate", 13)]
-        public new BigInteger GoodsIssueDate { get; set; }
+        [Parameter("uint256", "goodsIssuedDate", 14)]
+        public new BigInteger GoodsIssuedDate { get; set; }
 
-        [Parameter("uint256", "escrowReleaseDate", 14)]
-        public new BigInteger EscrowReleaseDate { get; set; }
+        [Parameter("uint256", "goodsReceivedDate", 15)]
+        public new BigInteger GoodsReceivedDate { get; set; }
 
-        [Parameter("uint8", "cancelStatus", 15)]
+        [Parameter("uint256", "plannedEscrowReleaseDate", 16)]
+        public new BigInteger PlannedEscrowReleaseDate { get; set; }
+
+        [Parameter("uint256", "actualEscrowReleaseDate", 17)]
+        public new BigInteger ActualEscrowReleaseDate { get; set; }
+
+        [Parameter("bool", "isEscrowReleased", 18)]
+        public new bool IsEscrowReleased { get; set; }
+
+        [Parameter("uint8", "cancelStatus", 19)]
         public new PoItemCancelStatus CancelStatus { get; set; }
     }
 }
