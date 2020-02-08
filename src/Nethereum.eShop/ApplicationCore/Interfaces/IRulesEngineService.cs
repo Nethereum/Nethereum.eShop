@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Nethereum.eShop.ApplicationCore.Interfaces
 {
-    public interface IRuleTreeService
+    public interface IRulesEngineService
     {
         Task<RuleTree> CreateRuleTreeAsync(RuleTreeOrigin origin);
 

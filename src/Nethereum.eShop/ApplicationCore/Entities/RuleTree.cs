@@ -2,7 +2,7 @@
 
 namespace Nethereum.eShop.ApplicationCore.Entities
 {
-    public class RuleTree
+    public class RuleTree: BaseEntity
     {
         public RuleTree(RuleTreeOrigin pOrigin)
         {
