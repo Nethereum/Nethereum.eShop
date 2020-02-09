@@ -1,5 +1,5 @@
 ﻿using Ardalis.GuardClauses;
-using Nethereum.eShop.ApplicationCore.Entities;
+using Nethereum.eShop.ApplicationCore.Entities.RulesEngine;
 using Nethereum.eShop.ApplicationCore.Interfaces;
 using System;
 using System.Threading.Tasks;
@@ -17,7 +17,7 @@ namespace Nethereum.eShop.ApplicationCore.Services
             _ruletreeRepository = ruletreeRepo;
         }
 
-        public async Task<RuleTree> CreateRuleTreeAsync(RuleTreeOrigin origin)
+        public async Task<RuleTree> CreateRuleTreeAsync(RulesDomain domain, RuleTreeOrigin origin)
         {
             // TODO: Do all the work to help initialize the RuleTree
 
