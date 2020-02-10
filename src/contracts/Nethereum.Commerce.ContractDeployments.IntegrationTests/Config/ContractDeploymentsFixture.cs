@@ -1,4 +1,5 @@
-﻿using Nethereum.Commerce.Contracts.AddressRegistry;
+﻿using Nethereum.Commerce.Contracts;
+using Nethereum.Commerce.Contracts.AddressRegistry;
 using Nethereum.Commerce.Contracts.AddressRegistry.ContractDefinition;
 using Nethereum.Commerce.Contracts.BusinessPartnerStorage;
 using Nethereum.Commerce.Contracts.BusinessPartnerStorage.ContractDefinition;
@@ -20,6 +21,8 @@ using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
+using static Nethereum.Commerce.ContractDeployments.IntegrationTests.PoHelpers;
+using Buyer = Nethereum.Commerce.Contracts.WalletBuyer.ContractDefinition;
 
 namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
 {
@@ -34,6 +37,9 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
         public WalletSellerService WalletSellerService { get; internal set; }
         public PurchasingService PurchasingService { get; internal set; }
         public FundingService FundingService { get; internal set; }
+
+        // Shared test data
+        public Buyer.Po PoTest { get; internal set; }
 
         // Configuration
         public readonly ContractDeploymentsConfig ContractDeploymentConfig;
@@ -62,6 +68,12 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
         }
 
         public async Task InitializeAsync()
+        {
+            await DeployAndConfigureEShop();
+            await CreateSharedTransactionData();
+        }
+
+        private async Task DeployAndConfigureEShop()
         {
             try
             {
@@ -193,7 +205,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
                 Log($"Configuring Address Registry, adding {contractName}...");
                 txReceipt = await AddressRegService.RegisterAddressStringRequestAndWaitForReceiptAsync(contractName, FundingService.ContractHandler.ContractAddress);
                 Log($"Tx status: {txReceipt.Status.Value}");
-                
+
                 // Authorisations. Nothing needed.
                 #endregion
 
@@ -292,7 +304,6 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
                 txReceipt = await FundingService.ConfigureRequestAndWaitForReceiptAsync(
                     CONTRACT_NAME_PO_STORAGE, CONTRACT_NAME_BUSINESS_PARTNER_STORAGE);
                 Log($"Tx status: {txReceipt.Status.Value}");
-
             }
             catch (Exception ex)
             {
@@ -300,8 +311,29 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
             }
             finally
             {
-                Log($"Complete.");
+                Log($"Deploy and configure complete.");
             }
+        }
+
+        private async Task CreateSharedTransactionData()
+        {
+            Log();
+            Log("----------------------------------------------------------------");
+            Log();
+            Log($"Creating shared transaction data...");
+
+            // Create a PO directly in the po store that can be used as shared data for many tests
+            uint poNumber = GetRandomInt();
+            string approverAddress = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610";
+            uint quoteId = GetRandomInt();
+            var po = CreateTestPo(poNumber, approverAddress, quoteId);
+
+            // Store PO
+            var txReceipt = await PoStorageService.SetPoRequestAndWaitForReceiptAsync(po);
+            Log($"Tx status: {txReceipt.Status.Value}");
+
+            PoTest = po.ToBuyerPo();
+
         }
 
         public Task DisposeAsync()

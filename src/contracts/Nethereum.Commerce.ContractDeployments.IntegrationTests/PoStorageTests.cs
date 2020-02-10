@@ -1,10 +1,9 @@
 using FluentAssertions;
 using Nethereum.Commerce.ContractDeployments.IntegrationTests.Config;
 using Nethereum.Commerce.Contracts.PoStorage.ContractDefinition;
-using System.Collections.Generic;
 using Xunit;
 using Xunit.Abstractions;
-using static Nethereum.Commerce.Contracts.ContractEnums;
+using static Nethereum.Commerce.ContractDeployments.IntegrationTests.PoHelpers;
 
 namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 {
@@ -26,10 +25,10 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         public async void ShouldStoreAndRetrievePo()
         {
             // Create a PO to store
-            uint poNumber = 314159;
+            uint poNumber = GetRandomInt();
             string approverAddress = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610";
-            uint quoteId = 2;
-            Po poExpected = PoHelpers.CreateTestPo(poNumber, approverAddress, quoteId);
+            uint quoteId = GetRandomInt();
+            Po poExpected = CreateTestPo(poNumber, approverAddress, quoteId);
 
             // Store PO
             var txReceipt = await _contracts.PoStorageService.SetPoRequestAndWaitForReceiptAsync(poExpected);
@@ -39,17 +38,17 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var poActual = (await _contracts.PoStorageService.GetPoQueryAsync(poNumber)).Po;
 
             // They should be the same
-            PoHelpers.CheckEveryPoFieldMatches(poExpected, poActual);
+            CheckEveryPoFieldMatches(poExpected, poActual);
         }
 
         [Fact]
         public async void ShouldStoreAndRetrievePoBySellerAndQuote()
         {
             // Create a PO to store
-            uint poNumberExpected = 314159;
+            uint poNumberExpected = GetRandomInt();
             string approverAddress = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610";
-            uint quoteId = 2;
-            Po poExpected = PoHelpers.CreateTestPo(poNumberExpected, approverAddress, quoteId);
+            uint quoteId = GetRandomInt();
+            Po poExpected = CreateTestPo(poNumberExpected, approverAddress, quoteId);
 
             // Store PO
             var txReceipt = await _contracts.PoStorageService.SetPoRequestAndWaitForReceiptAsync(poExpected);
@@ -60,6 +59,6 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 
             // They should be the same
             poNumberActual.Should().Be(poNumberExpected);
-        }        
+        }
     }
 }

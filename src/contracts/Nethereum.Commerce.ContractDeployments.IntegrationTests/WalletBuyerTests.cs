@@ -1,10 +1,11 @@
 using FluentAssertions;
 using Nethereum.Commerce.ContractDeployments.IntegrationTests.Config;
-using Nethereum.Commerce.Contracts.PoStorage.ContractDefinition;
-using System.Collections.Generic;
+using Nethereum.Commerce.Contracts;
 using Xunit;
 using Xunit.Abstractions;
-using static Nethereum.Commerce.Contracts.ContractEnums;
+using static Nethereum.Commerce.ContractDeployments.IntegrationTests.PoHelpers;
+using Buyer = Nethereum.Commerce.Contracts.WalletBuyer.ContractDefinition;
+using Storage = Nethereum.Commerce.Contracts.PoStorage.ContractDefinition;
 
 namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 {
@@ -23,45 +24,50 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         }
 
         [Fact]
-        public async void ShouldGetAPo()
+        public async void ShouldGetPo()
         {
-            // Prepare a PO
-            uint poNumber = 514159;
-            string approverAddress = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610";
-            uint quoteId = 3;
-            Po poExpected = PoHelpers.CreateTestPo(poNumber, approverAddress, quoteId);
-
-
-        //    // Store PO
-        //    var txReceipt = await _contracts.PoStorageService.SetPoRequestAndWaitForReceiptAsync(poExpected);
-        //    txReceipt.Status.Value.Should().Be(1);
-
-        //    // Retrieve PO 
-        //    var poActual = (await _contracts.PoStorageService.GetPoQueryAsync(poNumber)).Po;
-
-        //    // They should be the same
-        //    CheckEveryPoFieldMatches(poExpected, poActual);
+            // Get test PO created during fixture creation
+            var poExpected = _contracts.PoTest;
+            var poActual = (await _contracts.WalletBuyerService.GetPoQueryAsync(poExpected.PoNumber)).Po;
+            CheckEveryPoFieldMatches(poExpected, poActual);
         }
 
-        //[Fact]
-        //public async void ShouldStoreAndRetrievePoBySellerAndQuote()
-        //{
-        //    // Create a PO to store
-        //    uint poNumberExpected = 314159;
-        //    string approverAddress = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610";
-        //    uint quoteId = 2;
-        //    Po poExpected = CreateTestPo(poNumberExpected, approverAddress, quoteId);
+        [Fact]
+        public async void ShouldGetPoBySellerAndQuote()
+        {
+            // Get test PO created during fixture creation
+            var sellerId = _contracts.PoTest.SellerId;
+            var quoteId = _contracts.PoTest.QuoteId;
+            var poExpected = _contracts.PoTest;
+            var poActual = (await _contracts.WalletBuyerService.GetPoBySellerAndQuoteQueryAsync(sellerId, quoteId)).Po;
+            CheckEveryPoFieldMatches(poExpected, poActual);
+        }
 
-        //    // Store PO
-        //    var txReceipt = await _contracts.PoStorageService.SetPoRequestAndWaitForReceiptAsync(poExpected);
-        //    txReceipt.Status.Value.Should().Be(1);
+        [Fact]
+        public async void ShouldCreateNewPoAndRetrieveIt()
+        {
+            // Prepare a new PO
+            uint poNumber = GetRandomInt();
+            string approverAddress = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610";
+            uint quoteId = GetRandomInt();
+            Storage.Po poExpectedStorage = CreateTestPo(poNumber, approverAddress, quoteId);
+            Buyer.Po poExpectedBuyer = poExpectedStorage.ToBuyerPo();
 
-        //    // Retrieve PO number by address and nonce
-        //    var poNumberActual = await _contracts.PoStorageService.GetPoNumberBySellerAndQuoteQueryAsync(poExpected.SellerId, poExpected.QuoteId);
+            // Create new PO
+            var txReceipt = await _contracts.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poExpectedBuyer);
+            txReceipt.Status.Value.Should().Be(1);
 
-        //    // They should be the same
-        //    poNumberActual.Should().Be(poNumberExpected);
-        //}
-        
+            // Retrieve PO 
+            var poActualBuyer = (await _contracts.WalletBuyerService.GetPoQueryAsync(poNumber)).Po;
+
+            // They should be the same
+            CheckEveryPoFieldMatches(poExpectedBuyer, poActualBuyer);
+        }
+
+        [Fact]
+        public async void ShouldCreateNewPoAndRetrieveItBySellerAndQuote()
+        {
+
+        }
     }
 }

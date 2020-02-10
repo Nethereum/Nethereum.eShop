@@ -24,7 +24,7 @@ namespace Nethereum.Commerce.Contracts.BusinessPartnerStorage
         public Task<GetSellerOutputDTO> GetSellerQueryAsync(string sellerId, BlockParameter blockParameter = null)
         {
             var getSellerFunction = new GetSellerFunction();
-            getSellerFunction.SellerId = ConversionUtils.ConvertStringToBytes32Array(sellerId);
+            getSellerFunction.SellerId = sellerId.ConvertToBytes();
 
             return ContractHandler.QueryDeserializingToObjectAsync<GetSellerFunction, GetSellerOutputDTO>(getSellerFunction, blockParameter);
         }

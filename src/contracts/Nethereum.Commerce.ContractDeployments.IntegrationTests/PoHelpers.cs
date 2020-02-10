@@ -1,9 +1,12 @@
 using FluentAssertions;
-using Nethereum.Commerce.Contracts.PoStorage.ContractDefinition;
+using Nethereum.Commerce.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using static Nethereum.Commerce.Contracts.ContractEnums;
+using Buyer = Nethereum.Commerce.Contracts.WalletBuyer.ContractDefinition;
+using Seller = Nethereum.Commerce.Contracts.WalletSeller.ContractDefinition;
+using Storage = Nethereum.Commerce.Contracts.PoStorage.ContractDefinition;
 
 namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 {
@@ -25,7 +28,17 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             return ((uint)_random.Next(int.MinValue, int.MaxValue));
         }
 
-        public static void CheckEveryPoFieldMatches(Po poExpected, Po poActual)
+        public static void CheckEveryPoFieldMatches(Buyer.Po poExpected, Buyer.Po poActual)
+        {
+            CheckEveryPoFieldMatches(poExpected.ToStoragePo(), poActual.ToStoragePo());
+        }
+
+        public static void CheckEveryPoFieldMatches(Seller.Po poExpected, Seller.Po poActual)
+        {
+            CheckEveryPoFieldMatches(poExpected.ToStoragePo(), poActual.ToStoragePo());
+        }
+
+        public static void CheckEveryPoFieldMatches(Storage.Po poExpected, Storage.Po poActual)
         {
             poActual.PoNumber.Should().Be(poExpected.PoNumber);
             poActual.BuyerAddress.Should().Be(poExpected.BuyerAddress);
@@ -62,9 +75,9 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             }
         }
 
-        public static Po CreateTestPo(uint poNumber, string approverAddress, uint quoteId)
+        public static Storage.Po CreateTestPo(uint poNumber, string approverAddress, uint quoteId)
         {
-            return new Po()
+            return new Storage.Po()
             {
                 PoNumber = poNumber,
                 BuyerAddress = "0x37ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
@@ -79,9 +92,9 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                 SellerId = "Nethereum.eShop",
                 PoCreateDate = 100,
                 PoItemCount = 2,
-                PoItems = new List<PoItem>()
+                PoItems = new List<Storage.PoItem>()
                 {
-                    new PoItem()
+                    new Storage.PoItem()
                     {
                         PoNumber = poNumber,
                         PoItemNumber = 10,
@@ -101,7 +114,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                         IsEscrowReleased = false,
                         CancelStatus = PoItemCancelStatus.Initial
                     },
-                    new PoItem()
+                    new Storage.PoItem()
                     {
                         PoNumber = poNumber,
                         PoItemNumber = 20,
