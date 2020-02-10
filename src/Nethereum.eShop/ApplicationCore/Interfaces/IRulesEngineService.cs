@@ -5,8 +5,10 @@ namespace Nethereum.eShop.ApplicationCore.Interfaces
 {
     public interface IRulesEngineService
     {
+        Task<RulesDomain> CreateRulesDomainAsync();
+
         Task<RuleTree> CreateRuleTreeAsync(RulesDomain domain, RuleTreeOrigin origin);
 
-        Task Execute(RuleTree TargetRuleTree);
+        Task ExecuteAsync(RuleTree TargetRuleTree);
     }
 }

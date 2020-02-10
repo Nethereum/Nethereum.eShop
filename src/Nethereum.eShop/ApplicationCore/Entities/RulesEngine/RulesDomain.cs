@@ -7,6 +7,13 @@ namespace Nethereum.eShop.ApplicationCore.Entities.RulesEngine
 {
     public class RulesDomain: BaseEntity
     {
+        public RulesDomain() 
+        {
+            Connection  = null;
+            TargetTable = null;
+            Columns     = null;
+        }
+
         public RulesDomain(SqlConnection conn, string table, List<string> cols) 
         {
             Connection  = conn;
