@@ -267,7 +267,12 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
                 Log($"Tx status: {txReceipt.Status.Value}");
 
                 // Authorisations. Bind all contracts that will use PO storage
-                // TODO Cant configure this till next layer deployed
+                // Bind Purchasing to PO Storage
+                Log($"Authorisations for PO Storage...");
+                contractName = CONTRACT_NAME_PURCHASING;
+                Log($"Configuring PO Storage, binding {contractName}...");
+                txReceipt = await PoStorageService.BindAddressRequestAndWaitForReceiptAsync(PurchasingService.ContractHandler.ContractAddress);
+                Log($"Tx status: {txReceipt.Status.Value}");
 
                 //-----------------------------------------------------------------------------------
                 // Configure Wallet Seller

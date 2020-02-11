@@ -28,7 +28,6 @@ namespace Nethereum.Commerce.Contracts
             var config = new MapperConfiguration(cfg =>
             {
                 cfg.AddProfile<PurchasingProfile>();
-                cfg.CreateMap<string, byte[]>().ConvertUsing(new StringToBytesTypeConverter());
             });
             _mapper = new Mapper(config);
         }
@@ -60,13 +59,5 @@ namespace Nethereum.Commerce.Contracts
         // WalletBuyer <=> WalletSeller
         public static Buyer.Po ToBuyerPo(this Seller.Po po) { return _mapper.Map<Buyer.Po>(po); }
         public static Seller.Po ToSellerPo(this Buyer.Po po) { return _mapper.Map<Seller.Po>(po); }
-    }
-
-    public class StringToBytesTypeConverter : ITypeConverter<string, byte[]>
-    {
-        public byte[] Convert(string source, byte[] destination, ResolutionContext context)
-        {
-            return source.ConvertToBytes();
-        }
     }
 }
