@@ -14,7 +14,8 @@ namespace Nethereum.eShop.ApplicationCore.Services
         private readonly IAsyncRepository<Basket> _basketRepository;
         private readonly IAsyncRepository<CatalogItem> _itemRepository;
 
-        public QuoteService(IAsyncRepository<Basket> basketRepository,
+        public QuoteService(
+            IAsyncRepository<Basket> basketRepository,
             IAsyncRepository<CatalogItem> itemRepository,
             IAsyncRepository<Quote> orderRepository)
         {
@@ -31,6 +32,7 @@ namespace Nethereum.eShop.ApplicationCore.Services
             // Check Wonka Rules
             // Invoke Po Creation on blockchain / metamask
             // Create purchase order
+            // reserve stock?
 
             var basket = await _basketRepository.GetByIdAsync(basketId);
             Guard.Against.NullBasket(basketId, basket);

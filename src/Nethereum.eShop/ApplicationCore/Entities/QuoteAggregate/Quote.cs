@@ -6,6 +6,7 @@ namespace Nethereum.eShop.ApplicationCore.Entities.QuoteAggregate
 {
     public class Quote: BaseEntity, IAggregateRoot
     {
+        public QuoteStatus Status { get; set; }
         public DateTimeOffset Date { get; set; }
         public DateTimeOffset Expiry { get; set; }
 

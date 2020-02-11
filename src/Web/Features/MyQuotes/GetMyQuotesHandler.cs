@@ -35,6 +35,7 @@ namespace Nethereum.eShop.Web.Features.MyQuotes
                     Units = oi.Quantity
                 }).ToList(),
                 QuoteId = o.Id,
+                Status = o.Status.ToString(),
                 TransactionHash = o.TransactionHash,
                 ShipTo = o.ShipTo,
                 BillTo = o.BillTo,
