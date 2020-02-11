@@ -54,6 +54,8 @@ namespace Nethereum.eShop.Web.Services
                 itemOnPage.PictureUri = _uriComposer.ComposePicUri(itemOnPage.PictureUri);
             }
 
+            var brands = await _brandRepository.ListAllAsync();
+
             var vm = new CatalogIndexViewModel()
             {
                 CatalogItems = itemsOnPage.Select(i => new CatalogItemViewModel()
@@ -61,7 +63,8 @@ namespace Nethereum.eShop.Web.Services
                     Id = i.Id,
                     Name = i.Name,
                     PictureUri = i.PictureUri,
-                    Price = i.Price
+                    Price = i.Price,
+                    Brand = brands.FirstOrDefault(b => b.Id == i.CatalogBrandId)?.Brand
                 }),
                 Brands = await GetBrands(),
                 Types = await GetTypes(),
@@ -91,7 +94,7 @@ namespace Nethereum.eShop.Web.Services
             {
                 new SelectListItem() { Value = null, Text = "All", Selected = true }
             };
-            foreach (CatalogBrand brand in brands)
+            foreach (CatalogBrand brand in brands.OrderBy(b => b.Brand))
             {
                 items.Add(new SelectListItem() { Value = brand.Id.ToString(), Text = brand.Brand });
             }

@@ -24,7 +24,7 @@ namespace Nethereum.eShop.Infrastructure.Data.Config
 
             builder.Property(ci => ci.Price)
                 .IsRequired(true)
-                .HasColumnType("decimal(18,2)");
+                .IsPrice();
 
             builder.Property(ci => ci.PictureUri)
                 .IsRequired(false);

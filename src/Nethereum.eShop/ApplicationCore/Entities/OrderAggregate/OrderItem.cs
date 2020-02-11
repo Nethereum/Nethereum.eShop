@@ -5,7 +5,7 @@ namespace Nethereum.eShop.ApplicationCore.Entities.OrderAggregate
     public class OrderItem : BaseEntity
     {
         public OrderItemStatus Status { get; set; }
-        public CatalogItemOrdered ItemOrdered { get; private set; }
+        public CatalogItemExcerpt ItemOrdered { get; private set; }
         public decimal UnitPrice { get; private set; }
         public int Quantity { get; private set; }
         public string Unit { get; set; }
@@ -19,14 +19,13 @@ namespace Nethereum.eShop.ApplicationCore.Entities.OrderAggregate
         /// </summary>
         public DateTimeOffset? GoodsIssueDate { get; set; }
 
-        /// <summary>
-        /// Smart contract assigned date
-        /// </summary>
-        public DateTimeOffset? EscrowReleaseDate { get; set; }
+        public DateTimeOffset? ActualEscrowReleaseDate { get; set; }
+
+        public DateTimeOffset? PlannedEscrowReleaseDate { get; set; }
+
+        public bool? IsEscrowReleased { get; set; }
         public string QuantitySymbol { get; set; }
         public string QuantityAddress { get; set; }
-        public string CurrencySymbol { get; set; }
-        public string CurrencyAddress { get; set; }
         public string CurrencyValue { get; set; }
 
         private OrderItem()
@@ -34,7 +33,7 @@ namespace Nethereum.eShop.ApplicationCore.Entities.OrderAggregate
             // required by EF
         }
 
-        public OrderItem(CatalogItemOrdered itemOrdered, decimal unitPrice, int units)
+        public OrderItem(CatalogItemExcerpt itemOrdered, decimal unitPrice, int units)
         {
             ItemOrdered = itemOrdered;
             UnitPrice = unitPrice;

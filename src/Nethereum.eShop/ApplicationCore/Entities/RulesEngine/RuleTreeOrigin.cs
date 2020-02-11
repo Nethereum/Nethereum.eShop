@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Nethereum.eShop.ApplicationCore.Entities
+namespace Nethereum.eShop.ApplicationCore.Entities.RulesEngine
 {
     public class RuleTreeOrigin: BaseEntity
     {
