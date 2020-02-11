@@ -31,9 +31,11 @@ namespace Nethereum.eShop.ApplicationCore.Services
             return new RuleTree(origin);
         }
 
-        public async Task ExecuteAsync(RuleTree TargetRuleTree)
+        public async Task<RuleTreeReport> ExecuteAsync(RuleTree TargetRuleTree)
         {
             // TODO: Do all the work to execute the RuleTree - and return a report?
+
+            return new RuleTreeReport(new RuleTreeOrigin());
         }
     }
 }

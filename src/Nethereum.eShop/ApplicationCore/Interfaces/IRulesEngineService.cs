@@ -9,6 +9,6 @@ namespace Nethereum.eShop.ApplicationCore.Interfaces
 
         Task<RuleTree> CreateRuleTreeAsync(RulesDomain domain, RuleTreeOrigin origin);
 
-        Task ExecuteAsync(RuleTree TargetRuleTree);
+        Task<RuleTreeReport> ExecuteAsync(RuleTree TargetRuleTree);
     }
 }
