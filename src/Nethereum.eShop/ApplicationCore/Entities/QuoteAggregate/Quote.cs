@@ -16,22 +16,22 @@ namespace Nethereum.eShop.ApplicationCore.Entities.QuoteAggregate
         /// <summary>
         /// The transaction hash for Purchase Order creation
         /// </summary>
-        public string TransactionHash { get; private set; }
+        public string TransactionHash { get; set; }
 
         /// <summary>
         /// The Buyer Address
         /// </summary>
-        public string BuyerAddress { get; private set; }
+        public string BuyerAddress { get; set; }
 
         public string CurrencySymbol { get; set; }
         public string CurrencyAddress { get; set; }
 
-        public string ApproverAddress { get; private set; }
+        public string ApproverAddress { get; set; }
 
         /// <summary>
         /// The Purhase Order Number
         /// </summary>
-        public long? PoNumber { get; private set; }
+        public long? PoNumber { get; set; }
 
         // TODO: Change to enum when it is ready
         /*
@@ -42,7 +42,7 @@ namespace Nethereum.eShop.ApplicationCore.Entities.QuoteAggregate
         Invoice                 // 2  PO is paid later after buyer receives an invoice
     }
          */
-        public int PoType { get; private set; }
+        public int PoType { get; set; }
 
         /// <summary>
         /// eShop constant - one wallet expected per shop
@@ -54,15 +54,31 @@ namespace Nethereum.eShop.ApplicationCore.Entities.QuoteAggregate
         /// </summary>
         public string SellerId { get; set; }
 
-        public string BuyerId { get; private set; }
+        public string BuyerId { get; set; }
 
         public PostalAddress BillTo { get; set; }
 
         public PostalAddress ShipTo { get; set; }
 
-        public Quote()
+        public Quote(IEnumerable<QuoteItem> quoteItems)
         {
-
+            _quoteItems.AddRange(quoteItems);
         }
+
+        private Quote()
+        {
+            //for EF
+        }
+
+        public decimal Total()
+        {
+            var total = 0m;
+            foreach (var item in _quoteItems)
+            {
+                total += item.UnitPrice * item.Quantity;
+            }
+            return total;
+        }
+
     }
 }

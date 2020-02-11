@@ -17,6 +17,10 @@
 
   <ItemGroup>
     <Folder Include="Infrastructure\Data\Migrations\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\contracts\Nethereum.Commerce.Contracts\Nethereum.Commerce.Contracts.csproj" />
   </ItemGroup>  
   
 </Project>

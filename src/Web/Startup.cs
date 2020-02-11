@@ -93,9 +93,11 @@ namespace Nethereum.eShop.Web
             services.AddScoped<ICatalogViewModelService, CachedCatalogViewModelService>();
             services.AddScoped<IBasketService, BasketService>();
             services.AddScoped<IBasketViewModelService, BasketViewModelService>();
+            services.AddScoped<IQuoteService, QuoteService>();
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IPurchaseOrderService, PurchaseOrderService>();
             services.AddScoped<IStockItemRepository, StockItemRepository>();
+            services.AddScoped<IQuoteRepository, QuoteRepository>();
             services.AddScoped<IOrderRepository, OrderRepository>();
             services.AddScoped<CatalogViewModelService>();
             services.AddScoped<ICatalogItemViewModelService, CatalogItemViewModelService>();

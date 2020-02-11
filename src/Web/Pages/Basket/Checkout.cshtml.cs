@@ -17,18 +17,18 @@ namespace Nethereum.eShop.Web.Pages.Basket
     {
         private readonly IBasketService _basketService;
         private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly IOrderService _orderService;
+        private readonly IQuoteService _quoteService;
         private string _username = null;
         private readonly IBasketViewModelService _basketViewModelService;
 
         public CheckoutModel(IBasketService basketService,
             IBasketViewModelService basketViewModelService,
             SignInManager<ApplicationUser> signInManager,
-            IOrderService orderService)
+            IQuoteService quoteService)
         {
             _basketService = basketService;
             _signInManager = signInManager;
-            _orderService = orderService;
+            _quoteService = quoteService;
             _basketViewModelService = basketViewModelService;
         }
 
@@ -44,10 +44,7 @@ namespace Nethereum.eShop.Web.Pages.Basket
 
             await _basketService.SetQuantities(BasketModel.Id, items);
 
-            await _orderService.CreateOrderAsync(
-                BasketModel.Id,
-                new PostalAddress("Mr Book Buy", "123 Main St.", "Kent", "OH", "United States", "44240"),
-                new PostalAddress("Mrs Book Buy", "123 Main St.", "Kent", "OH", "United States", "44240"));
+            await _quoteService.CreateQuoteAsync(BasketModel.Id);
 
             await _basketService.DeleteBasketAsync(BasketModel.Id);
 

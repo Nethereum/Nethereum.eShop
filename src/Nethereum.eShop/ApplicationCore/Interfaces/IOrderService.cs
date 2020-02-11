@@ -1,11 +1,10 @@
-﻿using Nethereum.eShop.ApplicationCore.Entities;
-using Nethereum.eShop.ApplicationCore.Entities.OrderAggregate;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Nethereum.Commerce.Contracts.PoStorage.ContractDefinition;
 
 namespace Nethereum.eShop.ApplicationCore.Interfaces
 {
     public interface IOrderService
     {
-        Task CreateOrderAsync(int basketId, PostalAddress billingAddress, PostalAddress shippingAddress);
+        Task CreateOrderAsync(Po purchaseOrder);
     }
 }

@@ -40,7 +40,7 @@ namespace Books.ImportUtil
 
         private static int ipfsFilesLoaded = 0;
 
-        public static async Task Main(string[] args)
+        public static Task Main(string[] args)
         {
             throw new Exception("Check/change hardcoded config and uncomment code in Main method");
 
@@ -52,6 +52,7 @@ namespace Books.ImportUtil
             await UploadCoversToIpfsAsync(books, RENAMED_COVER_OUTPUT_FOLDER, COVER_MAPPING_OUTPUT_FILE_PATH, IPFS_URL);
             */
 
+            /*
             var books = await LoadBooks(ImportFiles);
             var booksWithDescriptions = await AddBookDescriptions(books, BookDescriptionFiles);
             var bookCovers = GetBookCoverDictionary(COVER_MAPPING_OUTPUT_FILE_PATH);
@@ -65,6 +66,7 @@ namespace Books.ImportUtil
             }
 
             PrintSummary(booksWithDescriptions);
+            */
 
         }
 
