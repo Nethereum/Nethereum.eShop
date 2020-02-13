@@ -33,6 +33,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 
         public static void DisplayPoHeader(ITestOutputHelper output, Storage.Po po)
         {
+            output.WriteLine("");
             if (po == null)
             {
                 output.WriteLine($"No PO to display.");
@@ -57,6 +58,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 
         public static void DisplayPoItem(ITestOutputHelper output, Storage.PoItem poItem)
         {
+            output.WriteLine("");
             if (poItem == null)
             {
                 output.WriteLine($"No PO item to display.");
@@ -84,12 +86,18 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             }
         }
 
+        public static void DisplaySeparator(ITestOutputHelper output, string s)
+        {
+            output.WriteLine("");
+            output.WriteLine($"------------------------ {s} -----------------------");
+        }
+
         /// <summary>
         /// Compare a requested PO with an as-built version of the same PO.
         /// Optionally also check the approver address and creation date.
         /// </summary>
         public static void CheckCreatedPoFieldsMatch(Storage.Po poAsRequested, Storage.Po poAsBuilt,
-            BigInteger poNumberAsBuilt, string approverAddressAsBuilt = null, BigInteger? poCreateDateAsBuilt = null)
+        BigInteger poNumberAsBuilt, string approverAddressAsBuilt = null, BigInteger? poCreateDateAsBuilt = null)
         {
             poAsBuilt.PoNumber.Should().Be(poNumberAsBuilt);
             poAsBuilt.BuyerAddress.Should().Be(poAsRequested.BuyerAddress);

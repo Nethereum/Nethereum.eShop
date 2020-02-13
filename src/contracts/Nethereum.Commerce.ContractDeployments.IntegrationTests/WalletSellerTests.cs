@@ -28,15 +28,13 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             _output = output;
         }
 
-        [Fact(Skip = "Not working yet")]
-        //[Fact]
-        public async void ShouldSetPoStatusToAccepted()
+        [Fact]
+        public async void ShouldSetPoItemStatusToAccepted()
         {
             // Prepare a new PO
-            uint poNumber = 0; //assigned by contract
             string approverAddress = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610";
             uint quoteId = GetRandomInt();
-            Buyer.Po poAsRequested = CreateDummyPo(poNumber, approverAddress, quoteId).ToBuyerPo();
+            Buyer.Po poAsRequested = CreateDummyPo(0, approverAddress, quoteId).ToBuyerPo(); //po number assigned by contract
 
             // Request creation of new PO using the Buyer wallet
             var txReceiptCreate = await _contracts.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
@@ -48,27 +46,41 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var poNumberAsBuilt = logPoCreated.Event.Po.PoNumber;
             _output.WriteLine($"{poNumberAsBuilt}");
 
-            // Accept one of the PO items
-            byte itemIndex = 1;
+            // Display the as-built PO
+            var poActualv1 = (await _contracts.PoStorageService.GetPoQueryAsync(poNumberAsBuilt)).Po;
+            DisplaySeparator(_output, "PO v1");
+            DisplayPoHeader(_output, poActualv1);
+            for (int i = 0; i < poActualv1.PoItems.Count; i++)
+            {
+                DisplayPoItem(_output, poActualv1.PoItems[i]);
+            }
+
+            // Accept the first of the PO items
+            byte itemNumber = 1;
+            string salesOrderNumber = "KevinSalesOrder";
+            string salesOrderItem = "10";
             var txReceiptAccept = await _contracts.WalletSellerService.SetPoItemAcceptedRequestAndWaitForReceiptAsync(
-                poNumberAsBuilt, itemIndex, "KevinSalesOrder", "10");
+                poNumberAsBuilt, itemNumber, salesOrderNumber, salesOrderItem);
             txReceiptAccept.Status.Value.Should().Be(1);
 
-            // Examine log
+            // Check log exists
             var logPoAccepted = txReceiptAccept.DecodeAllEvents<PurchaseItemAcceptedLogEventDTO>().FirstOrDefault();
             logPoAccepted.Should().NotBeNull();
             logPoAccepted.Event.PoItem.Status.Should().Be(PoItemStatus.Accepted);
-            DisplayPoItem(_output, logPoAccepted.Event.PoItem.ToStoragePoItem());
 
-            _output.WriteLine($"Log PO number : {logPoAccepted.Event.PoNumber}");
-            //
-
-            // Retrieve the PO 
-            var poActual = (await _contracts.WalletSellerService.GetPoQueryAsync(poNumberAsBuilt)).Po;
+            // Display the now-updated, as-built, PO
+            var poActualv2 = (await _contracts.WalletSellerService.GetPoQueryAsync(poNumberAsBuilt)).Po.ToStoragePo();
+            DisplaySeparator(_output, "PO v2");
+            DisplayPoHeader(_output, poActualv2);
+            for (int i = 0; i < poActualv2.PoItems.Count; i++)
+            {
+                DisplayPoItem(_output, poActualv2.PoItems[i]);
+            }
 
             // Check it has been updated correctly
-            poActual.PoItems[itemIndex].SoNumber.Should().Be("KevinSalesOrder");
-            poActual.PoItems[itemIndex].Status.Should().Be(PoItemStatus.Accepted);
+            poActualv2.PoItems[itemNumber - 1].SoNumber.Should().Be(salesOrderNumber);
+            poActualv2.PoItems[itemNumber - 1].SoItemNumber.Should().Be(salesOrderItem);
+            poActualv2.PoItems[itemNumber - 1].Status.Should().Be(PoItemStatus.Accepted);
         }
 
         [Fact]

@@ -7,6 +7,12 @@ using static Nethereum.Commerce.ContractDeployments.IntegrationTests.PoHelpers;
 
 namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 {
+    /// <summary>
+    /// Tests for the PoStorage.sol contract in isolation. These tests
+    /// store and retrieve dummy POs direct to storage. In real use, this
+    /// contract is only called by the Purchasing.sol application layer
+    /// and PO fields will be filled differently.
+    /// </summary>
     [Collection("Contract Deployment Collection")]
     public class PoStorageTests
     {
@@ -59,6 +65,47 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 
             // They should be the same
             poNumberActual.Should().Be(poNumberExpected);
+        }
+
+        [Fact]
+        public async void ShouldStoreUpdateAndRetrievePo()
+        {
+            // Create a PO to store
+            uint poNumber = GetRandomInt();
+            string approverAddress = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610";
+            uint quoteId = 666; 
+            Po poExpected = CreateDummyPo(poNumber, approverAddress, quoteId);
+
+            // Store PO
+            var txReceipt = await _contracts.PoStorageService.SetPoRequestAndWaitForReceiptAsync(poExpected);
+            txReceipt.Status.Value.Should().Be(1);
+
+            // Retrieve PO v1 
+            var poActualv1 = (await _contracts.PoStorageService.GetPoQueryAsync(poNumber)).Po;
+            DisplaySeparator(_output, "PO v1");
+            DisplayPoHeader(_output, poActualv1);
+            for (int i = 0; i < poActualv1.PoItems.Count; i++)
+            {
+                DisplayPoItem(_output, poActualv1.PoItems[i]);
+            }
+            
+            // Update PO
+            poExpected.QuoteId = 314;
+            poExpected.PoItems[0].Status = Contracts.ContractEnums.PoItemStatus.Accepted;
+            txReceipt = await _contracts.PoStorageService.SetPoRequestAndWaitForReceiptAsync(poExpected);
+            txReceipt.Status.Value.Should().Be(1);
+            
+            // Retrieve PO v2 
+            var poActualv2 = (await _contracts.PoStorageService.GetPoQueryAsync(poNumber)).Po;
+            DisplaySeparator(_output, "PO v2");
+            DisplayPoHeader(_output, poActualv2);
+            for (int i = 0; i < poActualv2.PoItems.Count; i++)
+            {
+                DisplayPoItem(_output, poActualv2.PoItems[i]);
+            }
+
+            // They should be the same
+            CheckEveryPoFieldMatches(poExpected, poActualv2);
         }
     }
 }
