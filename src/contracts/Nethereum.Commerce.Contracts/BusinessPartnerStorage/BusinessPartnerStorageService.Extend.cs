@@ -1,16 +1,7 @@
-using System;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.Numerics;
-using Nethereum.Hex.HexTypes;
-using Nethereum.ABI.FunctionEncoding.Attributes;
-using Nethereum.Web3;
-using Nethereum.RPC.Eth.DTOs;
-using Nethereum.Contracts.CQS;
-using Nethereum.Contracts.ContractHandlers;
-using Nethereum.Contracts;
-using System.Threading;
 using Nethereum.Commerce.Contracts.BusinessPartnerStorage.ContractDefinition;
+using Nethereum.Contracts.ContractHandlers;
+using Nethereum.RPC.Eth.DTOs;
+using System.Threading.Tasks;
 
 namespace Nethereum.Commerce.Contracts.BusinessPartnerStorage
 {

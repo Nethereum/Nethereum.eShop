@@ -23,7 +23,7 @@ contract WalletSeller is IWalletSeller, Ownable, Bindable, StringConvertible
     }
     
     // Contract setup
-    function configure(string calldata sellerIdString, string calldata nameOfPurchasing, string calldata nameOfFunding) override external
+    function configure(string calldata sellerIdString, string calldata nameOfPurchasing, string calldata nameOfFunding) onlyOwner() override external
     {
         sellerId = stringToBytes32(sellerIdString);
           
@@ -47,19 +47,29 @@ contract WalletSeller is IWalletSeller, Ownable, Bindable, StringConvertible
         return purchasing.getPoBySellerAndQuote(sellerIdString, quoteId);
     }
     
-    function setPoItemAccepted(uint poNumber, uint8 poItemNumber, bytes32 soNumber, bytes32 soItemNumber) override external
-    {}
+    function setPoItemAccepted(uint poNumber, uint8 poItemNumber, bytes32 soNumber, bytes32 soItemNumber) onlyOwner() override external
+    {
+        purchasing.setPoItemAccepted(poNumber, poItemNumber, soNumber, soItemNumber);
+    }
     
-    function setPoItemRejected(uint poNumber, uint8 poItemNumber) override external
-    {}
+    function setPoItemRejected(uint poNumber, uint8 poItemNumber) onlyOwner() override external
+    {
+        purchasing.setPoItemRejected(poNumber, poItemNumber);
+    }
     
-    function setPoItemReadyForGoodsIssue(uint poNumber, uint8 poItemNumber) override external
-    {}
+    function setPoItemReadyForGoodsIssue(uint poNumber, uint8 poItemNumber) onlyOwner() override external
+    {
+        purchasing.setPoItemReadyForGoodsIssue(poNumber, poItemNumber);
+    }
     
-    function setPoItemGoodsIssued(uint poNumber, uint8 poItemNumber) override external
-    {}
+    function setPoItemGoodsIssued(uint poNumber, uint8 poItemNumber) onlyOwner() override external
+    {
+        purchasing.setPoItemGoodsIssued(poNumber, poItemNumber);
+    }
     
-    function setPoItemGoodsReceived(uint poNumber, uint8 poItemNumber) override external
-    {}
+    function setPoItemGoodsReceived(uint poNumber, uint8 poItemNumber) onlyOwner() override external
+    {
+        purchasing.setPoItemGoodsReceivedSeller(poNumber, poItemNumber);
+    }
 }
 

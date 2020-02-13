@@ -14,7 +14,6 @@ interface IPurchasing
     event PurchaseOrderNotCreatedLog(address indexed buyerAddress, bytes32 indexed sellerId, uint indexed poNumber, IPoTypes.Po po);
     
     // Events Item level (matching 1:1 with PoItemStatus)
-    event PurchaseItemCreatedLog(address indexed buyerAddress, bytes32 indexed sellerId, uint indexed poNumber, IPoTypes.PoItem poItem);
     event PurchaseItemAcceptedLog(address indexed buyerAddress, bytes32 indexed sellerId, uint indexed poNumber, IPoTypes.PoItem poItem);
     event PurchaseItemRejectedLog(address indexed buyerAddress, bytes32 indexed sellerId, uint indexed poNumber, IPoTypes.PoItem poItem);
     event PurchaseItemReadyForGoodsIssueLog(address indexed buyerAddress, bytes32 indexed sellerId, uint indexed poNumber, IPoTypes.PoItem poItem);

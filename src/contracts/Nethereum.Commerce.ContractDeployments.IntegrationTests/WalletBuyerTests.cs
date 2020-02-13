@@ -32,7 +32,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             // Get test PO created during fixture creation
             var poExpected = _contracts.PoTest;
             var poActual = (await _contracts.WalletBuyerService.GetPoQueryAsync(poExpected.PoNumber)).Po;
-            CheckEveryPoFieldMatches(poExpected, poActual);
+            CheckEveryPoFieldMatches(poExpected.ToStoragePo(), poActual.ToStoragePo());
         }
 
         [Fact]
@@ -43,7 +43,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var quoteId = _contracts.PoTest.QuoteId;
             var poExpected = _contracts.PoTest;
             var poActual = (await _contracts.WalletBuyerService.GetPoBySellerAndQuoteQueryAsync(sellerId, quoteId)).Po;
-            CheckEveryPoFieldMatches(poExpected, poActual);
+            CheckEveryPoFieldMatches(poExpected.ToStoragePo(), poActual.ToStoragePo());
         }
 
         [Fact]
@@ -53,12 +53,12 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             uint poNumber = 0; //assigned by contract
             string approverAddress = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610";
             uint quoteId = GetRandomInt();
-            Buyer.Po poAsRequested = CreateTestPo(poNumber, approverAddress, quoteId).ToBuyerPo();
+            Buyer.Po poAsRequested = CreateDummyPo(poNumber, approverAddress, quoteId).ToBuyerPo();
 
             // Request creation of new PO
             var txReceipt = await _contracts.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
             txReceipt.Status.Value.Should().Be(1);
-            
+
             // Check PO create events
             var logPoCreateRequest = txReceipt.DecodeAllEvents<PurchaseOrderCreateRequestLogEventDTO>().FirstOrDefault();
             logPoCreateRequest.Should().NotBeNull();  // <= PO as requested
@@ -69,21 +69,45 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             // Retrieve the as-built PO 
             var poAsBuilt = (await _contracts.WalletBuyerService.GetPoQueryAsync(poNumberAsBuilt)).Po;
 
-            // Most, but not all fields should be the same (because contract adds some)
-            poAsBuilt.PoNumber.Should().Be(poNumberAsBuilt);
-            poAsBuilt.BuyerAddress.Should().Be(poAsRequested.BuyerAddress);
-            poAsBuilt.ReceiverAddress.Should().Be(poAsRequested.ReceiverAddress);
-            poAsBuilt.BuyerWalletAddress.Should().Be(poAsRequested.BuyerWalletAddress);
-            poAsBuilt.CurrencySymbol.Should().Be(poAsRequested.CurrencySymbol);
-            poAsBuilt.CurrencyAddress.Should().Be(poAsRequested.CurrencyAddress);
-            poAsBuilt.QuoteId.Should().Be(poAsRequested.QuoteId);
+            // Most fields should be the same between poAsRequested and poAsBuilt (contract adds some fields to the poAsBuilt, e.g. it assigns the poNumber)
+            var block = await _contracts.Web3.Eth.Blocks.GetBlockWithTransactionsByNumber.SendRequestAsync(txReceipt.BlockNumber);
+            var blockTimestamp = block.Timestamp.Value;
+            CheckCreatedPoFieldsMatch(
+                poAsRequested.ToStoragePo(), poAsBuilt.ToStoragePo(), 
+                poNumberAsBuilt, null, blockTimestamp);
 
+            // Info
+            DisplayPoHeader(_output, poAsBuilt.ToStoragePo());
         }
 
         [Fact]
         public async void ShouldCreateNewPoAndRetrieveItBySellerAndQuote()
         {
+            // Prepare a new PO
+            uint poNumber = 0; //assigned by contract
+            string approverAddress = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610";
+            uint quoteId = GetRandomInt();
+            Buyer.Po poAsRequested = CreateDummyPo(poNumber, approverAddress, quoteId).ToBuyerPo();
 
+            // Request creation of new PO
+            var txReceipt = await _contracts.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
+            txReceipt.Status.Value.Should().Be(1);
+
+            // Check PO create events
+            var logPoCreateRequest = txReceipt.DecodeAllEvents<PurchaseOrderCreateRequestLogEventDTO>().FirstOrDefault();
+            logPoCreateRequest.Should().NotBeNull();  // <= PO as requested
+            var logPoCreated = txReceipt.DecodeAllEvents<PurchaseOrderCreatedLogEventDTO>().FirstOrDefault();
+            logPoCreated.Should().NotBeNull();        // <= PO as built
+            var poNumberAsBuilt = logPoCreated.Event.Po.PoNumber;
+
+            // Retrieve the as-built PO 
+            var poAsBuilt = (await _contracts.WalletBuyerService.GetPoBySellerAndQuoteQueryAsync(poAsRequested.SellerId, poAsRequested.QuoteId)).Po;
+
+            // Most fields should be the same between poAsRequested and poAsBuilt (contract adds some fields to the poAsBuilt, e.g. it assigns the poNumber)
+            CheckCreatedPoFieldsMatch(poAsRequested.ToStoragePo(), poAsBuilt.ToStoragePo(), poNumberAsBuilt);
+
+            // Info
+            DisplayPoHeader(_output, poAsBuilt.ToStoragePo());
         }
     }
 }

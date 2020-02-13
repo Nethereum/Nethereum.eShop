@@ -3,6 +3,8 @@ using Nethereum.Commerce.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Numerics;
+using Xunit.Abstractions;
 using static Nethereum.Commerce.Contracts.ContractEnums;
 using Buyer = Nethereum.Commerce.Contracts.WalletBuyer.ContractDefinition;
 using Seller = Nethereum.Commerce.Contracts.WalletSeller.ContractDefinition;
@@ -18,6 +20,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         {
             _random = new Random();
         }
+
         public static string GetRandomString()
         {
             return ((uint)_random.Next(int.MinValue, int.MaxValue)).ToString(CultureInfo.InvariantCulture);
@@ -28,16 +31,110 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             return ((uint)_random.Next(int.MinValue, int.MaxValue));
         }
 
-        public static void CheckEveryPoFieldMatches(Buyer.Po poExpected, Buyer.Po poActual)
+        public static void DisplayPoHeader(ITestOutputHelper output, Storage.Po po)
         {
-            CheckEveryPoFieldMatches(poExpected.ToStoragePo(), poActual.ToStoragePo());
+            if (po == null)
+            {
+                output.WriteLine($"No PO to display.");
+            }
+            else
+            {
+                output.WriteLine($"PO number          : {po.PoNumber}");
+                output.WriteLine($"BuyerAddress       : {po.BuyerAddress}");
+                output.WriteLine($"ReceiverAddress    : {po.ReceiverAddress}");
+                output.WriteLine($"BuyerWalletAddress : {po.BuyerWalletAddress}");
+                output.WriteLine($"CurrencySymbol     : {po.CurrencySymbol}");
+                output.WriteLine($"CurrencyAddress    : {po.CurrencyAddress}");
+                output.WriteLine($"QuoteId            : {po.QuoteId}");
+                output.WriteLine($"QuoteExpiryDate    : {po.QuoteExpiryDate}");
+                output.WriteLine($"ApproverAddress    : {po.ApproverAddress}");
+                output.WriteLine($"PoType             : {po.PoType}");
+                output.WriteLine($"SellerId           : {po.SellerId}");
+                output.WriteLine($"PoCreateDate       : {po.PoCreateDate}");
+                output.WriteLine($"PoItemCount        : {po.PoItemCount}");
+            }
         }
 
-        public static void CheckEveryPoFieldMatches(Seller.Po poExpected, Seller.Po poActual)
+        public static void DisplayPoItem(ITestOutputHelper output, Storage.PoItem poItem)
         {
-            CheckEveryPoFieldMatches(poExpected.ToStoragePo(), poActual.ToStoragePo());
+            if (poItem == null)
+            {
+                output.WriteLine($"No PO item to display.");
+            }
+            else
+            {
+                output.WriteLine($"PO number                : {poItem.PoNumber}");
+                output.WriteLine($"PoItemNumber             : {poItem.PoItemNumber}");
+                output.WriteLine($"SoNumber                 : {poItem.SoNumber}");
+                output.WriteLine($"SoItemNumber             : {poItem.SoItemNumber}");
+                output.WriteLine($"ProductId                : {poItem.ProductId}");
+                output.WriteLine($"Quantity                 : {poItem.Quantity}");
+                output.WriteLine($"Unit                     : {poItem.Unit}");
+                output.WriteLine($"QuantitySymbol           : {poItem.QuantitySymbol}");
+                output.WriteLine($"QuantityAddress          : {poItem.QuantityAddress}");
+                output.WriteLine($"CurrencyValue            : {poItem.CurrencyValue}");
+                output.WriteLine($"Status                   : {poItem.Status}");
+                output.WriteLine($"GoodsIssuedDate          : {poItem.GoodsIssuedDate}");
+                output.WriteLine($"GoodsReceivedDate        : {poItem.GoodsReceivedDate}");
+                output.WriteLine($"PlannedEscrowReleaseDate : {poItem.PlannedEscrowReleaseDate}");
+                output.WriteLine($"ActualEscrowReleaseDate  : {poItem.ActualEscrowReleaseDate}");
+                output.WriteLine($"IsEscrowReleased         : {poItem.IsEscrowReleased}");
+                output.WriteLine($"CancelStatus             : {poItem.CancelStatus}");
+
+            }
         }
 
+        /// <summary>
+        /// Compare a requested PO with an as-built version of the same PO.
+        /// Optionally also check the approver address and creation date.
+        /// </summary>
+        public static void CheckCreatedPoFieldsMatch(Storage.Po poAsRequested, Storage.Po poAsBuilt,
+            BigInteger poNumberAsBuilt, string approverAddressAsBuilt = null, BigInteger? poCreateDateAsBuilt = null)
+        {
+            poAsBuilt.PoNumber.Should().Be(poNumberAsBuilt);
+            poAsBuilt.BuyerAddress.Should().Be(poAsRequested.BuyerAddress);
+            poAsBuilt.ReceiverAddress.Should().Be(poAsRequested.ReceiverAddress);
+            poAsBuilt.BuyerWalletAddress.Should().Be(poAsRequested.BuyerWalletAddress);
+            poAsBuilt.CurrencySymbol.Should().Be(poAsRequested.CurrencySymbol);
+            poAsBuilt.CurrencyAddress.Should().Be(poAsRequested.CurrencyAddress);
+            poAsBuilt.QuoteId.Should().Be(poAsRequested.QuoteId);
+            poAsBuilt.QuoteExpiryDate.Should().Be(poAsRequested.QuoteExpiryDate);
+            if (approverAddressAsBuilt is string approverAddressAsBuiltValue)
+            {
+                poAsBuilt.ApproverAddress.Should().Be(approverAddressAsBuiltValue);
+            }
+            poAsBuilt.PoType.Should().Be(poAsRequested.PoType);
+            poAsBuilt.SellerId.Should().Be(poAsRequested.SellerId);
+            if (poCreateDateAsBuilt is BigInteger poCreateDateAsBuiltValue)
+            {
+                poAsBuilt.PoCreateDate.Should().Be(poCreateDateAsBuiltValue);
+            }
+            poAsBuilt.PoItemCount.Should().Be((uint)poAsRequested.PoItems.Count);
+            for (int i = 0; i < poAsBuilt.PoItemCount; i++)
+            {
+                poAsBuilt.PoItems[i].PoNumber.Should().Be(poNumberAsBuilt);
+                poAsBuilt.PoItems[i].PoItemNumber.Should().Be((uint)(i + 1));
+                poAsBuilt.PoItems[i].SoNumber.Should().Be(poAsRequested.PoItems[i].SoNumber);
+                poAsBuilt.PoItems[i].SoItemNumber.Should().Be(poAsRequested.PoItems[i].SoItemNumber);
+                poAsBuilt.PoItems[i].ProductId.Should().Be(poAsRequested.PoItems[i].ProductId);
+                poAsBuilt.PoItems[i].Quantity.Should().Be(poAsRequested.PoItems[i].Quantity);
+                poAsBuilt.PoItems[i].Unit.Should().Be(poAsRequested.PoItems[i].Unit);
+                poAsBuilt.PoItems[i].QuantitySymbol.Should().Be(poAsRequested.PoItems[i].QuantitySymbol);
+                poAsBuilt.PoItems[i].QuantityAddress.Should().Be(poAsRequested.PoItems[i].QuantityAddress);
+                poAsBuilt.PoItems[i].CurrencyValue.Should().Be(poAsRequested.PoItems[i].CurrencyValue);
+                poAsBuilt.PoItems[i].Status.Should().Be(PoItemStatus.Created);
+                poAsBuilt.PoItems[i].GoodsIssuedDate.Should().Be(0);
+                poAsBuilt.PoItems[i].GoodsReceivedDate.Should().Be(0);
+                poAsBuilt.PoItems[i].PlannedEscrowReleaseDate.Should().Be(0);
+                poAsBuilt.PoItems[i].ActualEscrowReleaseDate.Should().Be(0);
+                poAsBuilt.PoItems[i].IsEscrowReleased.Should().Be(false);
+                poAsBuilt.PoItems[i].CancelStatus.Should().Be(PoItemCancelStatus.Initial);
+            }
+        }
+
+        /// <summary>
+        /// Compare every field of two POs
+        /// </summary>
         public static void CheckEveryPoFieldMatches(Storage.Po poExpected, Storage.Po poActual)
         {
             poActual.PoNumber.Should().Be(poExpected.PoNumber);
@@ -75,7 +172,10 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             }
         }
 
-        public static Storage.Po CreateTestPo(uint poNumber, string approverAddress, uint quoteId)
+        /// <summary>
+        /// A dummy PO that can be written direct to PO storage
+        /// </summary>
+        public static Storage.Po CreateDummyPo(uint poNumber, string approverAddress, uint quoteId)
         {
             return new Storage.Po()
             {

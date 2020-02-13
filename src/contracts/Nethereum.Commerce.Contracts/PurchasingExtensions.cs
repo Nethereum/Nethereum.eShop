@@ -55,6 +55,8 @@ namespace Nethereum.Commerce.Contracts
         // PoStorage <=> Purchasing
         public static Storage.Po ToStoragePo(this Purchase.Po po) { return _mapper.Map<Storage.Po>(po); }
         public static Purchase.Po ToPurchasingPo(this Storage.Po po) { return _mapper.Map<Purchase.Po>(po); }
+        public static Storage.PoItem ToStoragePoItem(this Purchase.PoItem poItem) { return _mapper.Map<Storage.PoItem>(poItem); }
+        public static Purchase.PoItem ToPurchasingPoItem(this Storage.PoItem poItem) { return _mapper.Map<Purchase.PoItem>(poItem); }
 
         // WalletBuyer <=> WalletSeller
         public static Buyer.Po ToBuyerPo(this Seller.Po po) { return _mapper.Map<Buyer.Po>(po); }

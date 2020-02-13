@@ -81,6 +81,7 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
         poStorage.incrementPoNumber();
         po.poNumber = poStorage.getCurrentPoNumber();
         po.approverAddress = seller.approverAddress;
+        po.poCreateDate = now;
         uint len = po.poItems.length;
         po.poItemCount = uint8(len);
         for (uint i = 0; i < po.poItemCount; i++)
@@ -125,16 +126,38 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
     
     // Only from Seller Wallet
     function setPoItemAccepted(uint poNumber, uint8 poItemNumber, bytes32 soNumber, bytes32 soItemNumber) override external
-    {}
+    {
+        // Validations
+        IPoTypes.Po memory po = poStorage.getPo(poNumber);
+        require(po.poNumber > 0, "PO does not exist");
+        // poItemNumber numbering starts at 1
+        require(poItemNumber <= po.poItemCount, "PO item does not exist (too large)");
+        require(poItemNumber >= 1, "PO item does not exist (min is 1)");
+        uint poItemIndex = poItemNumber - 1;
+        require(po.poItems[poItemIndex].status == IPoTypes.PoItemStatus.Created, "Existing PO item status incorrect");
+        
+        // Update sales order, item status
+        po.poItems[poItemIndex].soNumber = soNumber;
+        po.poItems[poItemIndex].soItemNumber = soItemNumber;
+        po.poItems[poItemIndex].status = IPoTypes.PoItemStatus.Accepted;
+    
+        // Write to storage
+        poStorage.setPo(po);
+        emit PurchaseItemAcceptedLog(po.buyerAddress, po.sellerId, po.poNumber, po.poItems[poItemIndex]);
+    }
     
     function setPoItemRejected(uint poNumber, uint8 poItemNumber) override external
     {}
     
     function setPoItemReadyForGoodsIssue(uint poNumber, uint8 poItemNumber) override external
-    {}
+    {
+        
+    }
     
     function setPoItemGoodsIssued(uint poNumber, uint8 poItemNumber) override external
-    {}
+    {
+        
+    }
     
     function setPoItemGoodsReceivedSeller(uint poNumber, uint8 poItemNumber) override external
     {}

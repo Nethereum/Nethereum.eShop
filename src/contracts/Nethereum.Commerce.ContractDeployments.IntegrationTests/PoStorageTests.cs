@@ -28,7 +28,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             uint poNumber = GetRandomInt();
             string approverAddress = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610";
             uint quoteId = GetRandomInt();
-            Po poExpected = CreateTestPo(poNumber, approverAddress, quoteId);
+            Po poExpected = CreateDummyPo(poNumber, approverAddress, quoteId);
 
             // Store PO
             var txReceipt = await _contracts.PoStorageService.SetPoRequestAndWaitForReceiptAsync(poExpected);
@@ -48,7 +48,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             uint poNumberExpected = GetRandomInt();
             string approverAddress = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610";
             uint quoteId = GetRandomInt();
-            Po poExpected = CreateTestPo(poNumberExpected, approverAddress, quoteId);
+            Po poExpected = CreateDummyPo(poNumberExpected, approverAddress, quoteId);
 
             // Store PO
             var txReceipt = await _contracts.PoStorageService.SetPoRequestAndWaitForReceiptAsync(poExpected);
