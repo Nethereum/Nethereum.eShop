@@ -50,10 +50,8 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         public async void ShouldCreateNewPoAndRetrieveIt()
         {
             // Prepare a new PO
-            uint poNumber = 0; //assigned by contract
-            string approverAddress = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610";
             uint quoteId = GetRandomInt();
-            Buyer.Po poAsRequested = CreateDummyPo(poNumber, approverAddress, quoteId).ToBuyerPo();
+            Buyer.Po poAsRequested = CreateDummyPoForPurchasingCreate(quoteId).ToBuyerPo();
 
             // Request creation of new PO
             var txReceipt = await _contracts.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
@@ -73,7 +71,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var block = await _contracts.Web3.Eth.Blocks.GetBlockWithTransactionsByNumber.SendRequestAsync(txReceipt.BlockNumber);
             var blockTimestamp = block.Timestamp.Value;
             CheckCreatedPoFieldsMatch(
-                poAsRequested.ToStoragePo(), poAsBuilt.ToStoragePo(), 
+                poAsRequested.ToStoragePo(), poAsBuilt.ToStoragePo(),
                 poNumberAsBuilt, null, blockTimestamp);
 
             // Info
@@ -84,11 +82,9 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         public async void ShouldCreateNewPoAndRetrieveItBySellerAndQuote()
         {
             // Prepare a new PO
-            uint poNumber = 0; //assigned by contract
-            string approverAddress = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610";
             uint quoteId = GetRandomInt();
-            Buyer.Po poAsRequested = CreateDummyPo(poNumber, approverAddress, quoteId).ToBuyerPo();
-
+            Buyer.Po poAsRequested = CreateDummyPoForPurchasingCreate(quoteId).ToBuyerPo();
+            
             // Request creation of new PO
             var txReceipt = await _contracts.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
             txReceipt.Status.Value.Should().Be(1);

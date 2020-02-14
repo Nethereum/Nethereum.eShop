@@ -17,6 +17,7 @@ using Nethereum.Commerce.Contracts.WalletSeller;
 using Nethereum.Commerce.Contracts.WalletSeller.ContractDefinition;
 using Nethereum.Web3.Accounts;
 using System;
+using System.Numerics;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -41,7 +42,14 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
         public FundingService FundingService { get; internal set; }
 
         // Shared test data
+        /// <summary>
+        /// Pre-created PO added by fixture, written direct to PO storage
+        /// </summary>
         public Buyer.Po PoTest { get; internal set; }
+
+        // To hold PO and Item to share across tests
+        public BigInteger PoNumber { get; internal set; }
+        public byte PoItemNumber { get; internal set; }
 
         // Configuration
         public readonly ContractDeploymentsConfig ContractDeploymentConfig;
@@ -333,7 +341,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
             uint poNumber = GetRandomInt();
             string approverAddress = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610";
             uint quoteId = GetRandomInt();
-            var po = CreateDummyPo(poNumber, approverAddress, quoteId);
+            var po = CreateDummyPoForPoStorage(poNumber, approverAddress, quoteId);
 
             // Store PO
             var txReceipt = await PoStorageService.SetPoRequestAndWaitForReceiptAsync(po);

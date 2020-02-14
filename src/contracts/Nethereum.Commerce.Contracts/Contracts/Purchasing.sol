@@ -129,14 +129,10 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
     {
         // Validations
         IPoTypes.Po memory po = poStorage.getPo(poNumber);
-        require(po.poNumber > 0, "PO does not exist");
-        // poItemNumber numbering starts at 1
-        require(poItemNumber <= po.poItemCount, "PO item does not exist (too large)");
-        require(poItemNumber >= 1, "PO item does not exist (min is 1)");
-        uint poItemIndex = poItemNumber - 1;
-        require(po.poItems[poItemIndex].status == IPoTypes.PoItemStatus.Created, "Existing PO item status incorrect");
+        validatePoItem(po, poItemNumber, IPoTypes.PoItemStatus.Created);
         
         // Update sales order, item status
+        uint poItemIndex = poItemNumber - 1;
         po.poItems[poItemIndex].soNumber = soNumber;
         po.poItems[poItemIndex].soItemNumber = soItemNumber;
         po.poItems[poItemIndex].status = IPoTypes.PoItemStatus.Accepted;
@@ -151,15 +147,51 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
     
     function setPoItemReadyForGoodsIssue(uint poNumber, uint8 poItemNumber) override external
     {
+        // Validations
+        IPoTypes.Po memory po = poStorage.getPo(poNumber);
+        validatePoItem(po, poItemNumber, IPoTypes.PoItemStatus.Accepted);
         
+        // Update item status
+        uint poItemIndex = poItemNumber - 1;
+        po.poItems[poItemIndex].status = IPoTypes.PoItemStatus.ReadyForGoodsIssue;
+    
+        // Write to storage
+        poStorage.setPo(po);
+        emit PurchaseItemReadyForGoodsIssueLog(po.buyerAddress, po.sellerId, po.poNumber, po.poItems[poItemIndex]);
     }
     
     function setPoItemGoodsIssued(uint poNumber, uint8 poItemNumber) override external
     {
+        // Validations
+        IPoTypes.Po memory po = poStorage.getPo(poNumber);
+        validatePoItem(po, poItemNumber, IPoTypes.PoItemStatus.ReadyForGoodsIssue);
         
+        // Update item status
+        uint poItemIndex = poItemNumber - 1;
+        po.poItems[poItemIndex].status = IPoTypes.PoItemStatus.GoodsIssued;
+    
+        // Write to storage
+        poStorage.setPo(po);
+        emit PurchaseItemGoodsIssuedLog(po.buyerAddress, po.sellerId, po.poNumber, po.poItems[poItemIndex]);
     }
     
     function setPoItemGoodsReceivedSeller(uint poNumber, uint8 poItemNumber) override external
     {}
+    
+    function validatePoItem(IPoTypes.Po memory po, uint8 poItemNumber, IPoTypes.PoItemStatus expectedPoStatus) private pure
+    {
+        // PO header
+        require(po.poNumber > 0, "PO does not exist");
+        
+        // PO Item
+        // poItemNumber numbering starts at 1
+        require(poItemNumber <= po.poItemCount, "PO item does not exist (too large)");
+        require(poItemNumber >= 1, "PO item does not exist (min is 1)");
+        uint poItemIndex = poItemNumber - 1;
+        
+        // Status
+        require(po.poItems[poItemIndex].status == expectedPoStatus, "Existing PO item status incorrect");
+    }
+    
     
 }

@@ -181,9 +181,75 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         }
 
         /// <summary>
-        /// A dummy PO that can be written direct to PO storage
+        /// A dummy PO intended for passing to contract WalletBuyer.sol or Purchasing.sol poCreate() functions.
         /// </summary>
-        public static Storage.Po CreateDummyPo(uint poNumber, string approverAddress, uint quoteId)
+        public static Storage.Po CreateDummyPoForPurchasingCreate(uint quoteId)
+        {
+            return new Storage.Po()
+            {
+                // PoNumber assigned by contract
+                BuyerAddress = "0x37ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
+                ReceiverAddress = "0x36ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
+                BuyerWalletAddress = "0x39ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
+                CurrencySymbol = "DAI",
+                CurrencyAddress = "0x41ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
+                QuoteId = quoteId,
+                QuoteExpiryDate = 1,
+                ApproverAddress = string.Empty,  // assigned by contract
+                PoType = PoType.Cash,
+                SellerId = "Nethereum.eShop",
+                // PoCreateDate assigned by contract
+                // PoItemCount assigned by contract
+                PoItems = new List<Storage.PoItem>()
+                {
+                    new Storage.PoItem()
+                    {
+                        // PoNumber assigned by contract
+                        // PoItemNumber assigned by contract
+                        SoNumber = string.Empty,
+                        SoItemNumber = string.Empty,
+                        ProductId = "gtin1111",
+                        Quantity = 1,
+                        Unit = "EA",
+                        QuantitySymbol = "NA",
+                        QuantityAddress = "0x40ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
+                        CurrencyValue = 11,
+                        // Status assigned by contract
+                        // GoodsIssuedDate assigned by contract
+                        // GoodsReceivedDate assigned by contract
+                        // PlannedEscrowReleaseDate assigned by contract
+                        // ActualEscrowReleaseDate assigned by contract
+                        // IsEscrowReleased assigned by contract
+                        // CancelStatus assigned by contract
+                    },
+                    new Storage.PoItem()
+                    {
+                        // PoNumber assigned by contract
+                        // PoItemNumber assigned by contract
+                        SoNumber = "so1",
+                        SoItemNumber = "200",
+                        ProductId = "gtin2222",
+                        Quantity = 2,
+                        Unit = "EA",
+                        QuantitySymbol = "NA",
+                        QuantityAddress = "0x42ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
+                        CurrencyValue = 22,
+                        // Status assigned by contract
+                        // GoodsIssuedDate assigned by contract
+                        // GoodsReceivedDate assigned by contract
+                        // PlannedEscrowReleaseDate assigned by contract
+                        // ActualEscrowReleaseDate assigned by contract
+                        // IsEscrowReleased assigned by contract
+                        // CancelStatus assigned by contract
+                    }
+                }
+            };
+        }
+
+        /// <summary>
+        /// A dummy PO intended for writing direct to PO storage contract PoStorage.sol.
+        /// </summary>
+        public static Storage.Po CreateDummyPoForPoStorage(uint poNumber, string approverAddress, uint quoteId)
         {
             return new Storage.Po()
             {
