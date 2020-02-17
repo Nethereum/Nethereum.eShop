@@ -19,9 +19,16 @@ namespace Nethereum.eShop.ApplicationCore.Entities.QuoteAggregate
         public string QuantityAddress { get; set; }
         public string CurrencyValue { get; set; }
 
-        public QuoteItem()
+        public QuoteItem(CatalogItemExcerpt itemOrdered, decimal unitPrice, int quantity)
         {
+            ItemOrdered = itemOrdered;
+            UnitPrice = unitPrice;
+            Quantity = quantity;
+        }
 
+        private QuoteItem()
+        {
+            // for ef
         }
     }
 }

@@ -1,47 +1,44 @@
-﻿using Nethereum.eShop.ApplicationCore.Interfaces;
-using Nethereum.eShop.ApplicationCore.Entities.OrderAggregate;
-using System.Threading.Tasks;
+﻿using Ardalis.GuardClauses;
+using Nethereum.Commerce.Contracts.PoStorage.ContractDefinition;
 using Nethereum.eShop.ApplicationCore.Entities;
+using Nethereum.eShop.ApplicationCore.Entities.OrderAggregate;
+using Nethereum.eShop.ApplicationCore.Entities.QuoteAggregate;
+using Nethereum.eShop.ApplicationCore.Interfaces;
 using System.Collections.Generic;
-using Ardalis.GuardClauses;
-using Nethereum.eShop.ApplicationCore.Entities.BasketAggregate;
+using System.Threading.Tasks;
 
 namespace Nethereum.eShop.ApplicationCore.Services
 {
     public class OrderService : IOrderService
     {
         private readonly IAsyncRepository<Order> _orderRepository;
-        private readonly IAsyncRepository<Basket> _basketRepository;
+        private readonly IAsyncRepository<Quote> _quoteRepository;
         private readonly IAsyncRepository<CatalogItem> _itemRepository;
 
-        public OrderService(IAsyncRepository<Basket> basketRepository,
+        public OrderService(IAsyncRepository<Quote> quoteRepository,
             IAsyncRepository<CatalogItem> itemRepository,
             IAsyncRepository<Order> orderRepository)
         {
             _orderRepository = orderRepository;
-            _basketRepository = basketRepository;
+            _quoteRepository = quoteRepository;
             _itemRepository = itemRepository;
         }
 
-        public async Task CreateOrderAsync(int basketId, PostalAddress billingAddress, PostalAddress shippingAddress)
+        public async Task CreateOrderAsync(Po purchaseOrder)
         {
-            // TODO: 
-            // Validate
-            // CheckStock
-            // store the contents of the basket which aren't going on chain somewhere
-            // Create purchase order
+            // TODO: write purchase order values to order
 
-            var basket = await _basketRepository.GetByIdAsync(basketId);
-            Guard.Against.NullBasket(basketId, basket);
+            int quoteId = (int)purchaseOrder.QuoteId;
+
+            var quote = await _quoteRepository.GetByIdAsync(quoteId);
+            Guard.Against.NullQuote(quoteId, quote);
             var items = new List<OrderItem>();
-            foreach (var item in basket.Items)
+            foreach (var item in quote.QuoteItems)
             {
-                var catalogItem = await _itemRepository.GetByIdAsync(item.CatalogItemId);
-                var itemOrdered = new CatalogItemExcerpt(catalogItem.Id, catalogItem.Gtin, catalogItem.GtinRegistryId, catalogItem.Name, catalogItem.PictureUri);
-                var orderItem = new OrderItem(itemOrdered, item.UnitPrice, item.Quantity);
+                var orderItem = new OrderItem(item.ItemOrdered, item.UnitPrice, item.Quantity);
                 items.Add(orderItem);
             }
-            var order = new Order(basket.BuyerAddress, billingAddress, shippingAddress, items);
+            var order = new Order(quote.BuyerAddress, quote.BillTo, quote.ShipTo, items);
 
             await _orderRepository.AddAsync(order);
         }

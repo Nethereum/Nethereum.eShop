@@ -2,13 +2,12 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Nethereum.eShop.ApplicationCore.Entities;
-using Nethereum.eShop.ApplicationCore.Entities.OrderAggregate;
 using Nethereum.eShop.ApplicationCore.Interfaces;
 using Nethereum.eShop.Infrastructure.Identity;
 using Nethereum.eShop.Web.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Nethereum.eShop.Web.Pages.Basket
@@ -17,25 +16,35 @@ namespace Nethereum.eShop.Web.Pages.Basket
     {
         private readonly IBasketService _basketService;
         private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly IOrderService _orderService;
+        private readonly IQuoteService _quoteService;
         private string _username = null;
         private readonly IBasketViewModelService _basketViewModelService;
 
         public CheckoutModel(IBasketService basketService,
             IBasketViewModelService basketViewModelService,
             SignInManager<ApplicationUser> signInManager,
-            IOrderService orderService)
+            IQuoteService quoteService)
         {
             _basketService = basketService;
             _signInManager = signInManager;
-            _orderService = orderService;
+            _quoteService = quoteService;
             _basketViewModelService = basketViewModelService;
         }
 
         public BasketViewModel BasketModel { get; set; } = new BasketViewModel();
 
-        public void OnGet()
+        public async Task<IActionResult> OnGet()
         {
+            if(await IsFromASignInRedirect())
+            {
+                await _basketService.TransferBasketAsync(Request.Cookies[Constants.BASKET_COOKIENAME], User.Identity.Name);
+                SetBasketCookieName(_username);
+                await SetBasketModelAsync();
+                await _quoteService.CreateQuoteAsync(BasketModel.Id);
+                await _basketService.DeleteBasketAsync(BasketModel.Id);
+            }
+
+            return Page();
         }
 
         public async Task<IActionResult> OnPost(Dictionary<string, int> items)
@@ -43,15 +52,28 @@ namespace Nethereum.eShop.Web.Pages.Basket
             await SetBasketModelAsync();
 
             await _basketService.SetQuantities(BasketModel.Id, items);
-
-            await _orderService.CreateOrderAsync(
-                BasketModel.Id,
-                new PostalAddress("Mr Book Buy", "123 Main St.", "Kent", "OH", "United States", "44240"),
-                new PostalAddress("Mrs Book Buy", "123 Main St.", "Kent", "OH", "United States", "44240"));
-
+            await _quoteService.CreateQuoteAsync(BasketModel.Id);
             await _basketService.DeleteBasketAsync(BasketModel.Id);
 
             return RedirectToPage();
+        }
+
+        private async Task<bool> IsFromASignInRedirect()
+        {
+            if (!Request.Cookies.ContainsKey(Constants.BASKET_COOKIENAME)) return false;
+
+            var userNameFromCookie = Request.Cookies[Constants.BASKET_COOKIENAME];
+
+            if (_signInManager.IsSignedIn(HttpContext.User) && (User.Identity.Name != userNameFromCookie))
+            {
+                var basketFromCookieName = await _basketViewModelService.GetOrCreateBasketForUser(userNameFromCookie);
+                if (basketFromCookieName.Items?.Count == 0) return false;
+
+                var signedInBasket = await _basketViewModelService.GetOrCreateBasketForUser(User.Identity.Name);
+                return signedInBasket.Items?.Count == 0;
+            }
+
+            return false;
         }
 
         private async Task SetBasketModelAsync()
@@ -76,9 +98,14 @@ namespace Nethereum.eShop.Web.Pages.Basket
             if (_username != null) return;
 
             _username = Guid.NewGuid().ToString();
+            SetBasketCookieName(_username);
+        }
+
+        private void SetBasketCookieName(string userName)
+        {
             var cookieOptions = new CookieOptions();
             cookieOptions.Expires = DateTime.Today.AddYears(10);
-            Response.Cookies.Append(Constants.BASKET_COOKIENAME, _username, cookieOptions);
+            Response.Cookies.Append(Constants.BASKET_COOKIENAME, userName, cookieOptions);
         }
     }
 }
