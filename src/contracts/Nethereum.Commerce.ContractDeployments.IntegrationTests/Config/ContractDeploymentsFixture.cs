@@ -1,4 +1,5 @@
-﻿using Nethereum.Commerce.Contracts.AddressRegistry;
+﻿using Nethereum.Commerce.Contracts;
+using Nethereum.Commerce.Contracts.AddressRegistry;
 using Nethereum.Commerce.Contracts.AddressRegistry.ContractDefinition;
 using Nethereum.Commerce.Contracts.BusinessPartnerStorage;
 using Nethereum.Commerce.Contracts.BusinessPartnerStorage.ContractDefinition;
@@ -16,15 +17,20 @@ using Nethereum.Commerce.Contracts.WalletSeller;
 using Nethereum.Commerce.Contracts.WalletSeller.ContractDefinition;
 using Nethereum.Web3.Accounts;
 using System;
+using System.Numerics;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
+using static Nethereum.Commerce.ContractDeployments.IntegrationTests.PoHelpers;
+using Buyer = Nethereum.Commerce.Contracts.WalletBuyer.ContractDefinition;
 
 namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
 {
     public class ContractDeploymentsFixture : IAsyncLifetime
     {
+        public Web3.Web3 Web3 { get; internal set; }
+
         // Deployed contract services
         public AddressRegistryService AddressRegService { get; internal set; }
         public EternalStorageService EternalStorageService { get; internal set; }
@@ -34,6 +40,16 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
         public WalletSellerService WalletSellerService { get; internal set; }
         public PurchasingService PurchasingService { get; internal set; }
         public FundingService FundingService { get; internal set; }
+
+        // Shared test data
+        /// <summary>
+        /// Pre-created PO added by fixture, written direct to PO storage
+        /// </summary>
+        public Buyer.Po PoTest { get; internal set; }
+
+        // To hold PO and Item to share across tests
+        public BigInteger PoNumber { get; internal set; }
+        public byte PoItemNumber { get; internal set; }
 
         // Configuration
         public readonly ContractDeploymentsConfig ContractDeploymentConfig;
@@ -63,13 +79,19 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
 
         public async Task InitializeAsync()
         {
+            await DeployAndConfigureEShop();
+            await CreateSharedTransactionData();
+        }
+
+        private async Task DeployAndConfigureEShop()
+        {
             try
             {
                 Log($"Deploying eShop: {ContractDeploymentConfig.EShopSellerId} {ContractDeploymentConfig.EShopDescription}...");
                 var url = ContractDeploymentConfig.BlockchainUrl;
                 var privateKey = ContractDeploymentConfig.ContractDeploymentOwnerPrivateKey;
                 var account = new Account(privateKey);
-                var web3 = new Web3.Web3(account, url);
+                Web3 = new Web3.Web3(account, url);
 
                 //-----------------------------------------------------------------------------------
                 // Contract deployments
@@ -80,7 +102,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
                 var contractName = CONTRACT_NAME_ADDRESS_REGISTRY;
                 Log($"Deploying {contractName}...");
                 var addressRegDeployment = new AddressRegistryDeployment();
-                AddressRegService = await AddressRegistryService.DeployContractAndGetServiceAsync(web3, addressRegDeployment);
+                AddressRegService = await AddressRegistryService.DeployContractAndGetServiceAsync(Web3, addressRegDeployment);
                 var addressRegOwner = await AddressRegService.OwnerQueryAsync();
                 Log($"{contractName} address is: {AddressRegService.ContractHandler.ContractAddress}");
                 Log($"{contractName} owner is  : {addressRegOwner}");
@@ -90,7 +112,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
                 contractName = CONTRACT_NAME_ETERNAL_STORAGE;
                 Log($"Deploying {contractName}...");
                 var eternalStorageDeployment = new EternalStorageDeployment();
-                EternalStorageService = await EternalStorageService.DeployContractAndGetServiceAsync(web3, eternalStorageDeployment);
+                EternalStorageService = await EternalStorageService.DeployContractAndGetServiceAsync(Web3, eternalStorageDeployment);
                 var eternalStorageOwner = await EternalStorageService.OwnerQueryAsync();
                 Log($"{contractName} address is: {EternalStorageService.ContractHandler.ContractAddress}");
                 Log($"{contractName} owner is  : {eternalStorageOwner}");
@@ -100,7 +122,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
                 contractName = CONTRACT_NAME_BUSINESS_PARTNER_STORAGE;
                 Log($"Deploying {contractName}...");
                 var bpStorageDeployment = new BusinessPartnerStorageDeployment() { ContractAddressOfRegistry = AddressRegService.ContractHandler.ContractAddress };
-                BusinessPartnerStorageService = await BusinessPartnerStorageService.DeployContractAndGetServiceAsync(web3, bpStorageDeployment);
+                BusinessPartnerStorageService = await BusinessPartnerStorageService.DeployContractAndGetServiceAsync(Web3, bpStorageDeployment);
                 var bpStorageOwner = await BusinessPartnerStorageService.OwnerQueryAsync();
                 Log($"{contractName} address is: {BusinessPartnerStorageService.ContractHandler.ContractAddress}");
                 Log($"{contractName} owner is  : {bpStorageOwner}");
@@ -110,7 +132,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
                 contractName = CONTRACT_NAME_PO_STORAGE;
                 Log($"Deploying {contractName}...");
                 var poStorageDeployment = new PoStorageDeployment() { ContractAddressOfRegistry = AddressRegService.ContractHandler.ContractAddress };
-                PoStorageService = await PoStorageService.DeployContractAndGetServiceAsync(web3, poStorageDeployment);
+                PoStorageService = await PoStorageService.DeployContractAndGetServiceAsync(Web3, poStorageDeployment);
                 var poStorageOwner = await PoStorageService.OwnerQueryAsync();
                 Log($"{contractName} address is: {PoStorageService.ContractHandler.ContractAddress}");
                 Log($"{contractName} owner is  : {poStorageOwner}");
@@ -120,7 +142,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
                 contractName = CONTRACT_NAME_WALLET_BUYER;
                 Log($"Deploying {contractName}...");
                 var walletBuyerDeployment = new WalletBuyerDeployment() { ContractAddressOfRegistry = AddressRegService.ContractHandler.ContractAddress };
-                WalletBuyerService = await WalletBuyerService.DeployContractAndGetServiceAsync(web3, walletBuyerDeployment);
+                WalletBuyerService = await WalletBuyerService.DeployContractAndGetServiceAsync(Web3, walletBuyerDeployment);
                 var walletBuyerOwner = await WalletBuyerService.OwnerQueryAsync();
                 Log($"{contractName} address is: {WalletBuyerService.ContractHandler.ContractAddress}");
                 Log($"{contractName} owner is  : {walletBuyerOwner}");
@@ -130,7 +152,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
                 contractName = CONTRACT_NAME_WALLET_SELLER;
                 Log($"Deploying {contractName}...");
                 var walletSellerDeployment = new WalletSellerDeployment() { ContractAddressOfRegistry = AddressRegService.ContractHandler.ContractAddress };
-                WalletSellerService = await WalletSellerService.DeployContractAndGetServiceAsync(web3, walletSellerDeployment);
+                WalletSellerService = await WalletSellerService.DeployContractAndGetServiceAsync(Web3, walletSellerDeployment);
                 var walletSellerOwner = await WalletSellerService.OwnerQueryAsync();
                 Log($"{contractName} address is: {WalletSellerService.ContractHandler.ContractAddress}");
                 Log($"{contractName} owner is  : {walletSellerOwner}");
@@ -140,7 +162,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
                 contractName = CONTRACT_NAME_PURCHASING;
                 Log($"Deploying {contractName}...");
                 var purchasingDeployment = new PurchasingDeployment() { ContractAddressOfRegistry = AddressRegService.ContractHandler.ContractAddress };
-                PurchasingService = await PurchasingService.DeployContractAndGetServiceAsync(web3, purchasingDeployment);
+                PurchasingService = await PurchasingService.DeployContractAndGetServiceAsync(Web3, purchasingDeployment);
                 var purchasingOwner = await PurchasingService.OwnerQueryAsync();
                 Log($"{contractName} address is: {PurchasingService.ContractHandler.ContractAddress}");
                 Log($"{contractName} owner is  : {purchasingOwner}");
@@ -150,7 +172,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
                 contractName = CONTRACT_NAME_FUNDING;
                 Log($"Deploying {contractName}...");
                 var fundingDeployment = new FundingDeployment() { ContractAddressOfRegistry = AddressRegService.ContractHandler.ContractAddress };
-                FundingService = await FundingService.DeployContractAndGetServiceAsync(web3, fundingDeployment);
+                FundingService = await FundingService.DeployContractAndGetServiceAsync(Web3, fundingDeployment);
                 var fundingOwner = await FundingService.OwnerQueryAsync();
                 Log($"{contractName} address is: {FundingService.ContractHandler.ContractAddress}");
                 Log($"{contractName} owner is  : {fundingOwner}");
@@ -180,6 +202,18 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
                 contractName = CONTRACT_NAME_PO_STORAGE;
                 Log($"Configuring Address Registry, adding {contractName}...");
                 txReceipt = await AddressRegService.RegisterAddressStringRequestAndWaitForReceiptAsync(contractName, PoStorageService.ContractHandler.ContractAddress);
+                Log($"Tx status: {txReceipt.Status.Value}");
+
+                // Add address entry for Purchasing
+                contractName = CONTRACT_NAME_PURCHASING;
+                Log($"Configuring Address Registry, adding {contractName}...");
+                txReceipt = await AddressRegService.RegisterAddressStringRequestAndWaitForReceiptAsync(contractName, PurchasingService.ContractHandler.ContractAddress);
+                Log($"Tx status: {txReceipt.Status.Value}");
+
+                // Add address entry for Funding
+                contractName = CONTRACT_NAME_FUNDING;
+                Log($"Configuring Address Registry, adding {contractName}...");
+                txReceipt = await AddressRegService.RegisterAddressStringRequestAndWaitForReceiptAsync(contractName, FundingService.ContractHandler.ContractAddress);
                 Log($"Tx status: {txReceipt.Status.Value}");
 
                 // Authorisations. Nothing needed.
@@ -243,7 +277,12 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
                 Log($"Tx status: {txReceipt.Status.Value}");
 
                 // Authorisations. Bind all contracts that will use PO storage
-                // TODO Cant configure this till next layer deployed
+                // Bind Purchasing to PO Storage
+                Log($"Authorisations for PO Storage...");
+                contractName = CONTRACT_NAME_PURCHASING;
+                Log($"Configuring PO Storage, binding {contractName}...");
+                txReceipt = await PoStorageService.BindAddressRequestAndWaitForReceiptAsync(PurchasingService.ContractHandler.ContractAddress);
+                Log($"Tx status: {txReceipt.Status.Value}");
 
                 //-----------------------------------------------------------------------------------
                 // Configure Wallet Seller
@@ -280,7 +319,6 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
                 txReceipt = await FundingService.ConfigureRequestAndWaitForReceiptAsync(
                     CONTRACT_NAME_PO_STORAGE, CONTRACT_NAME_BUSINESS_PARTNER_STORAGE);
                 Log($"Tx status: {txReceipt.Status.Value}");
-
             }
             catch (Exception ex)
             {
@@ -288,8 +326,29 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
             }
             finally
             {
-                Log($"Complete.");
+                Log($"Deploy and configure complete.");
             }
+        }
+
+        private async Task CreateSharedTransactionData()
+        {
+            Log();
+            Log("----------------------------------------------------------------");
+            Log();
+            Log($"Creating shared transaction data...");
+
+            // Create a PO directly in the po store that can be used as shared data for many tests
+            uint poNumber = GetRandomInt();
+            string approverAddress = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610";
+            uint quoteId = GetRandomInt();
+            var po = CreateDummyPoForPoStorage(poNumber, approverAddress, quoteId);
+
+            // Store PO
+            var txReceipt = await PoStorageService.SetPoRequestAndWaitForReceiptAsync(po);
+            Log($"Tx status: {txReceipt.Status.Value}");
+
+            PoTest = po.ToBuyerPo();
+
         }
 
         public Task DisposeAsync()

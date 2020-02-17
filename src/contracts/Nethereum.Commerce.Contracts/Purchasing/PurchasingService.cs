@@ -104,6 +104,17 @@ namespace Nethereum.Commerce.Contracts.Purchasing
              return ContractHandler.SendRequestAndWaitForReceiptAsync(bindAddressFunction, cancellationToken);
         }
 
+        public Task<string> BpStorageQueryAsync(BpStorageFunction bpStorageFunction, BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<BpStorageFunction, string>(bpStorageFunction, blockParameter);
+        }
+
+        
+        public Task<string> BpStorageQueryAsync(BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<BpStorageFunction, string>(null, blockParameter);
+        }
+
         public Task<string> Bytes32ToStringQueryAsync(Bytes32ToStringFunction bytes32ToStringFunction, BlockParameter blockParameter = null)
         {
             return ContractHandler.QueryAsync<Bytes32ToStringFunction, string>(bytes32ToStringFunction, blockParameter);
@@ -157,22 +168,22 @@ namespace Nethereum.Commerce.Contracts.Purchasing
              return ContractHandler.SendRequestAndWaitForReceiptAsync(configureFunction, cancellationToken);
         }
 
-        public Task<string> ConfigureRequestAsync(string nameOfPoStorage, string nameOfBusinessPartnerStorage, string nameOfFundingContract)
+        public Task<string> ConfigureRequestAsync(string nameOfPoStorage, string nameOfBusinessPartnerStorage, string nameOfFunding)
         {
             var configureFunction = new ConfigureFunction();
                 configureFunction.NameOfPoStorage = nameOfPoStorage;
                 configureFunction.NameOfBusinessPartnerStorage = nameOfBusinessPartnerStorage;
-                configureFunction.NameOfFundingContract = nameOfFundingContract;
+                configureFunction.NameOfFunding = nameOfFunding;
             
              return ContractHandler.SendRequestAsync(configureFunction);
         }
 
-        public Task<TransactionReceipt> ConfigureRequestAndWaitForReceiptAsync(string nameOfPoStorage, string nameOfBusinessPartnerStorage, string nameOfFundingContract, CancellationTokenSource cancellationToken = null)
+        public Task<TransactionReceipt> ConfigureRequestAndWaitForReceiptAsync(string nameOfPoStorage, string nameOfBusinessPartnerStorage, string nameOfFunding, CancellationTokenSource cancellationToken = null)
         {
             var configureFunction = new ConfigureFunction();
                 configureFunction.NameOfPoStorage = nameOfPoStorage;
                 configureFunction.NameOfBusinessPartnerStorage = nameOfBusinessPartnerStorage;
-                configureFunction.NameOfFundingContract = nameOfFundingContract;
+                configureFunction.NameOfFunding = nameOfFunding;
             
              return ContractHandler.SendRequestAndWaitForReceiptAsync(configureFunction, cancellationToken);
         }
@@ -203,6 +214,17 @@ namespace Nethereum.Commerce.Contracts.Purchasing
              return ContractHandler.SendRequestAndWaitForReceiptAsync(createPurchaseOrderFunction, cancellationToken);
         }
 
+        public Task<string> FundingQueryAsync(FundingFunction fundingFunction, BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<FundingFunction, string>(fundingFunction, blockParameter);
+        }
+
+        
+        public Task<string> FundingQueryAsync(BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<FundingFunction, string>(null, blockParameter);
+        }
+
         public Task<GetPoOutputDTO> GetPoQueryAsync(GetPoFunction getPoFunction, BlockParameter blockParameter = null)
         {
             return ContractHandler.QueryDeserializingToObjectAsync<GetPoFunction, GetPoOutputDTO>(getPoFunction, blockParameter);
@@ -216,19 +238,18 @@ namespace Nethereum.Commerce.Contracts.Purchasing
             return ContractHandler.QueryDeserializingToObjectAsync<GetPoFunction, GetPoOutputDTO>(getPoFunction, blockParameter);
         }
 
-        public Task<BigInteger> GetPoNumberBySellerAndQuoteQueryAsync(GetPoNumberBySellerAndQuoteFunction getPoNumberBySellerAndQuoteFunction, BlockParameter blockParameter = null)
+        public Task<GetPoBySellerAndQuoteOutputDTO> GetPoBySellerAndQuoteQueryAsync(GetPoBySellerAndQuoteFunction getPoBySellerAndQuoteFunction, BlockParameter blockParameter = null)
         {
-            return ContractHandler.QueryAsync<GetPoNumberBySellerAndQuoteFunction, BigInteger>(getPoNumberBySellerAndQuoteFunction, blockParameter);
+            return ContractHandler.QueryDeserializingToObjectAsync<GetPoBySellerAndQuoteFunction, GetPoBySellerAndQuoteOutputDTO>(getPoBySellerAndQuoteFunction, blockParameter);
         }
 
-        
-        public Task<BigInteger> GetPoNumberBySellerAndQuoteQueryAsync(byte[] sellerId, BigInteger quoteId, BlockParameter blockParameter = null)
+        public Task<GetPoBySellerAndQuoteOutputDTO> GetPoBySellerAndQuoteQueryAsync(string sellerIdString, BigInteger quoteId, BlockParameter blockParameter = null)
         {
-            var getPoNumberBySellerAndQuoteFunction = new GetPoNumberBySellerAndQuoteFunction();
-                getPoNumberBySellerAndQuoteFunction.SellerId = sellerId;
-                getPoNumberBySellerAndQuoteFunction.QuoteId = quoteId;
+            var getPoBySellerAndQuoteFunction = new GetPoBySellerAndQuoteFunction();
+                getPoBySellerAndQuoteFunction.SellerIdString = sellerIdString;
+                getPoBySellerAndQuoteFunction.QuoteId = quoteId;
             
-            return ContractHandler.QueryAsync<GetPoNumberBySellerAndQuoteFunction, BigInteger>(getPoNumberBySellerAndQuoteFunction, blockParameter);
+            return ContractHandler.QueryDeserializingToObjectAsync<GetPoBySellerAndQuoteFunction, GetPoBySellerAndQuoteOutputDTO>(getPoBySellerAndQuoteFunction, blockParameter);
         }
 
         public Task<bool> IsOwnerQueryAsync(IsOwnerFunction isOwnerFunction, BlockParameter blockParameter = null)
@@ -251,6 +272,17 @@ namespace Nethereum.Commerce.Contracts.Purchasing
         public Task<string> OwnerQueryAsync(BlockParameter blockParameter = null)
         {
             return ContractHandler.QueryAsync<OwnerFunction, string>(null, blockParameter);
+        }
+
+        public Task<string> PoStorageQueryAsync(PoStorageFunction poStorageFunction, BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<PoStorageFunction, string>(poStorageFunction, blockParameter);
+        }
+
+        
+        public Task<string> PoStorageQueryAsync(BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<PoStorageFunction, string>(null, blockParameter);
         }
 
         public Task<string> SetPoItemAcceptedRequestAsync(SetPoItemAcceptedFunction setPoItemAcceptedFunction)

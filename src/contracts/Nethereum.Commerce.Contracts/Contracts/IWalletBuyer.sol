@@ -10,7 +10,7 @@ interface IWalletBuyer
     
     // Purchasing
     function getPo(uint poNumber) external view returns (IPoTypes.Po memory po);
-    function getPoNumberBySellerAndQuote(string calldata sellerIdString, uint quoteId) external view returns (uint poNumber);
+    function getPoBySellerAndQuote(string calldata sellerIdString, uint quoteId) external view returns (IPoTypes.Po memory po);
     function createPurchaseOrder(IPoTypes.Po calldata po) external;
     function cancelPurchaseOrderItem(uint poNumber, uint8 poItemNumber) external;
     function setPoItemGoodsReceived(uint poNumber, uint8 poItemNumber) external;

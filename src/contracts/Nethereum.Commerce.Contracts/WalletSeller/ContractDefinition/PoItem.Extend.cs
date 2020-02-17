@@ -2,7 +2,7 @@ using Nethereum.ABI.FunctionEncoding.Attributes;
 using System.Numerics;
 using static Nethereum.Commerce.Contracts.ContractEnums;
 
-namespace Nethereum.Commerce.Contracts.PoStorage.ContractDefinition
+namespace Nethereum.Commerce.Contracts.WalletSeller.ContractDefinition
 {
     public partial class PoItem
     {

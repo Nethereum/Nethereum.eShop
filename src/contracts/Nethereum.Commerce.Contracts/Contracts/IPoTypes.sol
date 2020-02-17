@@ -45,8 +45,6 @@ interface IPoTypes
         bytes32 quantitySymbol;            // buyer UI managed, symbol of the ERC20 that represents this productId (assume token quantity same as quantity above)
         address quantityAddress;           // buyer UI managed, contract address of the ERC20 that represents this productId
         uint currencyValue;                // buyer UI managed, value in the units of the ERC20 that is making the payment eg DAI has token precision 18, so 1120000000000000000 DAI is 1.12 USD
-        bytes32 currencySymbol;            // buyer UI managed, symbol of the ERC20 that is making payment, eg DAI
-        address currencyAddress;           // buyer UI managed, contract address of the ERC20 that is making payment
         PoItemStatus status;               // contract managed for create, then seller system managed
         uint goodsIssuedDate;              // contract managed at point of goods issue, unix timestamp
         uint goodsReceivedDate;            // contract managed at point of goods received (or time out), unix timestamp
@@ -62,6 +60,8 @@ interface IPoTypes
         address buyerAddress;              // buyer UI managed, buyer EoA address handling currency and "owner" of the PO ("finance address")
         address receiverAddress;           // buyer UI managed, buyer EoA address will receive product ownership tokens at end ("logistics address")
         address buyerWalletAddress;        // buyer UI managed, buyer contract address, needed to locate contract whose functions are called by buyer UI
+        bytes32 currencySymbol;            // buyer UI managed, symbol of the ERC20 that is making payment, eg DAI
+        address currencyAddress;           // buyer UI managed, contract address of the ERC20 that is making payment
         uint quoteId;                      // buyer UI managed, a quote signed by seller system, sellerId+quoteId uniquely identifies a single poNumber
         uint quoteExpiryDate;              // buyer UI managed, a quote signed by seller system, sellerId+quoteId uniquely identifies a single poNumber
         address approverAddress;           // contract managed, signer of quote, looked up from seller master data during PO creation
