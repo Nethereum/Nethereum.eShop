@@ -1,4 +1,5 @@
 ﻿using Nethereum.eShop.ApplicationCore.Entities.RulesEngine;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Nethereum.eShop.ApplicationCore.Interfaces
@@ -9,6 +10,8 @@ namespace Nethereum.eShop.ApplicationCore.Interfaces
 
         Task<RuleTree> CreateRuleTreeAsync(RulesDomain domain, RuleTreeOrigin origin);
 
-        Task ExecuteAsync(RuleTree TargetRuleTree);
+        Task<RuleTreeReport> ExecuteAsync(RuleTree targetRuleTree);
+
+        Task<IReadOnlyList<RuleTree>> ListRuleTreeCacheAsync();
     }
 }

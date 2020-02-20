@@ -31,23 +31,19 @@ namespace Nethereum.Commerce.Contracts.Purchasing.ContractDefinition
         public virtual string QuantityAddress { get; set; }
         [Parameter("uint256", "currencyValue", 10)]
         public virtual BigInteger CurrencyValue { get; set; }
-        [Parameter("bytes32", "currencySymbol", 11)]
-        public virtual byte[] CurrencySymbol { get; set; }
-        [Parameter("address", "currencyAddress", 12)]
-        public virtual string CurrencyAddress { get; set; }
-        [Parameter("uint8", "status", 13)]
+        [Parameter("uint8", "status", 11)]
         public virtual byte Status { get; set; }
-        [Parameter("uint256", "goodsIssuedDate", 14)]
+        [Parameter("uint256", "goodsIssuedDate", 12)]
         public virtual BigInteger GoodsIssuedDate { get; set; }
-        [Parameter("uint256", "goodsReceivedDate", 15)]
+        [Parameter("uint256", "goodsReceivedDate", 13)]
         public virtual BigInteger GoodsReceivedDate { get; set; }
-        [Parameter("uint256", "plannedEscrowReleaseDate", 16)]
+        [Parameter("uint256", "plannedEscrowReleaseDate", 14)]
         public virtual BigInteger PlannedEscrowReleaseDate { get; set; }
-        [Parameter("uint256", "actualEscrowReleaseDate", 17)]
+        [Parameter("uint256", "actualEscrowReleaseDate", 15)]
         public virtual BigInteger ActualEscrowReleaseDate { get; set; }
-        [Parameter("bool", "isEscrowReleased", 18)]
+        [Parameter("bool", "isEscrowReleased", 16)]
         public virtual bool IsEscrowReleased { get; set; }
-        [Parameter("uint8", "cancelStatus", 19)]
+        [Parameter("uint8", "cancelStatus", 17)]
         public virtual byte CancelStatus { get; set; }
     }
 }

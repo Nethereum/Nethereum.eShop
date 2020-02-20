@@ -1,13 +1,18 @@
 using FluentAssertions;
 using Nethereum.Commerce.ContractDeployments.IntegrationTests.Config;
 using Nethereum.Commerce.Contracts.PoStorage.ContractDefinition;
-using System.Collections.Generic;
 using Xunit;
 using Xunit.Abstractions;
-using static Nethereum.Commerce.Contracts.ContractEnums;
+using static Nethereum.Commerce.ContractDeployments.IntegrationTests.PoHelpers;
 
 namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 {
+    /// <summary>
+    /// Tests for the PoStorage.sol contract in isolation. These tests
+    /// store and retrieve dummy POs direct to storage. In real use, this
+    /// contract is only called by the Purchasing.sol application layer
+    /// and PO fields will be filled differently.
+    /// </summary>
     [Collection("Contract Deployment Collection")]
     public class PoStorageTests
     {
@@ -26,10 +31,10 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         public async void ShouldStoreAndRetrievePo()
         {
             // Create a PO to store
-            uint poNumber = 314159;
+            uint poNumber = GetRandomInt();
             string approverAddress = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610";
-            uint quoteId = 2;
-            Po poExpected = CreateTestPo(poNumber, approverAddress, quoteId);
+            uint quoteId = GetRandomInt();
+            Po poExpected = CreateDummyPoForPoStorage(poNumber, approverAddress, quoteId);
 
             // Store PO
             var txReceipt = await _contracts.PoStorageService.SetPoRequestAndWaitForReceiptAsync(poExpected);
@@ -46,10 +51,10 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         public async void ShouldStoreAndRetrievePoBySellerAndQuote()
         {
             // Create a PO to store
-            uint poNumberExpected = 314159;
+            uint poNumberExpected = GetRandomInt();
             string approverAddress = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610";
-            uint quoteId = 2;
-            Po poExpected = CreateTestPo(poNumberExpected, approverAddress, quoteId);
+            uint quoteId = GetRandomInt();
+            Po poExpected = CreateDummyPoForPoStorage(poNumberExpected, approverAddress, quoteId);
 
             // Store PO
             var txReceipt = await _contracts.PoStorageService.SetPoRequestAndWaitForReceiptAsync(poExpected);
@@ -62,106 +67,45 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             poNumberActual.Should().Be(poNumberExpected);
         }
 
-        private static void CheckEveryPoFieldMatches(Po poExpected, Po poActual)
+        [Fact]
+        public async void ShouldStoreUpdateAndRetrievePo()
         {
-            poActual.PoNumber.Should().Be(poExpected.PoNumber);
-            poActual.BuyerAddress.Should().Be(poExpected.BuyerAddress);
-            poActual.ReceiverAddress.Should().Be(poExpected.ReceiverAddress);
-            poActual.BuyerWalletAddress.Should().Be(poExpected.BuyerWalletAddress);
-            poActual.QuoteId.Should().Be(poExpected.QuoteId);
-            poActual.QuoteExpiryDate.Should().Be(poExpected.QuoteExpiryDate);
-            poActual.ApproverAddress.Should().Be(poExpected.ApproverAddress);
-            poActual.PoType.Should().Be(poExpected.PoType);
-            poActual.SellerId.Should().Be(poExpected.SellerId);
-            poActual.PoCreateDate.Should().Be(poExpected.PoCreateDate);
-            poActual.PoItemCount.Should().Be(poExpected.PoItemCount);
-            for (int i = 0; i < poActual.PoItemCount; i++)
-            {
-                poActual.PoItems[i].PoNumber.Should().Be(poExpected.PoItems[i].PoNumber);
-                poActual.PoItems[i].PoItemNumber.Should().Be(poExpected.PoItems[i].PoItemNumber);
-                poActual.PoItems[i].SoNumber.Should().Be(poExpected.PoItems[i].SoNumber);
-                poActual.PoItems[i].SoItemNumber.Should().Be(poExpected.PoItems[i].SoItemNumber);
-                poActual.PoItems[i].ProductId.Should().Be(poExpected.PoItems[i].ProductId);
-                poActual.PoItems[i].Quantity.Should().Be(poExpected.PoItems[i].Quantity);
-                poActual.PoItems[i].Unit.Should().Be(poExpected.PoItems[i].Unit);
-                poActual.PoItems[i].QuantitySymbol.Should().Be(poExpected.PoItems[i].QuantitySymbol);
-                poActual.PoItems[i].QuantityAddress.Should().Be(poExpected.PoItems[i].QuantityAddress);
-                poActual.PoItems[i].CurrencyValue.Should().Be(poExpected.PoItems[i].CurrencyValue);
-                poActual.PoItems[i].CurrencySymbol.Should().Be(poExpected.PoItems[i].CurrencySymbol);
-                poActual.PoItems[i].CurrencyAddress.Should().Be(poExpected.PoItems[i].CurrencyAddress);
-                poActual.PoItems[i].Status.Should().Be(poExpected.PoItems[i].Status);
-                poActual.PoItems[i].GoodsIssuedDate.Should().Be(poExpected.PoItems[i].GoodsIssuedDate);
-                poActual.PoItems[i].GoodsReceivedDate.Should().Be(poExpected.PoItems[i].GoodsReceivedDate);
-                poActual.PoItems[i].PlannedEscrowReleaseDate.Should().Be(poExpected.PoItems[i].PlannedEscrowReleaseDate);
-                poActual.PoItems[i].ActualEscrowReleaseDate.Should().Be(poExpected.PoItems[i].ActualEscrowReleaseDate);
-                poActual.PoItems[i].IsEscrowReleased.Should().Be(poExpected.PoItems[i].IsEscrowReleased);
-                poActual.PoItems[i].CancelStatus.Should().Be(poExpected.PoItems[i].CancelStatus);
-            }
-        }
+            // Create a PO to store
+            uint poNumber = GetRandomInt();
+            string approverAddress = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610";
+            uint quoteId = 666; 
+            Po poExpected = CreateDummyPoForPoStorage(poNumber, approverAddress, quoteId);
 
-        private static Po CreateTestPo(uint poNumber, string approverAddress, uint quoteId)
-        {
-            return new Po()
+            // Store PO
+            var txReceipt = await _contracts.PoStorageService.SetPoRequestAndWaitForReceiptAsync(poExpected);
+            txReceipt.Status.Value.Should().Be(1);
+
+            // Retrieve PO v1 
+            var poActualv1 = (await _contracts.PoStorageService.GetPoQueryAsync(poNumber)).Po;
+            DisplaySeparator(_output, "PO v1");
+            DisplayPoHeader(_output, poActualv1);
+            for (int i = 0; i < poActualv1.PoItems.Count; i++)
             {
-                PoNumber = poNumber,
-                BuyerAddress = "0x37ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
-                ReceiverAddress = "0x36ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
-                BuyerWalletAddress = "0x39ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
-                QuoteId = quoteId,
-                QuoteExpiryDate = 1,
-                ApproverAddress = approverAddress,
-                PoType = PoType.Cash,
-                SellerId = "Nethereum.eShop",
-                PoCreateDate = 100,
-                PoItemCount = 2,
-                PoItems = new List<PoItem>()
-                {
-                    new PoItem()
-                    {
-                        PoNumber = poNumber,
-                        PoItemNumber = 10,
-                        SoNumber = "so1",
-                        SoItemNumber = "100",
-                        ProductId = "gtin1111",
-                        Quantity = 1,
-                        Unit = "EA",
-                        QuantitySymbol = "NA",
-                        QuantityAddress = "0x40ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
-                        CurrencyValue = 11,
-                        CurrencySymbol = "DAI",
-                        CurrencyAddress = "0x41ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
-                        Status = PoItemStatus.Created,
-                        GoodsIssuedDate = 100,
-                        GoodsReceivedDate = 0,
-                        PlannedEscrowReleaseDate = 100,
-                        ActualEscrowReleaseDate = 110,
-                        IsEscrowReleased = false,
-                        CancelStatus = PoItemCancelStatus.Initial
-                    },
-                    new PoItem()
-                    {
-                        PoNumber = poNumber,
-                        PoItemNumber = 20,
-                        SoNumber = "so1",
-                        SoItemNumber = "200",
-                        ProductId = "gtin2222",
-                        Quantity = 2,
-                        Unit = "EA",
-                        QuantitySymbol = "NA",
-                        QuantityAddress = "0x42ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
-                        CurrencyValue = 22,
-                        CurrencySymbol = "DAI",
-                        CurrencyAddress = "0x43ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
-                        Status = PoItemStatus.Created,
-                        GoodsIssuedDate = 200,
-                        GoodsReceivedDate = 0,
-                        PlannedEscrowReleaseDate = 200,
-                        ActualEscrowReleaseDate = 210,
-                        IsEscrowReleased = false,
-                        CancelStatus = PoItemCancelStatus.Initial
-                    }
-                }
-            };
+                DisplayPoItem(_output, poActualv1.PoItems[i]);
+            }
+            
+            // Update PO
+            poExpected.QuoteId = 314;
+            poExpected.PoItems[0].Status = Contracts.ContractEnums.PoItemStatus.Accepted;
+            txReceipt = await _contracts.PoStorageService.SetPoRequestAndWaitForReceiptAsync(poExpected);
+            txReceipt.Status.Value.Should().Be(1);
+            
+            // Retrieve PO v2 
+            var poActualv2 = (await _contracts.PoStorageService.GetPoQueryAsync(poNumber)).Po;
+            DisplaySeparator(_output, "PO v2");
+            DisplayPoHeader(_output, poActualv2);
+            for (int i = 0; i < poActualv2.PoItems.Count; i++)
+            {
+                DisplayPoItem(_output, poActualv2.PoItems[i]);
+            }
+
+            // They should be the same
+            CheckEveryPoFieldMatches(poExpected, poActualv2);
         }
     }
 }
