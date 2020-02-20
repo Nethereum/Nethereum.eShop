@@ -1,6 +1,11 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Nethereum.eShop.ApplicationCore.Interfaces;
+using Nethereum.eShop.ApplicationCore.Services;
+using Nethereum.eShop.Infrastructure.Data;
 using System;
 
 namespace Nethereum.eShop.WebJobs
@@ -15,14 +20,19 @@ namespace Nethereum.eShop.WebJobs
                 return;
             }
 
-            //var config = new JobHostConfiguration();
-            //config.UseTimers();
-            //var host = new JobHost(config);
-            //// The following code ensures that the WebJob will be running continuously
-            //host.RunAndBlock();
-
             IConfigurationRoot config = null;
             var hostBuilder = Host.CreateDefaultBuilder(args);
+
+            hostBuilder.ConfigureServices(c =>
+            {
+                c.AddDbContext<CatalogContext>((serviceProvider, options) =>
+                    options.UseSqlServer(config.GetConnectionString("CatalogConnection")));
+
+                c.AddScoped(typeof(IAsyncRepository<>), typeof(EfRepository<>));
+                c.AddScoped<IQuoteRepository, QuoteRepository>();
+                c.AddScoped<IOrderRepository, OrderRepository>();
+                c.AddScoped<IOrderService, OrderService>();
+            });
 
             hostBuilder.ConfigureWebJobs(b =>
             {
@@ -30,6 +40,7 @@ namespace Nethereum.eShop.WebJobs
                 b.AddAzureStorage();
                 b.AddTimers();
             });
+
             hostBuilder.ConfigureAppConfiguration((context, c) =>
             {
                 if (context.HostingEnvironment.IsDevelopment())
@@ -37,16 +48,19 @@ namespace Nethereum.eShop.WebJobs
 
                 config = c.Build();
             });
+
             hostBuilder.ConfigureLogging((context, b) =>
             {
                 b.AddConsole();
             });
 
-            var host = hostBuilder.Build();
-            using (host)
+            using (var host = hostBuilder.Build())
             {
-
-                host.Run();
+                using (var scope = host.Services.CreateScope())
+                {
+                    //var orderService = scope.ServiceProvider.GetRequiredService<IOrderService>();
+                    host.Run();
+                }
             }
         }
     }

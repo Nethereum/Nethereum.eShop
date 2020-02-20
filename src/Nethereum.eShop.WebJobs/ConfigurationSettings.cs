@@ -15,8 +15,6 @@ namespace Nethereum.eShop.WebJobs
         public string SellerId { get; set; }
 
         public string WalletAddress { get; set; }
-
-        public string DbConnectionString { get; set; }
     }
 
     public static class ConfigurationSettings
