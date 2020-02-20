@@ -24,6 +24,9 @@ namespace Nethereum.eShop.Infrastructure.Data
         public DbSet<StockItem> StockItems { get; set; }
 
         public DbSet<Quote> Quotes { get; set; }
+
+        // public DbSet<QuoteItem> QuoteItems { get; set; }
+
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<BasketItem> BasketItems { get; set; }

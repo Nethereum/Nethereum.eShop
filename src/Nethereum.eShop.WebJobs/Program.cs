@@ -6,6 +6,8 @@ using Microsoft.Extensions.Logging;
 using Nethereum.eShop.ApplicationCore.Interfaces;
 using Nethereum.eShop.ApplicationCore.Services;
 using Nethereum.eShop.Infrastructure.Data;
+using Nethereum.eShop.WebJobs.Configuration;
+using Nethereum.eShop.WebJobs.Jobs;
 using System;
 
 namespace Nethereum.eShop.WebJobs
@@ -14,13 +16,8 @@ namespace Nethereum.eShop.WebJobs
     {
         static void Main(string[] args)
         {
-            if (!ConfigurationSettings.VerifyConfiguration())
-            {
-                Console.ReadLine();
-                return;
-            }
-
             IConfigurationRoot config = null;
+            EshopConfiguration eShopConfig = null;
             var hostBuilder = Host.CreateDefaultBuilder(args);
 
             hostBuilder.ConfigureServices(c =>
@@ -28,10 +25,18 @@ namespace Nethereum.eShop.WebJobs
                 c.AddDbContext<CatalogContext>((serviceProvider, options) =>
                     options.UseSqlServer(config.GetConnectionString("CatalogConnection")));
 
+                // config
+                c.AddSingleton(eShopConfig);
+
+                // supporting services
                 c.AddScoped(typeof(IAsyncRepository<>), typeof(EfRepository<>));
                 c.AddScoped<IQuoteRepository, QuoteRepository>();
                 c.AddScoped<IOrderRepository, OrderRepository>();
                 c.AddScoped<IOrderService, OrderService>();
+
+                // jobs
+                c.AddScoped<IProcessEventLogs, ProcessEventLogs>();
+                c.AddScoped<ICreateFakePurchaseOrders, CreateFakePurchaseOrders>();
             });
 
             hostBuilder.ConfigureWebJobs(b =>
@@ -47,6 +52,7 @@ namespace Nethereum.eShop.WebJobs
                     c.AddUserSecrets(typeof(Program).Assembly);
 
                 config = c.Build();
+                eShopConfig = config.GetSection("EshopConfiguration").Get<EshopConfiguration>();
             });
 
             hostBuilder.ConfigureLogging((context, b) =>
@@ -58,7 +64,6 @@ namespace Nethereum.eShop.WebJobs
             {
                 using (var scope = host.Services.CreateScope())
                 {
-                    //var orderService = scope.ServiceProvider.GetRequiredService<IOrderService>();
                     host.Run();
                 }
             }

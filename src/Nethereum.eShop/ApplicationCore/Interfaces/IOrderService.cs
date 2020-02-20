@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using Nethereum.Commerce.Contracts.PoStorage.ContractDefinition;
+using Nethereum.Commerce.Contracts.Purchasing.ContractDefinition;
 
 namespace Nethereum.eShop.ApplicationCore.Interfaces
 {
