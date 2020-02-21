@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <Folder Include="Infrastructure\Data\Migrations\" />
+    <Folder Include="Infrastructure\Identity\Migrations\" />
   </ItemGroup>
 
   <ItemGroup>

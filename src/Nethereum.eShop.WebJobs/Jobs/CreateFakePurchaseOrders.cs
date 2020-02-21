@@ -2,21 +2,19 @@
 using Nethereum.Commerce.Contracts;
 using Nethereum.Commerce.Contracts.Purchasing.ContractDefinition;
 using Nethereum.Commerce.Contracts.WalletBuyer;
+using Nethereum.Contracts;
 using Nethereum.eShop.ApplicationCore.Entities.QuoteAggregate;
 using Nethereum.eShop.ApplicationCore.Interfaces;
 using Nethereum.eShop.ApplicationCore.Specifications;
 using Nethereum.eShop.WebJobs.Configuration;
 using Nethereum.Web3.Accounts;
-using Nethereum.Contracts.Extensions;
 using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
+using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
 using static Nethereum.Commerce.Contracts.ContractEnums;
 using Storage = Nethereum.Commerce.Contracts.PoStorage.ContractDefinition;
-using Nethereum.Contracts;
-using System.Linq;
 
 namespace Nethereum.eShop.WebJobs.Jobs
 {
@@ -31,10 +29,10 @@ namespace Nethereum.eShop.WebJobs.Jobs
             this._quoteRepository = quoteRepository;
         }
 
-        public class GetPendingQuotesSpec : BaseSpecification<Quote>
+        public class GetQuotesRequiringPurchaseOrderSpec : BaseSpecification<Quote>
         {
-            public GetPendingQuotesSpec()
-                : base(b => b.Status != QuoteStatus.Complete)
+            public GetQuotesRequiringPurchaseOrderSpec()
+                : base(quote => quote.Status == QuoteStatus.Pending && quote.PoNumber == null)
             {
                 AddInclude(b => b.QuoteItems);
             }
@@ -44,7 +42,11 @@ namespace Nethereum.eShop.WebJobs.Jobs
         {
             if (!_config.CreateFakePurchaseOrders) return;
 
-            var pendingQuotes = await _quoteRepository.ListAsync(new GetPendingQuotesSpec());
+            var pendingQuotes = await _quoteRepository.ListAsync(new GetQuotesRequiringPurchaseOrderSpec());
+
+            logger.LogInformation($"{pendingQuotes.Count} were found requiring a purchase order");
+
+            if (!pendingQuotes.Any()) return;
 
             var account = new Account(_config.AccountPrivateKey);
             var web3 = new Web3.Web3(account);
@@ -52,17 +54,37 @@ namespace Nethereum.eShop.WebJobs.Jobs
 
             foreach (var quote in pendingQuotes)
             {
-                var existing = await walletBuyerService.GetPoBySellerAndQuoteQueryAsync(_config.SellerId, quote.Id);
-                if (existing?.Po?.PoNumber > 0) continue;
+                await CreatePoFroQuote(logger, walletBuyerService, quote);
+            }
+        }
 
-                //var quoteId = (uint)DateTime.Now.Subtract(new DateTime(2020, 1, 1)).TotalSeconds;
-                var po = CreateDummyPoForPurchasingCreate(quote).ToBuyerPo();
-                var receipt = await walletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(po);
+        private async Task CreatePoFroQuote(ILogger logger, WalletBuyerService walletBuyerService, Quote quote)
+        {
+            var existing = await walletBuyerService.GetPoBySellerAndQuoteQueryAsync(_config.SellerId, quote.Id);
+            if (existing?.Po?.PoNumber > 0)
+            {
+                quote.PoNumber = (long)existing.Po.PoNumber;
+                quote.Status = QuoteStatus.AwaitingOrder;
+                await _quoteRepository.UpdateAsync(quote);
+                return;
+            }
 
+            var po = CreateDummyPoForPurchasingCreate(quote).ToBuyerPo();
+            var receipt = await walletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(po);
 
-                var createdEvent = receipt.DecodeAllEvents<PurchaseOrderCreatedLogEventDTO>().FirstOrDefault();
+            var createdEvent = receipt.DecodeAllEvents<PurchaseOrderCreatedLogEventDTO>().FirstOrDefault();
 
+            if (createdEvent != null)
+            {
                 logger.LogInformation($"Created PO from quote.  Block Number: {receipt.BlockNumber}, PO: {createdEvent?.Event.PoNumber}");
+                quote.PoNumber = (long)createdEvent.Event.PoNumber;
+                quote.Status = QuoteStatus.AwaitingOrder;
+                quote.TransactionHash = receipt.TransactionHash;
+                await _quoteRepository.UpdateAsync(quote);
+            }
+            else
+            {
+                logger.LogError($"PO Creation failed for quote {quote.Id}.  No created event log was found in the receipt");
             }
         }
 

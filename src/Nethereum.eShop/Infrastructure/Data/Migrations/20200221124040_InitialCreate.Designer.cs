@@ -10,7 +10,7 @@ using Nethereum.eShop.Infrastructure.Data;
 namespace Nethereum.eShop.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(CatalogContext))]
-    [Migration("20200213165637_InitialCreate")]
+    [Migration("20200221124040_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -37,10 +37,19 @@ namespace Nethereum.eShop.Infrastructure.Data.Migrations
                         .HasColumnType("nvarchar(43)")
                         .HasMaxLength(43);
 
+                    b.Property<string>("BuyerId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(256)")
+                        .HasMaxLength(256);
+
                     b.Property<string>("TransactionHash")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BuyerAddress");
+
+                    b.HasIndex("BuyerId");
 
                     b.ToTable("Baskets");
                 });
@@ -78,14 +87,23 @@ namespace Nethereum.eShop.Infrastructure.Data.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<string>("BuyerAddress")
+                        .HasColumnType("nvarchar(43)")
+                        .HasMaxLength(43);
+
                     b.Property<string>("BuyerId")
-                        .HasColumnType("nvarchar(450)");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(256)")
+                        .HasMaxLength(256);
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BuyerId")
+                    b.HasIndex("BuyerAddress")
                         .IsUnique()
-                        .HasFilter("[BuyerId] IS NOT NULL");
+                        .HasFilter("[BuyerAddress] IS NOT NULL");
+
+                    b.HasIndex("BuyerId")
+                        .IsUnique();
 
                     b.ToTable("Buyers");
                 });
@@ -240,6 +258,11 @@ namespace Nethereum.eShop.Infrastructure.Data.Migrations
                         .HasColumnType("nvarchar(43)")
                         .HasMaxLength(43);
 
+                    b.Property<string>("BuyerId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(256)")
+                        .HasMaxLength(256);
+
                     b.Property<string>("BuyerWalletAddress")
                         .HasColumnType("nvarchar(43)")
                         .HasMaxLength(43);
@@ -278,6 +301,8 @@ namespace Nethereum.eShop.Infrastructure.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("BuyerAddress");
+
+                    b.HasIndex("BuyerId");
 
                     b.ToTable("Orders");
                 });
@@ -354,7 +379,9 @@ namespace Nethereum.eShop.Infrastructure.Data.Migrations
                         .HasMaxLength(43);
 
                     b.Property<string>("BuyerId")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(256)")
+                        .HasMaxLength(256);
 
                     b.Property<string>("BuyerWalletAddress")
                         .HasColumnType("nvarchar(43)")
@@ -391,6 +418,8 @@ namespace Nethereum.eShop.Infrastructure.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("BuyerAddress");
+
+                    b.HasIndex("BuyerId");
 
                     b.ToTable("Quotes");
                 });
@@ -433,7 +462,7 @@ namespace Nethereum.eShop.Infrastructure.Data.Migrations
 
                     b.HasIndex("QuoteId");
 
-                    b.ToTable("QuoteItem");
+                    b.ToTable("QuoteItems");
                 });
 
             modelBuilder.Entity("Nethereum.eShop.ApplicationCore.Entities.StockItem", b =>
@@ -881,7 +910,7 @@ namespace Nethereum.eShop.Infrastructure.Data.Migrations
 
                             b1.HasKey("QuoteItemId");
 
-                            b1.ToTable("QuoteItem");
+                            b1.ToTable("QuoteItems");
 
                             b1.WithOwner()
                                 .HasForeignKey("QuoteItemId");

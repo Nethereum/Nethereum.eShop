@@ -29,6 +29,7 @@ namespace Nethereum.eShop.Infrastructure.Data.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    BuyerId = table.Column<string>(maxLength: 256, nullable: false),
                     BuyerAddress = table.Column<string>(maxLength: 43, nullable: false),
                     BillTo_RecipientName = table.Column<string>(maxLength: 255, nullable: true),
                     BillTo_Street = table.Column<string>(maxLength: 180, nullable: true),
@@ -55,7 +56,8 @@ namespace Nethereum.eShop.Infrastructure.Data.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    BuyerId = table.Column<string>(nullable: true)
+                    BuyerId = table.Column<string>(maxLength: 256, nullable: false),
+                    BuyerAddress = table.Column<string>(maxLength: 43, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -95,6 +97,7 @@ namespace Nethereum.eShop.Infrastructure.Data.Migrations
                     QuoteId = table.Column<int>(nullable: true),
                     Status = table.Column<int>(nullable: false),
                     TransactionHash = table.Column<string>(maxLength: 67, nullable: true),
+                    BuyerId = table.Column<string>(maxLength: 256, nullable: false),
                     BuyerAddress = table.Column<string>(maxLength: 43, nullable: true),
                     CurrencyAddress = table.Column<string>(nullable: true),
                     CurrencySymbol = table.Column<string>(nullable: true),
@@ -141,7 +144,7 @@ namespace Nethereum.eShop.Infrastructure.Data.Migrations
                     PoType = table.Column<int>(nullable: false),
                     BuyerWalletAddress = table.Column<string>(maxLength: 43, nullable: true),
                     SellerId = table.Column<string>(nullable: true),
-                    BuyerId = table.Column<string>(nullable: true),
+                    BuyerId = table.Column<string>(maxLength: 256, nullable: false),
                     BillTo_RecipientName = table.Column<string>(maxLength: 255, nullable: true),
                     BillTo_Street = table.Column<string>(maxLength: 180, nullable: true),
                     BillTo_City = table.Column<string>(maxLength: 100, nullable: true),
@@ -288,7 +291,7 @@ namespace Nethereum.eShop.Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "QuoteItem",
+                name: "QuoteItems",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
@@ -310,9 +313,9 @@ namespace Nethereum.eShop.Infrastructure.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_QuoteItem", x => x.Id);
+                    table.PrimaryKey("PK_QuoteItems", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_QuoteItem_Quotes_QuoteId",
+                        name: "FK_QuoteItems_Quotes_QuoteId",
                         column: x => x.QuoteId,
                         principalTable: "Quotes",
                         principalColumn: "Id",
@@ -345,16 +348,32 @@ namespace Nethereum.eShop.Infrastructure.Data.Migrations
                 column: "BasketId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Baskets_BuyerAddress",
+                table: "Baskets",
+                column: "BuyerAddress");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Baskets_BuyerId",
+                table: "Baskets",
+                column: "BuyerId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_BuyerPostalAddress_BuyerId",
                 table: "BuyerPostalAddress",
                 column: "BuyerId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Buyers_BuyerAddress",
+                table: "Buyers",
+                column: "BuyerAddress",
+                unique: true,
+                filter: "[BuyerAddress] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Buyers_BuyerId",
                 table: "Buyers",
                 column: "BuyerId",
-                unique: true,
-                filter: "[BuyerId] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Catalog_CatalogBrandId",
@@ -377,14 +396,24 @@ namespace Nethereum.eShop.Infrastructure.Data.Migrations
                 column: "BuyerAddress");
 
             migrationBuilder.CreateIndex(
-                name: "IX_QuoteItem_QuoteId",
-                table: "QuoteItem",
+                name: "IX_Orders_BuyerId",
+                table: "Orders",
+                column: "BuyerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_QuoteItems_QuoteId",
+                table: "QuoteItems",
                 column: "QuoteId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Quotes_BuyerAddress",
                 table: "Quotes",
                 column: "BuyerAddress");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Quotes_BuyerId",
+                table: "Quotes",
+                column: "BuyerId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Stock_CatalogItemId",
@@ -404,7 +433,7 @@ namespace Nethereum.eShop.Infrastructure.Data.Migrations
                 name: "OrderItems");
 
             migrationBuilder.DropTable(
-                name: "QuoteItem");
+                name: "QuoteItems");
 
             migrationBuilder.DropTable(
                 name: "Stock");

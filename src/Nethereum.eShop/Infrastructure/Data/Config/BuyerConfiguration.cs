@@ -11,7 +11,11 @@ namespace Nethereum.eShop.Infrastructure.Data.Config
             var navigation = builder.Metadata.FindNavigation(nameof(Buyer.PostalAddresses));
             navigation.SetPropertyAccessMode(PropertyAccessMode.Field);
 
+            builder.Property(b => b.BuyerId).HasMaxLength(256).IsRequired();
+            builder.Property(b => b.BuyerAddress).IsAddress();
+
             builder.HasIndex(b => b.BuyerId).IsUnique();
+            builder.HasIndex(b => b.BuyerAddress).IsUnique();
         }
     }
 }

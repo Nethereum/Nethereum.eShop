@@ -10,7 +10,7 @@ namespace Nethereum.eShop.ApplicationCore.Specifications
             AddInclude(b => b.Items);
         }
         public BasketWithItemsSpecification(string buyerId)
-            :base(b => b.BuyerAddress == buyerId)
+            :base(b => b.BuyerId == buyerId)
         {
             AddInclude(b => b.Items);
         }

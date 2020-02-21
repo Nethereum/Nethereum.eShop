@@ -41,19 +41,20 @@ namespace Nethereum.eShop.Web.Services
         {
             var viewModel = new BasketViewModel();
             viewModel.Id = basket.Id;
-            viewModel.BuyerId = basket.BuyerAddress;
+            viewModel.BuyerId = basket.BuyerId;
             viewModel.Items = await GetBasketItems(basket.Items); ;
             return viewModel;
         }
 
         private async Task<BasketViewModel> CreateBasketForUser(string userId)
         {
-            var basket = new Basket() { BuyerAddress = userId };
+            // TODO: populate from buyer entity
+            var basket = new Basket() { BuyerId = userId, BuyerAddress = string.Empty };
             await _basketRepository.AddAsync(basket);
 
             return new BasketViewModel()
             {
-                BuyerId = basket.BuyerAddress,
+                BuyerId = basket.BuyerId,
                 Id = basket.Id,
                 Items = new List<BasketItemViewModel>()
             };

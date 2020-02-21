@@ -46,12 +46,17 @@ namespace Nethereum.eShop.ApplicationCore.Services
                 var orderItem = new OrderItem(item.ItemOrdered, item.UnitPrice, item.Quantity);
                 items.Add(orderItem);
             }
-            var order = new Order(quote.BuyerAddress, quote.BillTo, quote.ShipTo, items);
+            var order = new Order(quote.BuyerId, purchaseOrder.BuyerAddress, quote.BillTo, quote.ShipTo, items);
             order.QuoteId = quote.Id;
             order.PoDate = DateTimeOffset.FromUnixTimeSeconds((long)purchaseOrder.PoCreateDate);
             order.PoType = (int)purchaseOrder.PoType;
             order.ApproverAddress = purchaseOrder.ApproverAddress;
+
+            // TODO: define if we should have BuyerId and BuyerAddress
+            // the po will have the address, the quote will have the buyer
+            order.BuyerId = quote.BuyerId;
             order.BuyerAddress = purchaseOrder.BuyerAddress;
+
             order.BuyerWalletAddress = purchaseOrder.BuyerWalletAddress;
             order.CurrencyAddress = purchaseOrder.CurrencyAddress;
             order.CurrencySymbol = purchaseOrder.CurrencySymbol;

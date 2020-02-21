@@ -10,7 +10,7 @@ using Nethereum.eShop.Infrastructure.Identity;
 namespace Nethereum.eShop.Infrastructure.Identity.Migrations
 {
     [DbContext(typeof(AppIdentityDbContext))]
-    [Migration("20200213170218_InitialCreate")]
+    [Migration("20200221124042_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

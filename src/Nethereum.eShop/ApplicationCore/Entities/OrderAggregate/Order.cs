@@ -16,6 +16,8 @@ namespace Nethereum.eShop.ApplicationCore.Entities.OrderAggregate
         /// </summary>
         public string TransactionHash { get; set; }
 
+        public string BuyerId { get; set; }
+
         /// <summary>
         /// The Buyer Address
         /// </summary>
@@ -77,14 +79,16 @@ namespace Nethereum.eShop.ApplicationCore.Entities.OrderAggregate
             // required by EF
         }
 
-        public Order(string buyerAddress, PostalAddress billTo, PostalAddress shipTo, List<OrderItem> items)
+        public Order(string buyerId, string buyerAddress, PostalAddress billTo, PostalAddress shipTo, List<OrderItem> items)
         {
+            Guard.Against.NullOrEmpty(buyerId, nameof(buyerId));
             Guard.Against.NullOrEmpty(buyerAddress, nameof(buyerAddress));
             // TODO: Reinforce null address guards
             // Guard.Against.Null(billTo, nameof(billTo));
             // Guard.Against.Null(shipTo, nameof(shipTo));
             Guard.Against.Null(items, nameof(items));
 
+            BuyerId = buyerId;
             BuyerAddress = buyerAddress;
             ShipTo = shipTo;
             _orderItems = items;

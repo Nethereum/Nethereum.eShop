@@ -34,7 +34,7 @@ namespace Nethereum.eShop.WebJobs
         // where a new instance of the app will probably be instantiated on each interval
         static bool _processing = false;
 
-        [Singleton]
+        // [Singleton]
         public async Task ProcessBlockchainEvents([TimerTrigger("00:00:05")] TimerInfo timer, ILogger logger)
         {
             if (_processing == false)
