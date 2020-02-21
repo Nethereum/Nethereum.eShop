@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Nethereum.eShop.WebJobs.Jobs
 {
-    public interface IProcessEventLogs
+    public interface IProcessPuchaseOrderEventLogs
     {
         Task ExecuteAsync(ILogger logger);
     }

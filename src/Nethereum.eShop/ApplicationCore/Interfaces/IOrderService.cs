@@ -5,6 +5,6 @@ namespace Nethereum.eShop.ApplicationCore.Interfaces
 {
     public interface IOrderService
     {
-        Task CreateOrderAsync(Po purchaseOrder);
+        Task CreateOrderAsync(string transactionHash, Po purchaseOrder);
     }
 }

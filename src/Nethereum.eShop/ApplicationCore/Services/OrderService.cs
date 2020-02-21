@@ -27,7 +27,7 @@ namespace Nethereum.eShop.ApplicationCore.Services
             _itemRepository = itemRepository;
         }
 
-        public async Task CreateOrderAsync(Po purchaseOrder)
+        public async Task CreateOrderAsync(string transactionHash, Po purchaseOrder)
         {
             // TODO: write purchase order values to order
             // TODO: Ensure po values are consistent with quote
@@ -57,6 +57,7 @@ namespace Nethereum.eShop.ApplicationCore.Services
             order.CurrencySymbol = purchaseOrder.CurrencySymbol;
             order.PoNumber = (long)purchaseOrder.PoNumber;
             order.Status = OrderStatus.Pending;
+            order.TransactionHash = transactionHash;
 
             foreach(var poItem in purchaseOrder.PoItems)
             {
@@ -73,6 +74,7 @@ namespace Nethereum.eShop.ApplicationCore.Services
             }
 
             await _orderRepository.AddAsync(order);
+            quote.TransactionHash = transactionHash;
             quote.PoNumber = (long)purchaseOrder.PoNumber;
             quote.Status = QuoteStatus.Complete;
             await _quoteRepository.UpdateAsync(quote);

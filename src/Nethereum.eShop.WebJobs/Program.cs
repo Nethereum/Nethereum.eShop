@@ -35,7 +35,7 @@ namespace Nethereum.eShop.WebJobs
                 c.AddScoped<IOrderService, OrderService>();
 
                 // jobs
-                c.AddScoped<IProcessEventLogs, ProcessEventLogs>();
+                c.AddScoped<IProcessPuchaseOrderEventLogs, ProcessPurchaseOrderEventLogs>();
                 c.AddScoped<ICreateFakePurchaseOrders, CreateFakePurchaseOrders>();
             });
 

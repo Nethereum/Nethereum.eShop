@@ -62,11 +62,11 @@ namespace Nethereum.eShop.WebJobs.Jobs
 
                 var createdEvent = receipt.DecodeAllEvents<PurchaseOrderCreatedLogEventDTO>().FirstOrDefault();
 
-                logger.LogInformation($"Created PO from quote.  Block Number: {receipt.BlockNumber}, PO: {createdEvent.Event.PoNumber}");
+                logger.LogInformation($"Created PO from quote.  Block Number: {receipt.BlockNumber}, PO: {createdEvent?.Event.PoNumber}");
             }
         }
 
-        public static Storage.Po CreateDummyPoForPurchasingCreate(Quote quote)
+        public Storage.Po CreateDummyPoForPurchasingCreate(Quote quote)
         {
             var po = new Storage.Po()
             {
@@ -80,7 +80,7 @@ namespace Nethereum.eShop.WebJobs.Jobs
                 QuoteExpiryDate = DateTimeOffset.UtcNow.AddMonths(1).ToUnixTimeSeconds(),
                 ApproverAddress = string.Empty,  // assigned by contract
                 PoType = PoType.Cash,
-                SellerId = "Nethereum.eShop",
+                SellerId = _config.SellerId,
                 // PoCreateDate assigned by contract
                 // PoItemCount assigned by contract
                 PoItems = new List<Storage.PoItem>()

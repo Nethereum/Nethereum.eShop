@@ -10,12 +10,12 @@ using System.Threading.Tasks;
 
 namespace Nethereum.eShop.WebJobs.Jobs
 {
-    public class ProcessEventLogs : IProcessEventLogs
+    public class ProcessPurchaseOrderEventLogs : IProcessPuchaseOrderEventLogs
     {
         private readonly EshopConfiguration eshopConfiguration;
         private readonly PurchaseOrderEventLogProcessingConfiguration config;
 
-        public ProcessEventLogs(EshopConfiguration eshopConfiguration, IOrderService orderService)
+        public ProcessPurchaseOrderEventLogs(EshopConfiguration eshopConfiguration, IOrderService orderService)
         {
             this.eshopConfiguration = eshopConfiguration;
             OrderService = orderService;
@@ -35,13 +35,17 @@ namespace Nethereum.eShop.WebJobs.Jobs
 
             BlockProgressRepository = BlockProgressRepository ?? CreateBlockProgressRepository();
 
+            // TODO: Configure processing properly
+            // SQL backend for progress
+            // Open up to handle many events
+
             var logProcessor = web3.Processing.Logs.CreateProcessorForContract<PurchaseOrderCreatedLogEventDTO>(
                 config.PurchasingContractAddress, async log =>
                 {
                     logger.LogInformation(
                         $"PurchaseOrderCreated: Block: {log.Log.BlockNumber}, PO Number: {log.Event.PoNumber}, QuoteId: {log.Event.Po.QuoteId}");
 
-                    await OrderService.CreateOrderAsync(log.Event.Po);
+                    await OrderService.CreateOrderAsync(log.Log.TransactionHash, log.Event.Po);
                 },
                 minimumBlockConfirmations: config.MinimumBlockConfirmations,
                 blockProgressRepository: BlockProgressRepository);

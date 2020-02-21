@@ -7,10 +7,10 @@ namespace Nethereum.eShop.WebJobs
 {
     public class Functions
     {
-        private readonly IProcessEventLogs _processEventLogs;
+        private readonly IProcessPuchaseOrderEventLogs _processEventLogs;
         private readonly ICreateFakePurchaseOrders _ceateFakePurchaseOrders;
 
-        public Functions(IProcessEventLogs processEventLogs, ICreateFakePurchaseOrders createFakePurchaseOrders)
+        public Functions(IProcessPuchaseOrderEventLogs processEventLogs, ICreateFakePurchaseOrders createFakePurchaseOrders)
         {
             _processEventLogs = processEventLogs;
             _ceateFakePurchaseOrders = createFakePurchaseOrders;
@@ -27,6 +27,11 @@ namespace Nethereum.eShop.WebJobs
             await _ceateFakePurchaseOrders.ExecuteAsync(logger);
         }
 
+        // TODO: Investigate how to prevent parallel execution of timed job
+        // i.e. when the first job is taking longer than anticipated
+        // the hack below works locally using the same app instance
+        // but will most likely fail on Azure
+        // where a new instance of the app will probably be instantiated on each interval
         static bool _processing = false;
 
         [Singleton]
