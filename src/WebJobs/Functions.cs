@@ -1,6 +1,7 @@
 ﻿using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using Nethereum.eShop.WebJobs.Jobs;
+using System;
 using System.Threading.Tasks;
 
 namespace Nethereum.eShop.WebJobs
@@ -44,6 +45,11 @@ namespace Nethereum.eShop.WebJobs
                 {
                     logger.LogInformation("Start job ProcessBlockchainEvents");
                     await _processEventLogs.ExecuteAsync(logger);
+                }
+                catch(Exception ex)
+                {
+                    logger.LogError(ex, $"{nameof(ProcessBlockchainEvents)} error");
+                    throw;
                 }
                 finally
                 {

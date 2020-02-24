@@ -17,9 +17,9 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.1" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.1" />
-    <PackageReference Include="Microsoft.WindowsAzure.ConfigurationManager" Version="3.2.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.1" />    
+    <PackageReference Include="Nethereum.BlockchainStore.EFCore.SqlServer" Version="3.0.0-CI-20200213-150208" />
+    <PackageReference Include="Nethereum.Microsoft.Logging.Utils" Version="3.4.0" />    
   </ItemGroup>
 
   <ItemGroup>

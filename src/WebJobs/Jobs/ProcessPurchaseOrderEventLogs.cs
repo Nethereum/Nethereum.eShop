@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Common.Logging;
+using Microsoft.Extensions.Logging;
 using Nethereum.BlockchainProcessing;
 using Nethereum.BlockchainProcessing.LogProcessing;
 using Nethereum.BlockchainProcessing.Orchestrator;
@@ -8,11 +9,11 @@ using Nethereum.Commerce.Contracts.Purchasing.ContractDefinition;
 using Nethereum.eShop.ApplicationCore.Exceptions;
 using Nethereum.eShop.ApplicationCore.Interfaces;
 using Nethereum.eShop.WebJobs.Configuration;
+using Nethereum.Microsoft.Logging.Utils;
 using Nethereum.RPC.Eth.Blocks;
 using Nethereum.RPC.Eth.DTOs;
 using Nethereum.Utils;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -23,15 +24,19 @@ namespace Nethereum.eShop.WebJobs.Jobs
         private readonly EshopConfiguration _eshopConfiguration;
         private readonly PurchaseOrderEventLogProcessingConfiguration _config;
         private readonly IOrderService _orderService;
+        private readonly IBlockProgressRepository BlockProgressRepository = null;
 
-        public ProcessPurchaseOrderEventLogs(EshopConfiguration eshopConfiguration, IOrderService orderService)
+        public ProcessPurchaseOrderEventLogs(
+            EshopConfiguration eshopConfiguration, 
+            IOrderService orderService,
+            IBlockProgressRepository blockProgressRepository
+            )
         {
             _eshopConfiguration = eshopConfiguration;
             _orderService = orderService;
             _config = eshopConfiguration.PurchaseOrderEventLogConfiguration;
+            BlockProgressRepository = blockProgressRepository;
         }
-
-        static JsonBlockProgressRepository BlockProgressRepository = null;
 
         public async Task ExecuteAsync(ILogger logger)
         {
@@ -45,6 +50,8 @@ namespace Nethereum.eShop.WebJobs.Jobs
 
             var web3 = new Web3.Web3(_eshopConfiguration.EthereumRpcUrl);
             var filter = new NewFilterInput{ Address = new[] { _config.PurchasingContractAddress } };
+
+            ILog log = logger.ToILog();
 
             var poCreatedHandler = new EventLogProcessorHandler<PurchaseOrderCreatedLogEventDTO>(
                 action: async(log) =>
@@ -72,16 +79,14 @@ namespace Nethereum.eShop.WebJobs.Jobs
                 defaultNumberOfBlocksPerRequest: (int)_config.NumberOfBlocksPerBatch,
                 retryWeight: RequestRetryWeight);
 
-            // TODO: SQL backend for progress
-            // Wire up to handle many events
-
-            BlockProgressRepository = BlockProgressRepository ?? CreateBlockProgressRepository();
-
             IWaitStrategy waitForBlockConfirmationsStrategy = new WaitStrategy();
 
             ILastConfirmedBlockNumberService lastConfirmedBlockNumberService =
                 new LastConfirmedBlockNumberService(
-                    web3.Eth.Blocks.GetBlockNumber, waitForBlockConfirmationsStrategy, _config.MinimumBlockConfirmations);
+                    web3.Eth.Blocks.GetBlockNumber, 
+                    waitForBlockConfirmationsStrategy, 
+                    _config.MinimumBlockConfirmations, 
+                    log);
 
             var processor = new BlockchainProcessor(
                 orchestrator, BlockProgressRepository, lastConfirmedBlockNumberService);
@@ -103,14 +108,6 @@ namespace Nethereum.eShop.WebJobs.Jobs
                 startAtBlockNumberIfNotProcessed: minStartingBlock);
         }
 
-
-        private JsonBlockProgressRepository CreateBlockProgressRepository()
-        {
-            return new JsonBlockProgressRepository(
-                () => Task.FromResult(File.Exists(_config.BlockProgressJsonFile)),
-                async (json) => await File.WriteAllTextAsync(_config.BlockProgressJsonFile, json),
-                async () => await File.ReadAllTextAsync(_config.BlockProgressJsonFile));
-        }
     }
 
 

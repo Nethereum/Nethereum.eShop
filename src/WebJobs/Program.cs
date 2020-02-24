@@ -1,14 +1,19 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Nethereum.BlockchainProcessing.BlockStorage.Entities;
+using Nethereum.BlockchainProcessing.ProgressRepositories;
+using Nethereum.BlockchainStore.EFCore;
+using Nethereum.BlockchainStore.EFCore.Repositories;
+using Nethereum.BlockchainStore.EFCore.SqlServer;
 using Nethereum.eShop.ApplicationCore.Interfaces;
 using Nethereum.eShop.ApplicationCore.Services;
 using Nethereum.eShop.Infrastructure.Data;
 using Nethereum.eShop.WebJobs.Configuration;
 using Nethereum.eShop.WebJobs.Jobs;
-using System;
 
 namespace Nethereum.eShop.WebJobs
 {
@@ -33,6 +38,25 @@ namespace Nethereum.eShop.WebJobs
                 c.AddScoped<IQuoteRepository, QuoteRepository>();
                 c.AddScoped<IOrderRepository, OrderRepository>();
                 c.AddScoped<IOrderService, OrderService>();
+
+                var progressDbConnectionString = config.GetConnectionString("BlockchainProcessingProgressDb");
+                IBlockchainDbContextFactory blockchainDbContextFactory =
+                    new SqlServerCoreBlockchainDbContextFactory(
+                        progressDbConnectionString, DbSchemaNames.dbo);
+
+                using (var progressContext = blockchainDbContextFactory.CreateContext())
+                {
+                    progressContext.Database.EnsureCreated();
+                }
+
+                IBlockProgressRepository progressRepo = new BlockProgressRepository(blockchainDbContextFactory);
+                c.AddSingleton(progressRepo);
+
+                
+
+                //var jsonBlockProgressRepo = new JsonFileBlockProgressRepository(
+                //    eShopConfig.PurchaseOrderEventLogConfiguration.BlockProgressJsonFile);
+                //c.AddSingleton<IBlockProgressRepository>(jsonBlockProgressRepo);
 
                 // jobs
                 c.AddScoped<IProcessPuchaseOrderEventLogs, ProcessPurchaseOrderEventLogs>();

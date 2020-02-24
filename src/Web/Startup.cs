@@ -39,22 +39,22 @@ namespace Nethereum.eShop.Web
 
         public void ConfigureDevelopmentServices(IServiceCollection services)
         {
-            //var inMemoryDbConfig = Configuration["inmemorydb"];
-            //var inMemory = string.IsNullOrEmpty(inMemoryDbConfig) ? true : bool.Parse(inMemoryDbConfig);
+            var inMemoryDbConfig = Configuration["use-in-memory-db"];
+            // Default to in memory db
+            // if sql is required - set "use-in-memory-db" to false in appsettings, command line or user secrets 
+            var inMemory = string.IsNullOrEmpty(inMemoryDbConfig) ? true : bool.Parse(inMemoryDbConfig);
 
-            //if (inMemory)
-            //{
-            //    // use in-memory database
-            //    // ConfigureInMemoryDatabases(services);
-            //}
+            if (inMemory)
+            {
+                // use in-memory database
+                ConfigureInMemoryDatabases(services);
+            }
+            else
+            {
+                // use real database
+                ConfigureProductionServices(services);
+            }
 
-            //else
-            //{
-            //    // use real database
-            //    ConfigureProductionServices(services);
-            //}
-
-            ConfigureProductionServices(services);
         }
 
         private void ConfigureInMemoryDatabases(IServiceCollection services)
@@ -76,21 +76,13 @@ namespace Nethereum.eShop.Web
             // Requires LocalDB which can be installed with SQL Server Express 2016
             // https://www.microsoft.com/en-us/download/details.aspx?id=54284
 
+            // migrations require a .net tool
             // ensure to install the dotnet-ef tool - 3.1.1
             // dotnet tool install --global dotnet-ef --version 3.1.1
 
-            // go to web directory in command line
-            // C:\Users\davew\source\repos\forks\Nethereum.eShop\src\Web>
-
             /*
-             * 
-dotnet ef migrations add InitialCreate --project ..\Nethereum.eShop --context Nethereum.eShop.Infrastructure.Data.CatalogContext --output-dir ..\Nethereum.eShop\Infrastructure\Data\Migrations  --no-build
-dotnet ef migrations add InitialCreate --project ..\Nethereum.eShop --context Nethereum.eShop.Infrastructure.Identity.AppIdentityDbContext --output-dir ..\Nethereum.eShop\Infrastructure\Identity\Migrations  --no-build
-             */
-
-            /*
-dotnet ef database update --project ..\Nethereum.eShop --context Nethereum.eShop.Infrastructure.Data.CatalogContext --no-build
-dotnet ef database update --project ..\Nethereum.eShop --context Nethereum.eShop.Infrastructure.Identity.AppIdentityDbContext --no-build
+             *  A batch file can be run to create the migration and update the DB
+                See CreateAndApplyDbMigrations.bat in the root of the Web project
              */
 
             services.AddDbContext<CatalogContext>((serviceProvider, options) =>
