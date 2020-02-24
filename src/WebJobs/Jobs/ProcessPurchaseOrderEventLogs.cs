@@ -6,6 +6,7 @@ using Nethereum.BlockchainProcessing.Orchestrator;
 using Nethereum.BlockchainProcessing.Processor;
 using Nethereum.BlockchainProcessing.ProgressRepositories;
 using Nethereum.Commerce.Contracts.Purchasing.ContractDefinition;
+using Nethereum.Commerce.Contracts.WalletBuyer;
 using Nethereum.eShop.ApplicationCore.Exceptions;
 using Nethereum.eShop.ApplicationCore.Interfaces;
 using Nethereum.eShop.WebJobs.Configuration;
@@ -13,7 +14,6 @@ using Nethereum.Microsoft.Logging.Utils;
 using Nethereum.RPC.Eth.Blocks;
 using Nethereum.RPC.Eth.DTOs;
 using Nethereum.Utils;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -49,27 +49,17 @@ namespace Nethereum.eShop.WebJobs.Jobs
             const int RequestRetryWeight = 0; // see below for retry algorithm
 
             var web3 = new Web3.Web3(_eshopConfiguration.EthereumRpcUrl);
-            var filter = new NewFilterInput{ Address = new[] { _config.PurchasingContractAddress } };
+            var walletBuyerService = new WalletBuyerService(web3, _eshopConfiguration.BuyerWalletAddress);
+            var purchasingContractAddress = await walletBuyerService.PurchasingQueryAsync();
+
+            var filter = new NewFilterInput { Address = new[] { purchasingContractAddress } };
 
             ILog log = logger.ToILog();
 
-            var poCreatedHandler = new EventLogProcessorHandler<PurchaseOrderCreatedLogEventDTO>(
-                action: async(log) =>
-                {
-                    logger.LogInformation(
-    $"PurchaseOrderCreated: Block: {log.Log.BlockNumber}, PO Number: {log.Event.PoNumber}, QuoteId: {log.Event.Po.QuoteId}");
+            EventLogProcessorHandler<PurchaseOrderCreatedLogEventDTO> poCreatedHandler = 
+                CreatePurchaseOrderCreatedHandler(logger);
 
-                    try
-                    {
-                        await _orderService.CreateOrderAsync(log.Log.TransactionHash, log.Event.Po);
-                    }
-                    catch (QuoteNotFoundException)
-                    {
-                        logger.LogError($"Quote: {log.Event.Po.QuoteId} could not be found");
-                    }
-                });
-
-            IEnumerable<ProcessorHandler<FilterLog>> logProcessorHandlers = new ProcessorHandler<FilterLog>[]
+            var logProcessorHandlers = new ProcessorHandler<FilterLog>[]
                 {poCreatedHandler};
 
             IBlockchainProcessingOrchestrator orchestrator = new LogOrchestrator(
@@ -83,16 +73,15 @@ namespace Nethereum.eShop.WebJobs.Jobs
 
             ILastConfirmedBlockNumberService lastConfirmedBlockNumberService =
                 new LastConfirmedBlockNumberService(
-                    web3.Eth.Blocks.GetBlockNumber, 
-                    waitForBlockConfirmationsStrategy, 
-                    _config.MinimumBlockConfirmations, 
+                    web3.Eth.Blocks.GetBlockNumber,
+                    waitForBlockConfirmationsStrategy,
+                    _config.MinimumBlockConfirmations,
                     log);
 
             var processor = new BlockchainProcessor(
                 orchestrator, BlockProgressRepository, lastConfirmedBlockNumberService);
 
-            //TODO: Implement a timeout from config
-            var cancellationToken = new CancellationTokenSource();
+            var cancellationToken = new CancellationTokenSource(_config.TimeoutMs);
 
             var currentBlockOnChain = await web3.Eth.Blocks.GetBlockNumber.SendRequestAsync();
             var blockToProcessTo = currentBlockOnChain.Value - _config.MinimumBlockConfirmations;
@@ -108,6 +97,24 @@ namespace Nethereum.eShop.WebJobs.Jobs
                 startAtBlockNumberIfNotProcessed: minStartingBlock);
         }
 
+        private EventLogProcessorHandler<PurchaseOrderCreatedLogEventDTO> CreatePurchaseOrderCreatedHandler(ILogger logger)
+        {
+            return new EventLogProcessorHandler<PurchaseOrderCreatedLogEventDTO>(
+                action: async (log) =>
+                {
+                    logger.LogInformation(
+    $"PurchaseOrderCreated: Block: {log.Log.BlockNumber}, PO Number: {log.Event.PoNumber}, QuoteId: {log.Event.Po.QuoteId}");
+
+                    try
+                    {
+                        await _orderService.CreateOrderAsync(log.Log.TransactionHash, log.Event.Po);
+                    }
+                    catch (QuoteNotFoundException)
+                    {
+                        logger.LogError($"Quote: {log.Event.Po.QuoteId} could not be found");
+                    }
+                });
+        }
     }
 
 

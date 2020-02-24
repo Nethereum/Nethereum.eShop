@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -14,6 +13,7 @@ using Nethereum.eShop.ApplicationCore.Services;
 using Nethereum.eShop.Infrastructure.Data;
 using Nethereum.eShop.WebJobs.Configuration;
 using Nethereum.eShop.WebJobs.Jobs;
+using System;
 
 namespace Nethereum.eShop.WebJobs
 {
@@ -21,6 +21,8 @@ namespace Nethereum.eShop.WebJobs
     {
         static void Main(string[] args)
         {
+            var ms = TimeSpan.FromHours(1).TotalMilliseconds;
+
             IConfigurationRoot config = null;
             EshopConfiguration eShopConfig = null;
             var hostBuilder = Host.CreateDefaultBuilder(args);
@@ -39,6 +41,7 @@ namespace Nethereum.eShop.WebJobs
                 c.AddScoped<IOrderRepository, OrderRepository>();
                 c.AddScoped<IOrderService, OrderService>();
 
+                // blockchain event log progress db
                 var progressDbConnectionString = config.GetConnectionString("BlockchainProcessingProgressDb");
                 IBlockchainDbContextFactory blockchainDbContextFactory =
                     new SqlServerCoreBlockchainDbContextFactory(
@@ -51,12 +54,6 @@ namespace Nethereum.eShop.WebJobs
 
                 IBlockProgressRepository progressRepo = new BlockProgressRepository(blockchainDbContextFactory);
                 c.AddSingleton(progressRepo);
-
-                
-
-                //var jsonBlockProgressRepo = new JsonFileBlockProgressRepository(
-                //    eShopConfig.PurchaseOrderEventLogConfiguration.BlockProgressJsonFile);
-                //c.AddSingleton<IBlockProgressRepository>(jsonBlockProgressRepo);
 
                 // jobs
                 c.AddScoped<IProcessPuchaseOrderEventLogs, ProcessPurchaseOrderEventLogs>();

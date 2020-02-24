@@ -24,7 +24,6 @@ namespace Nethereum.eShop.WebJobs.Configuration
 
     public class PurchaseOrderEventLogProcessingConfiguration
     {
-        public string PurchasingContractAddress { get; set; }
         public bool Enabled { get; set; } = true;
 
         public string BlockProgressJsonFile { get; set; }
@@ -36,6 +35,8 @@ namespace Nethereum.eShop.WebJobs.Configuration
         public uint MinimumBlockConfirmations { get; set; } = 12;
 
         public BigInteger GetMinimumStartingBlock() => BigInteger.Parse(MinimumStartingBlock);
+
+        public int TimeoutMs { get; set; }
     }
 
 }
