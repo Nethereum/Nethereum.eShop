@@ -4,6 +4,7 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UserSecretsId>Nethereum.Shop.WebJobs</UserSecretsId>
+    <RootNamespace>Nethereum.eShop.WebJobs</RootNamespace>
     <!--<UserSecretsId>Nethereum.eShop.Web.UserSecrets</UserSecretsId>-->
   </PropertyGroup>
 

@@ -54,11 +54,11 @@ namespace Nethereum.eShop.WebJobs.Jobs
 
             foreach (var quote in pendingQuotes)
             {
-                await CreatePoFroQuote(logger, walletBuyerService, quote);
+                await CreatePoForQuote(logger, walletBuyerService, quote);
             }
         }
 
-        private async Task CreatePoFroQuote(ILogger logger, WalletBuyerService walletBuyerService, Quote quote)
+        private async Task CreatePoForQuote(ILogger logger, WalletBuyerService walletBuyerService, Quote quote)
         {
             var existing = await walletBuyerService.GetPoBySellerAndQuoteQueryAsync(_config.SellerId, quote.Id);
             if (existing?.Po?.PoNumber > 0)
