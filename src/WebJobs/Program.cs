@@ -21,8 +21,6 @@ namespace Nethereum.eShop.WebJobs
     {
         static void Main(string[] args)
         {
-            var ms = TimeSpan.FromHours(1).TotalMilliseconds;
-
             IConfigurationRoot config = null;
             EshopConfiguration eShopConfig = null;
             var hostBuilder = Host.CreateDefaultBuilder(args);
