@@ -6,7 +6,7 @@ namespace Nethereum.eShop.ApplicationCore.Interfaces
 {
     public interface IRulesEngineService
     {
-        Task<RulesDomain> CreateRulesDomainAsync();
+        Task<RulesDomain> CreateRulesDomainAsync(RulesDomainSeed domainSeed);
 
         Task<RuleTree> CreateRuleTreeAsync(RulesDomain domain, RuleTreeOrigin origin);
 

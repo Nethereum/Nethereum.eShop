@@ -18,11 +18,11 @@ namespace Nethereum.eShop.ApplicationCore.Services
             _ruleTreeRepository = ruleTreeRepo;
         }
 
-        public async Task<RulesDomain> CreateRulesDomainAsync()
+        public async Task<RulesDomain> CreateRulesDomainAsync(RulesDomainSeed domainSeed)
         {
             // TODO: Do all the work to help initialize the RuleTree
 
-            return new RulesDomain(new RulesDomainSeed());
+            return new RulesDomain(domainSeed);
         }
 
         public async Task<RuleTree> CreateRuleTreeAsync(RulesDomain domain, RuleTreeOrigin origin)
