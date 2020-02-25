@@ -7,34 +7,42 @@
     <div class="container">
         <h1>@ViewData["Title"]</h1>
         <article class="esh-orders-titles row">
-            <section class="esh-orders-title col-xs-1">Quote Id</section>
-            <section class="esh-orders-title col-xs-2">Tx Hash</section>
-            <section class="esh-orders-title col-xs-4">Date</section>
-            <section class="esh-orders-title col-xs-1">Total</section>
-            <section class="esh-orders-title col-xs-1">Status</section>
-            <section class="esh-orders-title col-xs-2"></section>
+            <section class="esh-orders-title col-md-1">Id</section>
+            <section class="esh-orders-title col-md-4">Date</section>
+            <section class="esh-orders-title col-md-2">Total</section>
+            <section class="esh-orders-title col-md-3">Status</section>
+            <section class="esh-orders-title col-md-2"></section>
         </article>
         @if (Model != null && Model.Any())
         {
             @foreach (var item in Model)
             {
                 <article class="esh-orders-items row">
-                    <section class="esh-orders-item col-xs-1">@Html.DisplayFor(modelItem => item.QuoteId)</section>
-                    <section class="esh-orders-item col-xs-2">@Html.DisplayFor(modelItem => item.TransactionHash)</section>
-                    <section class="esh-orders-item col-xs-4">@Html.DisplayFor(modelItem => item.QuoteDate)</section>
-                    <section class="esh-orders-item col-xs-1">$ @Html.DisplayFor(modelItem => item.Total)</section>
-                    <section class="esh-orders-item col-xs-1">@Html.DisplayFor(modelItem => item.Status)</section>
-                    <section class="esh-orders-item col-xs-1">
+                    <section class="esh-orders-item col-md-1">@Html.DisplayFor(modelItem => item.QuoteId)</section>
+                    <section class="esh-orders-item col-md-4">@Html.DisplayFor(modelItem => item.QuoteDate)</section>
+                    <section class="esh-orders-item col-md-2">$ @Html.DisplayFor(modelItem => item.Total)</section>
+                    <section class="esh-orders-item col-md-3">@Html.DisplayFor(modelItem => item.Status)</section>
+                    <section class="esh-orders-item col-md-1">
                         <a class="esh-orders-link" asp-controller="Quote" asp-action="Detail" asp-route-quoteId="@item.QuoteId">Detail</a>
                     </section>
-                    <section class="esh-orders-item col-xs-1">
+                    <section class="esh-orders-item col-md-1">
                         @if (item.Status.ToLower() == "submitted")
-                    {
+                        {
                             <a class="esh-orders-link" asp-controller="Quote" asp-action="cancel" asp-route-quoteId="@item.QuoteId">Cancel</a>
                         }
                     </section>
                 </article>
-            }
-        }
-    </div>
+
+                @if (item.TransactionHash?.Length > 0)
+                {
+                    <article class="esh-orders-items row">
+                        <section class="esh-orders-item col-md-12 text-center">
+                            Tx Hash: @Html.DisplayFor(modelItem => item.TransactionHash)
+                        </section>
+                    </article>
+                 }
+
+             }
+         }
+        </div>
 </div>

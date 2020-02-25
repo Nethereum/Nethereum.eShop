@@ -2,6 +2,6 @@
 {
     public enum QuoteStatus
     {
-        Draft, Pending, Cancelled, Complete
+        Draft, Pending, AwaitingOrder, Cancelled, Complete
     }
 }

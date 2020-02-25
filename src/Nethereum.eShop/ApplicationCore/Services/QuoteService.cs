@@ -3,6 +3,7 @@ using Nethereum.eShop.ApplicationCore.Entities;
 using Nethereum.eShop.ApplicationCore.Entities.BasketAggregate;
 using Nethereum.eShop.ApplicationCore.Entities.QuoteAggregate;
 using Nethereum.eShop.ApplicationCore.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -41,10 +42,13 @@ namespace Nethereum.eShop.ApplicationCore.Services
 
             var quote = new Quote(quoteItems)
             {
-                BuyerId = basket.BuyerAddress,
+                Status = QuoteStatus.Pending,
+                BuyerId = basket.BuyerId,
                 BuyerAddress = basket.BuyerAddress,
                 BillTo = basket.BillTo,
-                ShipTo = basket.ShipTo
+                ShipTo = basket.ShipTo,
+                Date = DateTimeOffset.UtcNow,
+                Expiry = DateTimeOffset.UtcNow.Date.AddMonths(1)
             };
 
             await _quoteRepository.AddAsync(quote);

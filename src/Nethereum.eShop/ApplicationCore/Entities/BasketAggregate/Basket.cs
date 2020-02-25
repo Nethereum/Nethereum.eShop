@@ -6,6 +6,8 @@ namespace Nethereum.eShop.ApplicationCore.Entities.BasketAggregate
 {
     public class Basket : BaseEntity, IAggregateRoot
     {
+        public string BuyerId { get; set; }
+
         /// <summary>
         /// The Ethereum Address
         /// </summary>

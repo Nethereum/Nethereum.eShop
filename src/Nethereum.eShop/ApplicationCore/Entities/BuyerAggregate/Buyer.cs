@@ -10,8 +10,10 @@ namespace Nethereum.eShop.ApplicationCore.Entities.BuyerAggregate
 
         public IReadOnlyCollection<BuyerPostalAddress> PostalAddresses => _postalAddresses.AsReadOnly();
 
-        // Expected To Be Ethereum Address
         public string BuyerId { get; private set; }
+
+        // Expected To Be Ethereum Address
+        public string BuyerAddress { get; private set; }
 
         private Buyer()
         {

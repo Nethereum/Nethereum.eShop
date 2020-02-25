@@ -13,6 +13,7 @@ namespace Nethereum.eShop.Infrastructure.Data.Config
 
             navigation.SetPropertyAccessMode(PropertyAccessMode.Field);
 
+            builder.HasIndex(b => b.BuyerId);
             builder.HasIndex(b => b.BuyerAddress);
 
             builder.OwnsOne(o => o.ShipTo, a =>
@@ -25,6 +26,7 @@ namespace Nethereum.eShop.Infrastructure.Data.Config
                 a.ConfigureAddress();
             });
 
+            builder.Property(o => o.BuyerId).HasMaxLength(256).IsRequired();
             builder.Property(o => o.BuyerAddress).IsAddress();
             builder.Property(o => o.ApproverAddress).IsAddress();
             builder.Property(o => o.BuyerWalletAddress).IsAddress();

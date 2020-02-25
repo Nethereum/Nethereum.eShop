@@ -1,8 +1,10 @@
-﻿using Nethereum.eShop.ApplicationCore.Entities;
+﻿using CsvHelper.Configuration;
+using Nethereum.eShop.ApplicationCore.Entities;
 using Nethereum.eShop.Infrastructure.Data;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -76,7 +78,7 @@ namespace Books.ImportUtil
             var allMappings = new List<IpfsBookCoverMapping>();
             using (var textReader = File.OpenText(bookCoverIndexFilePath))
             {
-                var csvHelper = new CsvHelper.CsvReader(textReader);
+                var csvHelper = new CsvHelper.CsvReader(textReader, CultureInfo.InvariantCulture);
                 csvHelper.Configuration.IgnoreQuotes = true;
                 csvHelper.Configuration.HasHeaderRecord = true;
                 allMappings.AddRange(csvHelper.GetRecords<IpfsBookCoverMapping>());
@@ -244,7 +246,7 @@ namespace Books.ImportUtil
 
                 using (var textWriter = File.CreateText(indexOutputFilePath))
                 {
-                    var csvWriter = new CsvHelper.CsvWriter(textWriter);
+                    var csvWriter = new CsvHelper.CsvWriter(textWriter, CultureInfo.InvariantCulture);
                     csvWriter.WriteHeader<IpfsBookCoverMapping>();
                     csvWriter.NextRecord();
 
@@ -441,7 +443,7 @@ namespace Books.ImportUtil
             {
                 using (var textReader = File.OpenText(file))
                 {
-                    var csvHelper = new CsvHelper.CsvReader(textReader);
+                    var csvHelper = new CsvHelper.CsvReader(textReader, CultureInfo.InvariantCulture);
                     csvHelper.Configuration.Delimiter = COLUMN_DELIMITER.ToString();
                     csvHelper.Configuration.IgnoreQuotes = true;
                     csvHelper.Configuration.HasHeaderRecord = true;
@@ -481,7 +483,7 @@ namespace Books.ImportUtil
             {
                 using (var textReader = File.OpenText(file))
                 {
-                    var csvHelper = new CsvHelper.CsvReader(textReader);
+                    var csvHelper = new CsvHelper.CsvReader(textReader, CultureInfo.InvariantCulture);
                     csvHelper.Configuration.Delimiter = COLUMN_DELIMITER.ToString();
                     csvHelper.Configuration.IgnoreQuotes = true;
                     csvHelper.Configuration.HasHeaderRecord = true;
