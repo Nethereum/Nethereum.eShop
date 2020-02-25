@@ -1,8 +1,10 @@
-﻿using Nethereum.eShop.ApplicationCore.Entities;
+﻿using CsvHelper.Configuration;
+using Nethereum.eShop.ApplicationCore.Entities;
 using Nethereum.eShop.Infrastructure.Data;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -40,11 +42,11 @@ namespace Books.ImportUtil
 
         private static int ipfsFilesLoaded = 0;
 
-        public static async Task Main(string[] args)
+        public static Task Main(string[] args)
         {
             throw new Exception("Check/change hardcoded config and uncomment code in Main method");
 
-            CheckImportFiles(ImportFiles);
+            // CheckImportFiles(ImportFiles);
 
             /*
 
@@ -52,6 +54,7 @@ namespace Books.ImportUtil
             await UploadCoversToIpfsAsync(books, RENAMED_COVER_OUTPUT_FOLDER, COVER_MAPPING_OUTPUT_FILE_PATH, IPFS_URL);
             */
 
+            /*
             var books = await LoadBooks(ImportFiles);
             var booksWithDescriptions = await AddBookDescriptions(books, BookDescriptionFiles);
             var bookCovers = GetBookCoverDictionary(COVER_MAPPING_OUTPUT_FILE_PATH);
@@ -65,6 +68,7 @@ namespace Books.ImportUtil
             }
 
             PrintSummary(booksWithDescriptions);
+            */
 
         }
 
@@ -74,7 +78,7 @@ namespace Books.ImportUtil
             var allMappings = new List<IpfsBookCoverMapping>();
             using (var textReader = File.OpenText(bookCoverIndexFilePath))
             {
-                var csvHelper = new CsvHelper.CsvReader(textReader);
+                var csvHelper = new CsvHelper.CsvReader(textReader, CultureInfo.InvariantCulture);
                 csvHelper.Configuration.IgnoreQuotes = true;
                 csvHelper.Configuration.HasHeaderRecord = true;
                 allMappings.AddRange(csvHelper.GetRecords<IpfsBookCoverMapping>());
@@ -95,24 +99,28 @@ namespace Books.ImportUtil
             return dictionary;
         }
 
-        private static CatalogImportDto GenerateCatalogImport(IEnumerable<BookWithDescription> books, Dictionary<string, Dictionary<string, IpfsBookCoverMapping>> bookCoverDictionary)
+        private static CatalogImportDto GenerateCatalogImport(
+            IEnumerable<BookWithDescription> books, 
+            Dictionary<string, Dictionary<string, IpfsBookCoverMapping>> bookCoverDictionary)
         {
             var excerpt = new CatalogImportDto();
             var bookCatalogType = new CatalogType { Id = 1, Type = "Book" };
             excerpt.CatalogTypes.Add(bookCatalogType);
 
-            var brandDictionary = new Dictionary<string, CatalogBrand>(StringComparer.OrdinalIgnoreCase);
+            var authorDictionary = new Dictionary<string, CatalogBrand>(StringComparer.OrdinalIgnoreCase);
 
             int id = 0;
-            int brandIdCounter = 0;
+            int authorIdCounter = 0;
             foreach(var book in books)
             {
                 id++;
-                var item = Convert(bookCatalogType.Id, book, bookCoverDictionary, id, brandDictionary, ref brandIdCounter);
+                var item = Convert(
+                    bookCatalogType.Id, book, bookCoverDictionary, id, authorDictionary, ref authorIdCounter);
+
                 excerpt.CatalogItems.Add(item);
             }
 
-            excerpt.CatalogBrands = brandDictionary.Values.ToList();
+            excerpt.CatalogBrands = authorDictionary.Values.ToList();
 
             return excerpt;
         }
@@ -122,17 +130,21 @@ namespace Books.ImportUtil
             BookWithDescription book, 
             Dictionary<string, Dictionary<string, IpfsBookCoverMapping>> bookCoverDictionary, 
             int id, 
-            Dictionary<string, CatalogBrand> brandDictionary, 
-            ref int brandIdCounter)
+            Dictionary<string, CatalogBrand> authorDictionary, 
+            ref int authorIdCounter)
         {
 
-            if (!brandDictionary.ContainsKey(book.Book.PUB_NAME))
+            if (!authorDictionary.ContainsKey(book.Book.AUTHOR))
             {
-                brandIdCounter++;
-                brandDictionary[book.Book.PUB_NAME] = new CatalogBrand { Id = brandIdCounter, Brand = book.Book.PUB_NAME };
+                authorIdCounter++;
+                authorDictionary[book.Book.AUTHOR] = new CatalogBrand 
+                { 
+                    Id = authorIdCounter, 
+                    Brand = book.Book.AUTHOR 
+                };
             }
 
-            var brand = brandDictionary[book.Book.PUB_NAME];
+            var author = authorDictionary[book.Book.AUTHOR];
 
             // a func to find the url for a book cover of a certain size
             Func<string, string, string> FindBookCoverUrl = (ean, size) =>
@@ -154,9 +166,10 @@ namespace Books.ImportUtil
 
             var catalogItem = new CatalogItem {
                 Id = id,
+                Rank = id,
                 Gtin = book.Book.EAN,
                 CatalogTypeId = catalogTypeIdForBooks,
-                CatalogBrandId = brand.Id,
+                CatalogBrandId = author.Id,
                 Name = book.Book.TITLE,
                 Depth = ConvertInchesAsTextToMM(book.Book.DEPTH),
                 Width = ConvertInchesAsTextToMM(book.Book.WIDTH),
@@ -173,6 +186,8 @@ namespace Books.ImportUtil
 
             var attributes = new Dictionary<string, string>();
             attributes.Add("Publication Date", book.Book.PUB_DATE);
+            attributes.Add("Author", book.Book.AUTHOR);
+            attributes.Add("Publisher", book.Book.PUB_NAME);
             attributes.Add("Number Of Pages", book.Book.PAGE_NUM);
             attributes.Add("Subject Time", book.Book.SUBJECT_TIME);
             attributes.Add("Subject", book.Book.SUBJECT);
@@ -202,7 +217,8 @@ namespace Books.ImportUtil
                 Console.WriteLine($"EAN: {book.EAN}, COVER_S: {book.COVER_SMALL},  COVER_M: {book.COVER_MED},  COVER_L: {book.COVER_LARGE}");
                 if (item.BookDescription != null)
                 {
-                    Console.WriteLine(item.BookDescription.DESCRIPTION?.Substring(0, Math.Min(item.BookDescription.DESCRIPTION.Length, 200)));
+                    Console.WriteLine(
+                        item.BookDescription.DESCRIPTION?.Substring(0, Math.Min(item.BookDescription.DESCRIPTION.Length, 200)));
                 }
             }
 
@@ -217,7 +233,8 @@ namespace Books.ImportUtil
         /// </summary>
         /// <param name="books"></param>
         /// <returns></returns>
-        public static async Task UploadCoversToIpfsAsync(IEnumerable<Book> books, string coverFolder, string indexOutputFilePath, string ipfsUrl)
+        public static async Task UploadCoversToIpfsAsync(
+            IEnumerable<Book> books, string coverFolder, string indexOutputFilePath, string ipfsUrl)
         {
             ipfsFilesLoaded = 0;
             //indexOutputFilePath
@@ -229,7 +246,7 @@ namespace Books.ImportUtil
 
                 using (var textWriter = File.CreateText(indexOutputFilePath))
                 {
-                    var csvWriter = new CsvHelper.CsvWriter(textWriter);
+                    var csvWriter = new CsvHelper.CsvWriter(textWriter, CultureInfo.InvariantCulture);
                     csvWriter.WriteHeader<IpfsBookCoverMapping>();
                     csvWriter.NextRecord();
 
@@ -294,7 +311,12 @@ namespace Books.ImportUtil
         /// <param name="retryNumber"></param>
         /// <returns></returns>
         private static async Task<IpfsBookCoverMapping> UploadCoverToIpfs(
-            string localImageCacheFolder, string ean, string imageSize, string imageSourceUrl, IpfsService ipfsService, int retryNumber = 0)
+            string localImageCacheFolder, 
+            string ean, 
+            string imageSize, 
+            string imageSourceUrl, 
+            IpfsService ipfsService, 
+            int retryNumber = 0)
         {
             string locallyCachedCopy = CreateLocalEanFilePath(ean, imageSize, imageSourceUrl, localImageCacheFolder);
 
@@ -337,7 +359,8 @@ namespace Books.ImportUtil
         /// <param name="books"></param>
         /// <param name="renamedImageOutputFolder"></param>
         /// <returns></returns>
-        public static async Task DownloadCoversAsync(IEnumerable<Book> books, string localCacheOutputFolder, string renamedImageOutputFolder)
+        public static async Task DownloadCoversAsync(
+            IEnumerable<Book> books, string localCacheOutputFolder, string renamedImageOutputFolder)
         {
             int count = 0;
             int total = books.Count();
@@ -370,7 +393,8 @@ namespace Books.ImportUtil
             return Path.Combine(outputFolder, $"{ean}_{size}{Path.GetExtension(imageUrl)}");
         }
 
-        private static async Task DownloadBookCoverAsync(string ean, string size, string imageUrl, string localCacheOutputFolder, string eanOutputFolder)
+        private static async Task DownloadBookCoverAsync(
+            string ean, string size, string imageUrl, string localCacheOutputFolder, string eanOutputFolder)
         {
             string renamedCopy = CreateLocalEanFilePath(ean, size, imageUrl, eanOutputFolder);
 
@@ -419,7 +443,7 @@ namespace Books.ImportUtil
             {
                 using (var textReader = File.OpenText(file))
                 {
-                    var csvHelper = new CsvHelper.CsvReader(textReader);
+                    var csvHelper = new CsvHelper.CsvReader(textReader, CultureInfo.InvariantCulture);
                     csvHelper.Configuration.Delimiter = COLUMN_DELIMITER.ToString();
                     csvHelper.Configuration.IgnoreQuotes = true;
                     csvHelper.Configuration.HasHeaderRecord = true;
@@ -430,7 +454,8 @@ namespace Books.ImportUtil
             return Task.FromResult((IEnumerable<Book>) books);
         }
 
-        public static async Task<IEnumerable<BookWithDescription>> AddBookDescriptions(IEnumerable<Book> books, string[] descriptionImportFiles)
+        public static async Task<IEnumerable<BookWithDescription>> AddBookDescriptions(
+            IEnumerable<Book> books, string[] descriptionImportFiles)
         {
             var bookWithDescriptions = new List<BookWithDescription>();
             var descriptions = await LoadBookDescriptions(descriptionImportFiles);
@@ -458,7 +483,7 @@ namespace Books.ImportUtil
             {
                 using (var textReader = File.OpenText(file))
                 {
-                    var csvHelper = new CsvHelper.CsvReader(textReader);
+                    var csvHelper = new CsvHelper.CsvReader(textReader, CultureInfo.InvariantCulture);
                     csvHelper.Configuration.Delimiter = COLUMN_DELIMITER.ToString();
                     csvHelper.Configuration.IgnoreQuotes = true;
                     csvHelper.Configuration.HasHeaderRecord = true;
@@ -469,7 +494,7 @@ namespace Books.ImportUtil
             //there may be dupes in the import file
             //so we can't use the standard Linq ToDictionary extension
             //we'll just take the most recent record
-            Dictionary<string, BookDescription> dictionary = new Dictionary<string, BookDescription>(StringComparer.OrdinalIgnoreCase);
+            var dictionary = new Dictionary<string, BookDescription>(StringComparer.OrdinalIgnoreCase);
             foreach(var description in descriptions)
             {
                 dictionary[description.EAN] = description;
@@ -507,7 +532,8 @@ namespace Books.ImportUtil
             }
         }
 
-        public static IEnumerable<(int lineNumber, string line, int columns)> FindProblemsInImportFile(string importFile, int expectedColumnCount, char columnDelimeter)
+        public static IEnumerable<(int lineNumber, string line, int columns)> FindProblemsInImportFile(
+            string importFile, int expectedColumnCount, char columnDelimeter)
         {
             var problemLines = new List<(int lineNumber, string line, int columns)>();
 

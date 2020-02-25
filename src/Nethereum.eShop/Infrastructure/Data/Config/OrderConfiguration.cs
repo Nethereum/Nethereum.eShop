@@ -13,6 +13,7 @@ namespace Nethereum.eShop.Infrastructure.Data.Config
 
             navigation.SetPropertyAccessMode(PropertyAccessMode.Field);
 
+            builder.HasIndex(b => b.BuyerId);
             builder.HasIndex(b => b.BuyerAddress);
 
             builder.OwnsOne(o => o.ShipTo, a =>
@@ -25,17 +26,11 @@ namespace Nethereum.eShop.Infrastructure.Data.Config
                 a.ConfigureAddress();
             });
 
-            builder.Property(o => o.BuyerAddress).HasMaxLength(43);
+            builder.Property(o => o.BuyerId).HasMaxLength(256).IsRequired();
+            builder.Property(o => o.BuyerAddress).IsAddress();
+            builder.Property(o => o.ApproverAddress).IsAddress();
+            builder.Property(o => o.BuyerWalletAddress).IsAddress();
+            builder.Property(o => o.TransactionHash).IsHash();
         }
-
-        /*
-         * 
-         *     public static class ColumnLengths
-    {
-        public const int AddressLength = 43;
-        public const int HashLength = 67;
-        public const int BigIntegerLength = 100;
-    }
-         */
     }
 }

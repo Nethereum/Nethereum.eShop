@@ -10,11 +10,18 @@ import "./StringConvertible.sol";
 
 contract BusinessPartnerStorage is IBusinessPartnerStorage, Ownable, Bindable, StringConvertible
 {
+    // Client is hashed into every key to avoid collisions with other contracts using the same eternal storage
+    string constant private CLIENT = "BpStorage"; 
+
+    // Seller Id
+    string constant private SELLER_ID = "sellerId";
+    string constant private SELLER_DESC = "sellerDescription";
+    string constant private CONTRACT_ADDRESS = "contractAddress";
+    string constant private APPROVER_ADDRESS = "approverAddress";
+    string constant private IS_ACTIVE = "isActive";
+
     IEternalStorage public eternalStorage;
     IAddressRegistry public addressRegistry;
-
-    string constant private MAP_SYSTEM_ID_TO_WALLET_ADDRESS = "mapSystemIdToWalletAddress";
-    string constant private MAP_SYSTEM_ID_TO_DESCRIPTION = "mapSystemIdToDescription";
 
     constructor (address contractAddressOfRegistry) public
     {
@@ -29,32 +36,22 @@ contract BusinessPartnerStorage is IBusinessPartnerStorage, Ownable, Bindable, S
         eternalStorage = IEternalStorage(addressRegistry.getAddressString(nameOfEternalStorage));
         require(address(eternalStorage) != address(0), "Could not find EternalStorage address in registry");
     }
-
-    /// @dev Get mapping from [system id] to get [wallet address for that system id]
-    function getWalletAddress(bytes32 systemId) override external view returns (address walletAddress)
+    
+    function getSeller(bytes32 sellerId) override external view returns (IPoTypes.Seller memory seller)
     {
-        bytes32 mappingKey = keccak256(abi.encodePacked(systemId));
-        return eternalStorage.getMappingBytes32ToAddressValue(stringToBytes32(MAP_SYSTEM_ID_TO_WALLET_ADDRESS), mappingKey);
+        seller.sellerId = eternalStorage.getBytes32Value(keccak256(abi.encodePacked(CLIENT, sellerId, SELLER_ID)));
+        seller.sellerDescription = eternalStorage.getBytes32Value(keccak256(abi.encodePacked(CLIENT, sellerId, SELLER_DESC)));
+        seller.contractAddress = eternalStorage.getAddressValue(keccak256(abi.encodePacked(CLIENT, sellerId, CONTRACT_ADDRESS)));
+        seller.approverAddress = eternalStorage.getAddressValue(keccak256(abi.encodePacked(CLIENT, sellerId, APPROVER_ADDRESS)));
+        seller.isActive = eternalStorage.getBooleanValue(keccak256(abi.encodePacked(CLIENT, sellerId, IS_ACTIVE)));
     }
-
-    /// @dev Store mapping with key [system id] to store [wallet address for that system id]
-    function setWalletAddress(bytes32 systemId, address walletAddress) onlyRegisteredCaller() override external
+    
+    function setSeller(IPoTypes.Seller calldata seller) onlyRegisteredCaller() override external
     {
-        bytes32 mappingKey = keccak256(abi.encodePacked(systemId));
-        eternalStorage.setMappingBytes32ToAddressValue(stringToBytes32(MAP_SYSTEM_ID_TO_WALLET_ADDRESS), mappingKey, walletAddress);
-    }
-
-    /// @dev Get mapping from [system id] to get [description for that system id]
-    function getSystemDescription(bytes32 systemId) override external view returns (bytes32 systemDescription)
-    {
-        bytes32 mappingKey = keccak256(abi.encodePacked(systemId));
-        return eternalStorage.getMappingBytes32ToBytes32Value(stringToBytes32(MAP_SYSTEM_ID_TO_DESCRIPTION), mappingKey);
-    }
-
-    /// @dev Store mapping with key [system id] to store [description for that system id]
-    function setSystemDescription(bytes32 systemId, bytes32 systemDescription) onlyRegisteredCaller() override external
-    {
-        bytes32 mappingKey = keccak256(abi.encodePacked(systemId));
-        eternalStorage.setMappingBytes32ToBytes32Value(stringToBytes32(MAP_SYSTEM_ID_TO_DESCRIPTION), mappingKey, systemDescription);
+        eternalStorage.setBytes32Value(keccak256(abi.encodePacked(CLIENT, seller.sellerId, SELLER_ID)), seller.sellerId);
+        eternalStorage.setBytes32Value(keccak256(abi.encodePacked(CLIENT, seller.sellerId, SELLER_DESC)), seller.sellerDescription);
+        eternalStorage.setAddressValue(keccak256(abi.encodePacked(CLIENT, seller.sellerId, CONTRACT_ADDRESS)), seller.contractAddress);
+        eternalStorage.setAddressValue(keccak256(abi.encodePacked(CLIENT, seller.sellerId, APPROVER_ADDRESS)), seller.approverAddress);
+        eternalStorage.setBooleanValue(keccak256(abi.encodePacked(CLIENT, seller.sellerId, IS_ACTIVE)), seller.isActive);
     }
 }

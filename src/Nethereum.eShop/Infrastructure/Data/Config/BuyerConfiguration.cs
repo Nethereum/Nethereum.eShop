@@ -8,17 +8,14 @@ namespace Nethereum.eShop.Infrastructure.Data.Config
     {
         public void Configure(EntityTypeBuilder<Buyer> builder)
         {
+            var navigation = builder.Metadata.FindNavigation(nameof(Buyer.PostalAddresses));
+            navigation.SetPropertyAccessMode(PropertyAccessMode.Field);
+
+            builder.Property(b => b.BuyerId).HasMaxLength(256).IsRequired();
+            builder.Property(b => b.BuyerAddress).IsAddress();
+
             builder.HasIndex(b => b.BuyerId).IsUnique();
-
-            builder.OwnsOne(o => o.ShipTo, a =>
-            {
-                a.ConfigureAddress();
-            });
-
-            builder.OwnsOne(o => o.BillTo, a =>
-            {
-                a.ConfigureAddress();
-            });
+            builder.HasIndex(b => b.BuyerAddress).IsUnique();
         }
     }
 }

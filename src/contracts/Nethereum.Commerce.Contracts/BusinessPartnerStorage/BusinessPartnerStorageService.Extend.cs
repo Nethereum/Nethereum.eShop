@@ -1,16 +1,7 @@
-using System;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.Numerics;
-using Nethereum.Hex.HexTypes;
-using Nethereum.ABI.FunctionEncoding.Attributes;
-using Nethereum.Web3;
-using Nethereum.RPC.Eth.DTOs;
-using Nethereum.Contracts.CQS;
-using Nethereum.Contracts.ContractHandlers;
-using Nethereum.Contracts;
-using System.Threading;
 using Nethereum.Commerce.Contracts.BusinessPartnerStorage.ContractDefinition;
+using Nethereum.Contracts.ContractHandlers;
+using Nethereum.RPC.Eth.DTOs;
+using System.Threading.Tasks;
 
 namespace Nethereum.Commerce.Contracts.BusinessPartnerStorage
 {
@@ -21,22 +12,12 @@ namespace Nethereum.Commerce.Contracts.BusinessPartnerStorage
     /// </summary>
     public partial class BusinessPartnerStorageService
     {
-        public Task<TransactionReceipt> SetSystemDescriptionRequestStringAndWaitForReceiptAsync(string systemId, string systemDescription, CancellationTokenSource cancellationToken = null)
+        public Task<GetSellerOutputDTO> GetSellerQueryAsync(string sellerId, BlockParameter blockParameter = null)
         {
-            var setSystemDescriptionFunction = new SetSystemDescriptionFunction();
-            setSystemDescriptionFunction.SystemId = ConversionUtils.ConvertStringToBytes32Array(systemId);
-            setSystemDescriptionFunction.SystemDescription = ConversionUtils.ConvertStringToBytes32Array(systemDescription);
+            var getSellerFunction = new GetSellerFunction();
+            getSellerFunction.SellerId = sellerId.ConvertToBytes();
 
-            return ContractHandler.SendRequestAndWaitForReceiptAsync(setSystemDescriptionFunction, cancellationToken);
-        }
-
-        public Task<TransactionReceipt> SetWalletAddressRequestStringAndWaitForReceiptAsync(string systemId, string walletAddress, CancellationTokenSource cancellationToken = null)
-        {
-            var setWalletAddressFunction = new SetWalletAddressFunction();
-            setWalletAddressFunction.SystemId = ConversionUtils.ConvertStringToBytes32Array(systemId);
-            setWalletAddressFunction.WalletAddress = walletAddress;
-
-            return ContractHandler.SendRequestAndWaitForReceiptAsync(setWalletAddressFunction, cancellationToken);
+            return ContractHandler.QueryDeserializingToObjectAsync<GetSellerFunction, GetSellerOutputDTO>(getSellerFunction, blockParameter);
         }
     }
 }

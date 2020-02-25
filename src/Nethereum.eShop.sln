@@ -19,6 +19,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "contracts", "contracts", "{
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nethereum.Commerce.ContractDeployments.IntegrationTests", "contracts\Nethereum.Commerce.ContractDeployments.IntegrationTests\Nethereum.Commerce.ContractDeployments.IntegrationTests.csproj", "{0281AF81-6DB5-48C4-9137-671D5E95E958}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebJobs", "WebJobs\WebJobs.csproj", "{C817D513-88E9-4721-A1EA-57EFE0FABCD5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{0281AF81-6DB5-48C4-9137-671D5E95E958}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0281AF81-6DB5-48C4-9137-671D5E95E958}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0281AF81-6DB5-48C4-9137-671D5E95E958}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C817D513-88E9-4721-A1EA-57EFE0FABCD5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C817D513-88E9-4721-A1EA-57EFE0FABCD5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C817D513-88E9-4721-A1EA-57EFE0FABCD5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C817D513-88E9-4721-A1EA-57EFE0FABCD5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

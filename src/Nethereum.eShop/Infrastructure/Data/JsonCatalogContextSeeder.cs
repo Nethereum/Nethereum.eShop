@@ -38,6 +38,7 @@ namespace Nethereum.eShop.Infrastructure.Data
             {
 
                 var importData = GetImportDataFromJsonFile();
+                Cleanse(importData);
 
                 // TODO: Only run this if using a real database
                 // context.Database.Migrate();
@@ -77,6 +78,17 @@ namespace Nethereum.eShop.Infrastructure.Data
                     var log = loggerFactory.CreateLogger<JsonCatalogContextSeeder>();
                     log.LogError(ex.Message);
                     await SeedAsync(catalogContext, loggerFactory, retryForAvailability);
+                }
+            }
+        }
+
+        private void Cleanse(CatalogImportDto importData)
+        {
+            foreach(var catalogItem in importData.CatalogItems)
+            {
+                if(catalogItem.Name.Length > 50)
+                {
+                    catalogItem.Name = catalogItem.Name.Substring(0, 50);
                 }
             }
         }

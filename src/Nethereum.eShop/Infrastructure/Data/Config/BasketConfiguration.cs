@@ -12,8 +12,25 @@ namespace Nethereum.eShop.Infrastructure.Data.Config
             navigation.SetPropertyAccessMode(PropertyAccessMode.Field);
 
             builder.Property(b => b.BuyerAddress)
-                .IsRequired()
-                .HasMaxLength(40);
+                .IsAddress()
+                .IsRequired();
+
+            builder.Property(b => b.BuyerId)
+                .HasMaxLength(256)
+                .IsRequired();
+
+            builder.HasIndex(b => b.BuyerId);
+            builder.HasIndex(b => b.BuyerAddress);
+
+            builder.OwnsOne(o => o.ShipTo, a =>
+            {
+                a.ConfigureAddress();
+            });
+
+            builder.OwnsOne(o => o.BillTo, a =>
+            {
+                a.ConfigureAddress();
+            });
         }
     }
 }

@@ -1,21 +1,17 @@
-pragma solidity ^0.5.3;
+pragma solidity ^0.6.1;
 pragma experimental ABIEncoderV2;
 
 import "./IPoTypes.sol";
 
 interface IWalletBuyer
 {
-    // Buyer Wallet => PoMain
-    function createPurchaseOrder(IPoTypes.Po calldata po) external;
-    function cancelPurchaseOrder(uint64 ethPoNumber) external;
+    // Contract setup
+    function configure(string calldata nameOfPurchasing, string calldata nameOfFunding) external;
     
-    // Buyer Wallet <= PoMain (event pass through)
-    function onPurchaseUpdatedWithSalesOrder(IPoTypes.Po calldata po) external;
-    function onPurchasePaymentMadeOk(IPoTypes.Po calldata po) external;
-    function onPurchasePaymentFailed(IPoTypes.Po calldata po) external;
-    function onPurchaseRefundMadeOk(IPoTypes.Po calldata po) external;
-    function onPurchaseRefundFailed(IPoTypes.Po calldata po) external;
-    function onSalesOrderNotApproved(IPoTypes.Po calldata po) external;
-    function onSalesOrderCancelFailure(IPoTypes.Po calldata po) external;
-    function onSalesOrderInvoiceFault(IPoTypes.Po calldata po) external;
+    // Purchasing
+    function getPo(uint poNumber) external view returns (IPoTypes.Po memory po);
+    function getPoBySellerAndQuote(string calldata sellerIdString, uint quoteId) external view returns (IPoTypes.Po memory po);
+    function createPurchaseOrder(IPoTypes.Po calldata po) external;
+    function cancelPurchaseOrderItem(uint poNumber, uint8 poItemNumber) external;
+    function setPoItemGoodsReceived(uint poNumber, uint8 poItemNumber) external;
 }

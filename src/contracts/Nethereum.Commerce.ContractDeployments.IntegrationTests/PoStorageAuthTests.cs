@@ -21,9 +21,9 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             _output = output;
         }
 
-        [Fact]
-        public void ShouldNotBeAbleToStoreAPo()
-        {
-        }
+        //[Fact(Skip = "Not implemented yet")]
+        //public void ShouldNotBeAbleToStoreAPo()
+        //{
+        //}
     }
 }

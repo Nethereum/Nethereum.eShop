@@ -4,5 +4,6 @@ namespace Nethereum.eShop.Infrastructure.Identity
 {
     public class ApplicationUser : IdentityUser
     {
+
     }
 }
