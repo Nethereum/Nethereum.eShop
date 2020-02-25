@@ -22,7 +22,7 @@ namespace Nethereum.eShop.ApplicationCore.Services
         {
             // TODO: Do all the work to help initialize the RuleTree
 
-            return new RulesDomain();
+            return new RulesDomain(new RulesDomainSeed());
         }
 
         public async Task<RuleTree> CreateRuleTreeAsync(RulesDomain domain, RuleTreeOrigin origin)
