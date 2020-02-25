@@ -11,8 +11,7 @@ interface IPurchasing
     // Events Header level
     event PurchaseOrderCreateRequestLog(address indexed buyerAddress, bytes32 indexed sellerId, uint indexed poNumber, IPoTypes.Po po);
     event PurchaseOrderCreatedLog(address indexed buyerAddress, bytes32 indexed sellerId, uint indexed poNumber, IPoTypes.Po po);
-    event PurchaseOrderNotCreatedLog(address indexed buyerAddress, bytes32 indexed sellerId, uint indexed poNumber, IPoTypes.Po po);
-    
+        
     // Events Item level (matching 1:1 with PoItemStatus)
     event PurchaseItemAcceptedLog(address indexed buyerAddress, bytes32 indexed sellerId, uint indexed poNumber, IPoTypes.PoItem poItem);
     event PurchaseItemRejectedLog(address indexed buyerAddress, bytes32 indexed sellerId, uint indexed poNumber, IPoTypes.PoItem poItem);
@@ -24,8 +23,7 @@ interface IPurchasing
 
     // Events Item level (for escrow release)
     event PurchaseItemEscrowReleasedLog(address indexed buyerAddress, bytes32 indexed sellerId, uint indexed poNumber, IPoTypes.PoItem poItem);
-    event PurchaseItemEscrowFailedLog(address indexed buyerAddress, bytes32 indexed sellerId, uint indexed poNumber, IPoTypes.PoItem poItem);
-
+    
     //---------------------------------------------------------
     // Functions
     //---------------------------------------------------------

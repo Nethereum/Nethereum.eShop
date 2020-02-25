@@ -52,9 +52,6 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             act.Should().Throw<SmartContractRevertException>().WithMessage("*PO item does not exist*");
         }
 
-        /// <summary>
-        /// Seller can only set GR after 30 days
-        /// </summary>
         [Fact]
         public async void ShouldFailToSetStatusToGoodsReceivedBySeller()
         {
@@ -90,7 +87,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                 poNumberAsBuilt, poItemNumber);
             txReceiptGI.Status.Value.Should().Be(1);
 
-            // Setting Goods Received by Seller should fail
+            // Setting Goods Received by Seller should fail, seller can only set GR after 30 days
             Func<Task> act = async () => await _contracts.WalletSellerService.SetPoItemGoodsReceivedRequestAndWaitForReceiptAsync(
                 poNumberAsBuilt, poItemNumber);
             act.Should().Throw<SmartContractRevertException>().WithMessage("*Seller cannot set goods received: insufficient days passed*");
@@ -317,7 +314,9 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                 poNumber, poItemNumber);
             txReceiptCompleted.Status.Value.Should().Be(1);
 
-            // Check log exists
+            // Check logs exist
+            var logPoItemEscrowRelease = txReceiptCompleted.DecodeAllEvents<PurchaseItemEscrowReleasedLogEventDTO>().FirstOrDefault();
+            logPoItemEscrowRelease.Should().NotBeNull();
             var logPoItemCompleted = txReceiptCompleted.DecodeAllEvents<PurchaseItemCompletedLogEventDTO>().FirstOrDefault();
             logPoItemCompleted.Should().NotBeNull();
             logPoItemCompleted.Event.PoItem.Status.Should().Be(PoItemStatus.Completed);

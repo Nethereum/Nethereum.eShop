@@ -110,7 +110,7 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
         //bool isFunded = fundingContract.getPoFundingStatus(po.ethPurchaseOrderNumber);
         //require(isFunded == true, "Insufficient funding for PO");
         //if (!isFunded)
-        //{ could emit create failed?
+        //{ revert if create failed
         //} else
 
         // Record the new PO as it was stored
@@ -231,9 +231,10 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
         validatePoItem(po, poItemNumber, IPoTypes.PoItemStatus.GoodsReceived);
         
         // TODO escrow release here, which could revert
-        
-        // Updates
         uint poItemIndex = poItemNumber - 1;
+        emit PurchaseItemEscrowReleasedLog(po.buyerAddress, po.sellerId, po.poNumber, po.poItems[poItemIndex]);
+
+        // Updates        
         po.poItems[poItemIndex].status = IPoTypes.PoItemStatus.Completed;
         po.poItems[poItemIndex].actualEscrowReleaseDate = now;
         po.poItems[poItemIndex].isEscrowReleased = true;
