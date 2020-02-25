@@ -65,12 +65,12 @@ contract WalletBuyer is IWalletBuyer, Ownable, Bindable
     
     function cancelPurchaseOrderItem(uint poNumber, uint8 poItemNumber) override external
     {
-        
+        revert("Not implemented yet");
     }
     
     function setPoItemGoodsReceived(uint poNumber, uint8 poItemNumber) override external
     {
-        
+        purchasing.setPoItemGoodsReceivedBuyer(poNumber, poItemNumber);
     }
 }
 

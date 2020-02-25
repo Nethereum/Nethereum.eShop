@@ -31,7 +31,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         }
 
         [Fact]
-        public async void ShouldFailToChangeStatusOnNonExistentPo()
+        public async void ShouldFailToSetStatusOnNonExistentPo()
         {
             // PO 12345 shouldn't exist
             await Task.Delay(1);
@@ -40,14 +40,60 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             act.Should().Throw<SmartContractRevertException>().WithMessage("*PO does not exist*");
         }
 
-        [Fact]
-        public async void ShouldFailToChangeStatusOnNonExistentPoItem()
+        [Theory]
+        [InlineData(0)]    // po item number shouldnt ever exist
+        [InlineData(255)]  // po item number shouldnt exist on the PO used for test 
+        public async void ShouldFailToSetStatusOnNonExistentPoItem(byte poItemNumber)
         {
-            // This PO exists, but item 255 shouldn't exist
+            // This PO exists, but items specified shouldn't exist
             await Task.Delay(1);
             Func<Task> act = async () => await _contracts.WalletSellerService.SetPoItemAcceptedRequestAndWaitForReceiptAsync(
-                _contracts.PoTest.PoNumber, 255, "SalesOrder1", "SalesOrderItem1");
+                _contracts.PoTest.PoNumber, poItemNumber, "SalesOrder1", "SalesOrderItem1");
             act.Should().Throw<SmartContractRevertException>().WithMessage("*PO item does not exist*");
+        }
+
+        /// <summary>
+        /// Seller can only set GR after 30 days
+        /// </summary>
+        [Fact]
+        public async void ShouldFailToSetStatusToGoodsReceivedBySeller()
+        {
+            // Prepare a new PO
+            uint quoteId = GetRandomInt();
+            Buyer.Po poAsRequested = CreateDummyPoForPurchasingCreate(quoteId).ToBuyerPo();
+
+            // Request creation of new PO using the Buyer wallet
+            var txReceiptCreate = await _contracts.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
+            txReceiptCreate.Status.Value.Should().Be(1);
+
+            // Get the PO number
+            var logPoCreated = txReceiptCreate.DecodeAllEvents<PurchaseOrderCreatedLogEventDTO>().FirstOrDefault();
+            logPoCreated.Should().NotBeNull();
+            var poNumberAsBuilt = logPoCreated.Event.Po.PoNumber;
+            _output.WriteLine($"{poNumberAsBuilt}");
+            
+            // Mark the first of the PO items as Accepted
+            byte poItemNumber = 1;
+            string salesOrderNumber = "SalesOrder01";
+            string salesOrderItem = "10";
+            var txReceiptAccept = await _contracts.WalletSellerService.SetPoItemAcceptedRequestAndWaitForReceiptAsync(
+                poNumberAsBuilt, poItemNumber, salesOrderNumber, salesOrderItem);
+            txReceiptAccept.Status.Value.Should().Be(1);
+
+            // Mark PO item as Ready for Goods Issue            
+            var txReceiptReadyForGI = await _contracts.WalletSellerService.SetPoItemReadyForGoodsIssueRequestAndWaitForReceiptAsync(
+                poNumberAsBuilt, poItemNumber);
+            txReceiptReadyForGI.Status.Value.Should().Be(1);
+
+            // Mark PO item as Goods Issued            
+            var txReceiptGI = await _contracts.WalletSellerService.SetPoItemGoodsIssuedRequestAndWaitForReceiptAsync(
+                poNumberAsBuilt, poItemNumber);
+            txReceiptGI.Status.Value.Should().Be(1);
+
+            // Setting Goods Received by Seller should fail
+            Func<Task> act = async () => await _contracts.WalletSellerService.SetPoItemGoodsReceivedRequestAndWaitForReceiptAsync(
+                poNumberAsBuilt, poItemNumber);
+            act.Should().Throw<SmartContractRevertException>().WithMessage("*Seller cannot set goods received: insufficient days passed*");
         }
 
         [Fact]
@@ -68,6 +114,55 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var poExpected = _contracts.PoTest;
             var poActual = (await _contracts.WalletSellerService.GetPoBySellerAndQuoteQueryAsync(sellerId, quoteId)).Po;
             CheckEveryPoFieldMatches(poExpected.ToStoragePo(), poActual.ToStoragePo());
+        }
+
+        [Fact]
+        public async void ShouldSetPoItemStatusToRejected()
+        {
+            // Prepare a new PO
+            uint quoteId = GetRandomInt();
+            Buyer.Po poAsRequested = CreateDummyPoForPurchasingCreate(quoteId).ToBuyerPo();
+
+            // Request creation of new PO using the Buyer wallet
+            var txReceiptCreate = await _contracts.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
+            txReceiptCreate.Status.Value.Should().Be(1);
+
+            // Get the PO number
+            var logPoCreated = txReceiptCreate.DecodeAllEvents<PurchaseOrderCreatedLogEventDTO>().FirstOrDefault();
+            logPoCreated.Should().NotBeNull();
+            var poNumberAsBuilt = logPoCreated.Event.Po.PoNumber;
+            _output.WriteLine($"{poNumberAsBuilt}");
+
+            // Display the as-built PO
+            var poActualv1 = (await _contracts.PoStorageService.GetPoQueryAsync(poNumberAsBuilt)).Po;
+            DisplaySeparator(_output, "PO v1");
+            DisplayPoHeader(_output, poActualv1);
+            for (int i = 0; i < poActualv1.PoItems.Count; i++)
+            {
+                DisplayPoItem(_output, poActualv1.PoItems[i]);
+            }
+
+            // Reject the first of the PO items
+            byte poItemNumber = 1;
+            var txReceiptAccept = await _contracts.WalletSellerService.SetPoItemRejectedRequestAndWaitForReceiptAsync(poNumberAsBuilt, poItemNumber);
+            txReceiptAccept.Status.Value.Should().Be(1);
+
+            // Check log exists
+            var logPoRejected = txReceiptAccept.DecodeAllEvents<PurchaseItemRejectedLogEventDTO>().FirstOrDefault();
+            logPoRejected.Should().NotBeNull();
+            logPoRejected.Event.PoItem.Status.Should().Be(PoItemStatus.Rejected);
+
+            // Display the now-updated PO
+            var poActualv2 = (await _contracts.WalletSellerService.GetPoQueryAsync(poNumberAsBuilt)).Po.ToStoragePo();
+            DisplaySeparator(_output, "PO v2");
+            DisplayPoHeader(_output, poActualv2);
+            for (int i = 0; i < poActualv2.PoItems.Count; i++)
+            {
+                DisplayPoItem(_output, poActualv2.PoItems[i]);
+            }
+
+            // Check it has been updated correctly
+            poActualv2.PoItems[poItemNumber - 1].Status.Should().Be(PoItemStatus.Rejected);
         }
 
         [Fact, TestPriority(10)]
@@ -98,7 +193,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 
             // Accept the first of the PO items
             byte poItemNumber = 1;
-            string salesOrderNumber = "KevinSalesOrder";
+            string salesOrderNumber = "SalesOrder01";
             string salesOrderItem = "10";
             var txReceiptAccept = await _contracts.WalletSellerService.SetPoItemAcceptedRequestAndWaitForReceiptAsync(
                 poNumberAsBuilt, poItemNumber, salesOrderNumber, salesOrderItem);
@@ -119,9 +214,10 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             }
 
             // Check it has been updated correctly
-            poActualv2.PoItems[poItemNumber - 1].SoNumber.Should().Be(salesOrderNumber);
-            poActualv2.PoItems[poItemNumber - 1].SoItemNumber.Should().Be(salesOrderItem);
-            poActualv2.PoItems[poItemNumber - 1].Status.Should().Be(PoItemStatus.Accepted);
+            int poItemIndex = poItemNumber - 1;
+            poActualv2.PoItems[poItemIndex].SoNumber.Should().Be(salesOrderNumber);
+            poActualv2.PoItems[poItemIndex].SoItemNumber.Should().Be(salesOrderItem);
+            poActualv2.PoItems[poItemIndex].Status.Should().Be(PoItemStatus.Accepted);
 
             // Store PO number to share with other tests
             _contracts.PoNumber = poNumberAsBuilt;
@@ -173,7 +269,68 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var poActual = (await _contracts.WalletSellerService.GetPoQueryAsync(poNumber)).Po.ToStoragePo();
 
             // Check it has been updated correctly
-            poActual.PoItems[poItemNumber - 1].Status.Should().Be(PoItemStatus.GoodsIssued);
+            int poItemIndex = poItemNumber - 1;
+            poActual.PoItems[poItemIndex].Status.Should().Be(PoItemStatus.GoodsIssued);
+            var block = await _contracts.Web3.Eth.Blocks.GetBlockWithTransactionsByNumber.SendRequestAsync(txReceiptGI.BlockNumber);
+            var blockTimestamp = block.Timestamp.Value;
+            poActual.PoItems[poItemIndex].GoodsIssuedDate.Should().Be(blockTimestamp);
+            poActual.PoItems[poItemIndex].PlannedEscrowReleaseDate.Should().BeGreaterThan(0, "a Planned Escrow release date should have been assigned");
+        }
+
+        [Fact, TestPriority(40)]
+        public async void Order40_ShouldSetPoItemStatusToGoodsReceivedByBuyer()
+        {
+            // Retrieve PO
+            var poNumber = _contracts.PoNumber;
+            byte poItemNumber = _contracts.PoItemNumber;
+
+            // Mark PO item as Goods Received by the Buyer (so we don't have to wait 30 days)
+            var txReceiptGR = await _contracts.WalletBuyerService.SetPoItemGoodsReceivedRequestAndWaitForReceiptAsync(
+                poNumber, poItemNumber);
+            txReceiptGR.Status.Value.Should().Be(1);
+
+            // Check log exists
+            var logPoGR = txReceiptGR.DecodeAllEvents<PurchaseItemGoodsReceivedLogEventDTO>().FirstOrDefault();
+            logPoGR.Should().NotBeNull();
+            logPoGR.Event.PoItem.Status.Should().Be(PoItemStatus.GoodsReceived);
+
+            // Get the now-updated PO
+            var poActual = (await _contracts.WalletSellerService.GetPoQueryAsync(poNumber)).Po.ToStoragePo();
+
+            // Check it has been updated correctly
+            int poItemIndex = poItemNumber - 1;
+            poActual.PoItems[poItemIndex].Status.Should().Be(PoItemStatus.GoodsReceived);
+            var block = await _contracts.Web3.Eth.Blocks.GetBlockWithTransactionsByNumber.SendRequestAsync(txReceiptGR.BlockNumber);
+            var blockTimestamp = block.Timestamp.Value;
+            poActual.PoItems[poItemIndex].GoodsReceivedDate.Should().Be(blockTimestamp);
+        }
+
+        [Fact, TestPriority(50)]
+        public async void Order50_ShouldSetPoItemStatusToComplete()
+        {
+            // Retrieve PO
+            var poNumber = _contracts.PoNumber;
+            byte poItemNumber = _contracts.PoItemNumber;
+
+            // Mark PO item as Complete
+            var txReceiptCompleted = await _contracts.WalletSellerService.SetPoItemCompletedRequestAndWaitForReceiptAsync(
+                poNumber, poItemNumber);
+            txReceiptCompleted.Status.Value.Should().Be(1);
+
+            // Check log exists
+            var logPoItemCompleted = txReceiptCompleted.DecodeAllEvents<PurchaseItemCompletedLogEventDTO>().FirstOrDefault();
+            logPoItemCompleted.Should().NotBeNull();
+            logPoItemCompleted.Event.PoItem.Status.Should().Be(PoItemStatus.Completed);
+
+            // Get the now-updated PO
+            var poActual = (await _contracts.WalletSellerService.GetPoQueryAsync(poNumber)).Po.ToStoragePo();
+
+            // Check it has been updated correctly
+            int poItemIndex = poItemNumber - 1;
+            poActual.PoItems[poItemIndex].Status.Should().Be(PoItemStatus.Completed);
+            var block = await _contracts.Web3.Eth.Blocks.GetBlockWithTransactionsByNumber.SendRequestAsync(txReceiptCompleted.BlockNumber);
+            var blockTimestamp = block.Timestamp.Value;
+            poActual.PoItems[poItemIndex].ActualEscrowReleaseDate.Should().Be(blockTimestamp);
         }
     }
 }

@@ -317,6 +317,34 @@ namespace Nethereum.Commerce.Contracts.Purchasing
              return ContractHandler.SendRequestAndWaitForReceiptAsync(setPoItemAcceptedFunction, cancellationToken);
         }
 
+        public Task<string> SetPoItemCompletedRequestAsync(SetPoItemCompletedFunction setPoItemCompletedFunction)
+        {
+             return ContractHandler.SendRequestAsync(setPoItemCompletedFunction);
+        }
+
+        public Task<TransactionReceipt> SetPoItemCompletedRequestAndWaitForReceiptAsync(SetPoItemCompletedFunction setPoItemCompletedFunction, CancellationTokenSource cancellationToken = null)
+        {
+             return ContractHandler.SendRequestAndWaitForReceiptAsync(setPoItemCompletedFunction, cancellationToken);
+        }
+
+        public Task<string> SetPoItemCompletedRequestAsync(BigInteger poNumber, byte poItemNumber)
+        {
+            var setPoItemCompletedFunction = new SetPoItemCompletedFunction();
+                setPoItemCompletedFunction.PoNumber = poNumber;
+                setPoItemCompletedFunction.PoItemNumber = poItemNumber;
+            
+             return ContractHandler.SendRequestAsync(setPoItemCompletedFunction);
+        }
+
+        public Task<TransactionReceipt> SetPoItemCompletedRequestAndWaitForReceiptAsync(BigInteger poNumber, byte poItemNumber, CancellationTokenSource cancellationToken = null)
+        {
+            var setPoItemCompletedFunction = new SetPoItemCompletedFunction();
+                setPoItemCompletedFunction.PoNumber = poNumber;
+                setPoItemCompletedFunction.PoItemNumber = poItemNumber;
+            
+             return ContractHandler.SendRequestAndWaitForReceiptAsync(setPoItemCompletedFunction, cancellationToken);
+        }
+
         public Task<string> SetPoItemGoodsIssuedRequestAsync(SetPoItemGoodsIssuedFunction setPoItemGoodsIssuedFunction)
         {
              return ContractHandler.SendRequestAsync(setPoItemGoodsIssuedFunction);

@@ -18,7 +18,7 @@ interface IPurchasing
     event PurchaseItemRejectedLog(address indexed buyerAddress, bytes32 indexed sellerId, uint indexed poNumber, IPoTypes.PoItem poItem);
     event PurchaseItemReadyForGoodsIssueLog(address indexed buyerAddress, bytes32 indexed sellerId, uint indexed poNumber, IPoTypes.PoItem poItem);
     event PurchaseItemGoodsIssuedLog(address indexed buyerAddress, bytes32 indexed sellerId, uint indexed poNumber, IPoTypes.PoItem poItem);
-    event PurchaseItemReceivedLog(address indexed buyerAddress, bytes32 indexed sellerId, uint indexed poNumber, IPoTypes.PoItem poItem);
+    event PurchaseItemGoodsReceivedLog(address indexed buyerAddress, bytes32 indexed sellerId, uint indexed poNumber, IPoTypes.PoItem poItem);
     event PurchaseItemCompletedLog(address indexed buyerAddress, bytes32 indexed sellerId, uint indexed poNumber, IPoTypes.PoItem poItem);
     event PurchaseItemCancelledLog(address indexed buyerAddress, bytes32 indexed sellerId, uint indexed poNumber, IPoTypes.PoItem poItem);
 
@@ -47,4 +47,5 @@ interface IPurchasing
     function setPoItemReadyForGoodsIssue(uint poNumber, uint8 poItemNumber) external;
     function setPoItemGoodsIssued(uint poNumber, uint8 poItemNumber) external;
     function setPoItemGoodsReceivedSeller(uint poNumber, uint8 poItemNumber) external;
+    function setPoItemCompleted(uint poNumber, uint8 poItemNumber) external;
 }
