@@ -9,14 +9,14 @@ namespace Nethereum.eShop.ApplicationCore.Entities.RulesEngine
 {
     public class RuleTreeReport : BaseEntity, IExecutionReport
     {
-        public RuleTreeReport(RuleTreeOrigin pOrigin)
+        public RuleTreeReport(RuleTreeSeed pOrigin)
         {
             TreeOrigin = pOrigin;
         }
 
         #region Basic Properties
 
-        public RuleTreeOrigin TreeOrigin { get; set; }
+        public RuleTreeSeed TreeOrigin { get; set; }
 
         public uint? NumberOfFailures { get; set; }
 

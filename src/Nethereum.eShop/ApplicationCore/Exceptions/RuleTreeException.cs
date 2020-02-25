@@ -15,7 +15,7 @@ namespace Nethereum.eShop.ApplicationCore.Exceptions
         {
         }
 
-        protected RuleTreeException(RuleTreeOrigin failedTree, RuleTreeReport failedReport)
+        protected RuleTreeException(RuleTreeSeed failedTree, RuleTreeReport failedReport)
         {
             FailedRuleTree       = failedTree;
             FailedRuleTreeReport = failedReport;
@@ -31,7 +31,7 @@ namespace Nethereum.eShop.ApplicationCore.Exceptions
 
         #region Properties
 
-        public RuleTreeOrigin FailedRuleTree { get; protected set; }
+        public RuleTreeSeed FailedRuleTree { get; protected set; }
 
         public RuleTreeReport FailedRuleTreeReport { get; protected set; }
 

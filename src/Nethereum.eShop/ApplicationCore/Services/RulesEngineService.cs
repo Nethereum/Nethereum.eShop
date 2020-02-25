@@ -25,7 +25,7 @@ namespace Nethereum.eShop.ApplicationCore.Services
             return new RulesDomain(domainSeed);
         }
 
-        public async Task<RuleTree> CreateRuleTreeAsync(RulesDomain domain, RuleTreeOrigin origin)
+        public async Task<RuleTree> CreateRuleTreeAsync(RulesDomain domain, RuleTreeSeed origin)
         {
             // TODO: Do all the work to help initialize the RuleTree
 
@@ -36,7 +36,7 @@ namespace Nethereum.eShop.ApplicationCore.Services
         {
             // TODO: Do all the work to execute the RuleTree - and return a report?
 
-            return new RuleTreeReport(new RuleTreeOrigin());
+            return new RuleTreeReport(new RuleTreeSeed());
         }
 
         public async Task<IReadOnlyList<RuleTree>> ListRuleTreeCacheAsync()
