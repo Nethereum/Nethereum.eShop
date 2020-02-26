@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace Nethereum.eShop.Web.Services
 {
@@ -18,14 +19,14 @@ namespace Nethereum.eShop.Web.Services
     public class CatalogViewModelService : ICatalogViewModelService
     {
         private readonly ILogger<CatalogViewModelService> _logger;
-        private readonly IAsyncRepository<CatalogItem> _itemRepository;
+        private readonly ICatalogItemRepository _itemRepository;
         private readonly IAsyncRepository<CatalogBrand> _brandRepository;
         private readonly IAsyncRepository<CatalogType> _typeRepository;
         private readonly IUriComposer _uriComposer;
 
         public CatalogViewModelService(
             ILoggerFactory loggerFactory,
-            IAsyncRepository<CatalogItem> itemRepository,
+            ICatalogItemRepository itemRepository,
             IAsyncRepository<CatalogBrand> brandRepository,
             IAsyncRepository<CatalogType> typeRepository,
             IUriComposer uriComposer)
@@ -37,13 +38,13 @@ namespace Nethereum.eShop.Web.Services
             _uriComposer = uriComposer;
         }
 
-        public async Task<CatalogIndexViewModel> GetCatalogItems(int pageIndex, int itemsPage, int? brandId, int? typeId)
+        public async Task<CatalogIndexViewModel> GetCatalogItems(int pageIndex, int itemsPage, int? brandId, int? typeId, string searchText = null)
         {
             _logger.LogInformation("GetCatalogItems called.");
 
-            var filterSpecification = new CatalogFilterSpecification(brandId, typeId);
+            var filterSpecification = new CatalogFilterSpecification(brandId, typeId, searchText);
             var filterPaginatedSpecification =
-                new CatalogFilterPaginatedSpecification(itemsPage * pageIndex, itemsPage, brandId, typeId);
+                new CatalogFilterPaginatedSpecification(itemsPage * pageIndex, itemsPage, brandId, typeId, searchText);
 
             // the implementation below using ForEach and Count. We need a List.
             var itemsOnPage = await _itemRepository.ListAsync(filterPaginatedSpecification);
