@@ -41,15 +41,10 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
         public PurchasingService PurchasingService { get; internal set; }
         public FundingService FundingService { get; internal set; }
 
-        // Shared test data
         /// <summary>
         /// Pre-created PO added by fixture, written direct to PO storage
         /// </summary>
         public Buyer.Po PoTest { get; internal set; }
-
-        // To hold PO and Item to share across tests
-        public BigInteger PoNumber { get; internal set; }
-        public byte PoItemNumber { get; internal set; }
 
         // Configuration
         public readonly ContractDeploymentsConfig ContractDeploymentConfig;
