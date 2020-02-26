@@ -3,6 +3,8 @@ using Xunit;
 using Xunit.Abstractions;
 using FluentAssertions;
 using Nethereum.Commerce.Contracts;
+using System;
+using System.Numerics;
 
 namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 {
@@ -45,7 +47,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 
             // ... the seller wallet should be configured to have a seller id.
             var actualSellerIdString = (await _contracts.WalletSellerService.SellerIdQueryAsync()).ConvertToString();
-            
+
             var expectedSellerIdString = _contracts.ContractDeploymentConfig.EShopSellerId;
             actualSellerIdString.Should().Be(expectedSellerIdString);
 
@@ -55,6 +57,18 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             actualSellerIdRecordFromBusinessPartnerStorage.IsActive.Should().Be(true);
             actualSellerIdRecordFromBusinessPartnerStorage.SellerDescription.Should().Be(_contracts.ContractDeploymentConfig.EShopDescription);
 
+        }
+
+        [Fact]
+        public async void ShouldHaveDeployedMockContracts()
+        {
+            // If mock contracts deployed ok, then a MockDai contract should exist
+            var totalSupply = await _contracts.MockDaiService.TotalSupplyQueryAsync();
+            totalSupply.Should().BeGreaterThan(1);
+            var dec = await _contracts.MockDaiService.DecimalsQueryAsync();
+            dec.Should().BeGreaterThan(0);
+            var totalSupplyFactored = totalSupply / BigInteger.Pow(10, dec);
+            _output.WriteLine($"MockDai Total Supply = {totalSupplyFactored.ToString("N0")}");
         }
     }
 }
