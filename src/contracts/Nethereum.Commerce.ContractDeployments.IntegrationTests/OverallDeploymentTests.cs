@@ -1,10 +1,9 @@
+using FluentAssertions;
 using Nethereum.Commerce.ContractDeployments.IntegrationTests.Config;
+using Nethereum.Commerce.Contracts;
+using System.Numerics;
 using Xunit;
 using Xunit.Abstractions;
-using FluentAssertions;
-using Nethereum.Commerce.Contracts;
-using System;
-using System.Numerics;
 
 namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 {
@@ -47,7 +46,6 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 
             // ... the seller wallet should be configured to have a seller id.
             var actualSellerIdString = (await _contracts.WalletSellerService.SellerIdQueryAsync()).ConvertToString();
-
             var expectedSellerIdString = _contracts.ContractDeploymentConfig.EShopSellerId;
             actualSellerIdString.Should().Be(expectedSellerIdString);
 
@@ -56,7 +54,6 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var actualSellerIdRecordFromBusinessPartnerStorage = (await _contracts.BusinessPartnerStorageService.GetSellerQueryAsync(actualSellerIdBytes)).Seller;
             actualSellerIdRecordFromBusinessPartnerStorage.IsActive.Should().Be(true);
             actualSellerIdRecordFromBusinessPartnerStorage.SellerDescription.Should().Be(_contracts.ContractDeploymentConfig.EShopDescription);
-
         }
 
         [Fact]

@@ -45,11 +45,6 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
         // Mocks
         public MockDaiService MockDaiService { get; internal set; }
 
-        /// <summary>
-        /// Pre-created PO added by fixture, written direct to PO storage
-        /// </summary>
-        public Buyer.Po PoTest { get; internal set; }
-
         // Configuration
         public readonly ContractDeploymentsConfig ContractDeploymentConfig;
         // Contract names used internally by eg address registry
@@ -61,7 +56,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
         public const string CONTRACT_NAME_WALLET_SELLER = "WalletSeller";
         public const string CONTRACT_NAME_PURCHASING = "Purchasing";
         public const string CONTRACT_NAME_FUNDING = "Funding";
-        
+
         private readonly IMessageSink _diagnosticMessageSink;
 
         public ContractDeploymentsFixture(IMessageSink diagnosticMessageSink)
@@ -75,7 +70,6 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
         {
             await DeployAndConfigureEShop();
             await DeployMockContracts();
-            await CreateSharedTransactionData();
         }
 
         private async Task DeployAndConfigureEShop()
@@ -332,7 +326,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
             Log($"Deploying {contractName}...");
 
             try
-            {                               
+            {
                 var mockDaiDeployment = new MockDaiDeployment();
                 MockDaiService = await MockDaiService.DeployContractAndGetServiceAsync(Web3, mockDaiDeployment);
                 var mockDaiOwner = await MockDaiService.OwnerQueryAsync();
@@ -347,25 +341,6 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
             {
                 Log($"Mock contract deploy complete.");
             }
-        }
-
-        private async Task CreateSharedTransactionData()
-        {
-            LogSeparator();
-            Log($"Creating shared transaction data...");
-
-            // Create a PO directly in the po store that can be used as shared data for many tests
-            uint poNumber = GetRandomInt();
-            string approverAddress = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610";
-            uint quoteId = GetRandomInt();
-            var po = CreateDummyPoForPoStorage(poNumber, approverAddress, quoteId);
-
-            // Store PO
-            var txReceipt = await PoStorageService.SetPoRequestAndWaitForReceiptAsync(po);
-            Log($"Tx status: {txReceipt.Status.Value}");
-
-            PoTest = po.ToBuyerPo();
-
         }
 
         public Task DisposeAsync()
