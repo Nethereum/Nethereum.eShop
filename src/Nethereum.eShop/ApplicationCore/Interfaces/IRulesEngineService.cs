@@ -10,7 +10,7 @@ namespace Nethereum.eShop.ApplicationCore.Interfaces
 
         Task<RuleTree> CreateRuleTreeAsync(RulesDomain domain, RuleTreeOrigin origin);
 
-        Task<RuleTreeReport> ExecuteAsync(RuleTree targetRuleTree);
+        Task<RuleTreeReport> ExecuteAsync(RuleTree targetRuleTree, RuleTreeRecord targetRecord);
 
         Task<IReadOnlyList<RuleTree>> ListRuleTreeCacheAsync();
     }

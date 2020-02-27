@@ -74,7 +74,9 @@ namespace Nethereum.eShop.ApplicationCore.Services
             var basketSpec = new BasketWithItemsSpecification(anonymousId);
             var basket = (await _basketRepository.ListAsync(basketSpec)).FirstOrDefault();
             if (basket == null) return;
-            basket.BuyerAddress = userName;
+            basket.BuyerId = userName;
+            // TODO: populate from buyer entity
+            basket.BuyerAddress = "";
             await _basketRepository.UpdateAsync(basket);
         }
     }

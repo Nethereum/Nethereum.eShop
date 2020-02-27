@@ -32,7 +32,7 @@ namespace Nethereum.eShop.ApplicationCore.Services
             return new RuleTree(origin);
         }
 
-        public async Task<RuleTreeReport> ExecuteAsync(RuleTree targetRuleTree)
+        public async Task<RuleTreeReport> ExecuteAsync(RuleTree targetRuleTree, RuleTreeRecord targetRecord)
         {
             // TODO: Do all the work to execute the RuleTree - and return a report?
 

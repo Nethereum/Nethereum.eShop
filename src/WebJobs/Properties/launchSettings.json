@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Nethereum.eShop.WebJobs": {
+      "commandName": "Project",
+      "commandLineArgs": "--environment Development"
+    }
+  }
+}

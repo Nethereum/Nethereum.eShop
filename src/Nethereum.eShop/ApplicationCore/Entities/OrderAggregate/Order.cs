@@ -14,23 +14,25 @@ namespace Nethereum.eShop.ApplicationCore.Entities.OrderAggregate
         /// <summary>
         /// The transaction hash for Purchase Order creation
         /// </summary>
-        public string TransactionHash { get; private set; }
+        public string TransactionHash { get; set; }
+
+        public string BuyerId { get; set; }
 
         /// <summary>
         /// The Buyer Address
         /// </summary>
-        public string BuyerAddress { get; private set; }
+        public string BuyerAddress { get; set; }
 
         public string CurrencyAddress { get; set; }
 
         public string CurrencySymbol { get; set; }
 
-        public string ApproverAddress { get; private set; }
+        public string ApproverAddress { get; set; }
 
         /// <summary>
         /// The Purhase Order Number
         /// </summary>
-        public long? PoNumber { get; private set; }
+        public long? PoNumber { get; set; }
 
         // TODO: Change to enum when it is ready
         /*
@@ -41,7 +43,7 @@ namespace Nethereum.eShop.ApplicationCore.Entities.OrderAggregate
         Invoice                 // 2  PO is paid later after buyer receives an invoice
     }
          */
-        public int PoType { get; private set; }
+        public int PoType { get; set; }
 
         /// <summary>
         /// eShop constant - one wallet expected per shop
@@ -55,7 +57,7 @@ namespace Nethereum.eShop.ApplicationCore.Entities.OrderAggregate
 
         public DateTimeOffset? PoDate { get; set; }
 
-        public DateTimeOffset OrderDate { get; private set; } = DateTimeOffset.Now;
+        public DateTimeOffset OrderDate { get; set; } = DateTimeOffset.Now;
 
         public PostalAddress BillTo { get; private set; }
         public PostalAddress ShipTo { get; private set; }
@@ -77,13 +79,16 @@ namespace Nethereum.eShop.ApplicationCore.Entities.OrderAggregate
             // required by EF
         }
 
-        public Order(string buyerAddress, PostalAddress billTo, PostalAddress shipTo, List<OrderItem> items)
+        public Order(string buyerId, string buyerAddress, PostalAddress billTo, PostalAddress shipTo, List<OrderItem> items)
         {
+            Guard.Against.NullOrEmpty(buyerId, nameof(buyerId));
             Guard.Against.NullOrEmpty(buyerAddress, nameof(buyerAddress));
-            Guard.Against.Null(billTo, nameof(billTo));
-            Guard.Against.Null(shipTo, nameof(shipTo));
+            // TODO: Reinforce null address guards
+            // Guard.Against.Null(billTo, nameof(billTo));
+            // Guard.Against.Null(shipTo, nameof(shipTo));
             Guard.Against.Null(items, nameof(items));
 
+            BuyerId = buyerId;
             BuyerAddress = buyerAddress;
             ShipTo = shipTo;
             _orderItems = items;

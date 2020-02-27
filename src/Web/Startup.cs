@@ -39,11 +39,22 @@ namespace Nethereum.eShop.Web
 
         public void ConfigureDevelopmentServices(IServiceCollection services)
         {
-            // use in-memory database
-            ConfigureInMemoryDatabases(services);
+            var inMemoryDbConfig = Configuration["use-in-memory-db"];
+            // Default to in memory db
+            // if sql is required - set "use-in-memory-db" to false in appsettings, command line or user secrets 
+            var inMemory = string.IsNullOrEmpty(inMemoryDbConfig) ? true : bool.Parse(inMemoryDbConfig);
 
-            // use real database
-            //ConfigureProductionServices(services);
+            if (inMemory)
+            {
+                // use in-memory database
+                ConfigureInMemoryDatabases(services);
+            }
+            else
+            {
+                // use real database
+                ConfigureProductionServices(services);
+            }
+
         }
 
         private void ConfigureInMemoryDatabases(IServiceCollection services)
@@ -64,8 +75,18 @@ namespace Nethereum.eShop.Web
             // use real database
             // Requires LocalDB which can be installed with SQL Server Express 2016
             // https://www.microsoft.com/en-us/download/details.aspx?id=54284
-            services.AddDbContext<CatalogContext>(c =>
-                c.UseSqlServer(Configuration.GetConnectionString("CatalogConnection")));
+
+            // migrations require a .net tool
+            // ensure to install the dotnet-ef tool - 3.1.1
+            // dotnet tool install --global dotnet-ef --version 3.1.1
+
+            /*
+             *  A batch file can be run to create the migration and update the DB
+                See CreateAndApplyDbMigrations.bat in the root of the Web project
+             */
+
+            services.AddDbContext<CatalogContext>((serviceProvider, options) =>
+                options.UseSqlServer(Configuration.GetConnectionString("CatalogConnection")));
 
             // Add Identity DbContext
             services.AddDbContext<AppIdentityDbContext>(options =>
