@@ -15,18 +15,30 @@ namespace Nethereum.eShop.ApplicationCore.Exceptions
         {
         }
 
-        protected RuleTreeException(RuleTreeSeed failedTree, RuleTreeReport failedReport)
-        {
-            FailedRuleTree       = failedTree;
-            FailedRuleTreeReport = failedReport;
-        }
-
         public RuleTreeException(string message) : base(message)
         {
         }
 
         public RuleTreeException(string message, Exception innerException) : base(message, innerException)
         {
+        }
+
+        public RuleTreeException(string message, RuleTreeSeed failedTree, RuleTreeReport failedReport = null) : base(message)
+        {
+            FailedRuleTree       = failedTree;
+            FailedRuleTreeReport = failedReport;
+        }
+
+        public RuleTreeException(string message, Exception innerException, RuleTreeSeed failedTree, RuleTreeReport failedReport = null) : base(message, innerException)
+        {
+            FailedRuleTree       = failedTree;
+            FailedRuleTreeReport = failedReport;
+        }
+
+        public RuleTreeException(RuleTreeSeed failedTree, RuleTreeReport failedReport = null)
+        {
+            FailedRuleTree       = failedTree;
+            FailedRuleTreeReport = failedReport;
         }
 
         #region Properties
