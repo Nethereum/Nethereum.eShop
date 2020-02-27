@@ -1,9 +1,11 @@
 using FluentAssertions;
 using Nethereum.Commerce.Contracts;
+using Nethereum.StandardTokenEIP20;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Numerics;
+using System.Threading.Tasks;
 using Xunit.Abstractions;
 using static Nethereum.Commerce.Contracts.ContractEnums;
 using Buyer = Nethereum.Commerce.Contracts.WalletBuyer.ContractDefinition;
@@ -181,18 +183,24 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         }
 
         /// <summary>
-        /// A dummy PO intended for passing to contract WalletBuyer.sol or Purchasing.sol poCreate() functions.
-        /// </summary>
-        public static Storage.Po CreateDummyPoForPurchasingCreate(uint quoteId)
+        /// A test PO intended for passing to contracts WalletBuyer.sol or Purchasing.sol poCreate() functions.
+        /// </summary>        
+        public static Storage.Po CreatePoForPurchasingContract(
+            string buyerAddress,
+            string receiverAddress,
+            string buyerWalletAddress,
+            string currencySymbol,
+            string currencyAddress,
+            uint quoteId)
         {
             return new Storage.Po()
             {
                 // PoNumber assigned by contract
-                BuyerAddress = "0x37ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
-                ReceiverAddress = "0x36ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
-                BuyerWalletAddress = "0x39ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
-                CurrencySymbol = "DAI",
-                CurrencyAddress = "0x41ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
+                BuyerAddress = buyerAddress,
+                ReceiverAddress = receiverAddress,
+                BuyerWalletAddress = buyerWalletAddress,
+                CurrencySymbol = currencySymbol,
+                CurrencyAddress = currencyAddress,
                 QuoteId = quoteId,
                 QuoteExpiryDate = 1,
                 ApproverAddress = string.Empty,  // assigned by contract
@@ -213,7 +221,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                         Unit = "EA",
                         QuantitySymbol = "NA",
                         QuantityAddress = "0x40ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
-                        CurrencyValue = 11,
+                        CurrencyValue = BigInteger.Parse("110000000000000000000"), // eg this is 110 dai
                         // Status assigned by contract
                         // GoodsIssuedDate assigned by contract
                         // GoodsReceivedDate assigned by contract
@@ -226,14 +234,14 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                     {
                         // PoNumber assigned by contract
                         // PoItemNumber assigned by contract
-                        SoNumber = "so1",
-                        SoItemNumber = "200",
+                        SoNumber = string.Empty,
+                        SoItemNumber = string.Empty,
                         ProductId = "gtin2222",
                         Quantity = 2,
                         Unit = "EA",
                         QuantitySymbol = "NA",
                         QuantityAddress = "0x42ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
-                        CurrencyValue = 22,
+                        CurrencyValue = BigInteger.Parse("220000000000000000000"), // eg this is 220 dai
                         // Status assigned by contract
                         // GoodsIssuedDate assigned by contract
                         // GoodsReceivedDate assigned by contract
@@ -247,9 +255,9 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         }
 
         /// <summary>
-        /// A dummy PO intended for writing direct to PO storage contract PoStorage.sol.
+        /// A test PO intended for writing directly to the PO storage contract PoStorage.sol.
         /// </summary>
-        public static Storage.Po CreateDummyPoForPoStorage(uint poNumber, string approverAddress, uint quoteId)
+        public static Storage.Po CreatePoForPoStorageContract(uint poNumber, string approverAddress, uint quoteId)
         {
             return new Storage.Po()
             {
@@ -310,6 +318,18 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                     }
                 }
             };
+        }
+
+        /// <summary>
+        /// Format a token value according to its decimals and symbol
+        /// eg "5000000000000000" becomes "50,000 SYM" 
+        /// </summary>
+        public static async Task<string> PrettifyAsync(this BigInteger value, StandardTokenService sts)
+        {
+            var symbol = await sts.SymbolQueryAsync();
+            var decimals = await sts.DecimalsQueryAsync();
+            var valueFactored = value / BigInteger.Pow(10, decimals);
+            return $"{valueFactored.ToString("N0")} {symbol}";
         }
     }
 }

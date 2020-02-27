@@ -53,7 +53,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         {
             // Prepare a new PO and create it
             uint quoteId = GetRandomInt();
-            Buyer.Po poAsRequested = CreateDummyPoForPurchasingCreate(quoteId).ToBuyerPo();
+            Buyer.Po poAsRequested = CreateBuyerPo(quoteId);
             var txReceiptCreate = await _contracts.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
             txReceiptCreate.Status.Value.Should().Be(1);
 
@@ -73,7 +73,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         {
             // Prepare a new PO and create it
             uint quoteId = GetRandomInt();
-            Buyer.Po poAsRequested = CreateDummyPoForPurchasingCreate(quoteId).ToBuyerPo();
+            Buyer.Po poAsRequested = CreateBuyerPo(quoteId);
             var txReceiptCreate = await _contracts.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
             txReceiptCreate.Status.Value.Should().Be(1);
 
@@ -108,7 +108,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         {
             // Prepare a new PO and create it
             uint quoteId = GetRandomInt();
-            Buyer.Po poAsRequested = CreateDummyPoForPurchasingCreate(quoteId).ToBuyerPo();
+            Buyer.Po poAsRequested = CreateBuyerPo(quoteId);
             var txReceiptCreate = await _contracts.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
             txReceiptCreate.Status.Value.Should().Be(1);
 
@@ -127,7 +127,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         {
             // Prepare a new PO and create it
             uint quoteId = GetRandomInt();
-            Buyer.Po poAsRequested = CreateDummyPoForPurchasingCreate(quoteId).ToBuyerPo();
+            Buyer.Po poAsRequested = CreateBuyerPo(quoteId);
             var txReceiptCreate = await _contracts.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
             txReceiptCreate.Status.Value.Should().Be(1);
 
@@ -146,7 +146,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         {
             // Prepare a new PO and create it
             uint quoteId = GetRandomInt();
-            Buyer.Po poAsRequested = CreateDummyPoForPurchasingCreate(quoteId).ToBuyerPo();
+            Buyer.Po poAsRequested = CreateBuyerPo(quoteId);
             var txReceiptCreate = await _contracts.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
             txReceiptCreate.Status.Value.Should().Be(1);
 
@@ -165,7 +165,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         {
             // Prepare a new PO and create it
             uint quoteId = GetRandomInt();
-            Buyer.Po poAsRequested = CreateDummyPoForPurchasingCreate(quoteId).ToBuyerPo();
+            Buyer.Po poAsRequested = CreateBuyerPo(quoteId);
             var txReceiptCreate = await _contracts.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
             txReceiptCreate.Status.Value.Should().Be(1);
 
@@ -197,7 +197,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         {
             // Prepare a new PO and create it
             uint quoteId = GetRandomInt();
-            Buyer.Po poAsRequested = CreateDummyPoForPurchasingCreate(quoteId).ToBuyerPo();
+            Buyer.Po poAsRequested = CreateBuyerPo(quoteId);
             var txReceiptCreate = await _contracts.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
             txReceiptCreate.Status.Value.Should().Be(1);
 
@@ -225,7 +225,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         {
             // Prepare a new PO and create it
             uint quoteId = GetRandomInt();
-            Buyer.Po poAsRequested = CreateDummyPoForPurchasingCreate(quoteId).ToBuyerPo();
+            Buyer.Po poAsRequested = CreateBuyerPo(quoteId);
             var txReceiptCreate = await _contracts.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
             txReceiptCreate.Status.Value.Should().Be(1);
 
@@ -259,7 +259,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         {
             // Prepare a new PO and create it
             uint quoteId = GetRandomInt();
-            Buyer.Po poAsRequested = CreateDummyPoForPurchasingCreate(quoteId).ToBuyerPo();
+            Buyer.Po poAsRequested = CreateBuyerPo(quoteId);
             var txReceiptCreate = await _contracts.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
             txReceiptCreate.Status.Value.Should().Be(1);
 
@@ -302,7 +302,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         {
             // Prepare a new PO and create it
             uint quoteId = GetRandomInt();
-            Buyer.Po poAsRequested = CreateDummyPoForPurchasingCreate(quoteId).ToBuyerPo();
+            Buyer.Po poAsRequested = CreateBuyerPo(quoteId);
             var txReceiptCreate = await _contracts.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
             txReceiptCreate.Status.Value.Should().Be(1);
 
@@ -349,7 +349,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         {
             // Prepare a new PO and create it
             uint quoteId = GetRandomInt();
-            Buyer.Po poAsRequested = CreateDummyPoForPurchasingCreate(quoteId).ToBuyerPo();
+            Buyer.Po poAsRequested = CreateBuyerPo(quoteId);
             var txReceiptCreate = await _contracts.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
             txReceiptCreate.Status.Value.Should().Be(1);
 
@@ -397,6 +397,17 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var blockTimestamp = block.Timestamp.Value;
             po.PoItems[PO_ITEM_INDEX].ActualEscrowReleaseDate.Should().Be(blockTimestamp);
             po.PoItems[PO_ITEM_INDEX].IsEscrowReleased.Should().Be(true);
+        }
+
+        private Buyer.Po CreateBuyerPo(uint quoteId)
+        {
+            return CreatePoForPurchasingContract(
+                buyerAddress: _contracts.Web3.TransactionManager.Account.Address.ToLowerInvariant(),
+                receiverAddress: _contracts.Web3.TransactionManager.Account.Address.ToLowerInvariant(),
+                buyerWalletAddress: _contracts.WalletBuyerService.ContractHandler.ContractAddress.ToLowerInvariant(),
+                currencySymbol: _contracts.MockDaiSymbol,
+                currencyAddress: _contracts.MockDaiService.ContractHandler.ContractAddress.ToLowerInvariant(),
+                quoteId).ToBuyerPo();
         }
 
         private async Task<Seller.Po> GetPoFromSellerContractAndDisplay(BigInteger poNumber, string title = "PO")

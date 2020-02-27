@@ -1,6 +1,7 @@
 pragma solidity ^0.6.1;
-//pragma experimental ABIEncoderV2;
+pragma experimental ABIEncoderV2;
 
+import "./IPoTypes.sol";
 import "./IAddressRegistry.sol";
 import "./IErc20.sol";
 import "./IFunding.sol";
@@ -36,17 +37,30 @@ contract Funding is IFunding, Ownable, Bindable, StringConvertible
         require(address(purchasingContractAddress) != address(0), "Could not find Purchasing address in registry");
     }
     
-    function transferInFundsForPoFromBuyer(uint poNumber) override external
-    {}
+    function transferInFundsForPoFromBuyerWallet(uint poNumber) override external
+    {
+        // Get total PO value
+        IPoTypes.Po memory po = purchasing.getPo(poNumber);
+        uint totalPoValue = 0;
+        for (uint i = 0; i < po.poItemCount; i++)
+        {
+            totalPoValue += po.poItems[i].currencyValue;
+        }
+        
+        // Do the pull of funds, from buyer wallet into this funding contract 
+        IErc20 token = IErc20(po.currencyAddress);
+        bool isTransferSuccessful = token.transferFrom(po.buyerWalletAddress, address(this), totalPoValue);
+        require(isTransferSuccessful == true, "Insufficient funds transferred for PO");
+    }
     
-    function transferOutFundsForPoItemToSeller(uint poNumber, uint8 poItemNumber) override external
-    {}
+    //function transferOutFundsForPoItemToSeller(uint poNumber, uint8 poItemNumber) override external
+    //{}
     
-    function transferOutFundsForPoItemToBuyer(uint poNumber,uint8 poItemNumber) override external
-    {}
+    //function transferOutFundsForPoItemToBuyer(uint poNumber,uint8 poItemNumber) override external
+    //{}
     
-    function getBalanceOfThis(address tokenAddress) override external view returns (uint balance)
-    {}
+    //function getBalanceOfThis(address tokenAddress) override external view returns (uint balance)
+    //{}
 
 
 /*

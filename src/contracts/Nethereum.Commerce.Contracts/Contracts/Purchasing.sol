@@ -105,14 +105,8 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
         //-------------------------------------------------------------------------
         // Funding. Here, the Funding contract attempts to pull in funds from buyer wallet
         //-------------------------------------------------------------------------
-        // TODO
-        //fundingContract.transferInFundsForPoFromBuyer(po.ethPurchaseOrderNumber);
-        //bool isFunded = fundingContract.getPoFundingStatus(po.ethPurchaseOrderNumber);
-        //require(isFunded == true, "Insufficient funding for PO");
-        //if (!isFunded)
-        //{ revert if create failed
-        //} else
-
+        funding.transferInFundsForPoFromBuyerWallet(po.poNumber);
+        
         // Record the new PO as it was stored
         IPoTypes.Po memory poAsStored = poStorage.getPo(po.poNumber);
         emit PurchaseOrderCreatedLog(poAsStored.buyerAddress, poAsStored.sellerId, poAsStored.poNumber, poAsStored);

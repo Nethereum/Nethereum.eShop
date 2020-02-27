@@ -44,6 +44,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
 
         // Mocks
         public MockDaiService MockDaiService { get; internal set; }
+        public string MockDaiSymbol { get; internal set; }
 
         // Configuration
         public readonly ContractDeploymentsConfig ContractDeploymentConfig;
@@ -332,6 +333,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
                 var mockDaiOwner = await MockDaiService.OwnerQueryAsync();
                 Log($"{contractName} address is: {MockDaiService.ContractHandler.ContractAddress}");
                 Log($"{contractName} owner is  : {mockDaiOwner}");
+                MockDaiSymbol = await MockDaiService.SymbolQueryAsync();
             }
             catch (Exception ex)
             {
