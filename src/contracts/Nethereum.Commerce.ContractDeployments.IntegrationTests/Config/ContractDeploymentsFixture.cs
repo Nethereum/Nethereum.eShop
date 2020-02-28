@@ -1,5 +1,4 @@
-﻿using Nethereum.Commerce.Contracts;
-using Nethereum.Commerce.Contracts.AddressRegistry;
+﻿using Nethereum.Commerce.Contracts.AddressRegistry;
 using Nethereum.Commerce.Contracts.AddressRegistry.ContractDefinition;
 using Nethereum.Commerce.Contracts.BusinessPartnerStorage;
 using Nethereum.Commerce.Contracts.BusinessPartnerStorage.ContractDefinition;
@@ -23,8 +22,6 @@ using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
-using static Nethereum.Commerce.ContractDeployments.IntegrationTests.PoHelpers;
-using Buyer = Nethereum.Commerce.Contracts.WalletBuyer.ContractDefinition;
 
 namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
 {

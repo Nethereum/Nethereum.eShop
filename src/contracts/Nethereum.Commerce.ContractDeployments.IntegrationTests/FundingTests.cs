@@ -1,0 +1,230 @@
+using FluentAssertions;
+using Nethereum.Commerce.ContractDeployments.IntegrationTests.Config;
+using Nethereum.Commerce.Contracts;
+using Nethereum.Commerce.Contracts.MockDai;
+using Nethereum.Commerce.Contracts.Purchasing.ContractDefinition;
+using Nethereum.Contracts;
+using System;
+using System.Linq;
+using System.Numerics;
+using System.Threading.Tasks;
+using Xunit;
+using Xunit.Abstractions;
+using static Nethereum.Commerce.ContractDeployments.IntegrationTests.PoHelpers;
+using static Nethereum.Commerce.Contracts.ContractEnums;
+using Buyer = Nethereum.Commerce.Contracts.WalletBuyer.ContractDefinition;
+using Storage = Nethereum.Commerce.Contracts.PoStorage.ContractDefinition;
+using Nethereum.StandardTokenEIP20;
+
+namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
+{
+    [Collection("Contract Deployment Collection")]
+    public class FundingTests
+    {
+        private readonly ITestOutputHelper _output;
+        private readonly ContractDeploymentsFixture _contracts;
+
+        private const byte PO_ITEM_NUMBER = 1;
+        private const byte PO_ITEM_INDEX = PO_ITEM_NUMBER - 1;
+        private const string SALES_ORDER_NUMBER = "SalesOrder01";
+        private const string SALES_ORDER_ITEM = "10";
+
+        public FundingTests(ContractDeploymentsFixture fixture, ITestOutputHelper output)
+        {
+            // ContractDeploymentsFixture performed a complete deployment.
+            // See Output window -> Tests for deployment logs.
+            _contracts = fixture;
+            _output = output;
+        }
+
+        [Fact]
+        public async void ShouldCreateNewPoAndTransferFunds()
+        {
+            // Prepare a new PO
+            uint quoteId = GetRandomInt();
+            Buyer.Po poAsRequested = CreateBuyerPo(quoteId);
+
+            //----------------------------------------------------------
+            // BEFORE PO RAISED
+            //----------------------------------------------------------
+            // Balance of Web3, before test starts (check account running these tests has enough funds to pay for the PO)
+            StandardTokenService sts = new StandardTokenService(_contracts.Web3, poAsRequested.CurrencyAddress);
+            var totalPoValue = poAsRequested.GetTotalCurrencyValue();
+            var web3AddressBalance = await sts.BalanceOfQueryAsync(_contracts.Web3.TransactionManager.Account.Address);
+            web3AddressBalance.Should().BeGreaterOrEqualTo(totalPoValue, "the Web3 account must be able to pay for whole PO");
+            _output.WriteLine($"PO: {poAsRequested.PoNumber}  total value {await totalPoValue.PrettifyAsync(sts)}");
+
+            // Balance of WalletBuyer, before test starts
+            var walletBuyerBalance = await sts.BalanceOfQueryAsync(poAsRequested.BuyerWalletAddress);
+            _output.WriteLine($"Wallet Buyer balance before test: {await walletBuyerBalance.PrettifyAsync(sts)}");
+
+            // Transfer required funds from current Web3 acccount to wallet buyer
+            var txTransfer = await sts.TransferRequestAndWaitForReceiptAsync(poAsRequested.BuyerWalletAddress, totalPoValue);
+            txTransfer.Status.Value.Should().Be(1);
+
+            // Balance of WalletBuyer, before PO raised   
+            walletBuyerBalance = await sts.BalanceOfQueryAsync(poAsRequested.BuyerWalletAddress);
+            _output.WriteLine($"Wallet Buyer balance after receiving funding from Web3 account: {await walletBuyerBalance.PrettifyAsync(sts)}");
+
+            // Balance of Funding, before PO raised   
+            var fundingBalanceBefore = await sts.BalanceOfQueryAsync(_contracts.FundingService.ContractHandler.ContractAddress);
+            _output.WriteLine($"Funding balance before PO: {await fundingBalanceBefore.PrettifyAsync(sts)}");
+
+            //----------------------------------------------------------
+            // RAISE PO 
+            //----------------------------------------------------------
+            // Create PO on-chain
+            // NB this approves token transfer from WALLET BUYER contract (NOT msg.sender == current web3 account) to FUNDING contract
+            var txReceiptCreate = await _contracts.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
+            txReceiptCreate.Status.Value.Should().Be(1);
+            _output.WriteLine($"... PO created ...");
+
+            //----------------------------------------------------------
+            // AFTER PO RAISED
+            //----------------------------------------------------------
+            // Balance of WalletBuyer, after PO raised   
+            walletBuyerBalance = await sts.BalanceOfQueryAsync(poAsRequested.BuyerWalletAddress);
+            _output.WriteLine($"Wallet Buyer balance after PO: {await walletBuyerBalance.PrettifyAsync(sts)}");
+
+            // Balance of Funding, after PO raised   
+            var fundingBalanceAfter = await sts.BalanceOfQueryAsync(_contracts.FundingService.ContractHandler.ContractAddress);
+            _output.WriteLine($"Funding balance after PO: {await fundingBalanceAfter.PrettifyAsync(sts)}");
+
+            // Check
+            var diff = fundingBalanceAfter - fundingBalanceBefore;
+            diff.Should().Be(totalPoValue, "funding contract should have increased in value by the PO value");
+        }
+
+        [Fact]
+        public async void ShouldRejectPoItemAndRefundBuyer()
+        {
+            // Prepare a new PO
+            uint quoteId = GetRandomInt();
+            Buyer.Po poAsRequested = CreateBuyerPo(quoteId);
+
+            // Transfer required funds from current Web3 acccount to wallet buyer
+            StandardTokenService sts = new StandardTokenService(_contracts.Web3, poAsRequested.CurrencyAddress);
+            var totalPoValue = poAsRequested.GetTotalCurrencyValue();
+            var txTransfer = await sts.TransferRequestAndWaitForReceiptAsync(poAsRequested.BuyerWalletAddress, totalPoValue);
+            txTransfer.Status.Value.Should().Be(1);
+
+            // Create PO on-chain
+            // NB: this approves token transfer from WALLET BUYER contract (NOT msg.sender == current web3 account) to FUNDING contract
+            var txReceiptCreate = await _contracts.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
+            txReceiptCreate.Status.Value.Should().Be(1);
+            _output.WriteLine($"... PO created ...");
+
+            // Get the PO number that was assigned
+            var logPoCreated = txReceiptCreate.DecodeAllEvents<PurchaseOrderCreatedLogEventDTO>().FirstOrDefault();
+            logPoCreated.Should().NotBeNull();
+            var poNumberAsBuilt = logPoCreated.Event.Po.PoNumber;
+
+            // NB: Refunds go to the PO buyer address from the PO header (not the WALLET BUYER)
+            // Balance of PO buyer address before refund
+            var poBuyerAddressBalanceBefore = await sts.BalanceOfQueryAsync(poAsRequested.BuyerAddress);
+            _output.WriteLine($"PO buyer address balance before refund: {await poBuyerAddressBalanceBefore.PrettifyAsync(sts)}");
+
+            // Do the refund (achieved by marking the PO item as rejected)
+            var txReceiptAccept = await _contracts.WalletSellerService.SetPoItemRejectedRequestAndWaitForReceiptAsync(poNumberAsBuilt, PO_ITEM_NUMBER);
+            txReceiptAccept.Status.Value.Should().Be(1);
+            var poItemValue = poAsRequested.PoItems[PO_ITEM_INDEX].CurrencyValue;
+            _output.WriteLine($"... PO item rejected with value {await poItemValue.PrettifyAsync(sts)} ...");
+
+            // Balance of PO buyer address after PO item rejection
+            var poBuyerAddressBalanceAfter = await sts.BalanceOfQueryAsync(poAsRequested.BuyerAddress);
+            _output.WriteLine($"PO buyer address balance before refund: {await poBuyerAddressBalanceAfter.PrettifyAsync(sts)}");
+
+            // Checks
+            var diff = poBuyerAddressBalanceAfter - poBuyerAddressBalanceBefore;
+            diff.Should().Be(poItemValue, "PO buyer address from PO header should have increased by value of the PO item");
+        }
+
+        [Fact]
+        public async void ShouldCompletePoItemAndPaySeller()
+        {
+            // Prepare a new PO
+            uint quoteId = GetRandomInt();
+            Buyer.Po poAsRequested = CreateBuyerPo(quoteId);
+
+            // Transfer required funds from current Web3 acccount to wallet buyer
+            StandardTokenService sts = new StandardTokenService(_contracts.Web3, poAsRequested.CurrencyAddress);
+            var totalPoValue = poAsRequested.GetTotalCurrencyValue();
+            var txTransfer = await sts.TransferRequestAndWaitForReceiptAsync(poAsRequested.BuyerWalletAddress, totalPoValue);
+            txTransfer.Status.Value.Should().Be(1);
+
+            // Create PO on-chain
+            // NB: this approves token transfer from WALLET BUYER contract (NOT msg.sender == current web3 account) to FUNDING contract
+            var txReceiptCreate = await _contracts.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
+            txReceiptCreate.Status.Value.Should().Be(1);
+            _output.WriteLine($"... PO created ...");
+
+            // Get the PO number that was assigned
+            var logPoCreated = txReceiptCreate.DecodeAllEvents<PurchaseOrderCreatedLogEventDTO>().FirstOrDefault();
+            logPoCreated.Should().NotBeNull();
+            var poNumberAsBuilt = logPoCreated.Event.Po.PoNumber;
+
+            // NB: Payment goes to the WalletSeller address 
+            var walletSellerBalanceBefore = await sts.BalanceOfQueryAsync(_contracts.WalletSellerService.ContractHandler.ContractAddress);
+            _output.WriteLine($"WalletSeller balance before completion: {await walletSellerBalanceBefore.PrettifyAsync(sts)}");
+
+            // Process PO item through to completion (completion step will release funds)
+            // Mark PO item as Accepted
+            var txReceiptAccept = await _contracts.WalletSellerService.SetPoItemAcceptedRequestAndWaitForReceiptAsync(
+                poNumberAsBuilt, PO_ITEM_NUMBER, SALES_ORDER_NUMBER, SALES_ORDER_ITEM);
+            txReceiptAccept.Status.Value.Should().Be(1);
+
+            // Mark PO item as Ready for Goods Issue            
+            var txReceiptReadyForGI = await _contracts.WalletSellerService.SetPoItemReadyForGoodsIssueRequestAndWaitForReceiptAsync(
+                poNumberAsBuilt, PO_ITEM_NUMBER);
+            txReceiptReadyForGI.Status.Value.Should().Be(1);
+
+            // Mark PO item as Goods Issued            
+            var txReceiptGI = await _contracts.WalletSellerService.SetPoItemGoodsIssuedRequestAndWaitForReceiptAsync(
+                poNumberAsBuilt, PO_ITEM_NUMBER);
+            txReceiptGI.Status.Value.Should().Be(1);
+
+            // Mark PO item as Goods Received by the Buyer (so we don't have to wait 30 days)
+            var txReceiptGR = await _contracts.WalletBuyerService.SetPoItemGoodsReceivedRequestAndWaitForReceiptAsync(
+                 poNumberAsBuilt, PO_ITEM_NUMBER);
+            txReceiptGR.Status.Value.Should().Be(1);
+
+            // Mark PO item as Complete
+            var txReceiptCompleted = await _contracts.WalletSellerService.SetPoItemCompletedRequestAndWaitForReceiptAsync(
+                poNumberAsBuilt, PO_ITEM_NUMBER);
+            txReceiptCompleted.Status.Value.Should().Be(1);
+            var poItemValue = poAsRequested.PoItems[PO_ITEM_INDEX].CurrencyValue;
+            _output.WriteLine($"... PO item completed with value {await poItemValue.PrettifyAsync(sts)} ...");
+
+            // Balance of PO buyer address after PO item rejection
+            var walletSellerBalanceAfter = await sts.BalanceOfQueryAsync(_contracts.WalletSellerService.ContractHandler.ContractAddress);
+            _output.WriteLine($"WalletSeller balance after completion: {await walletSellerBalanceAfter.PrettifyAsync(sts)}");
+
+            // Checks
+            var diff = walletSellerBalanceAfter - walletSellerBalanceBefore;
+            diff.Should().Be(poItemValue, "WalletSeller contract address should have increased by value of the PO item");
+        }
+
+        private Buyer.Po CreateBuyerPo(uint quoteId)
+        {
+            return CreatePoForPurchasingContract(
+                buyerAddress: _contracts.Web3.TransactionManager.Account.Address.ToLowerInvariant(),
+                receiverAddress: _contracts.Web3.TransactionManager.Account.Address.ToLowerInvariant(),
+                buyerWalletAddress: _contracts.WalletBuyerService.ContractHandler.ContractAddress.ToLowerInvariant(),
+                currencySymbol: _contracts.MockDaiSymbol,
+                currencyAddress: _contracts.MockDaiService.ContractHandler.ContractAddress.ToLowerInvariant(),
+                quoteId).ToBuyerPo();
+        }
+
+        private async Task<Buyer.Po> GetPoFromBuyerContractAndDisplay(BigInteger poNumber, string title = "PO")
+        {
+            var po = (await _contracts.WalletBuyerService.GetPoQueryAsync(poNumber)).Po;
+            DisplaySeparator(_output, title);
+            DisplayPoHeader(_output, po.ToStoragePo());
+            for (int i = 0; i < po.PoItems.Count; i++)
+            {
+                DisplayPoItem(_output, po.ToStoragePo().PoItems[i]);
+            }
+            return po;
+        }
+    }
+}

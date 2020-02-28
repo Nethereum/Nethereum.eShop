@@ -21,7 +21,8 @@ interface IPurchasing
     event PurchaseItemCompletedLog(address indexed buyerAddress, bytes32 indexed sellerId, uint indexed poNumber, IPoTypes.PoItem poItem);
     event PurchaseItemCancelledLog(address indexed buyerAddress, bytes32 indexed sellerId, uint indexed poNumber, IPoTypes.PoItem poItem);
 
-    // Events Item level (for escrow release)
+    // Events Item level (for escrow refund or release)
+    event PurchaseItemEscrowRefundedLog(address indexed buyerAddress, bytes32 indexed sellerId, uint indexed poNumber, IPoTypes.PoItem poItem);
     event PurchaseItemEscrowReleasedLog(address indexed buyerAddress, bytes32 indexed sellerId, uint indexed poNumber, IPoTypes.PoItem poItem);
     
     //---------------------------------------------------------

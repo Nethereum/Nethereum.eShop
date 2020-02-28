@@ -242,6 +242,62 @@ namespace Nethereum.Commerce.Contracts.Funding
              return ContractHandler.SendRequestAndWaitForReceiptAsync(transferInFundsForPoFromBuyerWalletFunction, cancellationToken);
         }
 
+        public Task<string> TransferOutFundsForPoItemToBuyerRequestAsync(TransferOutFundsForPoItemToBuyerFunction transferOutFundsForPoItemToBuyerFunction)
+        {
+             return ContractHandler.SendRequestAsync(transferOutFundsForPoItemToBuyerFunction);
+        }
+
+        public Task<TransactionReceipt> TransferOutFundsForPoItemToBuyerRequestAndWaitForReceiptAsync(TransferOutFundsForPoItemToBuyerFunction transferOutFundsForPoItemToBuyerFunction, CancellationTokenSource cancellationToken = null)
+        {
+             return ContractHandler.SendRequestAndWaitForReceiptAsync(transferOutFundsForPoItemToBuyerFunction, cancellationToken);
+        }
+
+        public Task<string> TransferOutFundsForPoItemToBuyerRequestAsync(BigInteger poNumber, byte poItemNumber)
+        {
+            var transferOutFundsForPoItemToBuyerFunction = new TransferOutFundsForPoItemToBuyerFunction();
+                transferOutFundsForPoItemToBuyerFunction.PoNumber = poNumber;
+                transferOutFundsForPoItemToBuyerFunction.PoItemNumber = poItemNumber;
+            
+             return ContractHandler.SendRequestAsync(transferOutFundsForPoItemToBuyerFunction);
+        }
+
+        public Task<TransactionReceipt> TransferOutFundsForPoItemToBuyerRequestAndWaitForReceiptAsync(BigInteger poNumber, byte poItemNumber, CancellationTokenSource cancellationToken = null)
+        {
+            var transferOutFundsForPoItemToBuyerFunction = new TransferOutFundsForPoItemToBuyerFunction();
+                transferOutFundsForPoItemToBuyerFunction.PoNumber = poNumber;
+                transferOutFundsForPoItemToBuyerFunction.PoItemNumber = poItemNumber;
+            
+             return ContractHandler.SendRequestAndWaitForReceiptAsync(transferOutFundsForPoItemToBuyerFunction, cancellationToken);
+        }
+
+        public Task<string> TransferOutFundsForPoItemToSellerRequestAsync(TransferOutFundsForPoItemToSellerFunction transferOutFundsForPoItemToSellerFunction)
+        {
+             return ContractHandler.SendRequestAsync(transferOutFundsForPoItemToSellerFunction);
+        }
+
+        public Task<TransactionReceipt> TransferOutFundsForPoItemToSellerRequestAndWaitForReceiptAsync(TransferOutFundsForPoItemToSellerFunction transferOutFundsForPoItemToSellerFunction, CancellationTokenSource cancellationToken = null)
+        {
+             return ContractHandler.SendRequestAndWaitForReceiptAsync(transferOutFundsForPoItemToSellerFunction, cancellationToken);
+        }
+
+        public Task<string> TransferOutFundsForPoItemToSellerRequestAsync(BigInteger poNumber, byte poItemNumber)
+        {
+            var transferOutFundsForPoItemToSellerFunction = new TransferOutFundsForPoItemToSellerFunction();
+                transferOutFundsForPoItemToSellerFunction.PoNumber = poNumber;
+                transferOutFundsForPoItemToSellerFunction.PoItemNumber = poItemNumber;
+            
+             return ContractHandler.SendRequestAsync(transferOutFundsForPoItemToSellerFunction);
+        }
+
+        public Task<TransactionReceipt> TransferOutFundsForPoItemToSellerRequestAndWaitForReceiptAsync(BigInteger poNumber, byte poItemNumber, CancellationTokenSource cancellationToken = null)
+        {
+            var transferOutFundsForPoItemToSellerFunction = new TransferOutFundsForPoItemToSellerFunction();
+                transferOutFundsForPoItemToSellerFunction.PoNumber = poNumber;
+                transferOutFundsForPoItemToSellerFunction.PoItemNumber = poItemNumber;
+            
+             return ContractHandler.SendRequestAndWaitForReceiptAsync(transferOutFundsForPoItemToSellerFunction, cancellationToken);
+        }
+
         public Task<string> TransferOwnershipRequestAsync(TransferOwnershipFunction transferOwnershipFunction)
         {
              return ContractHandler.SendRequestAsync(transferOwnershipFunction);

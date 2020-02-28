@@ -157,8 +157,12 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
         IPoTypes.Po memory po = poStorage.getPo(poNumber);
         validatePoItem(po, poItemNumber, IPoTypes.PoItemStatus.Created);
         
-        // Updates
+        // Escrow refund, which could revert
+        funding.transferOutFundsForPoItemToBuyer(poNumber, poItemNumber);
         uint poItemIndex = poItemNumber - 1;
+        emit PurchaseItemEscrowRefundedLog(po.buyerAddress, po.sellerId, po.poNumber, po.poItems[poItemIndex]);
+        
+        // Updates
         po.poItems[poItemIndex].status = IPoTypes.PoItemStatus.Rejected;
     
         // Write to storage
@@ -224,7 +228,8 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
         IPoTypes.Po memory po = poStorage.getPo(poNumber);
         validatePoItem(po, poItemNumber, IPoTypes.PoItemStatus.GoodsReceived);
         
-        // TODO escrow release here, which could revert
+        // Escrow release, which could revert
+        funding.transferOutFundsForPoItemToSeller(poNumber, poItemNumber);
         uint poItemIndex = poItemNumber - 1;
         emit PurchaseItemEscrowReleasedLog(po.buyerAddress, po.sellerId, po.poNumber, po.poItems[poItemIndex]);
 
@@ -240,6 +245,8 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
     
     function validatePoItem(IPoTypes.Po memory po, uint8 poItemNumber, IPoTypes.PoItemStatus expectedOldPoStatus) private pure
     {
+        // TODO could change this to be fn modifier instead
+        
         // PO header
         require(po.poNumber > 0, "PO does not exist");
         
