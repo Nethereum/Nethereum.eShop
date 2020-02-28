@@ -42,7 +42,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         {
             // Prepare a new PO
             uint quoteId = GetRandomInt();
-            Buyer.Po poAsRequested = CreateBuyerPo(quoteId);
+            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId);
 
             //----------------------------------------------------------
             // BEFORE PO RAISED
@@ -100,7 +100,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         {
             // Prepare a new PO
             uint quoteId = GetRandomInt();
-            Buyer.Po poAsRequested = CreateBuyerPo(quoteId);
+            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId);
 
             // Transfer required funds from current Web3 acccount to wallet buyer
             StandardTokenService sts = new StandardTokenService(_contracts.Web3, poAsRequested.CurrencyAddress);
@@ -148,7 +148,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         {
             // Prepare a new PO
             uint quoteId = GetRandomInt();
-            Buyer.Po poAsRequested = CreateBuyerPo(quoteId);
+            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId);
 
             // Transfer required funds from current Web3 acccount to wallet buyer
             StandardTokenService sts = new StandardTokenService(_contracts.Web3, poAsRequested.CurrencyAddress);
@@ -212,27 +212,15 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             diff.Should().Be(poItemValue, "WalletSeller contract address should have increased by value of the PO item");
         }
 
-        private Buyer.Po CreateBuyerPo(uint quoteId)
+        private async Task<Buyer.Po> CreateBuyerPoAsync(uint quoteId)
         {
             return CreatePoForPurchasingContract(
                 buyerAddress: _contracts.Web3.TransactionManager.Account.Address.ToLowerInvariant(),
                 receiverAddress: _contracts.Web3.TransactionManager.Account.Address.ToLowerInvariant(),
                 buyerWalletAddress: _contracts.WalletBuyerService.ContractHandler.ContractAddress.ToLowerInvariant(),
-                currencySymbol: _contracts.MockDaiSymbol,
+                currencySymbol: await _contracts.MockDaiService.SymbolQueryAsync(),
                 currencyAddress: _contracts.MockDaiService.ContractHandler.ContractAddress.ToLowerInvariant(),
                 quoteId).ToBuyerPo();
-        }
-
-        private async Task<Buyer.Po> GetPoFromBuyerContractAndDisplay(BigInteger poNumber, string title = "PO")
-        {
-            var po = (await _contracts.WalletBuyerService.GetPoQueryAsync(poNumber)).Po;
-            DisplaySeparator(_output, title);
-            DisplayPoHeader(_output, po.ToStoragePo());
-            for (int i = 0; i < po.PoItems.Count; i++)
-            {
-                DisplayPoItem(_output, po.ToStoragePo().PoItems[i]);
-            }
-            return po;
         }
     }
 }

@@ -53,7 +53,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         {
             // Prepare a new PO and create it
             uint quoteId = GetRandomInt();
-            Buyer.Po poAsRequested = CreateBuyerPo(quoteId);
+            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId);
             var txReceiptCreate = await _contracts.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
             txReceiptCreate.Status.Value.Should().Be(1);
 
@@ -73,7 +73,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         {
             // Prepare a new PO and create it
             uint quoteId = GetRandomInt();
-            Buyer.Po poAsRequested = CreateBuyerPo(quoteId);
+            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId);
             var txReceiptCreate = await _contracts.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
             txReceiptCreate.Status.Value.Should().Be(1);
 
@@ -108,7 +108,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         {
             // Prepare a new PO and create it
             uint quoteId = GetRandomInt();
-            Buyer.Po poAsRequested = CreateBuyerPo(quoteId);
+            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId);
             var txReceiptCreate = await _contracts.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
             txReceiptCreate.Status.Value.Should().Be(1);
 
@@ -118,7 +118,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var poNumberAsBuilt = logPoCreated.Event.Po.PoNumber;
 
             // Retrieve PO as-built and check
-            var poAsBuilt = await GetPoFromSellerContractAndDisplay(poNumberAsBuilt);
+            var poAsBuilt = await GetPoFromSellerContractAndDisplayAsync(poNumberAsBuilt);
             CheckCreatedPoFieldsMatch(poAsRequested.ToStoragePo(), poAsBuilt.ToStoragePo(), poNumberAsBuilt);
         }
 
@@ -127,7 +127,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         {
             // Prepare a new PO and create it
             uint quoteId = GetRandomInt();
-            Buyer.Po poAsRequested = CreateBuyerPo(quoteId);
+            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId);
             var txReceiptCreate = await _contracts.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
             txReceiptCreate.Status.Value.Should().Be(1);
 
@@ -146,7 +146,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         {
             // Prepare a new PO and create it
             uint quoteId = GetRandomInt();
-            Buyer.Po poAsRequested = CreateBuyerPo(quoteId);
+            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId);
             var txReceiptCreate = await _contracts.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
             txReceiptCreate.Status.Value.Should().Be(1);
 
@@ -154,7 +154,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var logPoCreated = txReceiptCreate.DecodeAllEvents<PurchaseOrderCreatedLogEventDTO>().FirstOrDefault();
             logPoCreated.Should().NotBeNull();
             var poNumberAsBuilt = logPoCreated.Event.Po.PoNumber;
-            var po = await GetPoFromSellerContractAndDisplay(poNumberAsBuilt);
+            var po = await GetPoFromSellerContractAndDisplayAsync(poNumberAsBuilt);
 
             // Check PO has been updated correctly
             po.PoItems[PO_ITEM_INDEX].Status.Should().Be(PoItemStatus.Created);
@@ -165,7 +165,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         {
             // Prepare a new PO and create it
             uint quoteId = GetRandomInt();
-            Buyer.Po poAsRequested = CreateBuyerPo(quoteId);
+            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId);
             var txReceiptCreate = await _contracts.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
             txReceiptCreate.Status.Value.Should().Be(1);
 
@@ -173,7 +173,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var logPoCreated = txReceiptCreate.DecodeAllEvents<PurchaseOrderCreatedLogEventDTO>().FirstOrDefault();
             logPoCreated.Should().NotBeNull();
             var poNumberAsBuilt = logPoCreated.Event.Po.PoNumber;
-            await GetPoFromSellerContractAndDisplay(poNumberAsBuilt);
+            await GetPoFromSellerContractAndDisplayAsync(poNumberAsBuilt);
 
             // Mark PO item as Accepted
             var txReceiptAccept = await _contracts.WalletSellerService.SetPoItemAcceptedRequestAndWaitForReceiptAsync(
@@ -186,7 +186,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             logPoAccepted.Event.PoItem.Status.Should().Be(PoItemStatus.Accepted);
 
             // Check PO has been updated correctly
-            var po = await GetPoFromSellerContractAndDisplay(poNumberAsBuilt);
+            var po = await GetPoFromSellerContractAndDisplayAsync(poNumberAsBuilt);
             po.PoItems[PO_ITEM_INDEX].SoNumber.Should().Be(SALES_ORDER_NUMBER);
             po.PoItems[PO_ITEM_INDEX].SoItemNumber.Should().Be(SALES_ORDER_ITEM);
             po.PoItems[PO_ITEM_INDEX].Status.Should().Be(PoItemStatus.Accepted);
@@ -197,7 +197,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         {
             // Prepare a new PO and create it
             uint quoteId = GetRandomInt();
-            Buyer.Po poAsRequested = CreateBuyerPo(quoteId);
+            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId);
             var txReceiptCreate = await _contracts.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
             txReceiptCreate.Status.Value.Should().Be(1);
 
@@ -216,7 +216,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             logPoRejected.Event.PoItem.Status.Should().Be(PoItemStatus.Rejected);
 
             // Check it has been updated correctly
-            var po = await GetPoFromSellerContractAndDisplay(poNumberAsBuilt);
+            var po = await GetPoFromSellerContractAndDisplayAsync(poNumberAsBuilt);
             po.PoItems[PO_ITEM_INDEX].Status.Should().Be(PoItemStatus.Rejected);
         }
 
@@ -225,7 +225,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         {
             // Prepare a new PO and create it
             uint quoteId = GetRandomInt();
-            Buyer.Po poAsRequested = CreateBuyerPo(quoteId);
+            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId);
             var txReceiptCreate = await _contracts.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
             txReceiptCreate.Status.Value.Should().Be(1);
 
@@ -250,7 +250,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             logPoReadyForGI.Event.PoItem.Status.Should().Be(PoItemStatus.ReadyForGoodsIssue);
 
             // Check PO has been updated correctly
-            var po = await GetPoFromSellerContractAndDisplay(poNumberAsBuilt);
+            var po = await GetPoFromSellerContractAndDisplayAsync(poNumberAsBuilt);
             po.PoItems[PO_ITEM_INDEX].Status.Should().Be(PoItemStatus.ReadyForGoodsIssue);
         }
 
@@ -259,7 +259,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         {
             // Prepare a new PO and create it
             uint quoteId = GetRandomInt();
-            Buyer.Po poAsRequested = CreateBuyerPo(quoteId);
+            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId);
             var txReceiptCreate = await _contracts.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
             txReceiptCreate.Status.Value.Should().Be(1);
 
@@ -289,7 +289,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             logPoGI.Event.PoItem.Status.Should().Be(PoItemStatus.GoodsIssued);
 
             // Check PO has been updated correctly
-            var po = await GetPoFromSellerContractAndDisplay(poNumberAsBuilt);
+            var po = await GetPoFromSellerContractAndDisplayAsync(poNumberAsBuilt);
             po.PoItems[PO_ITEM_INDEX].Status.Should().Be(PoItemStatus.GoodsIssued);
             var block = await _contracts.Web3.Eth.Blocks.GetBlockWithTransactionsByNumber.SendRequestAsync(txReceiptGI.BlockNumber);
             var blockTimestamp = block.Timestamp.Value;
@@ -302,7 +302,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         {
             // Prepare a new PO and create it
             uint quoteId = GetRandomInt();
-            Buyer.Po poAsRequested = CreateBuyerPo(quoteId);
+            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId);
             var txReceiptCreate = await _contracts.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
             txReceiptCreate.Status.Value.Should().Be(1);
 
@@ -337,7 +337,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             logPoGR.Event.PoItem.Status.Should().Be(PoItemStatus.GoodsReceived);
 
             // Check PO has been updated correctly
-            var po = await GetPoFromSellerContractAndDisplay(poNumberAsBuilt);
+            var po = await GetPoFromSellerContractAndDisplayAsync(poNumberAsBuilt);
             po.PoItems[PO_ITEM_INDEX].Status.Should().Be(PoItemStatus.GoodsReceived);
             var block = await _contracts.Web3.Eth.Blocks.GetBlockWithTransactionsByNumber.SendRequestAsync(txReceiptGR.BlockNumber);
             var blockTimestamp = block.Timestamp.Value;
@@ -349,7 +349,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         {
             // Prepare a new PO and create it
             uint quoteId = GetRandomInt();
-            Buyer.Po poAsRequested = CreateBuyerPo(quoteId);
+            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId);
             var txReceiptCreate = await _contracts.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
             txReceiptCreate.Status.Value.Should().Be(1);
 
@@ -391,7 +391,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             logPoItemCompleted.Event.PoItem.Status.Should().Be(PoItemStatus.Completed);
 
             // Check PO has been updated correctly
-            var po = await GetPoFromSellerContractAndDisplay(poNumberAsBuilt);
+            var po = await GetPoFromSellerContractAndDisplayAsync(poNumberAsBuilt);
             po.PoItems[PO_ITEM_INDEX].Status.Should().Be(PoItemStatus.Completed);
             var block = await _contracts.Web3.Eth.Blocks.GetBlockWithTransactionsByNumber.SendRequestAsync(txReceiptCompleted.BlockNumber);
             var blockTimestamp = block.Timestamp.Value;
@@ -399,18 +399,18 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             po.PoItems[PO_ITEM_INDEX].IsEscrowReleased.Should().Be(true);
         }
 
-        private Buyer.Po CreateBuyerPo(uint quoteId)
+        private async Task<Buyer.Po> CreateBuyerPoAsync(uint quoteId)
         {
             return CreatePoForPurchasingContract(
                 buyerAddress: _contracts.Web3.TransactionManager.Account.Address.ToLowerInvariant(),
                 receiverAddress: _contracts.Web3.TransactionManager.Account.Address.ToLowerInvariant(),
                 buyerWalletAddress: _contracts.WalletBuyerService.ContractHandler.ContractAddress.ToLowerInvariant(),
-                currencySymbol: _contracts.MockDaiSymbol,
+                currencySymbol: await _contracts.MockDaiService.SymbolQueryAsync(),
                 currencyAddress: _contracts.MockDaiService.ContractHandler.ContractAddress.ToLowerInvariant(),
                 quoteId).ToBuyerPo();
         }
 
-        private async Task<Seller.Po> GetPoFromSellerContractAndDisplay(BigInteger poNumber, string title = "PO")
+        private async Task<Seller.Po> GetPoFromSellerContractAndDisplayAsync(BigInteger poNumber, string title = "PO")
         {
             var po = (await _contracts.WalletSellerService.GetPoQueryAsync(poNumber)).Po;
             DisplaySeparator(_output, title);

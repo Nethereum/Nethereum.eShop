@@ -1,4 +1,6 @@
-﻿using Nethereum.Commerce.Contracts.AddressRegistry;
+﻿using Microsoft.Extensions.Configuration;
+using Nethereum.Commerce.Contracts;
+using Nethereum.Commerce.Contracts.AddressRegistry;
 using Nethereum.Commerce.Contracts.AddressRegistry.ContractDefinition;
 using Nethereum.Commerce.Contracts.BusinessPartnerStorage;
 using Nethereum.Commerce.Contracts.BusinessPartnerStorage.ContractDefinition;
@@ -29,7 +31,9 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
     {
         public Web3.Web3 Web3 { get; internal set; }
 
-        // Deployed contract services
+        // Deployed contracts
+        public ContractDeployment Deployment { get; internal set; }
+
         public AddressRegistryService AddressRegistryService { get; internal set; }
         public EternalStorageService EternalStorageService { get; internal set; }
         public BusinessPartnerStorageService BusinessPartnerStorageService { get; internal set; }
@@ -41,10 +45,8 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
 
         // Mocks
         public MockDaiService MockDaiService { get; internal set; }
-        public string MockDaiSymbol { get; internal set; }
 
-        // Configuration
-        public readonly ContractDeploymentsConfig ContractDeploymentConfig;
+
         // Contract names used internally by eg address registry
         public const string CONTRACT_NAME_ADDRESS_REGISTRY = "AddressRegistry";
         public const string CONTRACT_NAME_ETERNAL_STORAGE = "EternalStorage";
@@ -60,23 +62,28 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
         public ContractDeploymentsFixture(IMessageSink diagnosticMessageSink)
         {
             _diagnosticMessageSink = diagnosticMessageSink;
+
             var appConfig = ConfigurationUtils.Build(Array.Empty<string>(), "UserSecret");
-            ContractDeploymentConfig = ContractDeploymentsConfigFactory.Get(appConfig);
+            var contractDeploymentConfig = appConfig.GetSection("NewDeployments").Get<ContractDeploymentConfig>();
+            Deployment = new ContractDeployment(contractDeploymentConfig); // TODO pass in ILogger impl of diagnosticmessagesink
         }
 
         public async Task InitializeAsync()
         {
-            await DeployAndConfigureEShop();
-            await DeployMockContracts();
+            // TODO this will become await Deployment.DeployAndConfigureAsync()
+            await DeployAndConfigureEShopAsync();
+
+            // TODO this will become if (alsodeploymocks) then await Deployment.DeployMockContractsAsync()
+            await DeployMockContractsAsync();
         }
 
-        private async Task DeployAndConfigureEShop()
+        private async Task DeployAndConfigureEShopAsync()
         {
             try
             {
-                Log($"Deploying eShop: {ContractDeploymentConfig.EShopSellerId} {ContractDeploymentConfig.EShopDescription}...");
-                var url = ContractDeploymentConfig.BlockchainUrl;
-                var privateKey = ContractDeploymentConfig.ContractDeploymentOwnerPrivateKey;
+                Log($"Deploying eShop: {Deployment.ContractDeploymentConfig.EShopSellerId} {Deployment.ContractDeploymentConfig.EShopDescription}...");
+                var url = Deployment.ContractDeploymentConfig.BlockchainUrl;
+                var privateKey = Deployment.ContractDeploymentConfig.ContractDeploymentOwnerPrivateKey;
                 var account = new Account(privateKey);
                 Web3 = new Web3.Web3(account, url);
 
@@ -238,10 +245,10 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
                 txReceipt = await BusinessPartnerStorageService.SetSellerRequestAndWaitForReceiptAsync(
                     new Seller()
                     {
-                        SellerId = ContractDeploymentConfig.EShopSellerId,
-                        SellerDescription = ContractDeploymentConfig.EShopDescription,
+                        SellerId = Deployment.ContractDeploymentConfig.EShopSellerId,
+                        SellerDescription = Deployment.ContractDeploymentConfig.EShopDescription,
                         ContractAddress = WalletSellerService.ContractHandler.ContractAddress,
-                        ApproverAddress = ContractDeploymentConfig.EShopApproverAddress,
+                        ApproverAddress = Deployment.ContractDeploymentConfig.EShopApproverAddress,
                         IsActive = true
                     });
                 Log($"Tx status: {txReceipt.Status.Value}");
@@ -277,7 +284,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
                 Log();
                 Log($"Configuring Wallet Seller...");
                 txReceipt = await WalletSellerService.ConfigureRequestAndWaitForReceiptAsync(
-                    ContractDeploymentConfig.EShopSellerId, CONTRACT_NAME_PURCHASING, CONTRACT_NAME_FUNDING);
+                    Deployment.ContractDeploymentConfig.EShopSellerId, CONTRACT_NAME_PURCHASING, CONTRACT_NAME_FUNDING);
                 Log($"Tx status: {txReceipt.Status.Value}");
 
                 //-----------------------------------------------------------------------------------
@@ -317,7 +324,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
             }
         }
 
-        private async Task DeployMockContracts()
+        private async Task DeployMockContractsAsync()
         {
             LogSeparator();
             var contractName = "MockDai";
@@ -330,7 +337,6 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
                 var mockDaiOwner = await MockDaiService.OwnerQueryAsync();
                 Log($"{contractName} address is: {MockDaiService.ContractHandler.ContractAddress}");
                 Log($"{contractName} owner is  : {mockDaiOwner}");
-                MockDaiSymbol = await MockDaiService.SymbolQueryAsync();
             }
             catch (Exception ex)
             {
@@ -358,6 +364,5 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
             Log("----------------------------------------------------------------");
             Log();
         }
-
     }
 }
