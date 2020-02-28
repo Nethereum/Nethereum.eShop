@@ -4,14 +4,14 @@ namespace Nethereum.eShop.ApplicationCore.Entities.RulesEngine
 {
     public class RuleTree: BaseEntity
     {
-        public RuleTree(RuleTreeOrigin pOrigin)
+        public RuleTree(RuleTreeSeed pOrigin)
         {
             TreeOrigin = pOrigin;           
         }
 
         #region Properties
 
-        public RuleTreeOrigin TreeOrigin { get; set; }
+        public RuleTreeSeed TreeOrigin { get; set; }
 
         #endregion
 

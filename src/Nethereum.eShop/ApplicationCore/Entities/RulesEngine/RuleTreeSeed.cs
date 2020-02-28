@@ -2,16 +2,16 @@
 
 namespace Nethereum.eShop.ApplicationCore.Entities.RulesEngine
 {
-    public class RuleTreeOrigin: BaseEntity
+    public class RuleTreeSeed: BaseEntity
     {
-        public RuleTreeOrigin()
+        public RuleTreeSeed()
         {
             RuleTreeId        = null;
             RuleTreeOriginUrl = null;
             Owner             = null;
         }
 
-        public RuleTreeOrigin(string psRuleTreeId, string psOriginUrl, string psOwner)
+        public RuleTreeSeed(string psRuleTreeId, string psOriginUrl, string psOwner)
         {
             RuleTreeId        = psRuleTreeId;
             RuleTreeOriginUrl = psOriginUrl;

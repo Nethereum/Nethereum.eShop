@@ -2,6 +2,8 @@
 using Nethereum.eShop.ApplicationCore.Entities;
 using Nethereum.eShop.ApplicationCore.Entities.BasketAggregate;
 using Nethereum.eShop.ApplicationCore.Entities.QuoteAggregate;
+using Nethereum.eShop.ApplicationCore.Entities.RulesEngine;
+using Nethereum.eShop.ApplicationCore.Exceptions;
 using Nethereum.eShop.ApplicationCore.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -14,15 +16,18 @@ namespace Nethereum.eShop.ApplicationCore.Services
         private readonly IAsyncRepository<Quote> _quoteRepository;
         private readonly IAsyncRepository<Basket> _basketRepository;
         private readonly IAsyncRepository<CatalogItem> _itemRepository;
+        private readonly IRulesEngineService _rulesEngineService;
 
         public QuoteService(
             IAsyncRepository<Basket> basketRepository,
             IAsyncRepository<CatalogItem> itemRepository,
-            IAsyncRepository<Quote> orderRepository)
+            IAsyncRepository<Quote> orderRepository,
+            IRulesEngineService rulesEngineService = null)
         {
             _quoteRepository = orderRepository;
             _basketRepository = basketRepository;
             _itemRepository = itemRepository;
+            _rulesEngineService = rulesEngineService;
         }
 
         public async Task CreateQuoteAsync(int basketId)
@@ -50,6 +55,20 @@ namespace Nethereum.eShop.ApplicationCore.Services
                 Date = DateTimeOffset.UtcNow,
                 Expiry = DateTimeOffset.UtcNow.Date.AddMonths(1)
             };
+
+            // NOTE: This block demonstrates the basic idea of how to use the rules engine, 
+            // but it's definitely subject to change
+            if ((_rulesEngineService != null) && (_rulesEngineService.GetDefaultRuleTree() != null))
+            {
+                var QuoteRuleTree = await _rulesEngineService.GetDefaultRuleTree().ConfigureAwait(false);
+                var QuoteRecord   = await _rulesEngineService.Transform(quote).ConfigureAwait(false);
+                var QuoteReport   = await _rulesEngineService.ExecuteAsync(QuoteRuleTree, QuoteRecord).ConfigureAwait(false);
+
+                if (QuoteReport.NumberOfFailures > 0)
+                {
+                    throw new RuleTreeException(QuoteRuleTree.TreeOrigin, QuoteReport);
+                }
+            }
 
             await _quoteRepository.AddAsync(quote);
         }
