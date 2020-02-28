@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Nethereum.eShop.Infrastructure.Data
 {
-    public class RuleTreeCache : IRuleTreeCache
+    public class RuleTreeCache : GeneralCache<RuleTree>, IRuleTreeCache
     {
         public RuleTreeCache()
         {}
@@ -27,7 +27,7 @@ namespace Nethereum.eShop.Infrastructure.Data
 
         public async Task DeleteAsync(RuleTree entity)
         {
-
+            return;
         }
 
         public async Task<RuleTree> GetLastRuleTreeCreatedAsync()

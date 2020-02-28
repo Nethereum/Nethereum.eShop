@@ -110,6 +110,7 @@ namespace Nethereum.eShop.Web
 
             services.AddMediatR(typeof(BasketViewModelService).Assembly);
 
+            services.AddScoped(typeof(IAsyncCache<>), typeof(GeneralCache<>));
             services.AddScoped(typeof(IAsyncRepository<>), typeof(EfRepository<>));
             services.AddScoped<ICatalogViewModelService, CachedCatalogViewModelService>();
             services.AddScoped<IBasketService, BasketService>();
@@ -117,6 +118,7 @@ namespace Nethereum.eShop.Web
             services.AddScoped<IQuoteService, QuoteService>();
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IPurchaseOrderService, PurchaseOrderService>();
+            services.AddScoped<IRulesEngineService, RulesEngineService>();
             services.AddScoped<IStockItemRepository, StockItemRepository>();
             services.AddScoped<IQuoteRepository, QuoteRepository>();
             services.AddScoped<IOrderRepository, OrderRepository>();
@@ -133,6 +135,10 @@ namespace Nethereum.eShop.Web
                 (ICatalogContextSeeder)new JsonCatalogContextSeeder(catalogSettings.CatalogSeedJsonFile);
 
             services.AddSingleton(catalogContextSeeder);
+
+            var rulesEngineSettings = Configuration.Get<RulesEngineSettings>();
+
+            services.AddSingleton<IRulesEngineInitializer>(new RulesEngineInitializer(rulesEngineSettings));
 
             services.AddScoped(typeof(IAppLogger<>), typeof(LoggerAdapter<>));
             services.AddTransient<IEmailSender, EmailSender>();

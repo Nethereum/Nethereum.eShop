@@ -3,8 +3,10 @@ using System.Threading.Tasks;
 
 namespace Nethereum.eShop.ApplicationCore.Interfaces
 {
-    public interface IRuleTreeCache : IAsyncCache<RuleTree>
+    public interface IRuleTreeCache
     {
+        Task<RuleTree> GetByIdAsync(string id);
+
         Task<RuleTree> GetLastRuleTreeCreatedAsync();
     }
 }

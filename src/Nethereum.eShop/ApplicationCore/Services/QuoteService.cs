@@ -22,7 +22,7 @@ namespace Nethereum.eShop.ApplicationCore.Services
             IAsyncRepository<Basket> basketRepository,
             IAsyncRepository<CatalogItem> itemRepository,
             IAsyncRepository<Quote> orderRepository,
-            IRulesEngineService rulesEngineService = null)
+            IRulesEngineService rulesEngineService)
         {
             _quoteRepository = orderRepository;
             _basketRepository = basketRepository;
