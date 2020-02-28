@@ -125,14 +125,18 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             _output.WriteLine($"PO buyer address balance before refund: {await poBuyerAddressBalanceBefore.PrettifyAsync(sts)}");
 
             // Do the refund (achieved by marking the PO item as rejected)
-            var txReceiptAccept = await _contracts.WalletSellerService.SetPoItemRejectedRequestAndWaitForReceiptAsync(poNumberAsBuilt, PO_ITEM_NUMBER);
-            txReceiptAccept.Status.Value.Should().Be(1);
+            var txReceiptPoItemReject = await _contracts.WalletSellerService.SetPoItemRejectedRequestAndWaitForReceiptAsync(poNumberAsBuilt, PO_ITEM_NUMBER);
+            txReceiptPoItemReject.Status.Value.Should().Be(1);
             var poItemValue = poAsRequested.PoItems[PO_ITEM_INDEX].CurrencyValue;
             _output.WriteLine($"... PO item rejected with value {await poItemValue.PrettifyAsync(sts)} ...");
 
+            // Check log exists for Escrow refund
+            var logPoItemReject = txReceiptPoItemReject.DecodeAllEvents<PurchaseItemEscrowRefundedLogEventDTO>().FirstOrDefault();
+            logPoItemReject.Should().NotBeNull();
+
             // Balance of PO buyer address after PO item rejection
             var poBuyerAddressBalanceAfter = await sts.BalanceOfQueryAsync(poAsRequested.BuyerAddress);
-            _output.WriteLine($"PO buyer address balance before refund: {await poBuyerAddressBalanceAfter.PrettifyAsync(sts)}");
+            _output.WriteLine($"PO buyer address balance after refund: {await poBuyerAddressBalanceAfter.PrettifyAsync(sts)}");
 
             // Checks
             var diff = poBuyerAddressBalanceAfter - poBuyerAddressBalanceBefore;
@@ -194,6 +198,10 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             txReceiptCompleted.Status.Value.Should().Be(1);
             var poItemValue = poAsRequested.PoItems[PO_ITEM_INDEX].CurrencyValue;
             _output.WriteLine($"... PO item completed with value {await poItemValue.PrettifyAsync(sts)} ...");
+
+            // Check log exists for Escrow release
+            var logPoItemCompleted = txReceiptCompleted.DecodeAllEvents<PurchaseItemEscrowReleasedLogEventDTO>().FirstOrDefault();
+            logPoItemCompleted.Should().NotBeNull();
 
             // Balance of PO buyer address after PO item rejection
             var walletSellerBalanceAfter = await sts.BalanceOfQueryAsync(_contracts.WalletSellerService.ContractHandler.ContractAddress);
