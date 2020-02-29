@@ -16,8 +16,6 @@ namespace Nethereum.eShop.ApplicationCore.Interfaces
 
         Task<IReadOnlyList<RuleTree>> ListRuleTreeCacheAsync();
 
-        Task SetDefaultRuleTree(RuleTree defaultRuleTree);
-
         Task<RuleTreeRecord> Transform(object originalObject);
     }
 }

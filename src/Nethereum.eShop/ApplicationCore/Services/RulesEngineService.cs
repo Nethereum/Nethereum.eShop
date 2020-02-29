@@ -11,17 +11,15 @@ namespace Nethereum.eShop.ApplicationCore.Services
     {
         private readonly IAsyncCache<RuleTree> _ruleTreeRepository;
 
-        #region Properties
+        private readonly IRulesEngineInitializer _rulesEngineInitializer;
 
-        private RuleTree _defaultRuleTree;
-
-        #endregion
-
-        public RulesEngineService(IAsyncCache<RuleTree> ruleTreeRepo)
+        public RulesEngineService(IAsyncCache<RuleTree> ruleTreeRepo, IRulesEngineInitializer rulesEngineInitializer)
         {
             // TODO: Initialize the data domain
 
             _ruleTreeRepository = ruleTreeRepo;
+
+            _rulesEngineInitializer = rulesEngineInitializer;
         }
 
         public async Task<RulesDomain> CreateRulesDomainAsync(RulesDomainSeed domainSeed)
@@ -47,17 +45,17 @@ namespace Nethereum.eShop.ApplicationCore.Services
 
         public async Task<RuleTree> GetDefaultRuleTree()
         {
-            return _defaultRuleTree;
+            var sBizRulesUrl = _rulesEngineInitializer.GetBizRulesFileUrl();
+
+            RuleTreeSeed defaultTreeSeed =
+                new RuleTreeSeed("default", sBizRulesUrl, "default");
+
+            return await CreateRuleTreeAsync(new RulesDomain(new RulesDomainSeed()), defaultTreeSeed).ConfigureAwait(false);
         }
 
         public async Task<IReadOnlyList<RuleTree>> ListRuleTreeCacheAsync()
         {
             return await _ruleTreeRepository.ListAllAsync().ConfigureAwait(false);
-        }
-
-        public async Task SetDefaultRuleTree(RuleTree defaultRuleTree)
-        {
-            _defaultRuleTree = defaultRuleTree;
         }
 
         public async Task<RuleTreeRecord> Transform(object originalObject)
