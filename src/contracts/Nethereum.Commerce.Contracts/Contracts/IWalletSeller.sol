@@ -16,4 +16,5 @@ interface IWalletSeller
     function setPoItemReadyForGoodsIssue(uint poNumber, uint8 poItemNumber) external;
     function setPoItemGoodsIssued(uint poNumber, uint8 poItemNumber) external;
     function setPoItemGoodsReceived(uint poNumber, uint8 poItemNumber) external;
+    function setPoItemCompleted(uint poNumber, uint8 poItemNumber) external;
 }

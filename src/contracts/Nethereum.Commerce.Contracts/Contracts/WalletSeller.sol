@@ -71,5 +71,10 @@ contract WalletSeller is IWalletSeller, Ownable, Bindable, StringConvertible
     {
         purchasing.setPoItemGoodsReceivedSeller(poNumber, poItemNumber);
     }
+    
+    function setPoItemCompleted(uint poNumber, uint8 poItemNumber) onlyOwner() override external
+    {
+        purchasing.setPoItemCompleted(poNumber, poItemNumber);
+    }
 }
 

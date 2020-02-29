@@ -158,20 +158,6 @@ namespace Nethereum.Commerce.Contracts.Funding
              return ContractHandler.SendRequestAndWaitForReceiptAsync(configureFunction, cancellationToken);
         }
 
-        public Task<BigInteger> GetBalanceOfThisQueryAsync(GetBalanceOfThisFunction getBalanceOfThisFunction, BlockParameter blockParameter = null)
-        {
-            return ContractHandler.QueryAsync<GetBalanceOfThisFunction, BigInteger>(getBalanceOfThisFunction, blockParameter);
-        }
-
-        
-        public Task<BigInteger> GetBalanceOfThisQueryAsync(string tokenAddress, BlockParameter blockParameter = null)
-        {
-            var getBalanceOfThisFunction = new GetBalanceOfThisFunction();
-                getBalanceOfThisFunction.TokenAddress = tokenAddress;
-            
-            return ContractHandler.QueryAsync<GetBalanceOfThisFunction, BigInteger>(getBalanceOfThisFunction, blockParameter);
-        }
-
         public Task<bool> IsOwnerQueryAsync(IsOwnerFunction isOwnerFunction, BlockParameter blockParameter = null)
         {
             return ContractHandler.QueryAsync<IsOwnerFunction, bool>(isOwnerFunction, blockParameter);
@@ -230,30 +216,30 @@ namespace Nethereum.Commerce.Contracts.Funding
             return ContractHandler.QueryAsync<StringToBytes32Function, byte[]>(stringToBytes32Function, blockParameter);
         }
 
-        public Task<string> TransferInFundsForPoFromBuyerRequestAsync(TransferInFundsForPoFromBuyerFunction transferInFundsForPoFromBuyerFunction)
+        public Task<string> TransferInFundsForPoFromBuyerWalletRequestAsync(TransferInFundsForPoFromBuyerWalletFunction transferInFundsForPoFromBuyerWalletFunction)
         {
-             return ContractHandler.SendRequestAsync(transferInFundsForPoFromBuyerFunction);
+             return ContractHandler.SendRequestAsync(transferInFundsForPoFromBuyerWalletFunction);
         }
 
-        public Task<TransactionReceipt> TransferInFundsForPoFromBuyerRequestAndWaitForReceiptAsync(TransferInFundsForPoFromBuyerFunction transferInFundsForPoFromBuyerFunction, CancellationTokenSource cancellationToken = null)
+        public Task<TransactionReceipt> TransferInFundsForPoFromBuyerWalletRequestAndWaitForReceiptAsync(TransferInFundsForPoFromBuyerWalletFunction transferInFundsForPoFromBuyerWalletFunction, CancellationTokenSource cancellationToken = null)
         {
-             return ContractHandler.SendRequestAndWaitForReceiptAsync(transferInFundsForPoFromBuyerFunction, cancellationToken);
+             return ContractHandler.SendRequestAndWaitForReceiptAsync(transferInFundsForPoFromBuyerWalletFunction, cancellationToken);
         }
 
-        public Task<string> TransferInFundsForPoFromBuyerRequestAsync(BigInteger poNumber)
+        public Task<string> TransferInFundsForPoFromBuyerWalletRequestAsync(BigInteger poNumber)
         {
-            var transferInFundsForPoFromBuyerFunction = new TransferInFundsForPoFromBuyerFunction();
-                transferInFundsForPoFromBuyerFunction.PoNumber = poNumber;
+            var transferInFundsForPoFromBuyerWalletFunction = new TransferInFundsForPoFromBuyerWalletFunction();
+                transferInFundsForPoFromBuyerWalletFunction.PoNumber = poNumber;
             
-             return ContractHandler.SendRequestAsync(transferInFundsForPoFromBuyerFunction);
+             return ContractHandler.SendRequestAsync(transferInFundsForPoFromBuyerWalletFunction);
         }
 
-        public Task<TransactionReceipt> TransferInFundsForPoFromBuyerRequestAndWaitForReceiptAsync(BigInteger poNumber, CancellationTokenSource cancellationToken = null)
+        public Task<TransactionReceipt> TransferInFundsForPoFromBuyerWalletRequestAndWaitForReceiptAsync(BigInteger poNumber, CancellationTokenSource cancellationToken = null)
         {
-            var transferInFundsForPoFromBuyerFunction = new TransferInFundsForPoFromBuyerFunction();
-                transferInFundsForPoFromBuyerFunction.PoNumber = poNumber;
+            var transferInFundsForPoFromBuyerWalletFunction = new TransferInFundsForPoFromBuyerWalletFunction();
+                transferInFundsForPoFromBuyerWalletFunction.PoNumber = poNumber;
             
-             return ContractHandler.SendRequestAndWaitForReceiptAsync(transferInFundsForPoFromBuyerFunction, cancellationToken);
+             return ContractHandler.SendRequestAndWaitForReceiptAsync(transferInFundsForPoFromBuyerWalletFunction, cancellationToken);
         }
 
         public Task<string> TransferOutFundsForPoItemToBuyerRequestAsync(TransferOutFundsForPoItemToBuyerFunction transferOutFundsForPoItemToBuyerFunction)

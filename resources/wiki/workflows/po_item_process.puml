@@ -63,7 +63,8 @@ split again
   
   |eShop Admin UI|
   :Admin user marks **PO Item**
-  as 6 Goods Received.;
+  as "request mark as
+  Goods Received.";
 
   |Seller|
   :Function: **setPoItemGoodsReceived()**
@@ -73,20 +74,24 @@ split again
 endsplit
 
 |Purchasing-Escrow|
-:Function: **setPoItemGoodsReceived()**, calls
-Function: **requestPoItemEscrowRelease()**
-Escrow funds released to seller, or request
-denied. If released, flag item as paid.;
+:Function: **setPoItemGoodsReceived()**;
+#LightSkyBlue:Emits:
+* **PurchaseItemGoodsReceivedLog**
+(Po Item status 6 Goods Received);
 
+|eShop Admin UI|
+:Admin user requests escrow release;
+
+|Purchasing-Escrow|
+:Function: **setPoItemCompleted()**;
 #LightSkyBlue:Emits:
 * **PurchaseItemEscrowReleasedLog**
-(Po Item status 7 Completed)
-* **PurchaseItemEscrowFailedLog**
-(Po Item status unchanged 6 Goods Received);
+* **PurchaseItemCompleted**
+(Po Item status 7 Completed);
 
 |eShop Admin UI|
 :Admin user sees funds
-released or request denied.;
+released or not.;
 
 |eShop UI|
 :User Sees: **PO Item** complete,

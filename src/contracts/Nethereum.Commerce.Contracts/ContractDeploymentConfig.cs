@@ -1,6 +1,6 @@
-﻿namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
+﻿namespace Nethereum.Commerce.Contracts
 {
-    public class ContractDeploymentsConfig
+    public class ContractDeploymentConfig
     {
         /// <summary>
         /// eg , http://localhost:8545/, https://rinkeby.infura.io/v3/<key>
@@ -27,5 +27,9 @@
         /// </summary>
         public string ContractDeploymentOwnerPrivateKey { get; set; }
 
+        /// <summary>
+        /// Also deploy mock contracts eg for DAI
+        /// </summary>
+        public bool AlsoDeployMockContracts { get; set; }
     }
 }

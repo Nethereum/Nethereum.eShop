@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Nethereum.ABI.Decoders;
 using Nethereum.ABI.Encoders;
+using System.Numerics;
 using Buyer = Nethereum.Commerce.Contracts.WalletBuyer.ContractDefinition;
 using Purchase = Nethereum.Commerce.Contracts.Purchasing.ContractDefinition;
 using Seller = Nethereum.Commerce.Contracts.WalletSeller.ContractDefinition;
@@ -43,6 +44,20 @@ namespace Nethereum.Commerce.Contracts
             if (b == null) return null;
             return _decoder.Decode(b);
         }
+
+        public static BigInteger GetTotalCurrencyValue(this Buyer.Po po)
+        {
+            if (po == null) return 0;
+            if (po.PoItems == null) return 0;
+            if (po.PoItems.Count == 0) return 0;
+
+            BigInteger total = 0;
+            for (int i = 0; i < po.PoItems.Count; i++)
+            {
+                total += po.PoItems[i].CurrencyValue;
+            }
+            return total;
+        }       
 
         // PoStorage <=> WalletBuyer        
         public static Storage.Po ToStoragePo(this Buyer.Po po) { return _mapper.Map<Storage.Po>(po); }
