@@ -61,12 +61,16 @@ namespace Nethereum.eShop.ApplicationCore.Services
             if ((_rulesEngineService != null) && (_rulesEngineService.GetDefaultRuleTree() != null))
             {
                 var QuoteRuleTree = await _rulesEngineService.GetDefaultRuleTree().ConfigureAwait(false);
-                var QuoteRecord   = await _rulesEngineService.Transform(quote).ConfigureAwait(false);
-                var QuoteReport   = await _rulesEngineService.ExecuteAsync(QuoteRuleTree, QuoteRecord).ConfigureAwait(false);
 
-                if (QuoteReport.NumberOfFailures > 0)
+                foreach (var TmpQuoteItem in quoteItems)
                 {
-                    throw new RuleTreeException(QuoteRuleTree.TreeOrigin, QuoteReport);
+                    var QuoteRecord = await _rulesEngineService.Transform(TmpQuoteItem).ConfigureAwait(false);
+                    var QuoteReport = await _rulesEngineService.ExecuteAsync(QuoteRuleTree, QuoteRecord).ConfigureAwait(false);
+
+                    if (QuoteReport.NumberOfFailures > 0)
+                    {
+                        throw new RuleTreeException(QuoteRuleTree.TreeOrigin, QuoteReport);
+                    }
                 }
             }
 
