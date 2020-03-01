@@ -1,4 +1,5 @@
 ﻿using Ardalis.GuardClauses;
+using Nethereum.eShop.ApplicationCore.Entities.QuoteAggregate;
 using Nethereum.eShop.ApplicationCore.Entities.RulesEngine;
 using Nethereum.eShop.ApplicationCore.Interfaces;
 using System;
@@ -43,14 +44,28 @@ namespace Nethereum.eShop.ApplicationCore.Services
             return new RuleTreeReport(new RuleTreeSeed());
         }
 
-        public async Task<RuleTree> GetDefaultRuleTree()
+        public async Task<RuleTree> GetQuoteRuleTree()
         {
-            var sBizRulesUrl = _rulesEngineInitializer.GetBizRulesFileUrl();
+            var sBizRulesUrl = _rulesEngineInitializer.GetQuoteBizRulesFileUrl();
 
             RuleTreeSeed defaultTreeSeed =
-                new RuleTreeSeed("default", sBizRulesUrl, "default");
+                new RuleTreeSeed("QuoteTree", sBizRulesUrl, "default");
 
-            return await CreateRuleTreeAsync(new RulesDomain(new RulesDomainSeed()), defaultTreeSeed).ConfigureAwait(false);
+            var DomainSeed = new RulesDomainSeed(new HashSet<Type>() { typeof(Quote), typeof(QuoteItem) });
+
+            return await CreateRuleTreeAsync(new RulesDomain(DomainSeed), defaultTreeSeed).ConfigureAwait(false);
+        }
+
+        public async Task<RuleTree> GetQuoteItemRuleTree()
+        {
+            var sBizRulesUrl = _rulesEngineInitializer.GetQuoteItemBizRulesFileUrl();
+
+            RuleTreeSeed defaultTreeSeed =
+                new RuleTreeSeed("QuoteItemTree", sBizRulesUrl, "default");
+
+            var DomainSeed = new RulesDomainSeed(new HashSet<Type>() { typeof(Quote), typeof(QuoteItem) });
+
+            return await CreateRuleTreeAsync(new RulesDomain(DomainSeed), defaultTreeSeed).ConfigureAwait(false);
         }
 
         public async Task<IReadOnlyList<RuleTree>> ListRuleTreeCacheAsync()

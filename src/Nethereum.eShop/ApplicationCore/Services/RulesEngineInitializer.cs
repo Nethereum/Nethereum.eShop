@@ -11,9 +11,14 @@ namespace Nethereum.eShop.ApplicationCore.Services
             _rulesEngineSettings = rulesEngineSettings;
         }
 
-        public string GetBizRulesFileUrl()
+        public string GetQuoteBizRulesFileUrl()
         {
-            return _rulesEngineSettings.BizRulesFileUrl;
+            return _rulesEngineSettings.QuoteBizRulesFileUrl;
+        }
+
+        public string GetQuoteItemBizRulesFileUrl()
+        {
+            return _rulesEngineSettings.QuoteItemBizRulesFileUrl;
         }
     }
 }

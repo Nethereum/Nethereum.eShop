@@ -6,6 +6,8 @@ namespace Nethereum.eShop
 {
     public class RulesEngineSettings
     {
-        public string BizRulesFileUrl { get; set; }
+        public string QuoteBizRulesFileUrl { get; set; }
+
+        public string QuoteItemBizRulesFileUrl { get; set; }
     }
 }

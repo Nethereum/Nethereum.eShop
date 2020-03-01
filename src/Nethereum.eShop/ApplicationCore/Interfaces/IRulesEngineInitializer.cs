@@ -2,6 +2,8 @@
 {
     public interface IRulesEngineInitializer
     {
-        string GetBizRulesFileUrl();
+        string GetQuoteBizRulesFileUrl();
+
+        string GetQuoteItemBizRulesFileUrl();
     }
 }

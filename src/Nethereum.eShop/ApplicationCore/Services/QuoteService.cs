@@ -56,25 +56,43 @@ namespace Nethereum.eShop.ApplicationCore.Services
                 Expiry = DateTimeOffset.UtcNow.Date.AddMonths(1)
             };
 
+            await ExecuteRules(quote).ConfigureAwait(false);
+
+            await _quoteRepository.AddAsync(quote);
+        }
+
+        private async Task ExecuteRules(Quote targetQuote)
+        {
             // NOTE: This block demonstrates the basic idea of how to use the rules engine, 
             // but it's definitely subject to change
-            if ((_rulesEngineService != null) && (_rulesEngineService.GetDefaultRuleTree() != null))
+            if ((_rulesEngineService != null) && (_rulesEngineService.GetQuoteRuleTree() != null))
             {
-                var QuoteRuleTree = await _rulesEngineService.GetDefaultRuleTree().ConfigureAwait(false);
+                var QuoteRuleTree     = await _rulesEngineService.GetQuoteRuleTree().ConfigureAwait(false);
+                var QuoteItemRuleTree = await _rulesEngineService.GetQuoteItemRuleTree().ConfigureAwait(false);
 
-                foreach (var TmpQuoteItem in quoteItems)
+                var QuoteRecord = await _rulesEngineService.Transform(targetQuote).ConfigureAwait(false);
+                var QuoteReport = await _rulesEngineService.ExecuteAsync(QuoteRuleTree, QuoteRecord).ConfigureAwait(false);
+
+                if (QuoteReport.NumberOfFailures > 0)
                 {
-                    var QuoteRecord = await _rulesEngineService.Transform(TmpQuoteItem).ConfigureAwait(false);
-                    var QuoteReport = await _rulesEngineService.ExecuteAsync(QuoteRuleTree, QuoteRecord).ConfigureAwait(false);
+                    throw new RuleTreeException(QuoteRuleTree.TreeOrigin, QuoteReport);
+                }
 
-                    if (QuoteReport.NumberOfFailures > 0)
+                if (QuoteItemRuleTree != null)
+                {
+                    foreach (var TmpQuoteItem in targetQuote.QuoteItems)
                     {
-                        throw new RuleTreeException(QuoteRuleTree.TreeOrigin, QuoteReport);
+                        var QuoteItemRecord = await _rulesEngineService.Transform(TmpQuoteItem).ConfigureAwait(false);
+                        var QuoteItemReport = await _rulesEngineService.ExecuteAsync(QuoteItemRuleTree, QuoteItemRecord).ConfigureAwait(false);
+
+                        if (QuoteItemReport.NumberOfFailures > 0)
+                        {
+                            throw new RuleTreeException(QuoteItemRuleTree.TreeOrigin, QuoteItemReport);
+                        }
                     }
                 }
             }
 
-            await _quoteRepository.AddAsync(quote);
         }
 
         private async Task<IEnumerable<QuoteItem>> MapAsync(Basket basket)
