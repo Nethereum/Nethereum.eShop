@@ -7,7 +7,7 @@ namespace Nethereum.eShop.Web.Services
 {
     public interface ICatalogViewModelService
     {
-        Task<CatalogIndexViewModel> GetCatalogItems(int pageIndex, int itemsPage, int? brandId, int? typeId);
+        Task<CatalogIndexViewModel> GetCatalogItems(int pageIndex, int itemsPage, int? brandId, int? typeId, string searchText = null);
         Task<IEnumerable<SelectListItem>> GetBrands();
         Task<IEnumerable<SelectListItem>> GetTypes();
     }
