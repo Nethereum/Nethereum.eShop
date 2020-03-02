@@ -102,7 +102,10 @@ namespace Nethereum.Commerce.Contracts.Deployment
             {
                 // Make a whole new deployment
                 await DeployAndConfigureEShopAsync();
-                await DeployMockContractsAsync();
+                if (ContractDeploymentConfig.AlsoDeployMockContracts)
+                {
+                    await DeployMockContractsAsync();
+                }
             }
         }
 

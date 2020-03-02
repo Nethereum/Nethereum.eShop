@@ -21,7 +21,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
 
             // New deployment
             var contractDeploymentConfig = appConfig.GetSection("NewDeployment").Get<ContractDeploymentConfig>();
-            // TODO ...or attach to an existing deployment
+            // ...or attach to an existing deployment, swap to this:
             // var contractDeploymentConfig = appConfig.GetSection("ExistingDeployment").Get<ContractConnectExistingConfig>();
             Deployment = new ContractDeployment(contractDeploymentConfig, new DiagnosticMessageSinkLogger(_diagnosticMessageSink));
         }
