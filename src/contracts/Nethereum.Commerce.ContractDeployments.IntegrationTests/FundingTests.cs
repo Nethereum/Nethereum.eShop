@@ -48,9 +48,9 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             // BEFORE PO RAISED
             //----------------------------------------------------------
             // Balance of Web3, before test starts (check account running these tests has enough funds to pay for the PO)
-            StandardTokenService sts = new StandardTokenService(_contracts.Deployment.Web3, poAsRequested.CurrencyAddress);
+            StandardTokenService sts = new StandardTokenService(_contracts.Web3, poAsRequested.CurrencyAddress);
             var totalPoValue = poAsRequested.GetTotalCurrencyValue();
-            var web3AddressBalance = await sts.BalanceOfQueryAsync(_contracts.Deployment.Web3.TransactionManager.Account.Address);
+            var web3AddressBalance = await sts.BalanceOfQueryAsync(_contracts.Web3.TransactionManager.Account.Address);
             web3AddressBalance.Should().BeGreaterOrEqualTo(totalPoValue, "the Web3 account must be able to pay for whole PO");
             _output.WriteLine($"PO: {poAsRequested.PoNumber}  total value {await totalPoValue.PrettifyAsync(sts)}");
 
@@ -103,7 +103,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId);
 
             // Transfer required funds from current Web3 acccount to wallet buyer
-            StandardTokenService sts = new StandardTokenService(_contracts.Deployment.Web3, poAsRequested.CurrencyAddress);
+            StandardTokenService sts = new StandardTokenService(_contracts.Web3, poAsRequested.CurrencyAddress);
             var totalPoValue = poAsRequested.GetTotalCurrencyValue();
             var txTransfer = await sts.TransferRequestAndWaitForReceiptAsync(poAsRequested.BuyerWalletAddress, totalPoValue);
             txTransfer.Status.Value.Should().Be(1);
@@ -151,7 +151,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId);
 
             // Transfer required funds from current Web3 acccount to wallet buyer
-            StandardTokenService sts = new StandardTokenService(_contracts.Deployment.Web3, poAsRequested.CurrencyAddress);
+            StandardTokenService sts = new StandardTokenService(_contracts.Web3, poAsRequested.CurrencyAddress);
             var totalPoValue = poAsRequested.GetTotalCurrencyValue();
             var txTransfer = await sts.TransferRequestAndWaitForReceiptAsync(poAsRequested.BuyerWalletAddress, totalPoValue);
             txTransfer.Status.Value.Should().Be(1);
@@ -215,8 +215,8 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         private async Task<Buyer.Po> CreateBuyerPoAsync(uint quoteId)
         {
             return CreatePoForPurchasingContract(
-                buyerAddress: _contracts.Deployment.Web3.TransactionManager.Account.Address.ToLowerInvariant(),
-                receiverAddress: _contracts.Deployment.Web3.TransactionManager.Account.Address.ToLowerInvariant(),
+                buyerAddress: _contracts.Web3.TransactionManager.Account.Address.ToLowerInvariant(),
+                receiverAddress: _contracts.Web3.TransactionManager.Account.Address.ToLowerInvariant(),
                 buyerWalletAddress: _contracts.Deployment.WalletBuyerService.ContractHandler.ContractAddress.ToLowerInvariant(),
                 currencySymbol: await _contracts.Deployment.MockDaiService.SymbolQueryAsync(),
                 currencyAddress: _contracts.Deployment.MockDaiService.ContractHandler.ContractAddress.ToLowerInvariant(),

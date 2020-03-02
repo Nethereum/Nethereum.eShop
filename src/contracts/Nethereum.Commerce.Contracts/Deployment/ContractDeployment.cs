@@ -18,7 +18,7 @@ using Nethereum.Commerce.Contracts.WalletBuyer;
 using Nethereum.Commerce.Contracts.WalletBuyer.ContractDefinition;
 using Nethereum.Commerce.Contracts.WalletSeller;
 using Nethereum.Commerce.Contracts.WalletSeller.ContractDefinition;
-using Nethereum.Web3.Accounts;
+using Nethereum.Web3;
 using System;
 using System.Threading.Tasks;
 
@@ -30,8 +30,6 @@ namespace Nethereum.Commerce.Contracts.Deployment
     /// </summary>
     public class ContractDeployment
     {
-        public Web3.Web3 Web3 { get; internal set; }
-
         // Deployed contract services
         public AddressRegistryService AddressRegistryService { get; internal set; }
         public EternalStorageService EternalStorageService { get; internal set; }
@@ -59,19 +57,20 @@ namespace Nethereum.Commerce.Contracts.Deployment
         public const string CONTRACT_NAME_PURCHASING = "Purchasing";
         public const string CONTRACT_NAME_FUNDING = "Funding";
 
+        private Web3.Web3 _web3;
         private ILogger _logger;
         private readonly bool _isToConnectToExistingDeployment;
 
         /// <summary>
         /// Deploy a new set of eShop contracts
         /// </summary>        
-        public ContractDeployment(ContractDeploymentConfig contractDeploymentConfig, ILogger logger = null)
+        public ContractDeployment(IWeb3 web3, ContractDeploymentConfig contractDeploymentConfig, ILogger logger = null)
         {
-            Guard.Against.NullOrWhiteSpace(contractDeploymentConfig.BlockchainUrl, nameof(contractDeploymentConfig.BlockchainUrl));
+            Guard.Against.Null(web3, nameof(web3));
             Guard.Against.NullOrWhiteSpace(contractDeploymentConfig.EShopSellerId, nameof(contractDeploymentConfig.EShopSellerId));
             Guard.Against.NullOrWhiteSpace(contractDeploymentConfig.EShopDescription, nameof(contractDeploymentConfig.EShopDescription));
             Guard.Against.NullOrWhiteSpace(contractDeploymentConfig.EShopApproverAddress, nameof(contractDeploymentConfig.EShopApproverAddress));
-            Guard.Against.NullOrWhiteSpace(contractDeploymentConfig.BlockchainUrl, nameof(contractDeploymentConfig.ContractDeploymentOwnerPrivateKey));
+            _web3 = (Web3.Web3)web3; // code-genned classes require web3, not an iweb3
             ContractDeploymentConfig = contractDeploymentConfig;
             _logger = logger;
             _isToConnectToExistingDeployment = false;
@@ -80,12 +79,12 @@ namespace Nethereum.Commerce.Contracts.Deployment
         /// <summary>
         /// Connect to an existing set of eShop contracts
         /// </summary>        
-        public ContractDeployment(ContractConnectExistingConfig contractConnectExistingConfig, ILogger logger = null)
+        public ContractDeployment(IWeb3 web3, ContractConnectExistingConfig contractConnectExistingConfig, ILogger logger = null)
         {
-            Guard.Against.NullOrWhiteSpace(contractConnectExistingConfig.BlockchainUrl, nameof(contractConnectExistingConfig.BlockchainUrl));
+            Guard.Against.Null(web3, nameof(web3));
             Guard.Against.NullOrWhiteSpace(contractConnectExistingConfig.WalletBuyerAddress, nameof(contractConnectExistingConfig.WalletBuyerAddress));
             Guard.Against.NullOrWhiteSpace(contractConnectExistingConfig.WalletSellerAddress, nameof(contractConnectExistingConfig.WalletSellerAddress));
-            Guard.Against.NullOrWhiteSpace(contractConnectExistingConfig.TransactionCreatorPrivateKey, nameof(contractConnectExistingConfig.TransactionCreatorPrivateKey));
+            _web3 = (Web3.Web3)web3; // code-genned classes require web3, not an iweb3
             ContractConnectExistingConfig = contractConnectExistingConfig;
             _logger = logger;
             _isToConnectToExistingDeployment = true;
@@ -114,10 +113,6 @@ namespace Nethereum.Commerce.Contracts.Deployment
             try
             {
                 Log($"Deploying eShop: {ContractDeploymentConfig.EShopSellerId} {ContractDeploymentConfig.EShopDescription}...");
-                var url = ContractDeploymentConfig.BlockchainUrl;
-                var privateKey = ContractDeploymentConfig.ContractDeploymentOwnerPrivateKey;
-                var account = new Account(privateKey);
-                Web3 = new Web3.Web3(account, url);
 
                 //-----------------------------------------------------------------------------------
                 // Contract deployments
@@ -128,7 +123,7 @@ namespace Nethereum.Commerce.Contracts.Deployment
                 var contractName = CONTRACT_NAME_ADDRESS_REGISTRY;
                 Log($"Deploying {contractName}...");
                 var addressRegDeployment = new AddressRegistryDeployment();
-                AddressRegistryService = await AddressRegistryService.DeployContractAndGetServiceAsync(Web3, addressRegDeployment);
+                AddressRegistryService = await AddressRegistryService.DeployContractAndGetServiceAsync(_web3, addressRegDeployment);
                 var addressRegOwner = await AddressRegistryService.OwnerQueryAsync();
                 Log($"{contractName} address is: {AddressRegistryService.ContractHandler.ContractAddress}");
                 Log($"{contractName} owner is  : {addressRegOwner}");
@@ -138,7 +133,7 @@ namespace Nethereum.Commerce.Contracts.Deployment
                 contractName = CONTRACT_NAME_ETERNAL_STORAGE;
                 Log($"Deploying {contractName}...");
                 var eternalStorageDeployment = new EternalStorageDeployment();
-                EternalStorageService = await EternalStorageService.DeployContractAndGetServiceAsync(Web3, eternalStorageDeployment);
+                EternalStorageService = await EternalStorageService.DeployContractAndGetServiceAsync(_web3, eternalStorageDeployment);
                 var eternalStorageOwner = await EternalStorageService.OwnerQueryAsync();
                 Log($"{contractName} address is: {EternalStorageService.ContractHandler.ContractAddress}");
                 Log($"{contractName} owner is  : {eternalStorageOwner}");
@@ -148,7 +143,7 @@ namespace Nethereum.Commerce.Contracts.Deployment
                 contractName = CONTRACT_NAME_BUSINESS_PARTNER_STORAGE;
                 Log($"Deploying {contractName}...");
                 var bpStorageDeployment = new BusinessPartnerStorageDeployment() { ContractAddressOfRegistry = AddressRegistryService.ContractHandler.ContractAddress };
-                BusinessPartnerStorageService = await BusinessPartnerStorageService.DeployContractAndGetServiceAsync(Web3, bpStorageDeployment);
+                BusinessPartnerStorageService = await BusinessPartnerStorageService.DeployContractAndGetServiceAsync(_web3, bpStorageDeployment);
                 var bpStorageOwner = await BusinessPartnerStorageService.OwnerQueryAsync();
                 Log($"{contractName} address is: {BusinessPartnerStorageService.ContractHandler.ContractAddress}");
                 Log($"{contractName} owner is  : {bpStorageOwner}");
@@ -158,7 +153,7 @@ namespace Nethereum.Commerce.Contracts.Deployment
                 contractName = CONTRACT_NAME_PO_STORAGE;
                 Log($"Deploying {contractName}...");
                 var poStorageDeployment = new PoStorageDeployment() { ContractAddressOfRegistry = AddressRegistryService.ContractHandler.ContractAddress };
-                PoStorageService = await PoStorageService.DeployContractAndGetServiceAsync(Web3, poStorageDeployment);
+                PoStorageService = await PoStorageService.DeployContractAndGetServiceAsync(_web3, poStorageDeployment);
                 var poStorageOwner = await PoStorageService.OwnerQueryAsync();
                 Log($"{contractName} address is: {PoStorageService.ContractHandler.ContractAddress}");
                 Log($"{contractName} owner is  : {poStorageOwner}");
@@ -168,7 +163,7 @@ namespace Nethereum.Commerce.Contracts.Deployment
                 contractName = CONTRACT_NAME_WALLET_BUYER;
                 Log($"Deploying {contractName}...");
                 var walletBuyerDeployment = new WalletBuyerDeployment() { ContractAddressOfRegistry = AddressRegistryService.ContractHandler.ContractAddress };
-                WalletBuyerService = await WalletBuyerService.DeployContractAndGetServiceAsync(Web3, walletBuyerDeployment);
+                WalletBuyerService = await WalletBuyerService.DeployContractAndGetServiceAsync(_web3, walletBuyerDeployment);
                 var walletBuyerOwner = await WalletBuyerService.OwnerQueryAsync();
                 Log($"{contractName} address is: {WalletBuyerService.ContractHandler.ContractAddress}");
                 Log($"{contractName} owner is  : {walletBuyerOwner}");
@@ -178,7 +173,7 @@ namespace Nethereum.Commerce.Contracts.Deployment
                 contractName = CONTRACT_NAME_WALLET_SELLER;
                 Log($"Deploying {contractName}...");
                 var walletSellerDeployment = new WalletSellerDeployment() { ContractAddressOfRegistry = AddressRegistryService.ContractHandler.ContractAddress };
-                WalletSellerService = await WalletSellerService.DeployContractAndGetServiceAsync(Web3, walletSellerDeployment);
+                WalletSellerService = await WalletSellerService.DeployContractAndGetServiceAsync(_web3, walletSellerDeployment);
                 var walletSellerOwner = await WalletSellerService.OwnerQueryAsync();
                 Log($"{contractName} address is: {WalletSellerService.ContractHandler.ContractAddress}");
                 Log($"{contractName} owner is  : {walletSellerOwner}");
@@ -188,7 +183,7 @@ namespace Nethereum.Commerce.Contracts.Deployment
                 contractName = CONTRACT_NAME_PURCHASING;
                 Log($"Deploying {contractName}...");
                 var purchasingDeployment = new PurchasingDeployment() { ContractAddressOfRegistry = AddressRegistryService.ContractHandler.ContractAddress };
-                PurchasingService = await PurchasingService.DeployContractAndGetServiceAsync(Web3, purchasingDeployment);
+                PurchasingService = await PurchasingService.DeployContractAndGetServiceAsync(_web3, purchasingDeployment);
                 var purchasingOwner = await PurchasingService.OwnerQueryAsync();
                 Log($"{contractName} address is: {PurchasingService.ContractHandler.ContractAddress}");
                 Log($"{contractName} owner is  : {purchasingOwner}");
@@ -198,7 +193,7 @@ namespace Nethereum.Commerce.Contracts.Deployment
                 contractName = CONTRACT_NAME_FUNDING;
                 Log($"Deploying {contractName}...");
                 var fundingDeployment = new FundingDeployment() { ContractAddressOfRegistry = AddressRegistryService.ContractHandler.ContractAddress };
-                FundingService = await FundingService.DeployContractAndGetServiceAsync(Web3, fundingDeployment);
+                FundingService = await FundingService.DeployContractAndGetServiceAsync(_web3, fundingDeployment);
                 var fundingOwner = await FundingService.OwnerQueryAsync();
                 Log($"{contractName} address is: {FundingService.ContractHandler.ContractAddress}");
                 Log($"{contractName} owner is  : {fundingOwner}");
@@ -365,7 +360,7 @@ namespace Nethereum.Commerce.Contracts.Deployment
             try
             {
                 var mockDaiDeployment = new MockDaiDeployment();
-                MockDaiService = await MockDaiService.DeployContractAndGetServiceAsync(Web3, mockDaiDeployment);
+                MockDaiService = await MockDaiService.DeployContractAndGetServiceAsync(_web3, mockDaiDeployment);
                 var mockDaiOwner = await MockDaiService.OwnerQueryAsync();
                 Log($"{contractName} address is: {MockDaiService.ContractHandler.ContractAddress}");
                 Log($"{contractName} owner is  : {mockDaiOwner}");

@@ -4,12 +4,7 @@
     /// Config for deploying a new set of eShop contracts
     /// </summary>
     public class ContractDeploymentConfig
-    {
-        /// <summary>
-        /// eg , http://localhost:8545/, https://rinkeby.infura.io/v3/<key>
-        /// </summary>
-        public string BlockchainUrl { get; set; }
-
+    {      
         /// <summary>
         /// eShop seller id, 32 chars max, eg "Nethereum.eShop"
         /// </summary>
@@ -25,11 +20,6 @@
         /// </summary>
         public string EShopApproverAddress { get; set; }
         
-        /// <summary>
-        /// Private key of the owner of the contracts that will be deployed
-        /// </summary>
-        public string ContractDeploymentOwnerPrivateKey { get; set; }
-
         /// <summary>
         /// Also deploy mock contracts eg for DAI
         /// </summary>

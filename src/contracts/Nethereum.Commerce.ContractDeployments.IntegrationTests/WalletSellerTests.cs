@@ -291,7 +291,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             // Check PO has been updated correctly
             var po = await GetPoFromSellerContractAndDisplayAsync(poNumberAsBuilt);
             po.PoItems[PO_ITEM_INDEX].Status.Should().Be(PoItemStatus.GoodsIssued);
-            var block = await _contracts.Deployment.Web3.Eth.Blocks.GetBlockWithTransactionsByNumber.SendRequestAsync(txReceiptGI.BlockNumber);
+            var block = await _contracts.Web3.Eth.Blocks.GetBlockWithTransactionsByNumber.SendRequestAsync(txReceiptGI.BlockNumber);
             var blockTimestamp = block.Timestamp.Value;
             po.PoItems[PO_ITEM_INDEX].GoodsIssuedDate.Should().Be(blockTimestamp);
             po.PoItems[PO_ITEM_INDEX].PlannedEscrowReleaseDate.Should().BeGreaterThan(0, "a Planned Escrow release date should have been assigned");
@@ -339,7 +339,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             // Check PO has been updated correctly
             var po = await GetPoFromSellerContractAndDisplayAsync(poNumberAsBuilt);
             po.PoItems[PO_ITEM_INDEX].Status.Should().Be(PoItemStatus.GoodsReceived);
-            var block = await _contracts.Deployment.Web3.Eth.Blocks.GetBlockWithTransactionsByNumber.SendRequestAsync(txReceiptGR.BlockNumber);
+            var block = await _contracts.Web3.Eth.Blocks.GetBlockWithTransactionsByNumber.SendRequestAsync(txReceiptGR.BlockNumber);
             var blockTimestamp = block.Timestamp.Value;
             po.PoItems[PO_ITEM_INDEX].GoodsReceivedDate.Should().Be(blockTimestamp);
         }
@@ -393,7 +393,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             // Check PO has been updated correctly
             var po = await GetPoFromSellerContractAndDisplayAsync(poNumberAsBuilt);
             po.PoItems[PO_ITEM_INDEX].Status.Should().Be(PoItemStatus.Completed);
-            var block = await _contracts.Deployment.Web3.Eth.Blocks.GetBlockWithTransactionsByNumber.SendRequestAsync(txReceiptCompleted.BlockNumber);
+            var block = await _contracts.Web3.Eth.Blocks.GetBlockWithTransactionsByNumber.SendRequestAsync(txReceiptCompleted.BlockNumber);
             var blockTimestamp = block.Timestamp.Value;
             po.PoItems[PO_ITEM_INDEX].ActualEscrowReleaseDate.Should().Be(blockTimestamp);
             po.PoItems[PO_ITEM_INDEX].IsEscrowReleased.Should().Be(true);
@@ -402,8 +402,8 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         private async Task<Buyer.Po> CreateBuyerPoAsync(uint quoteId)
         {
             return CreatePoForPurchasingContract(
-                buyerAddress: _contracts.Deployment.Web3.TransactionManager.Account.Address.ToLowerInvariant(),
-                receiverAddress: _contracts.Deployment.Web3.TransactionManager.Account.Address.ToLowerInvariant(),
+                buyerAddress: _contracts.Web3.TransactionManager.Account.Address.ToLowerInvariant(),
+                receiverAddress: _contracts.Web3.TransactionManager.Account.Address.ToLowerInvariant(),
                 buyerWalletAddress: _contracts.Deployment.WalletBuyerService.ContractHandler.ContractAddress.ToLowerInvariant(),
                 currencySymbol: await _contracts.Deployment.MockDaiService.SymbolQueryAsync(),
                 currencyAddress: _contracts.Deployment.MockDaiService.ContractHandler.ContractAddress.ToLowerInvariant(),
