@@ -10,11 +10,11 @@ namespace Nethereum.eShop.ApplicationCore.Services
 {
     public class RulesEngineService : IRulesEngineService
     {
-        private readonly IAsyncCache<RuleTree> _ruleTreeRepository;
+        private readonly IRuleTreeCache _ruleTreeRepository;
 
         private readonly IRulesEngineInitializer _rulesEngineInitializer;
 
-        public RulesEngineService(IAsyncCache<RuleTree> ruleTreeRepo, IRulesEngineInitializer rulesEngineInitializer)
+        public RulesEngineService(IRuleTreeCache ruleTreeRepo, IRulesEngineInitializer rulesEngineInitializer)
         {
             // TODO: Initialize the data domain
 
@@ -34,6 +34,10 @@ namespace Nethereum.eShop.ApplicationCore.Services
         {
             // TODO: Do all the work to help initialize the RuleTree
 
+            var NewRuleTree = new RuleTree(origin);
+
+            await _ruleTreeRepository.AddAsync(NewRuleTree).ConfigureAwait(false);
+
             return new RuleTree(origin);
         }
 
@@ -48,24 +52,42 @@ namespace Nethereum.eShop.ApplicationCore.Services
         {
             var sBizRulesUrl = _rulesEngineInitializer.GetQuoteBizRulesFileUrl();
 
-            RuleTreeSeed defaultTreeSeed =
-                new RuleTreeSeed("QuoteTree", sBizRulesUrl, "default");
+            RuleTreeSeed quoteTreeSeed =
+                new RuleTreeSeed("QuoteTree", sBizRulesUrl, "default") { Id = 1 };
 
-            var DomainSeed = new RulesDomainSeed(new HashSet<Type>() { typeof(Quote), typeof(QuoteItem) });
+            var RuleTreeIsCached = await _ruleTreeRepository.ContainsAsync(quoteTreeSeed.Id).ConfigureAwait(false);
 
-            return await CreateRuleTreeAsync(new RulesDomain(DomainSeed), defaultTreeSeed).ConfigureAwait(false);
+            if (RuleTreeIsCached)
+            {
+                return await _ruleTreeRepository.GetByIdAsync(quoteTreeSeed.Id).ConfigureAwait(false);
+            }
+            else
+            {
+                var DomainSeed = new RulesDomainSeed(new HashSet<Type>() { typeof(Quote), typeof(QuoteItem) });
+
+                return await CreateRuleTreeAsync(new RulesDomain(DomainSeed), quoteTreeSeed).ConfigureAwait(false);
+            }
         }
 
         public async Task<RuleTree> GetQuoteItemRuleTree()
         {
             var sBizRulesUrl = _rulesEngineInitializer.GetQuoteItemBizRulesFileUrl();
 
-            RuleTreeSeed defaultTreeSeed =
-                new RuleTreeSeed("QuoteItemTree", sBizRulesUrl, "default");
+            RuleTreeSeed quoteItemTreeSeed =
+                new RuleTreeSeed("QuoteItemTree", sBizRulesUrl, "default") { Id = 2 };
 
-            var DomainSeed = new RulesDomainSeed(new HashSet<Type>() { typeof(Quote), typeof(QuoteItem) });
+            var RuleTreeIsCached = await _ruleTreeRepository.ContainsAsync(quoteItemTreeSeed.Id).ConfigureAwait(false);
 
-            return await CreateRuleTreeAsync(new RulesDomain(DomainSeed), defaultTreeSeed).ConfigureAwait(false);
+            if (RuleTreeIsCached)
+            {
+                return await _ruleTreeRepository.GetByIdAsync(quoteItemTreeSeed.Id).ConfigureAwait(false);
+            }
+            else
+            {
+                var DomainSeed = new RulesDomainSeed(new HashSet<Type>() { typeof(Quote), typeof(QuoteItem) });
+
+                return await CreateRuleTreeAsync(new RulesDomain(DomainSeed), quoteItemTreeSeed).ConfigureAwait(false);
+            }
         }
 
         public async Task<IReadOnlyList<RuleTree>> ListRuleTreeCacheAsync()

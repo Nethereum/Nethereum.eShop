@@ -16,6 +16,11 @@ namespace Nethereum.eShop.Infrastructure.Data
             _cache = new Dictionary<int, T>();
         }
 
+        public virtual async Task<bool> ContainsAsync(int id)
+        {
+            return _cache.ContainsKey(id);
+        }
+
         public virtual async Task<T> GetByIdAsync(int id)
         {
             return _cache[id];

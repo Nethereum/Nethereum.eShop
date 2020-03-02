@@ -15,21 +15,6 @@ namespace Nethereum.eShop.Infrastructure.Data
             return new RuleTree(new RuleTreeSeed());
         }
 
-        public async Task<IReadOnlyList<RuleTree>> ListAllAsync()
-        {
-            return new List<RuleTree>();
-        }
-
-        public async Task<RuleTree> AddAsync(RuleTree entity)
-        {
-            return new RuleTree(new RuleTreeSeed());
-        }
-
-        public async Task DeleteAsync(RuleTree entity)
-        {
-            return;
-        }
-
         public async Task<RuleTree> GetLastRuleTreeCreatedAsync()
         {
             return new RuleTree(new RuleTreeSeed());

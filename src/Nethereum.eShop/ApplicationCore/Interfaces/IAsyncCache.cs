@@ -6,6 +6,8 @@ namespace Nethereum.eShop.ApplicationCore.Interfaces
 {
     public interface IAsyncCache<T> where T : BaseEntity
     {
+        Task<bool> ContainsAsync(int id);
+
         Task<T> GetByIdAsync(int id);
 
         Task<IReadOnlyList<T>> ListAllAsync();

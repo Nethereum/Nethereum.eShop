@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Nethereum.eShop.ApplicationCore.Interfaces
 {
-    public interface IRuleTreeCache
+    public interface IRuleTreeCache : IAsyncCache<RuleTree>
     {
         Task<RuleTree> GetByIdAsync(string id);
 

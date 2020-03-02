@@ -65,7 +65,7 @@ namespace Nethereum.eShop.ApplicationCore.Services
         {
             // NOTE: This block demonstrates the basic idea of how to use the rules engine, 
             // but it's definitely subject to change
-            if ((_rulesEngineService != null) && (_rulesEngineService.GetQuoteRuleTree() != null))
+            if (_rulesEngineService != null)
             {
                 var QuoteRuleTree     = await _rulesEngineService.GetQuoteRuleTree().ConfigureAwait(false);
                 var QuoteItemRuleTree = await _rulesEngineService.GetQuoteItemRuleTree().ConfigureAwait(false);
