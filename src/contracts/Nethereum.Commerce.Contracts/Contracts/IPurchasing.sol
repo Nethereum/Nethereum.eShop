@@ -11,21 +11,20 @@ interface IPurchasing
     // Events Header level
     event PurchaseOrderCreateRequestLog(address indexed buyerAddress, bytes32 indexed sellerId, uint indexed poNumber, IPoTypes.Po po);
     event PurchaseOrderCreatedLog(address indexed buyerAddress, bytes32 indexed sellerId, uint indexed poNumber, IPoTypes.Po po);
-    event PurchaseOrderNotCreatedLog(address indexed buyerAddress, bytes32 indexed sellerId, uint indexed poNumber, IPoTypes.Po po);
-    
+        
     // Events Item level (matching 1:1 with PoItemStatus)
     event PurchaseItemAcceptedLog(address indexed buyerAddress, bytes32 indexed sellerId, uint indexed poNumber, IPoTypes.PoItem poItem);
     event PurchaseItemRejectedLog(address indexed buyerAddress, bytes32 indexed sellerId, uint indexed poNumber, IPoTypes.PoItem poItem);
     event PurchaseItemReadyForGoodsIssueLog(address indexed buyerAddress, bytes32 indexed sellerId, uint indexed poNumber, IPoTypes.PoItem poItem);
     event PurchaseItemGoodsIssuedLog(address indexed buyerAddress, bytes32 indexed sellerId, uint indexed poNumber, IPoTypes.PoItem poItem);
-    event PurchaseItemReceivedLog(address indexed buyerAddress, bytes32 indexed sellerId, uint indexed poNumber, IPoTypes.PoItem poItem);
+    event PurchaseItemGoodsReceivedLog(address indexed buyerAddress, bytes32 indexed sellerId, uint indexed poNumber, IPoTypes.PoItem poItem);
     event PurchaseItemCompletedLog(address indexed buyerAddress, bytes32 indexed sellerId, uint indexed poNumber, IPoTypes.PoItem poItem);
     event PurchaseItemCancelledLog(address indexed buyerAddress, bytes32 indexed sellerId, uint indexed poNumber, IPoTypes.PoItem poItem);
 
-    // Events Item level (for escrow release)
+    // Events Item level (for escrow refund or release)
+    event PurchaseItemEscrowRefundedLog(address indexed buyerAddress, bytes32 indexed sellerId, uint indexed poNumber, IPoTypes.PoItem poItem);
     event PurchaseItemEscrowReleasedLog(address indexed buyerAddress, bytes32 indexed sellerId, uint indexed poNumber, IPoTypes.PoItem poItem);
-    event PurchaseItemEscrowFailedLog(address indexed buyerAddress, bytes32 indexed sellerId, uint indexed poNumber, IPoTypes.PoItem poItem);
-
+    
     //---------------------------------------------------------
     // Functions
     //---------------------------------------------------------
@@ -47,4 +46,5 @@ interface IPurchasing
     function setPoItemReadyForGoodsIssue(uint poNumber, uint8 poItemNumber) external;
     function setPoItemGoodsIssued(uint poNumber, uint8 poItemNumber) external;
     function setPoItemGoodsReceivedSeller(uint poNumber, uint8 poItemNumber) external;
+    function setPoItemCompleted(uint poNumber, uint8 poItemNumber) external;
 }

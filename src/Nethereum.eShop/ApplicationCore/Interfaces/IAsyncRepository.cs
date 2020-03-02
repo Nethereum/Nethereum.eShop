@@ -1,4 +1,5 @@
-﻿using Nethereum.eShop.ApplicationCore.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using Nethereum.eShop.ApplicationCore.Entities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -13,5 +14,7 @@ namespace Nethereum.eShop.ApplicationCore.Interfaces
         Task UpdateAsync(T entity);
         Task DeleteAsync(T entity);
         Task<int> CountAsync(ISpecification<T> spec);
+
+        DbSet<T> DbSet { get; }
     }
 }

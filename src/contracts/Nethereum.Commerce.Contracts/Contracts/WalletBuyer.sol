@@ -54,10 +54,10 @@ contract WalletBuyer is IWalletBuyer, Ownable, Bindable
         {
             totalValue += po.poItems[i].currencyValue;
         }
+        
         // NB: erc20.approve() is approving from THIS Wallet contract (not msg.sender)
-        // TODO
-        //IErc20 tokenContract = IErc20(po.currencyAddress);
-        //tokenContract.approve(address(funding), totalValue);
+        IErc20 tokenContract = IErc20(po.currencyAddress);
+        tokenContract.approve(address(funding), totalValue);
 
         // Purchasing contract does the creation
         purchasing.createPurchaseOrder(po);
@@ -65,12 +65,12 @@ contract WalletBuyer is IWalletBuyer, Ownable, Bindable
     
     function cancelPurchaseOrderItem(uint poNumber, uint8 poItemNumber) override external
     {
-        
+        revert("Not implemented yet");
     }
     
     function setPoItemGoodsReceived(uint poNumber, uint8 poItemNumber) override external
     {
-        
+        purchasing.setPoItemGoodsReceivedBuyer(poNumber, poItemNumber);
     }
 }
 

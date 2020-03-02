@@ -37,14 +37,10 @@ Check:
 * That PO is funded, DAI in Escrow contract.
 * May fail (whole PO or nothing);
 
-#LightSkyBlue:Emits:
-* **PurchaseOrderCreateRequestLog** and
-* **PurchaseOrderCreatedLog** or 
-* **PurchaseOrderNotCreatedLog**
-
-If PO was created ok, then also emits:
-* **PurchaseItemCreatedLog** per line item
-(Po Item status 1 Created);
+#LightSkyBlue:Emits Header Level Events:
+* **PurchaseOrderCreateRequestLog** (as requested)
+* **PurchaseOrderCreatedLog** (as built)
+(Po Item status 1 Created on all lines);
 
 |eShop Backend|
 :Correlate the **Quotation** (with postal address)
@@ -66,7 +62,7 @@ Function: **setPoItemRejected()**
 :Function: **setPoItemAccepted()**
 Function: **setPoItemRejected()**;
 
-#LightSkyBLue:Emits:
+#LightSkyBLue:Emits Item Level Events:
 * **PurchaseItemAcceptedLog** or
 * **PurchaseItemRejectedLog**;
 

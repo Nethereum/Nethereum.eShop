@@ -10,6 +10,8 @@ namespace Nethereum.eShop.Web.ViewModels
         public IEnumerable<SelectListItem> Types { get; set; }
         public int? BrandFilterApplied { get; set; }
         public int? TypesFilterApplied { get; set; }
+
+        public string SearchText { get; set; }
         public PaginationInfoViewModel PaginationInfo { get; set; }
     }
 }

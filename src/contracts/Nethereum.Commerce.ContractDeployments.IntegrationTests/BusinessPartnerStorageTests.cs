@@ -32,9 +32,9 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var sellerExpected = new Seller()
             {
                 SellerId = "SellerToTest",
-                SellerDescription = _contracts.ContractDeploymentConfig.EShopDescription,
+                SellerDescription = _contracts.Deployment.ContractDeploymentConfig.EShopDescription,
                 ContractAddress = sellerContractAddress,
-                ApproverAddress = _contracts.ContractDeploymentConfig.EShopApproverAddress,
+                ApproverAddress = _contracts.Deployment.ContractDeploymentConfig.EShopApproverAddress,
                 IsActive = true
             };
 

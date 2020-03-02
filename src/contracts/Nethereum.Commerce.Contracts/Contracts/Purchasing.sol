@@ -105,33 +105,42 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
         //-------------------------------------------------------------------------
         // Funding. Here, the Funding contract attempts to pull in funds from buyer wallet
         //-------------------------------------------------------------------------
-        // TODO
-        //fundingContract.transferInFundsForPoFromBuyer(po.ethPurchaseOrderNumber);
-        //bool isFunded = fundingContract.getPoFundingStatus(po.ethPurchaseOrderNumber);
-        //require(isFunded == true, "Insufficient funding for PO");
-        //if (!isFunded)
-        //{ could emit create failed?
-        //} else
-
+        funding.transferInFundsForPoFromBuyerWallet(po.poNumber);
+        
         // Record the new PO as it was stored
         IPoTypes.Po memory poAsStored = poStorage.getPo(po.poNumber);
         emit PurchaseOrderCreatedLog(poAsStored.buyerAddress, poAsStored.sellerId, poAsStored.poNumber, poAsStored);
     }
     
     function cancelPurchaseOrderItem(uint poNumber, uint8 poItemNumber) override external
-    {}
+    {
+        revert("Not implemented yet");
+    }
     
-    function setPoItemGoodsReceivedBuyer(uint poNumber, uint8 poItemNumber) override external
-    {}
+    function setPoItemGoodsReceivedBuyer(uint poNumber, uint8 poItemNumber) override external // TODO only buyer
+    {
+        // Common Validations
+        IPoTypes.Po memory po = poStorage.getPo(poNumber);
+        validatePoItem(po, poItemNumber, IPoTypes.PoItemStatus.GoodsIssued);
+        
+        // Updates
+        uint poItemIndex = poItemNumber - 1;
+        po.poItems[poItemIndex].status = IPoTypes.PoItemStatus.GoodsReceived;
+        po.poItems[poItemIndex].goodsReceivedDate = now;
+    
+        // Write to storage
+        poStorage.setPo(po);
+        emit PurchaseItemGoodsReceivedLog(po.buyerAddress, po.sellerId, po.poNumber, po.poItems[poItemIndex]);   
+    }
     
     // Only from Seller Wallet
     function setPoItemAccepted(uint poNumber, uint8 poItemNumber, bytes32 soNumber, bytes32 soItemNumber) override external
     {
-        // Validations
+        // Common Validations
         IPoTypes.Po memory po = poStorage.getPo(poNumber);
         validatePoItem(po, poItemNumber, IPoTypes.PoItemStatus.Created);
         
-        // Update sales order, item status
+        // Updates
         uint poItemIndex = poItemNumber - 1;
         po.poItems[poItemIndex].soNumber = soNumber;
         po.poItems[poItemIndex].soItemNumber = soItemNumber;
@@ -143,15 +152,31 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
     }
     
     function setPoItemRejected(uint poNumber, uint8 poItemNumber) override external
-    {}
+    {
+        // Common Validations
+        IPoTypes.Po memory po = poStorage.getPo(poNumber);
+        validatePoItem(po, poItemNumber, IPoTypes.PoItemStatus.Created);
+        
+        // Escrow refund, which could revert
+        funding.transferOutFundsForPoItemToBuyer(poNumber, poItemNumber);
+        uint poItemIndex = poItemNumber - 1;
+        emit PurchaseItemEscrowRefundedLog(po.buyerAddress, po.sellerId, po.poNumber, po.poItems[poItemIndex]);
+        
+        // Updates
+        po.poItems[poItemIndex].status = IPoTypes.PoItemStatus.Rejected;
+    
+        // Write to storage
+        poStorage.setPo(po);
+        emit PurchaseItemRejectedLog(po.buyerAddress, po.sellerId, po.poNumber, po.poItems[poItemIndex]);
+    }
     
     function setPoItemReadyForGoodsIssue(uint poNumber, uint8 poItemNumber) override external
     {
-        // Validations
+        // Common Validations
         IPoTypes.Po memory po = poStorage.getPo(poNumber);
         validatePoItem(po, poItemNumber, IPoTypes.PoItemStatus.Accepted);
         
-        // Update item status
+        // Updates
         uint poItemIndex = poItemNumber - 1;
         po.poItems[poItemIndex].status = IPoTypes.PoItemStatus.ReadyForGoodsIssue;
     
@@ -162,24 +187,66 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
     
     function setPoItemGoodsIssued(uint poNumber, uint8 poItemNumber) override external
     {
-        // Validations
+        // Common Validations
         IPoTypes.Po memory po = poStorage.getPo(poNumber);
         validatePoItem(po, poItemNumber, IPoTypes.PoItemStatus.ReadyForGoodsIssue);
         
-        // Update item status
+        // Updates
         uint poItemIndex = poItemNumber - 1;
         po.poItems[poItemIndex].status = IPoTypes.PoItemStatus.GoodsIssued;
+        po.poItems[poItemIndex].goodsIssuedDate = now;
+        po.poItems[poItemIndex].plannedEscrowReleaseDate = now + 30 days;   // TODO days to be configurable
     
         // Write to storage
         poStorage.setPo(po);
         emit PurchaseItemGoodsIssuedLog(po.buyerAddress, po.sellerId, po.poNumber, po.poItems[poItemIndex]);
     }
     
-    function setPoItemGoodsReceivedSeller(uint poNumber, uint8 poItemNumber) override external
-    {}
-    
-    function validatePoItem(IPoTypes.Po memory po, uint8 poItemNumber, IPoTypes.PoItemStatus expectedPoStatus) private pure
+    function setPoItemGoodsReceivedSeller(uint poNumber, uint8 poItemNumber) override external // TODO only seller
     {
+        // Common Validations
+        IPoTypes.Po memory po = poStorage.getPo(poNumber);
+        validatePoItem(po, poItemNumber, IPoTypes.PoItemStatus.GoodsIssued);
+        
+        // Additional Validations
+        uint poItemIndex = poItemNumber - 1;
+        // Seller cannot say goods received unless enough days have passed
+        require(po.poItems[poItemIndex].plannedEscrowReleaseDate <= now, "Seller cannot set goods received: insufficient days passed");
+        
+        // Updates
+        po.poItems[poItemIndex].status = IPoTypes.PoItemStatus.GoodsReceived;
+        po.poItems[poItemIndex].goodsReceivedDate = now;
+    
+        // Write to storage
+        poStorage.setPo(po);
+        emit PurchaseItemGoodsReceivedLog(po.buyerAddress, po.sellerId, po.poNumber, po.poItems[poItemIndex]);
+    }
+    
+    function setPoItemCompleted(uint poNumber, uint8 poItemNumber) override external
+    {
+        // Common Validations
+        IPoTypes.Po memory po = poStorage.getPo(poNumber);
+        validatePoItem(po, poItemNumber, IPoTypes.PoItemStatus.GoodsReceived);
+        
+        // Escrow release, which could revert
+        funding.transferOutFundsForPoItemToSeller(poNumber, poItemNumber);
+        uint poItemIndex = poItemNumber - 1;
+        emit PurchaseItemEscrowReleasedLog(po.buyerAddress, po.sellerId, po.poNumber, po.poItems[poItemIndex]);
+
+        // Updates        
+        po.poItems[poItemIndex].status = IPoTypes.PoItemStatus.Completed;
+        po.poItems[poItemIndex].actualEscrowReleaseDate = now;
+        po.poItems[poItemIndex].isEscrowReleased = true;
+    
+        // Write to storage
+        poStorage.setPo(po);
+        emit PurchaseItemCompletedLog(po.buyerAddress, po.sellerId, po.poNumber, po.poItems[poItemIndex]);
+    }
+    
+    function validatePoItem(IPoTypes.Po memory po, uint8 poItemNumber, IPoTypes.PoItemStatus expectedOldPoStatus) private pure
+    {
+        // TODO could change this to be fn modifier instead
+        
         // PO header
         require(po.poNumber > 0, "PO does not exist");
         
@@ -190,8 +257,6 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
         uint poItemIndex = poItemNumber - 1;
         
         // Status
-        require(po.poItems[poItemIndex].status == expectedPoStatus, "Existing PO item status incorrect");
+        require(po.poItems[poItemIndex].status == expectedOldPoStatus, "Existing PO item status incorrect");
     }
-    
-    
 }

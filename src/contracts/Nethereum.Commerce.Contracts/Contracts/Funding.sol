@@ -1,6 +1,7 @@
 pragma solidity ^0.6.1;
-//pragma experimental ABIEncoderV2;
+pragma experimental ABIEncoderV2;
 
+import "./IPoTypes.sol";
 import "./IAddressRegistry.sol";
 import "./IErc20.sol";
 import "./IFunding.sol";
@@ -36,72 +37,48 @@ contract Funding is IFunding, Ownable, Bindable, StringConvertible
         require(address(purchasingContractAddress) != address(0), "Could not find Purchasing address in registry");
     }
     
-    function transferInFundsForPoFromBuyer(uint poNumber) override external
-    {}
+    function transferInFundsForPoFromBuyerWallet(uint poNumber) override external
+    {
+        // Get total PO value
+        IPoTypes.Po memory po = purchasing.getPo(poNumber);
+        uint totalPoValue = 0;
+        for (uint i = 0; i < po.poItemCount; i++)
+        {
+            totalPoValue += po.poItems[i].currencyValue;
+        }
+        
+        // Do the pull of funds, from buyer wallet into this funding contract 
+        IErc20 token = IErc20(po.currencyAddress);
+        bool isTransferSuccessful = token.transferFrom(po.buyerWalletAddress, address(this), totalPoValue);
+        require(isTransferSuccessful == true, "Insufficient funds transferred for PO");
+    }
+    
+    function transferOutFundsForPoItemToBuyer(uint poNumber, uint8 poItemNumber) override external
+    {
+        // Refund to the PO buyer address on the PO header (NB: not the PO buyer wallet)
+        IPoTypes.Po memory po = purchasing.getPo(poNumber);
+        uint poItemIndex = poItemNumber - 1;
+        uint poItemValue = po.poItems[poItemIndex].currencyValue;
+        IErc20 token = IErc20(po.currencyAddress);
+        require(po.buyerAddress != address(0), "PO has no buyer address");
+        
+        // Transfer
+        bool result = token.transfer(po.buyerAddress, poItemValue);
+        require(result == true, "Not enough funds transferred");
+    }
     
     function transferOutFundsForPoItemToSeller(uint poNumber, uint8 poItemNumber) override external
-    {}
-    
-    function transferOutFundsForPoItemToBuyer(uint poNumber,uint8 poItemNumber) override external
-    {}
-    
-    function getBalanceOfThis(address tokenAddress) override external view returns (uint balance)
-    {}
-
-
-/*
-    /// @notice Transfer In Funds for PO from the buyer wallet
-    /// @dev Pulls funds in for a PO from the buyer wallet.
-    /// @dev Currently expects whole PO value to have been authorised for transfer to Funding contract.
-    function transferInFundsForPoFromBuyer(uint64 poNumber) public 
     {
-        logDebugUint64("po number", poNumber);
-        
-        IPoTypes.Po memory po = poStorage.getPoByEthPoNumber(poNumber);
+        // Pay the seller wallet
+        IPoTypes.Po memory po = purchasing.getPo(poNumber);
+        uint poItemIndex = poItemNumber - 1;
+        uint poItemValue = po.poItems[poItemIndex].currencyValue;
         IErc20 token = IErc20(po.currencyAddress);
-        address buyerWalletAddress = businessPartnerStorage.getWalletAddress(po.buyerSysId);
+        IPoTypes.Seller memory seller = businessPartnerStorage.getSeller(po.sellerId);
+        require(seller.contractAddress != address(0), "Seller Id has no contract address");
         
-        logDebugAddr("transfer from", buyerWalletAddress);
-        logDebugAddr("spender", address(this));
-        logDebugUint32("total value", po.totalValue);
-        
-        bool result = token.transferFrom(buyerWalletAddress, address(this), po.totalValue);
-        //require(result == true, "Not enough funds transferred");
-        if (result)
-        {
-            logDebugString("PO funded ok");
-        }
-        else
-        {
-            logDebugString("PO not funded");
-        }
-
-    }
-
-    /// @notice Transfer Out Funds for PO to Seller
-    /// @dev Pays whole PO value to the seller. Expects caller to be PO Main.
-    function transferOutFundsForPoToSeller(uint64 poNumber) public onlyByPoMain
-    {
-        // Pay whole PO value to the seller's wallet
-        IPoTypes.Po memory po = poStorage.getPoByEthPoNumber(poNumber);
-        IErc20 token = IErc20(po.currencyAddress);
-        address sellerWalletAddress = businessPartnerStorage.getWalletAddress(po.sellerSysId);
-        
-        bool result = token.transfer(sellerWalletAddress, po.totalValue);
+        // Transfer
+        bool result = token.transfer(seller.contractAddress, poItemValue);
         require(result == true, "Not enough funds transferred");
     }
-
-    /// @notice Transfer Out Funds for PO to Buyer (ie a refund)
-    /// @dev Pays whole PO value to the buyer. Expects caller to be PO Main.
-    function transferOutFundsForPoToBuyer(uint64 poNumber) public onlyByPoMain
-    {
-        // Pay whole PO value to the buyer's wallet
-        IPoTypes.Po memory po = poStorage.getPoByEthPoNumber(poNumber);
-        IErc20 token = IErc20(po.currencyAddress);
-        address buyerWalletAddress = businessPartnerStorage.getWalletAddress(po.buyerSysId);
-        
-        bool result = token.transfer(buyerWalletAddress, po.totalValue);
-        require(result == true, "Not enough funds transferred");
-    }
-    */
 }

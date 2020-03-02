@@ -112,6 +112,7 @@ namespace Nethereum.eShop.Web
 
             services.AddScoped(typeof(IAsyncCache<>), typeof(GeneralCache<>));
             services.AddScoped(typeof(IAsyncRepository<>), typeof(EfRepository<>));
+            services.AddScoped<ICatalogItemRepository, CatalogItemRepository>();
             services.AddScoped<ICatalogViewModelService, CachedCatalogViewModelService>();
             services.AddScoped<IBasketService, BasketService>();
             services.AddScoped<IBasketViewModelService, BasketViewModelService>();

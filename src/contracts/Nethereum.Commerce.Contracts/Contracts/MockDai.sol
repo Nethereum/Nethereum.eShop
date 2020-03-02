@@ -1,48 +1,15 @@
-pragma solidity ^0.5.3;
+pragma solidity ^0.6.1;
 
 // ----------------------------------------------------------------------------
-// Symbol      : GUSDTEST
-// Name        : Mock GUSD for testing
-// Total supply: 100,000.00
-// Decimals    : 2
-// Based on 
-// https://theethereum.wiki/w/index.php/ERC20_Token_Standard#Sample_Fixed_Supply_Token_Contract
-// (c) BokkyPooBah / Bok Consulting Pty Ltd 2018. The MIT Licence.
+// Symbol      : DAI
+// Name        : DAI for testing
+// Total supply: 50,000,000
+// Decimals    : 18
+// Based on https://theethereum.wiki/w/index.php/ERC20_Token_Standard#Sample_Fixed_Supply_Token_Contract
+// with library removed to simplify deployments
 // ----------------------------------------------------------------------------
 
 import "./IErc20.sol";
-
-// ----------------------------------------------------------------------------
-// Safe maths
-// ----------------------------------------------------------------------------
-library SafeMath {
-    function add(uint a, uint b) internal pure returns (uint c) {
-        c = a + b;
-        require(c >= a);
-    }
-    function sub(uint a, uint b) internal pure returns (uint c) {
-        require(b <= a);
-        c = a - b;
-    }
-    function mul(uint a, uint b) internal pure returns (uint c) {
-        c = a * b;
-        require(a == 0 || c / a == b);
-    }
-    function div(uint a, uint b) internal pure returns (uint c) {
-        require(b > 0);
-        c = a / b;
-    }
-}
-
-// ----------------------------------------------------------------------------
-// Contract function to receive approval and execute function in one call
-// Borrowed from MiniMeToken
-// ----------------------------------------------------------------------------
-contract ApproveAndCallFallBack 
-{
-    function receiveApproval(address from, uint256 tokens, address token, bytes memory data) public;
-}
-
 
 // ----------------------------------------------------------------------------
 // Owned contract
@@ -77,9 +44,8 @@ contract Owned {
 // ----------------------------------------------------------------------------
 // ERC20 Token, with the addition of symbol, name and decimals and a fixed supply
 // ----------------------------------------------------------------------------
-contract MockGusd is IErc20, Owned {
-    using SafeMath for uint;
-
+contract MockDai is IErc20, Owned {
+    
     string public symbol;
     string public  name;
     uint8 public decimals;
@@ -93,10 +59,11 @@ contract MockGusd is IErc20, Owned {
     // Constructor
     // ------------------------------------------------------------------------
     constructor() public {
-        symbol = "GUSDTEST";
-        name = "GUSD for testing";
-        decimals = 2;
-        _totalSupply = 100000 * 10**uint(decimals);
+
+        symbol = "DAI";
+        name = "DAI for testing";
+        decimals = 18;
+        _totalSupply = 50000000 * 10**uint(decimals);
         balances[owner] = _totalSupply;
         emit Transfer(address(0), owner, _totalSupply);
     }
@@ -105,15 +72,15 @@ contract MockGusd is IErc20, Owned {
     // ------------------------------------------------------------------------
     // Total supply
     // ------------------------------------------------------------------------
-    function totalSupply() public view returns (uint) {
-        return _totalSupply.sub(balances[address(0)]);
+    function totalSupply() override public view returns (uint) {
+        return (_totalSupply - balances[address(0)]);
     }
 
 
     // ------------------------------------------------------------------------
     // Get the token balance for account `tokenOwner`
     // ------------------------------------------------------------------------
-    function balanceOf(address tokenOwner) public view returns (uint balance) {
+    function balanceOf(address tokenOwner) override public view returns (uint balance) {
         return balances[tokenOwner];
     }
 
@@ -123,9 +90,9 @@ contract MockGusd is IErc20, Owned {
     // - Owner's account must have sufficient balance to transfer
     // - 0 value transfers are allowed
     // ------------------------------------------------------------------------
-    function transfer(address to, uint tokens) public returns (bool success) {
-        balances[msg.sender] = balances[msg.sender].sub(tokens);
-        balances[to] = balances[to].add(tokens);
+    function transfer(address to, uint tokens) override public returns (bool success) {
+        balances[msg.sender] = balances[msg.sender] - tokens;
+        balances[to] = balances[to] + tokens;
         emit Transfer(msg.sender, to, tokens);
         return true;
     }
@@ -139,7 +106,7 @@ contract MockGusd is IErc20, Owned {
     // recommends that there are no checks for the approval double-spend attack
     // as this should be implemented in user interfaces
     // ------------------------------------------------------------------------
-    function approve(address spender, uint tokens) public returns (bool success) {
+    function approve(address spender, uint tokens) override public returns (bool success) {
         allowed[msg.sender][spender] = tokens;
         emit Approval(msg.sender, spender, tokens);
         return true;
@@ -155,10 +122,10 @@ contract MockGusd is IErc20, Owned {
     // - Spender must have sufficient allowance to transfer
     // - 0 value transfers are allowed
     // ------------------------------------------------------------------------
-    function transferFrom(address from, address to, uint tokens) public returns (bool success) {
-        balances[from] = balances[from].sub(tokens);
-        allowed[from][msg.sender] = allowed[from][msg.sender].sub(tokens);
-        balances[to] = balances[to].add(tokens);
+    function transferFrom(address from, address to, uint tokens) override public returns (bool success) {
+        balances[from] = balances[from] - tokens;
+        allowed[from][msg.sender] = allowed[from][msg.sender] - tokens;
+        balances[to] = balances[to] + tokens;
         emit Transfer(from, to, tokens);
         return true;
     }
@@ -168,34 +135,22 @@ contract MockGusd is IErc20, Owned {
     // Returns the amount of tokens approved by the owner that can be
     // transferred to the spender's account
     // ------------------------------------------------------------------------
-    function allowance(address tokenOwner, address spender) public view returns (uint remaining) {
+    function allowance(address tokenOwner, address spender) override public view returns (uint remaining) {
         return allowed[tokenOwner][spender];
     }
-
-
-    // ------------------------------------------------------------------------
-    // Token owner can approve for `spender` to transferFrom(...) `tokens`
-    // from the token owner's account. The `spender` contract function
-    // `receiveApproval(...)` is then executed
-    // ------------------------------------------------------------------------
-    function approveAndCall(address spender, uint tokens, bytes memory data) 
-    public returns (bool success)
-    {
-        allowed[msg.sender][spender] = tokens;
-        emit Approval(msg.sender, spender, tokens);
-        ApproveAndCallFallBack(spender).receiveApproval(msg.sender, tokens, address(this), data);
-        return true;
-    }
-
 
     // ------------------------------------------------------------------------
     // Don't accept ETH
     // ------------------------------------------------------------------------
-    function () external payable
+    fallback () external payable
     {
-        revert();
+        revert("Cannot receive ETH");
     }
-
+    
+    receive() external payable 
+    {
+        revert("Cannot receive ETH");
+    }
 
     // ------------------------------------------------------------------------
     // Owner can transfer out any accidentally sent ERC20 tokens
