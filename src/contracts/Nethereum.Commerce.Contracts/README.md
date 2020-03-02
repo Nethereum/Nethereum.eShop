@@ -8,7 +8,8 @@ Smart Contract Solidity source code and the generated C# APIs to interact with t
 | Folder | File(s) | Description |
 |--|--|--|
 | `Contracts` | `*.sol` | Solidity source files. |
-|  | `nethereum-gen.settings` | File used to control C# API generation. |
+| `Contracts` | `nethereum-gen.settings` | File used to control C# API generation. |
+| `Deployment` | `*.cs` | `ContractDeployment` object to use to deploy contracts. |
 | _contractname_ | | Generated C# API for the Solidity contract called _contractname_. |
 | _root_ | `PurchasingExtensions.cs` | For converting `byte[]` to string, Po to Po etc. |
 | _root_ | `PurchasingProfile.cs` | Used by AutoMapper to convert Pos. |

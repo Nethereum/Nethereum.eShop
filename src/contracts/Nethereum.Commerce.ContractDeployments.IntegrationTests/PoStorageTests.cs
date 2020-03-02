@@ -37,11 +37,11 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             Po poExpected = CreatePoForPoStorageContract(poNumber, approverAddress, quoteId);
 
             // Store PO
-            var txReceipt = await _contracts.PoStorageService.SetPoRequestAndWaitForReceiptAsync(poExpected);
+            var txReceipt = await _contracts.Deployment.PoStorageService.SetPoRequestAndWaitForReceiptAsync(poExpected);
             txReceipt.Status.Value.Should().Be(1);
 
             // Retrieve PO 
-            var poActual = (await _contracts.PoStorageService.GetPoQueryAsync(poNumber)).Po;
+            var poActual = (await _contracts.Deployment.PoStorageService.GetPoQueryAsync(poNumber)).Po;
 
             // They should be the same
             CheckEveryPoFieldMatches(poExpected, poActual);
@@ -57,11 +57,11 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             Po poExpected = CreatePoForPoStorageContract(poNumberExpected, approverAddress, quoteId);
 
             // Store PO
-            var txReceipt = await _contracts.PoStorageService.SetPoRequestAndWaitForReceiptAsync(poExpected);
+            var txReceipt = await _contracts.Deployment.PoStorageService.SetPoRequestAndWaitForReceiptAsync(poExpected);
             txReceipt.Status.Value.Should().Be(1);
 
             // Retrieve PO number by address and nonce
-            var poNumberActual = await _contracts.PoStorageService.GetPoNumberBySellerAndQuoteQueryAsync(poExpected.SellerId, poExpected.QuoteId);
+            var poNumberActual = await _contracts.Deployment.PoStorageService.GetPoNumberBySellerAndQuoteQueryAsync(poExpected.SellerId, poExpected.QuoteId);
 
             // They should be the same
             poNumberActual.Should().Be(poNumberExpected);
@@ -77,11 +77,11 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             Po poExpected = CreatePoForPoStorageContract(poNumber, approverAddress, quoteId);
 
             // Store PO
-            var txReceipt = await _contracts.PoStorageService.SetPoRequestAndWaitForReceiptAsync(poExpected);
+            var txReceipt = await _contracts.Deployment.PoStorageService.SetPoRequestAndWaitForReceiptAsync(poExpected);
             txReceipt.Status.Value.Should().Be(1);
 
             // Retrieve PO v1 
-            var poActualv1 = (await _contracts.PoStorageService.GetPoQueryAsync(poNumber)).Po;
+            var poActualv1 = (await _contracts.Deployment.PoStorageService.GetPoQueryAsync(poNumber)).Po;
             DisplaySeparator(_output, "PO v1");
             DisplayPoHeader(_output, poActualv1);
             for (int i = 0; i < poActualv1.PoItems.Count; i++)
@@ -92,11 +92,11 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             // Update PO
             poExpected.QuoteId = 314;
             poExpected.PoItems[0].Status = Contracts.ContractEnums.PoItemStatus.Accepted;
-            txReceipt = await _contracts.PoStorageService.SetPoRequestAndWaitForReceiptAsync(poExpected);
+            txReceipt = await _contracts.Deployment.PoStorageService.SetPoRequestAndWaitForReceiptAsync(poExpected);
             txReceipt.Status.Value.Should().Be(1);
             
             // Retrieve PO v2 
-            var poActualv2 = (await _contracts.PoStorageService.GetPoQueryAsync(poNumber)).Po;
+            var poActualv2 = (await _contracts.Deployment.PoStorageService.GetPoQueryAsync(poNumber)).Po;
             DisplaySeparator(_output, "PO v2");
             DisplayPoHeader(_output, poActualv2);
             for (int i = 0; i < poActualv2.PoItems.Count; i++)

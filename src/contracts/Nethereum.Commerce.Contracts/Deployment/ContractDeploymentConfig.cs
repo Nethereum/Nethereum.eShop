@@ -1,5 +1,8 @@
-﻿namespace Nethereum.Commerce.Contracts
+﻿namespace Nethereum.Commerce.Contracts.Deployment
 {
+    /// <summary>
+    /// Config for deploying a new set of eShop contracts
+    /// </summary>
     public class ContractDeploymentConfig
     {
         /// <summary>

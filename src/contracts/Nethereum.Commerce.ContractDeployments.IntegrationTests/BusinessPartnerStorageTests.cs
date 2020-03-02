@@ -26,7 +26,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         [Fact]
         public async void ShouldStoreAndRetrieveSeller()
         {
-            var sellerContractAddress = _contracts.WalletSellerService.ContractHandler.ContractAddress;
+            var sellerContractAddress = _contracts.Deployment.WalletSellerService.ContractHandler.ContractAddress;
 
             // Create a Seller to store
             var sellerExpected = new Seller()
@@ -39,11 +39,11 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             };
 
             // Store Seller
-            var txReceipt = await _contracts.BusinessPartnerStorageService.SetSellerRequestAndWaitForReceiptAsync(sellerExpected);
+            var txReceipt = await _contracts.Deployment.BusinessPartnerStorageService.SetSellerRequestAndWaitForReceiptAsync(sellerExpected);
             txReceipt.Status.Value.Should().Be(1);
 
             // Retrieve Seller
-            var sellerActual = (await _contracts.BusinessPartnerStorageService.GetSellerQueryAsync(sellerExpected.SellerId)).Seller;
+            var sellerActual = (await _contracts.Deployment.BusinessPartnerStorageService.GetSellerQueryAsync(sellerExpected.SellerId)).Seller;
 
             // They should be the same
             CheckEverySellerFieldMatches(sellerExpected, sellerActual);
