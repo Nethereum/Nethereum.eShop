@@ -6,6 +6,13 @@ using System.Threading.Tasks;
 
 namespace Nethereum.eShop.Infrastructure.Data
 {
+    /// <summary>
+    /// 
+    /// This class should be a conduit for accessing a caching layer.  Obviously, the Dictionary<> member will not
+    /// perform in a dependency-injection solution.  However, it's used as a placeholder here, one which will be
+    /// replaced at some point with calls to a real caching solution.
+    ///
+    /// </summary>
     /// <typeparam name="T"></typeparam>
     public class GeneralCache<T> : IAsyncCache<T> where T : BaseEntity
     {
