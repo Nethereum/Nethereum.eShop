@@ -54,7 +54,7 @@ contract PoStorage is IPoStorage, Ownable, Bindable, StringConvertible
 
     // Names of mappings in eternal storage
     // Mapping [seller Id + quote id] => po number
-    string constant private MAP_SELLER_AND_QUOTE_TO_PO = "maSellerAndQuoteToPo";
+    string constant private MAP_SELLER_AND_QUOTE_TO_PO = "mapSellerAndQuoteToPo";
 
     IEternalStorage public eternalStorage;
     IAddressRegistry public addressRegistry;

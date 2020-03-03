@@ -185,7 +185,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         /// <summary>
         /// A test PO intended for passing to contracts WalletBuyer.sol or Purchasing.sol poCreate() functions.
         /// </summary>        
-        public static Storage.Po CreatePoForPurchasingContract(
+        public static Storage.Po CreatePoForPurchasingContracts(
             string buyerAddress,
             string receiverAddress,
             string buyerWalletAddress,
@@ -255,7 +255,8 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         }
 
         /// <summary>
-        /// A test PO intended for writing directly to the PO storage contract PoStorage.sol.
+        /// A test PO intended for writing directly to the PO storage contract PoStorage.sol (ie no validations are done on
+        /// this data, it is written direct to storage only).
         /// </summary>
         public static Storage.Po CreatePoForPoStorageContract(uint poNumber, string approverAddress, uint quoteId)
         {

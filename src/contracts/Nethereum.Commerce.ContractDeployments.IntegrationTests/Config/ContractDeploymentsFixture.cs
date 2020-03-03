@@ -18,11 +18,11 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
         public Web3.Web3 Web3 { get; internal set; }
 
         /// <summary>
-        /// Account representing the "secondary user", that is a user with
+        /// Web3 representing the "secondary user", that is a user with
         /// ether but without owner rights to any contract. Used for testing 
         /// security.
         /// </summary>
-        public Account SecondaryUser { get; internal set; }
+        public Web3.Web3 Web3SecondaryUser { get; internal set; }
 
         /// <summary>
         /// eShop contract collection, newly deployed or connected to existing
@@ -38,10 +38,8 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
 
             // Web3
             var web3Config = appConfig.GetSection("Web3Config").Get<Web3Config>();
-            var url = web3Config.BlockchainUrl;
             var privateKey = web3Config.TransactionCreatorPrivateKey;
-            var account = new Account(privateKey);
-            Web3 = new Web3.Web3(account, url);
+            Web3 = new Web3.Web3(new Account(privateKey), web3Config.BlockchainUrl);
 
             // New deployment
             var contractDeploymentConfig = appConfig.GetSection("NewDeployment").Get<ContractDeploymentConfig>();
@@ -51,7 +49,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
 
             // Secondary users
             var secondaryUserConfig = appConfig.GetSection("SecondaryUsers").Get<SecondaryUserConfig>();
-            SecondaryUser = new Account(secondaryUserConfig.UserPrivateKey);
+            Web3SecondaryUser = new Web3.Web3(new Account(secondaryUserConfig.UserPrivateKey), web3Config.BlockchainUrl);
         }
 
         public async Task InitializeAsync()
@@ -62,7 +60,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
             LogSeparator();
             Log("Transferring Ether to secondary users...");
             var txEtherTransfer = await Web3.Eth.GetEtherTransferService()
-                .TransferEtherAndWaitForReceiptAsync(SecondaryUser.Address, 1.00m);
+                .TransferEtherAndWaitForReceiptAsync(Web3SecondaryUser.TransactionManager.Account.Address, 1.00m);
             Log($"Transfer tx status: {txEtherTransfer.Status.Value}");
         }
 

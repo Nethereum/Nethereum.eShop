@@ -281,13 +281,8 @@ namespace Nethereum.Commerce.Contracts.Deployment
                 Log($"Tx status: {txReceipt.Status.Value}");
                 #endregion
 
-                // Authorisations. Bind all contracts that will use BP storage
-                // TODO Cant configure this till next layer deployed
-                //Log($"Authorisations for Eternal Storage...");
-                //contractName = CONTRACT_NAME_BUSINESS_PARTNER_STORAGE;
-                //Log($"Configuring Eternal Storage, binding {contractName}...");
-                //txReceipt = await eternalStorageService.BindAddressRequestAndWaitForReceiptAsync(bpStorageService.ContractHandler.ContractAddress);
-                //Log($"Tx status: {txReceipt.Status.Value}");
+                // Authorisations.
+                // Bind all contracts that will use BP storage here - currently none other than owner                
 
                 //-----------------------------------------------------------------------------------
                 // Configure PO Storage
@@ -330,6 +325,24 @@ namespace Nethereum.Commerce.Contracts.Deployment
                 Log($"Configuring Purchasing...");
                 txReceipt = await PurchasingService.ConfigureRequestAndWaitForReceiptAsync(
                     CONTRACT_NAME_PO_STORAGE, CONTRACT_NAME_BUSINESS_PARTNER_STORAGE, CONTRACT_NAME_FUNDING);
+                Log($"Tx status: {txReceipt.Status.Value}");
+
+                // Authorisations. Bind all contracts that will use Purchasing                
+                Log($"Authorisations for Purchasing...");
+                // Bind WalletBuyer to Purchasing
+                contractName = CONTRACT_NAME_WALLET_BUYER;
+                Log($"Configuring Purchasing, binding {contractName}...");
+                txReceipt = await PurchasingService.BindAddressRequestAndWaitForReceiptAsync(WalletBuyerService.ContractHandler.ContractAddress);
+                Log($"Tx status: {txReceipt.Status.Value}");
+                // Bind WalletSeller to Purchasing
+                contractName = CONTRACT_NAME_WALLET_SELLER;
+                Log($"Configuring Purchasing, binding {contractName}...");
+                txReceipt = await PurchasingService.BindAddressRequestAndWaitForReceiptAsync(WalletSellerService.ContractHandler.ContractAddress);
+                Log($"Tx status: {txReceipt.Status.Value}");
+                // Bind Funding to Purchasing
+                contractName = CONTRACT_NAME_FUNDING;
+                Log($"Configuring Purchasing, binding {contractName}...");
+                txReceipt = await PurchasingService.BindAddressRequestAndWaitForReceiptAsync(FundingService.ContractHandler.ContractAddress);
                 Log($"Tx status: {txReceipt.Status.Value}");
 
                 //-----------------------------------------------------------------------------------
