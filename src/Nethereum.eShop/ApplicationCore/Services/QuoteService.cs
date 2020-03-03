@@ -56,13 +56,26 @@ namespace Nethereum.eShop.ApplicationCore.Services
                 Expiry = DateTimeOffset.UtcNow.Date.AddMonths(1)
             };
 
-            await ExecuteRules(quote).ConfigureAwait(false);
+            try
+            {
+                var ReportsWithWarnings = await ExecuteRules(quote).ConfigureAwait(false);
+                if (ReportsWithWarnings.Count > 0)
+                {
+                    // NOTE: Should there be any indication of minor issues to the user?
+                }
+            }
+            catch (RuleTreeException ruleTreeEx)
+            {
+                // NOTE: Should we redirect the user to an error page?
+            }
 
             await _quoteRepository.AddAsync(quote);
         }
 
-        private async Task ExecuteRules(Quote targetQuote)
+        private async Task<List<RuleTreeReport>> ExecuteRules(Quote targetQuote)
         {
+            var ReportsWithWarnings = new List<RuleTreeReport>();
+
             // NOTE: This block demonstrates the basic idea of how to use the rules engine, 
             // but it's definitely subject to change
             if (_rulesEngineService != null)
@@ -77,6 +90,10 @@ namespace Nethereum.eShop.ApplicationCore.Services
                 {
                     throw new RuleTreeException(QuoteRuleTree.TreeOrigin, QuoteReport);
                 }
+                else if ((QuoteReport.RuleSetsWithWarnings != null) && (QuoteReport.RuleSetsWithWarnings.Count > 0))
+                {
+                    ReportsWithWarnings.Add(QuoteReport);
+                }
 
                 if (QuoteItemRuleTree != null)
                 {
@@ -89,10 +106,15 @@ namespace Nethereum.eShop.ApplicationCore.Services
                         {
                             throw new RuleTreeException(QuoteItemRuleTree.TreeOrigin, QuoteItemReport);
                         }
+                        else if ((QuoteItemReport.RuleSetsWithWarnings != null) && (QuoteItemReport.RuleSetsWithWarnings.Count > 0))
+                        {
+                            ReportsWithWarnings.Add(QuoteItemReport);
+                        }
                     }
                 }
             }
 
+            return ReportsWithWarnings;
         }
 
         private async Task<IEnumerable<QuoteItem>> MapAsync(Basket basket)
