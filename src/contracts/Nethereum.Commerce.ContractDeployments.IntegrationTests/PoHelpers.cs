@@ -16,6 +16,16 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 {
     public static class PoHelpers
     {
+        /// <summary>
+        /// Revert message for the Solidity onlyRegisteredCaller() function modifier
+        /// </summary>
+        public const string AUTH_EXCEPTION_ONLY_REGISTERED = "*Only contract owner or a bound address may call this function*";
+
+        /// <summary>
+        /// Revert message for the Solidity onlyOwner() function modifier
+        /// </summary>
+        public const string AUTH_EXCEPTION_ONLY_OWNER = "*Ownable: caller is not the owner*";
+
         private static Random _random;
 
         static PoHelpers()

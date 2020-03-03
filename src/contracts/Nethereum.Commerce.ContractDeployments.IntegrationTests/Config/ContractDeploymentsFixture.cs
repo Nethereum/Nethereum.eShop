@@ -62,6 +62,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
             var txEtherTransfer = await Web3.Eth.GetEtherTransferService()
                 .TransferEtherAndWaitForReceiptAsync(Web3SecondaryUser.TransactionManager.Account.Address, 1.00m);
             Log($"Transfer tx status: {txEtherTransfer.Status.Value}");
+            LogSeparator();
         }
 
         public Task DisposeAsync()

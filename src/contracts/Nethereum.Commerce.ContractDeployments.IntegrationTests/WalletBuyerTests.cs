@@ -96,7 +96,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var walletBuyerBalance = await sts.BalanceOfQueryAsync(poAsRequested.BuyerWalletAddress);
             _output.WriteLine($"Wallet Buyer balance before test: {await walletBuyerBalance.PrettifyAsync(sts)}");
 
-            // Transfer required funds from current Web3 acccount to wallet buyer
+            // Test setup - transfer required funds from current Web3 acccount to wallet buyer
             var txTransfer = await sts.TransferRequestAndWaitForReceiptAsync(poAsRequested.BuyerWalletAddress, totalPoValue);
             txTransfer.Status.Value.Should().Be(1);
 

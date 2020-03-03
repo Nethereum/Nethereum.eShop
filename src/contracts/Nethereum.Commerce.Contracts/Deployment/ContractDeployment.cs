@@ -105,6 +105,7 @@ namespace Nethereum.Commerce.Contracts.Deployment
                 {
                     await DeployMockContractsAsync();
                 }
+                LogSeparator();
             }
         }
 
@@ -352,6 +353,19 @@ namespace Nethereum.Commerce.Contracts.Deployment
                 Log($"Configuring Funding...");
                 txReceipt = await FundingService.ConfigureRequestAndWaitForReceiptAsync(
                     CONTRACT_NAME_PO_STORAGE, CONTRACT_NAME_BUSINESS_PARTNER_STORAGE);
+                Log($"Tx status: {txReceipt.Status.Value}");
+
+                // Authorisations. Bind all contracts that will use Funding                
+                Log($"Authorisations for Funding...");
+                // Bind WalletBuyer to Funding
+                contractName = CONTRACT_NAME_WALLET_BUYER;
+                Log($"Configuring Funding, binding {contractName}...");
+                txReceipt = await FundingService.BindAddressRequestAndWaitForReceiptAsync(WalletBuyerService.ContractHandler.ContractAddress);
+                Log($"Tx status: {txReceipt.Status.Value}");
+                // Bind Purchasing to Funding
+                contractName = CONTRACT_NAME_PURCHASING;
+                Log($"Configuring Funding, binding {contractName}...");
+                txReceipt = await FundingService.BindAddressRequestAndWaitForReceiptAsync(PurchasingService.ContractHandler.ContractAddress);
                 Log($"Tx status: {txReceipt.Status.Value}");
             }
             catch (Exception ex)

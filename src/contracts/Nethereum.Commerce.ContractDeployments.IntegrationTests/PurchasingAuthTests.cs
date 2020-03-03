@@ -1,16 +1,15 @@
-using Nethereum.Commerce.ContractDeployments.IntegrationTests.Config;
-using Xunit;
-using Xunit.Abstractions;
 using FluentAssertions;
-using Purchasing = Nethereum.Commerce.Contracts.Purchasing.ContractDefinition;
-using Storage = Nethereum.Commerce.Contracts.PoStorage.ContractDefinition;
-using System.Collections.Generic;
-using static Nethereum.Commerce.ContractDeployments.IntegrationTests.PoHelpers;
-using System.Threading.Tasks;
+using Nethereum.ABI.FunctionEncoding;
+using Nethereum.Commerce.ContractDeployments.IntegrationTests.Config;
 using Nethereum.Commerce.Contracts;
 using Nethereum.Commerce.Contracts.Purchasing;
 using System;
-using Nethereum.ABI.FunctionEncoding;
+using System.Threading.Tasks;
+using Xunit;
+using Xunit.Abstractions;
+using static Nethereum.Commerce.ContractDeployments.IntegrationTests.PoHelpers;
+using Purchasing = Nethereum.Commerce.Contracts.Purchasing.ContractDefinition;
+using Storage = Nethereum.Commerce.Contracts.PoStorage.ContractDefinition;
 
 namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 {
@@ -19,7 +18,6 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
     {
         private readonly ITestOutputHelper _output;
         private readonly ContractDeploymentsFixture _contracts;
-        private const string AUTHS_FAILURE_EXCEPTION_REVERT_MESSAGE = "*Only contract owner or a bound address may call this function*";
 
         public PurchasingAuthTests(ContractDeploymentsFixture fixture, ITestOutputHelper output)
         {
@@ -41,7 +39,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             await Task.Delay(1);
             var ps = new PurchasingService(_contracts.Web3SecondaryUser, _contracts.Deployment.PurchasingService.ContractHandler.ContractAddress);
             Func<Task> act = async () => await ps.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
-            act.Should().Throw<SmartContractRevertException>().WithMessage(AUTHS_FAILURE_EXCEPTION_REVERT_MESSAGE);
+            act.Should().Throw<SmartContractRevertException>().WithMessage(AUTH_EXCEPTION_ONLY_REGISTERED);
         }
 
         private async Task<Purchasing.Po> CreatePurchasingPoAsync(uint quoteId)

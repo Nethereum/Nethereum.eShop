@@ -58,7 +58,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var walletBuyerBalance = await sts.BalanceOfQueryAsync(poAsRequested.BuyerWalletAddress);
             _output.WriteLine($"Wallet Buyer balance before test: {await walletBuyerBalance.PrettifyAsync(sts)}");
 
-            // Transfer required funds from current Web3 acccount to wallet buyer
+            // Test setup - transfer required funds from current Web3 acccount to wallet buyer
             var txTransfer = await sts.TransferRequestAndWaitForReceiptAsync(poAsRequested.BuyerWalletAddress, totalPoValue);
             txTransfer.Status.Value.Should().Be(1);
 
@@ -102,7 +102,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             uint quoteId = GetRandomInt();
             Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId);
 
-            // Transfer required funds from current Web3 acccount to wallet buyer
+            // Test setup - transfer required funds from current Web3 acccount to wallet buyer
             StandardTokenService sts = new StandardTokenService(_contracts.Web3, poAsRequested.CurrencyAddress);
             var totalPoValue = poAsRequested.GetTotalCurrencyValue();
             var txTransfer = await sts.TransferRequestAndWaitForReceiptAsync(poAsRequested.BuyerWalletAddress, totalPoValue);
@@ -150,7 +150,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             uint quoteId = GetRandomInt();
             Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId);
 
-            // Transfer required funds from current Web3 acccount to wallet buyer
+            // Test setup - transfer required funds from current Web3 acccount to wallet buyer
             StandardTokenService sts = new StandardTokenService(_contracts.Web3, poAsRequested.CurrencyAddress);
             var totalPoValue = poAsRequested.GetTotalCurrencyValue();
             var txTransfer = await sts.TransferRequestAndWaitForReceiptAsync(poAsRequested.BuyerWalletAddress, totalPoValue);

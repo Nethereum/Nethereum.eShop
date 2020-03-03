@@ -16,7 +16,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
     {
         private readonly ITestOutputHelper _output;
         private readonly ContractDeploymentsFixture _contracts;
-        private const string AUTHS_FAILURE_EXCEPTION_REVERT_MESSAGE = "*Only contract owner or a bound address may call this function*";
+
         public PoStorageAuthTests(ContractDeploymentsFixture fixture, ITestOutputHelper output)
         {
             // ContractDeploymentsFixture performed a complete deployment.
@@ -39,7 +39,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             await Task.Delay(1);
             var pss = new PoStorageService(_contracts.Web3SecondaryUser, _contracts.Deployment.PoStorageService.ContractHandler.ContractAddress);
             Func<Task> act = async () => await pss.SetPoRequestAndWaitForReceiptAsync(poExpected);
-            act.Should().Throw<SmartContractRevertException>().WithMessage(AUTHS_FAILURE_EXCEPTION_REVERT_MESSAGE);
+            act.Should().Throw<SmartContractRevertException>().WithMessage(AUTH_EXCEPTION_ONLY_REGISTERED);
         }
     }
 }
