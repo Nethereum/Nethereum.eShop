@@ -16,8 +16,6 @@ namespace Nethereum.eShop.Infrastructure.Data
     {
         protected readonly CatalogContext _dbContext;
 
-        public DbSet<T> DbSet => _dbContext.Set<T>();
-
         public EfRepository(CatalogContext dbContext)
         {
             _dbContext = dbContext;

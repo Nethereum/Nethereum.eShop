@@ -10,11 +10,7 @@ namespace Nethereum.eShop.Infrastructure.Data.Config
         {
             builder.OwnsOne(i => i.ItemOrdered, io =>
             {
-                io.WithOwner();
-
-                io.Property(cio => cio.ProductName)
-                    .HasMaxLength(50)
-                    .IsRequired();
+                io.ConfigureCatalogItemExcerpt();
             });
 
             builder.Property(oi => oi.UnitPrice)

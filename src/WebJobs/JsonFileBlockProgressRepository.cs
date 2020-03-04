@@ -1,18 +1,16 @@
 ﻿using Nethereum.BlockchainProcessing.ProgressRepositories;
-using System;
-using System.Collections.Generic;
+using Nethereum.eShop.WebJobs.Configuration;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Nethereum.eShop.WebJobs
 {
     public class JsonFileBlockProgressRepository: JsonBlockProgressRepository
     {
-        public JsonFileBlockProgressRepository(string jsonFile):base(
-                    () => Task.FromResult(File.Exists(jsonFile)),
-                    async (json) => await File.WriteAllTextAsync(jsonFile, json),
-                    async () => await File.ReadAllTextAsync(jsonFile))
+        public JsonFileBlockProgressRepository(EshopConfiguration eshopConfiguration):base(
+                    () => Task.FromResult(File.Exists(eshopConfiguration.PurchaseOrderEventLogConfiguration.BlockProgressJsonFile)),
+                    async (json) => await File.WriteAllTextAsync(eshopConfiguration.PurchaseOrderEventLogConfiguration.BlockProgressJsonFile, json),
+                    async () => await File.ReadAllTextAsync(eshopConfiguration.PurchaseOrderEventLogConfiguration.BlockProgressJsonFile))
         {
 
         }

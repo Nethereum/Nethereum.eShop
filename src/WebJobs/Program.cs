@@ -21,7 +21,7 @@ namespace Nethereum.eShop.WebJobs
     {
         static void Main(string[] args)
         {
-            IConfigurationRoot config = null;
+            IConfiguration config = null;
             EshopConfiguration eShopConfig = null;
             var hostBuilder = Host.CreateDefaultBuilder(args);
 
@@ -39,19 +39,24 @@ namespace Nethereum.eShop.WebJobs
                 c.AddScoped<IOrderRepository, OrderRepository>();
                 c.AddScoped<IOrderService, OrderService>();
 
+                // TODO: There's a bug in the BlockProgressRepo
+                // It's using string ordering instead of numeric ordering to get the last block processed
+                // so 997 is considered higher than 2061
+                // this has been fixed but is awaiting a PR merge and nuget release (probably 3.7.2)
+
                 // blockchain event log progress db
-                var progressDbConnectionString = config.GetConnectionString("BlockchainProcessingProgressDb");
-                IBlockchainDbContextFactory blockchainDbContextFactory =
-                    new SqlServerCoreBlockchainDbContextFactory(
-                        progressDbConnectionString, DbSchemaNames.dbo);
+                //var progressDbConnectionString = config.GetConnectionString("BlockchainProcessingProgressDb");
+                //IBlockchainDbContextFactory blockchainDbContextFactory =
+                //    new SqlServerCoreBlockchainDbContextFactory(
+                //        progressDbConnectionString, DbSchemaNames.dbo);
 
-                using (var progressContext = blockchainDbContextFactory.CreateContext())
-                {
-                    progressContext.Database.EnsureCreated();
-                }
+                //using (var progressContext = blockchainDbContextFactory.CreateContext())
+                //{
+                //    progressContext.Database.EnsureCreated();
+                //}
 
-                IBlockProgressRepository progressRepo = new BlockProgressRepository(blockchainDbContextFactory);
-                c.AddSingleton(progressRepo);
+                //IBlockProgressRepository progressRepo = new BlockProgressRepository(blockchainDbContextFactory);
+                c.AddSingleton<IBlockProgressRepository, JsonFileBlockProgressRepository>();
 
                 // jobs
                 c.AddScoped<IProcessPuchaseOrderEventLogs, ProcessPurchaseOrderEventLogs>();

@@ -14,7 +14,5 @@ namespace Nethereum.eShop.ApplicationCore.Interfaces
         Task UpdateAsync(T entity);
         Task DeleteAsync(T entity);
         Task<int> CountAsync(ISpecification<T> spec);
-
-        DbSet<T> DbSet { get; }
     }
 }

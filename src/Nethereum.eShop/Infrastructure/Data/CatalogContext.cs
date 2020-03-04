@@ -37,7 +37,5 @@ namespace Nethereum.eShop.Infrastructure.Data
             base.OnModelCreating(builder);
             builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         }
-
-        
     }
 }

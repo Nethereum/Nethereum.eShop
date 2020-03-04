@@ -69,7 +69,7 @@ namespace Nethereum.eShop.WebJobs.Jobs
                 return;
             }
 
-            var po = CreateDummyPoForPurchasingCreate(quote).ToBuyerPo();
+            var po = CreateDummyPoForPurchasingCreate(quote, walletBuyerService.ContractHandler.ContractAddress).ToBuyerPo();
             var receipt = await walletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(po);
 
             var createdEvent = receipt.DecodeAllEvents<PurchaseOrderCreatedLogEventDTO>().FirstOrDefault();
@@ -88,16 +88,16 @@ namespace Nethereum.eShop.WebJobs.Jobs
             }
         }
 
-        public Storage.Po CreateDummyPoForPurchasingCreate(Quote quote)
+        public Storage.Po CreateDummyPoForPurchasingCreate(Quote quote, string buyerWalletAddress)
         {
             var po = new Storage.Po()
             {
                 // PoNumber assigned by contract
-                BuyerAddress = "0x37ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
-                ReceiverAddress = "0x36ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
-                BuyerWalletAddress = "0x39ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
+                BuyerAddress = "0x94618601fe6cb8912b274e5a00453949a57f8c1e",
+                ReceiverAddress = "0x94618601fe6cb8912b274e5a00453949a57f8c1e",
+                BuyerWalletAddress = buyerWalletAddress,
                 CurrencySymbol = "DAI",
-                CurrencyAddress = "0x41ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
+                CurrencyAddress = "0xef76bcb4216fbbbd4d6e88082d5654def9b6fe2f",
                 QuoteId = quote.Id,
                 QuoteExpiryDate = DateTimeOffset.UtcNow.AddMonths(1).ToUnixTimeSeconds(),
                 ApproverAddress = string.Empty,  // assigned by contract

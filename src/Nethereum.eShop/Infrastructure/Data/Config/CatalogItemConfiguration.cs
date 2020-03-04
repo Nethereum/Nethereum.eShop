@@ -27,6 +27,19 @@ namespace Nethereum.eShop.Infrastructure.Data.Config
                 .IsPrice();
 
             builder.Property(ci => ci.PictureUri)
+                .IsUri()
+                .IsRequired(false);
+
+            builder.Property(ci => ci.PictureSmallUri)
+                .IsUri()
+                .IsRequired(false);
+
+            builder.Property(ci => ci.PictureMediumUri)
+                .IsUri()
+                .IsRequired(false);
+
+            builder.Property(ci => ci.PictureLargeUri)
+                .IsUri()
                 .IsRequired(false);
 
             builder.HasOne(ci => ci.CatalogBrand)

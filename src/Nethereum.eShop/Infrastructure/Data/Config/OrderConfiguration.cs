@@ -31,6 +31,9 @@ namespace Nethereum.eShop.Infrastructure.Data.Config
             builder.Property(o => o.ApproverAddress).IsAddress();
             builder.Property(o => o.BuyerWalletAddress).IsAddress();
             builder.Property(o => o.TransactionHash).IsHash();
+            builder.Property(o => o.CurrencyAddress).IsAddress();
+            builder.Property(o => o.CurrencySymbol).IsBytes32();
+            builder.Property(o => o.SellerId).IsBytes32();
         }
     }
 }

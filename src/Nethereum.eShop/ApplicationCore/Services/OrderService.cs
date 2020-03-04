@@ -1,10 +1,9 @@
 ﻿using Ardalis.GuardClauses;
 using Nethereum.Commerce.Contracts.Purchasing.ContractDefinition;
-using Nethereum.eShop.ApplicationCore.Entities;
 using Nethereum.eShop.ApplicationCore.Entities.OrderAggregate;
 using Nethereum.eShop.ApplicationCore.Entities.QuoteAggregate;
 using Nethereum.eShop.ApplicationCore.Interfaces;
-using Nethereum.eShop.ApplicationCore.Specifications;
+using Nethereum.eShop.Infrastructure.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,17 +13,11 @@ namespace Nethereum.eShop.ApplicationCore.Services
 {
     public class OrderService : IOrderService
     {
-        private readonly IAsyncRepository<Order> _orderRepository;
-        private readonly IAsyncRepository<Quote> _quoteRepository;
-        private readonly IAsyncRepository<CatalogItem> _itemRepository;
+        private readonly CatalogContext _dbContext;
 
-        public OrderService(IAsyncRepository<Quote> quoteRepository,
-            IAsyncRepository<CatalogItem> itemRepository,
-            IAsyncRepository<Order> orderRepository)
+        public OrderService(CatalogContext catalogContext)
         {
-            _orderRepository = orderRepository;
-            _quoteRepository = quoteRepository;
-            _itemRepository = itemRepository;
+            _dbContext = catalogContext;
         }
 
         public async Task CreateOrderAsync(string transactionHash, Po purchaseOrder)
@@ -34,10 +27,7 @@ namespace Nethereum.eShop.ApplicationCore.Services
 
             int quoteId = (int)purchaseOrder.QuoteId;
 
-            var spec = new QuoteWithItemsSpecification(quoteId);
-
-            var quotes = await _quoteRepository.ListAsync(spec);
-            var quote = quotes.FirstOrDefault();
+            var quote = await _dbContext.GetQuoteWithItemsOrDefault(quoteId);
 
             Guard.Against.NullQuote(quoteId, quote);
             var items = new List<OrderItem>();
@@ -78,11 +68,13 @@ namespace Nethereum.eShop.ApplicationCore.Services
                 orderItem.EscrowReleaseDate = DateTimeOffset.FromUnixTimeSeconds((long)poItem.PlannedEscrowReleaseDate);
             }
 
-            await _orderRepository.AddAsync(order);
             quote.TransactionHash = transactionHash;
             quote.PoNumber = (long)purchaseOrder.PoNumber;
             quote.Status = QuoteStatus.Complete;
-            await _quoteRepository.UpdateAsync(quote);
+
+            _dbContext.Orders.Add(order);
+
+            await _dbContext.SaveChangesAsync();
         }
     }
 }

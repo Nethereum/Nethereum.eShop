@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Nethereum.eShop.Infrastructure.Data;
 
 namespace Nethereum.eShop.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(CatalogContext))]
-    partial class CatalogContextModelSnapshot : ModelSnapshot
+    [Migration("20200304170042_ResizeColumns")]
+    partial class ResizeColumns
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -778,8 +780,7 @@ namespace Nethereum.eShop.Infrastructure.Data.Migrations
                                 .HasColumnType("int");
 
                             b1.Property<string>("Gtin")
-                                .HasColumnType("nvarchar(14)")
-                                .HasMaxLength(14);
+                                .HasColumnType("nvarchar(max)");
 
                             b1.Property<int?>("GtinRegistryId")
                                 .HasColumnType("int");
@@ -910,8 +911,7 @@ namespace Nethereum.eShop.Infrastructure.Data.Migrations
                                 .HasColumnType("int");
 
                             b1.Property<string>("Gtin")
-                                .HasColumnType("nvarchar(14)")
-                                .HasMaxLength(14);
+                                .HasColumnType("nvarchar(max)");
 
                             b1.Property<int?>("GtinRegistryId")
                                 .HasColumnType("int");

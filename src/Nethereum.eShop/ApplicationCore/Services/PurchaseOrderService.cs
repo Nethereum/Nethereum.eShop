@@ -1,8 +1,8 @@
 ﻿using Ardalis.GuardClauses;
 using Nethereum.eShop.ApplicationCore.Entities;
 using Nethereum.eShop.ApplicationCore.Entities.BasketAggregate;
-using Nethereum.eShop.ApplicationCore.Entities.OrderAggregate;
 using Nethereum.eShop.ApplicationCore.Interfaces;
+using Nethereum.eShop.Infrastructure.Data;
 using System;
 using System.Threading.Tasks;
 
@@ -10,15 +10,11 @@ namespace Nethereum.eShop.ApplicationCore.Services
 {
     public class PurchaseOrderService : IPurchaseOrderService
     {
-        private readonly IAsyncRepository<Basket> _basketRepository;
-        private readonly IAsyncRepository<CatalogItem> _itemRepository;
+        private readonly CatalogContext _dbContext;
 
-        public PurchaseOrderService(
-            IAsyncRepository<Basket> basketRepository,
-            IAsyncRepository<CatalogItem> itemRepository)
+        public PurchaseOrderService(CatalogContext catalogContext)
         {
-            _basketRepository = basketRepository;
-            _itemRepository = itemRepository;
+            _dbContext = catalogContext;
         }
 
         public async Task CreateOrderAsync(int basketId, PostalAddress billingAddress, PostalAddress shippingAddress)
@@ -29,7 +25,7 @@ namespace Nethereum.eShop.ApplicationCore.Services
             // using basket to populate
             // we need the buyer nonce
 
-            var basket = await _basketRepository.GetByIdAsync(basketId);
+            var basket = await _dbContext.GetBasketWithItemsOrDefault(basketId).ConfigureAwait(false);
             Guard.Against.NullBasket(basketId, basket);
 
             throw new NotImplementedException();

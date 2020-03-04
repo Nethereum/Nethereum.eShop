@@ -19,8 +19,7 @@ namespace Nethereum.eShop.Infrastructure.Data.Config
                 .HasMaxLength(256)
                 .IsRequired();
 
-            builder.HasIndex(b => b.BuyerId);
-            builder.HasIndex(b => b.BuyerAddress);
+            builder.Property(b => b.TransactionHash).IsHash();
 
             builder.OwnsOne(o => o.ShipTo, a =>
             {
@@ -31,6 +30,9 @@ namespace Nethereum.eShop.Infrastructure.Data.Config
             {
                 a.ConfigureAddress();
             });
+
+            builder.HasIndex(b => b.BuyerId);
+            builder.HasIndex(b => b.BuyerAddress);
         }
     }
 }
