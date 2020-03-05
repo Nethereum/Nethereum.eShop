@@ -22,7 +22,7 @@ contract WalletBuyer is IWalletBuyer, Ownable, Bindable
     }
     
     // Contract setup
-    function configure(string calldata nameOfPurchasing, string calldata nameOfFunding) override external
+    function configure(string calldata nameOfPurchasing, string calldata nameOfFunding) onlyOwner() override external
     {
         // Purchasing contract
         purchasing = IPurchasing(addressRegistry.getAddressString(nameOfPurchasing));

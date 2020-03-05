@@ -17,8 +17,10 @@ namespace Nethereum.eShop.ApplicationCore.Services
         private readonly IRulesEngineService _rulesEngineService;
 
         public QuoteService(
-            CatalogContext catalogContext,
-            IRulesEngineService rulesEngineService = null)
+            IAsyncRepository<Basket> basketRepository,
+            IAsyncRepository<CatalogItem> itemRepository,
+            IAsyncRepository<Quote> orderRepository,
+            IRulesEngineService rulesEngineService)
         {
             _dbContext = catalogContext;
             _rulesEngineService = rulesEngineService;
@@ -50,17 +52,61 @@ namespace Nethereum.eShop.ApplicationCore.Services
                 Expiry = DateTimeOffset.UtcNow.Date.AddMonths(1)
             };
 
+            try
+            {
+                var ReportsWithWarnings = await ExecuteRules(quote).ConfigureAwait(false);
+                if (ReportsWithWarnings.Count > 0)
+                {
+                    // NOTE: Should there be any indication of minor issues to the user?
+                }
+            }
+            catch (RuleTreeException ruleTreeEx)
+            {
+                // NOTE: Should we redirect the user to an error page?
+            }
+
+            await _quoteRepository.AddAsync(quote);
+        }
+
+        private async Task<List<RuleTreeReport>> ExecuteRules(Quote targetQuote)
+        {
+            var ReportsWithWarnings = new List<RuleTreeReport>();
+
             // NOTE: This block demonstrates the basic idea of how to use the rules engine, 
             // but it's definitely subject to change
-            if ((_rulesEngineService != null) && (_rulesEngineService.GetDefaultRuleTree() != null))
+            if (_rulesEngineService != null)
             {
-                var QuoteRuleTree = await _rulesEngineService.GetDefaultRuleTree().ConfigureAwait(false);
-                var QuoteRecord   = await _rulesEngineService.Transform(quote).ConfigureAwait(false);
-                var QuoteReport   = await _rulesEngineService.ExecuteAsync(QuoteRuleTree, QuoteRecord).ConfigureAwait(false);
+                var QuoteRuleTree     = await _rulesEngineService.GetQuoteRuleTree().ConfigureAwait(false);
+                var QuoteItemRuleTree = await _rulesEngineService.GetQuoteItemRuleTree().ConfigureAwait(false);
+
+                var QuoteRecord = await _rulesEngineService.Transform(targetQuote).ConfigureAwait(false);
+                var QuoteReport = await _rulesEngineService.ExecuteAsync(QuoteRuleTree, QuoteRecord).ConfigureAwait(false);
 
                 if (QuoteReport.NumberOfFailures > 0)
                 {
                     throw new RuleTreeException(QuoteRuleTree.TreeOrigin, QuoteReport);
+                }
+                else if ((QuoteReport.RuleSetsWithWarnings != null) && (QuoteReport.RuleSetsWithWarnings.Count > 0))
+                {
+                    ReportsWithWarnings.Add(QuoteReport);
+                }
+
+                if (QuoteItemRuleTree != null)
+                {
+                    foreach (var TmpQuoteItem in targetQuote.QuoteItems)
+                    {
+                        var QuoteItemRecord = await _rulesEngineService.Transform(TmpQuoteItem).ConfigureAwait(false);
+                        var QuoteItemReport = await _rulesEngineService.ExecuteAsync(QuoteItemRuleTree, QuoteItemRecord).ConfigureAwait(false);
+
+                        if (QuoteItemReport.NumberOfFailures > 0)
+                        {
+                            throw new RuleTreeException(QuoteItemRuleTree.TreeOrigin, QuoteItemReport);
+                        }
+                        else if ((QuoteItemReport.RuleSetsWithWarnings != null) && (QuoteItemReport.RuleSetsWithWarnings.Count > 0))
+                        {
+                            ReportsWithWarnings.Add(QuoteItemReport);
+                        }
+                    }
                 }
             }
 

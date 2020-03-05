@@ -25,7 +25,7 @@ contract Funding is IFunding, Ownable, Bindable, StringConvertible
     }
 
     /// @notice Configure contract
-    function configure(string calldata nameOfPurchasing, string calldata nameOfBusinessPartnerStorage) override external
+    function configure(string calldata nameOfPurchasing, string calldata nameOfBusinessPartnerStorage) onlyOwner() override external
     {
         // Business partner storage
         businessPartnerStorage = IBusinessPartnerStorage(addressRegistry.getAddressString(nameOfBusinessPartnerStorage));
@@ -37,7 +37,7 @@ contract Funding is IFunding, Ownable, Bindable, StringConvertible
         require(address(purchasingContractAddress) != address(0), "Could not find Purchasing address in registry");
     }
     
-    function transferInFundsForPoFromBuyerWallet(uint poNumber) override external
+    function transferInFundsForPoFromBuyerWallet(uint poNumber) onlyRegisteredCaller() override external
     {
         // Get total PO value
         IPoTypes.Po memory po = purchasing.getPo(poNumber);
@@ -53,7 +53,7 @@ contract Funding is IFunding, Ownable, Bindable, StringConvertible
         require(isTransferSuccessful == true, "Insufficient funds transferred for PO");
     }
     
-    function transferOutFundsForPoItemToBuyer(uint poNumber, uint8 poItemNumber) override external
+    function transferOutFundsForPoItemToBuyer(uint poNumber, uint8 poItemNumber) onlyRegisteredCaller() override external
     {
         // Refund to the PO buyer address on the PO header (NB: not the PO buyer wallet)
         IPoTypes.Po memory po = purchasing.getPo(poNumber);
@@ -67,7 +67,7 @@ contract Funding is IFunding, Ownable, Bindable, StringConvertible
         require(result == true, "Not enough funds transferred");
     }
     
-    function transferOutFundsForPoItemToSeller(uint poNumber, uint8 poItemNumber) override external
+    function transferOutFundsForPoItemToSeller(uint poNumber, uint8 poItemNumber) onlyRegisteredCaller() override external
     {
         // Pay the seller wallet
         IPoTypes.Po memory po = purchasing.getPo(poNumber);

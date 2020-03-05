@@ -58,7 +58,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var walletBuyerBalance = await sts.BalanceOfQueryAsync(poAsRequested.BuyerWalletAddress);
             _output.WriteLine($"Wallet Buyer balance before test: {await walletBuyerBalance.PrettifyAsync(sts)}");
 
-            // Transfer required funds from current Web3 acccount to wallet buyer
+            // Test setup - transfer required funds from current Web3 acccount to wallet buyer
             var txTransfer = await sts.TransferRequestAndWaitForReceiptAsync(poAsRequested.BuyerWalletAddress, totalPoValue);
             txTransfer.Status.Value.Should().Be(1);
 
@@ -67,7 +67,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             _output.WriteLine($"Wallet Buyer balance after receiving funding from Web3 account: {await walletBuyerBalance.PrettifyAsync(sts)}");
 
             // Balance of Funding, before PO raised   
-            var fundingBalanceBefore = await sts.BalanceOfQueryAsync(_contracts.FundingService.ContractHandler.ContractAddress);
+            var fundingBalanceBefore = await sts.BalanceOfQueryAsync(_contracts.Deployment.FundingService.ContractHandler.ContractAddress);
             _output.WriteLine($"Funding balance before PO: {await fundingBalanceBefore.PrettifyAsync(sts)}");
 
             //----------------------------------------------------------
@@ -75,7 +75,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             //----------------------------------------------------------
             // Create PO on-chain
             // NB this approves token transfer from WALLET BUYER contract (NOT msg.sender == current web3 account) to FUNDING contract
-            var txReceiptCreate = await _contracts.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
+            var txReceiptCreate = await _contracts.Deployment.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
             txReceiptCreate.Status.Value.Should().Be(1);
             _output.WriteLine($"... PO created ...");
 
@@ -87,7 +87,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             _output.WriteLine($"Wallet Buyer balance after PO: {await walletBuyerBalance.PrettifyAsync(sts)}");
 
             // Balance of Funding, after PO raised   
-            var fundingBalanceAfter = await sts.BalanceOfQueryAsync(_contracts.FundingService.ContractHandler.ContractAddress);
+            var fundingBalanceAfter = await sts.BalanceOfQueryAsync(_contracts.Deployment.FundingService.ContractHandler.ContractAddress);
             _output.WriteLine($"Funding balance after PO: {await fundingBalanceAfter.PrettifyAsync(sts)}");
 
             // Check
@@ -102,7 +102,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             uint quoteId = GetRandomInt();
             Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId);
 
-            // Transfer required funds from current Web3 acccount to wallet buyer
+            // Test setup - transfer required funds from current Web3 acccount to wallet buyer
             StandardTokenService sts = new StandardTokenService(_contracts.Web3, poAsRequested.CurrencyAddress);
             var totalPoValue = poAsRequested.GetTotalCurrencyValue();
             var txTransfer = await sts.TransferRequestAndWaitForReceiptAsync(poAsRequested.BuyerWalletAddress, totalPoValue);
@@ -110,7 +110,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 
             // Create PO on-chain
             // NB: this approves token transfer from WALLET BUYER contract (NOT msg.sender == current web3 account) to FUNDING contract
-            var txReceiptCreate = await _contracts.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
+            var txReceiptCreate = await _contracts.Deployment.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
             txReceiptCreate.Status.Value.Should().Be(1);
             _output.WriteLine($"... PO created ...");
 
@@ -125,7 +125,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             _output.WriteLine($"PO buyer address balance before refund: {await poBuyerAddressBalanceBefore.PrettifyAsync(sts)}");
 
             // Do the refund (achieved by marking the PO item as rejected)
-            var txReceiptPoItemReject = await _contracts.WalletSellerService.SetPoItemRejectedRequestAndWaitForReceiptAsync(poNumberAsBuilt, PO_ITEM_NUMBER);
+            var txReceiptPoItemReject = await _contracts.Deployment.WalletSellerService.SetPoItemRejectedRequestAndWaitForReceiptAsync(poNumberAsBuilt, PO_ITEM_NUMBER);
             txReceiptPoItemReject.Status.Value.Should().Be(1);
             var poItemValue = poAsRequested.PoItems[PO_ITEM_INDEX].CurrencyValue;
             _output.WriteLine($"... PO item rejected with value {await poItemValue.PrettifyAsync(sts)} ...");
@@ -150,7 +150,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             uint quoteId = GetRandomInt();
             Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId);
 
-            // Transfer required funds from current Web3 acccount to wallet buyer
+            // Test setup - transfer required funds from current Web3 acccount to wallet buyer
             StandardTokenService sts = new StandardTokenService(_contracts.Web3, poAsRequested.CurrencyAddress);
             var totalPoValue = poAsRequested.GetTotalCurrencyValue();
             var txTransfer = await sts.TransferRequestAndWaitForReceiptAsync(poAsRequested.BuyerWalletAddress, totalPoValue);
@@ -158,7 +158,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 
             // Create PO on-chain
             // NB: this approves token transfer from WALLET BUYER contract (NOT msg.sender == current web3 account) to FUNDING contract
-            var txReceiptCreate = await _contracts.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
+            var txReceiptCreate = await _contracts.Deployment.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
             txReceiptCreate.Status.Value.Should().Be(1);
             _output.WriteLine($"... PO created ...");
 
@@ -168,32 +168,32 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var poNumberAsBuilt = logPoCreated.Event.Po.PoNumber;
 
             // NB: Payment goes to the WalletSeller address 
-            var walletSellerBalanceBefore = await sts.BalanceOfQueryAsync(_contracts.WalletSellerService.ContractHandler.ContractAddress);
+            var walletSellerBalanceBefore = await sts.BalanceOfQueryAsync(_contracts.Deployment.WalletSellerService.ContractHandler.ContractAddress);
             _output.WriteLine($"WalletSeller balance before completion: {await walletSellerBalanceBefore.PrettifyAsync(sts)}");
 
             // Process PO item through to completion (completion step will release funds)
             // Mark PO item as Accepted
-            var txReceiptAccept = await _contracts.WalletSellerService.SetPoItemAcceptedRequestAndWaitForReceiptAsync(
+            var txReceiptAccept = await _contracts.Deployment.WalletSellerService.SetPoItemAcceptedRequestAndWaitForReceiptAsync(
                 poNumberAsBuilt, PO_ITEM_NUMBER, SALES_ORDER_NUMBER, SALES_ORDER_ITEM);
             txReceiptAccept.Status.Value.Should().Be(1);
 
             // Mark PO item as Ready for Goods Issue            
-            var txReceiptReadyForGI = await _contracts.WalletSellerService.SetPoItemReadyForGoodsIssueRequestAndWaitForReceiptAsync(
+            var txReceiptReadyForGI = await _contracts.Deployment.WalletSellerService.SetPoItemReadyForGoodsIssueRequestAndWaitForReceiptAsync(
                 poNumberAsBuilt, PO_ITEM_NUMBER);
             txReceiptReadyForGI.Status.Value.Should().Be(1);
 
             // Mark PO item as Goods Issued            
-            var txReceiptGI = await _contracts.WalletSellerService.SetPoItemGoodsIssuedRequestAndWaitForReceiptAsync(
+            var txReceiptGI = await _contracts.Deployment.WalletSellerService.SetPoItemGoodsIssuedRequestAndWaitForReceiptAsync(
                 poNumberAsBuilt, PO_ITEM_NUMBER);
             txReceiptGI.Status.Value.Should().Be(1);
 
             // Mark PO item as Goods Received by the Buyer (so we don't have to wait 30 days)
-            var txReceiptGR = await _contracts.WalletBuyerService.SetPoItemGoodsReceivedRequestAndWaitForReceiptAsync(
+            var txReceiptGR = await _contracts.Deployment.WalletBuyerService.SetPoItemGoodsReceivedRequestAndWaitForReceiptAsync(
                  poNumberAsBuilt, PO_ITEM_NUMBER);
             txReceiptGR.Status.Value.Should().Be(1);
 
             // Mark PO item as Complete
-            var txReceiptCompleted = await _contracts.WalletSellerService.SetPoItemCompletedRequestAndWaitForReceiptAsync(
+            var txReceiptCompleted = await _contracts.Deployment.WalletSellerService.SetPoItemCompletedRequestAndWaitForReceiptAsync(
                 poNumberAsBuilt, PO_ITEM_NUMBER);
             txReceiptCompleted.Status.Value.Should().Be(1);
             var poItemValue = poAsRequested.PoItems[PO_ITEM_INDEX].CurrencyValue;
@@ -204,7 +204,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             logPoItemCompleted.Should().NotBeNull();
 
             // Balance of PO buyer address after PO item rejection
-            var walletSellerBalanceAfter = await sts.BalanceOfQueryAsync(_contracts.WalletSellerService.ContractHandler.ContractAddress);
+            var walletSellerBalanceAfter = await sts.BalanceOfQueryAsync(_contracts.Deployment.WalletSellerService.ContractHandler.ContractAddress);
             _output.WriteLine($"WalletSeller balance after completion: {await walletSellerBalanceAfter.PrettifyAsync(sts)}");
 
             // Checks
@@ -214,12 +214,12 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 
         private async Task<Buyer.Po> CreateBuyerPoAsync(uint quoteId)
         {
-            return CreatePoForPurchasingContract(
+            return CreatePoForPurchasingContracts(
                 buyerAddress: _contracts.Web3.TransactionManager.Account.Address.ToLowerInvariant(),
                 receiverAddress: _contracts.Web3.TransactionManager.Account.Address.ToLowerInvariant(),
-                buyerWalletAddress: _contracts.WalletBuyerService.ContractHandler.ContractAddress.ToLowerInvariant(),
-                currencySymbol: await _contracts.MockDaiService.SymbolQueryAsync(),
-                currencyAddress: _contracts.MockDaiService.ContractHandler.ContractAddress.ToLowerInvariant(),
+                buyerWalletAddress: _contracts.Deployment.WalletBuyerService.ContractHandler.ContractAddress.ToLowerInvariant(),
+                currencySymbol: await _contracts.Deployment.MockDaiService.SymbolQueryAsync(),
+                currencyAddress: _contracts.Deployment.MockDaiService.ContractHandler.ContractAddress.ToLowerInvariant(),
                 quoteId).ToBuyerPo();
         }
     }
