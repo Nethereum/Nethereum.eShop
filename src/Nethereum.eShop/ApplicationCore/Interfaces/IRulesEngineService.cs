@@ -12,11 +12,11 @@ namespace Nethereum.eShop.ApplicationCore.Interfaces
 
         Task<RuleTreeReport> ExecuteAsync(RuleTree targetRuleTree, RuleTreeRecord targetRecord);
 
-        Task<RuleTree> GetDefaultRuleTree();
+        Task<RuleTree> GetQuoteRuleTree();
+
+        Task<RuleTree> GetQuoteItemRuleTree();
 
         Task<IReadOnlyList<RuleTree>> ListRuleTreeCacheAsync();
-
-        Task SetDefaultRuleTree(RuleTree defaultRuleTree);
 
         Task<RuleTreeRecord> Transform(object originalObject);
     }

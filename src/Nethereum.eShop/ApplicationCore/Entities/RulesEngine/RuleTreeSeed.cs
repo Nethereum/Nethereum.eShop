@@ -26,6 +26,10 @@ namespace Nethereum.eShop.ApplicationCore.Entities.RulesEngine
 
         public string RuleTreeOriginUrl { get; set; }
 
+        public string WarningsPageUrl { get; set; }
+
+        public string ErrorsPageUrl { get; set; }
+
         public bool IsValid()
         {
             bool bIsValid = true;
