@@ -7,7 +7,7 @@ using System;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
-using static Nethereum.Commerce.ContractDeployments.IntegrationTests.PoHelpers;
+using static Nethereum.Commerce.ContractDeployments.IntegrationTests.PoTestHelpers;
 using Purchasing = Nethereum.Commerce.Contracts.Purchasing.ContractDefinition;
 using Storage = Nethereum.Commerce.Contracts.PoStorage.ContractDefinition;
 

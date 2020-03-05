@@ -10,7 +10,7 @@ using System.Numerics;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
-using static Nethereum.Commerce.ContractDeployments.IntegrationTests.PoHelpers;
+using static Nethereum.Commerce.ContractDeployments.IntegrationTests.PoTestHelpers;
 using static Nethereum.Commerce.Contracts.ContractEnums;
 using Buyer = Nethereum.Commerce.Contracts.WalletBuyer.ContractDefinition;
 using Storage = Nethereum.Commerce.Contracts.PoStorage.ContractDefinition;
@@ -163,6 +163,40 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 
             // Info
             DisplayPoHeader(_output, poAsBuilt.ToStoragePo());
+        }
+
+        [Fact]
+        public async void ShouldFailToCreateNewPoWithoutFunding()
+        {
+            // Prepare a new PO
+            uint quoteId = GetRandomInt();
+            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId);
+            var totalPoValue = poAsRequested.GetTotalCurrencyValue();
+
+            // Request creation of new PO
+            var txReceipt = await _contracts.Deployment.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
+            txReceipt.Status.Value.Should().Be(1);
+
+            // Check PO create events
+            var logPoCreateRequest = txReceipt.DecodeAllEvents<PurchaseOrderCreateRequestLogEventDTO>().FirstOrDefault();
+            logPoCreateRequest.Should().NotBeNull();  // <= PO as requested
+            var logPoCreated = txReceipt.DecodeAllEvents<PurchaseOrderCreatedLogEventDTO>().FirstOrDefault();
+            logPoCreated.Should().NotBeNull();        // <= PO as built
+            var poNumberAsBuilt = logPoCreated.Event.Po.PoNumber;
+
+            // Retrieve the as-built PO 
+            var poAsBuilt = (await _contracts.Deployment.WalletBuyerService.GetPoQueryAsync(poNumberAsBuilt)).Po;
+
+            // Most fields should be the same between poAsRequested and poAsBuilt (contract adds some fields to the poAsBuilt, e.g. it assigns the poNumber)
+            var block = await _contracts.Web3.Eth.Blocks.GetBlockWithTransactionsByNumber.SendRequestAsync(txReceipt.BlockNumber);
+            var blockTimestamp = block.Timestamp.Value;
+            CheckCreatedPoFieldsMatch(
+                poAsRequested.ToStoragePo(), poAsBuilt.ToStoragePo(),
+                poNumberAsBuilt, null, blockTimestamp);
+
+            // Info
+            DisplayPoHeader(_output, poAsBuilt.ToStoragePo());
+            _output.WriteLine($"Total PO value: {totalPoValue}");
         }
 
         [Fact]

@@ -92,6 +92,11 @@ namespace Nethereum.Commerce.Contracts.Deployment
 
         public async Task InitializeAsync()
         {
+            var txCountStart = await _web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(
+                _web3.TransactionManager.Account.Address);
+            var ethBalanceStartInWei = await _web3.Eth.GetBalance.SendRequestAsync(
+                _web3.TransactionManager.Account.Address);
+
             if (_isToConnectToExistingDeployment)
             {
                 // Connect to an existing deployment
@@ -101,12 +106,27 @@ namespace Nethereum.Commerce.Contracts.Deployment
             {
                 // Make a whole new deployment
                 await DeployAndConfigureEShopAsync();
+
+                // With mocks if needed
                 if (ContractDeploymentConfig.AlsoDeployMockContracts)
                 {
                     await DeployMockContractsAsync();
                 }
-                LogSeparator();
             }
+            LogSeparator();
+
+            var txCountEnd = await _web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(
+                _web3.TransactionManager.Account.Address);
+            var txCountOverall = txCountEnd.Value - txCountStart.Value;
+            Log($"Transaction count for deployment: {txCountOverall}");
+
+            var ethBalanceEndInWei = await _web3.Eth.GetBalance.SendRequestAsync(
+                _web3.TransactionManager.Account.Address);
+            var ethCostOverallInWei = ethBalanceStartInWei.Value - ethBalanceEndInWei.Value;
+            var ethCostOverall = Web3.Web3.Convert.FromWei(ethCostOverallInWei);
+            Log($"Cost for deployment: {ethCostOverall} ETH");
+            //Log($"Cost for deployment in Wei: {ethCostOverallInWei}");
+            LogSeparator();
         }
 
         private async Task DeployAndConfigureEShopAsync()

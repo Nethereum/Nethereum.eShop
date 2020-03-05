@@ -91,7 +91,10 @@ contract MockDai is IErc20, Owned {
     // - 0 value transfers are allowed
     // ------------------------------------------------------------------------
     function transfer(address to, uint tokens) override public returns (bool success) {
+        
+        require(balances[msg.sender] >= tokens, "ERC20 token balances check failed");
         balances[msg.sender] = balances[msg.sender] - tokens;
+        
         balances[to] = balances[to] + tokens;
         emit Transfer(msg.sender, to, tokens);
         return true;
@@ -123,8 +126,13 @@ contract MockDai is IErc20, Owned {
     // - 0 value transfers are allowed
     // ------------------------------------------------------------------------
     function transferFrom(address from, address to, uint tokens) override public returns (bool success) {
+        
+        require(balances[from] >= tokens, "ERC20 token balances check failed");
         balances[from] = balances[from] - tokens;
+        
+        require(allowed[from][msg.sender] >= tokens, "ERC20 token allowed check failed");
         allowed[from][msg.sender] = allowed[from][msg.sender] - tokens;
+        
         balances[to] = balances[to] + tokens;
         emit Transfer(from, to, tokens);
         return true;

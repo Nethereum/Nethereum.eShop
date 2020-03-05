@@ -14,7 +14,7 @@ using Storage = Nethereum.Commerce.Contracts.PoStorage.ContractDefinition;
 
 namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 {
-    public static class PoHelpers
+    public static class PoTestHelpers
     {
         /// <summary>
         /// Revert message for the Solidity onlyRegisteredCaller() function modifier
@@ -28,7 +28,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 
         private static Random _random;
 
-        static PoHelpers()
+        static PoTestHelpers()
         {
             _random = new Random();
         }
