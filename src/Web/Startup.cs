@@ -123,6 +123,7 @@ namespace Nethereum.eShop.Web
             services.AddScoped<IStockItemRepository, StockItemRepository>();
             services.AddScoped<IQuoteRepository, QuoteRepository>();
             services.AddScoped<IOrderRepository, OrderRepository>();
+            services.AddScoped<IReportRepository, ReportRepository>();
             services.AddScoped<IRuleTreeCache, RuleTreeCache>();
             services.AddScoped<CatalogViewModelService>();
             services.AddScoped<ICatalogItemViewModelService, CatalogItemViewModelService>();
