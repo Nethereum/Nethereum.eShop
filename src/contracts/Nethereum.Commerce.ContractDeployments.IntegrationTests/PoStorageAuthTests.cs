@@ -1,9 +1,13 @@
+using FluentAssertions;
+using Nethereum.ABI.FunctionEncoding;
 using Nethereum.Commerce.ContractDeployments.IntegrationTests.Config;
+using Nethereum.Commerce.Contracts.PoStorage;
+using Nethereum.Commerce.Contracts.PoStorage.ContractDefinition;
+using System;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
-using FluentAssertions;
-using Nethereum.Commerce.Contracts.PoStorage.ContractDefinition;
-using System.Collections.Generic;
+using static Nethereum.Commerce.ContractDeployments.IntegrationTests.PoHelpers;
 
 namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 {
@@ -21,9 +25,21 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             _output = output;
         }
 
-        //[Fact(Skip = "Not implemented yet")]
-        //public void ShouldNotBeAbleToStoreAPo()
-        //{
-        //}
+        [Fact]
+        public async void ShouldNotBeAbleToStoreAPoWhenNotRegisteredCaller()
+        {
+            // Try to store a PO sent by a non-authorised user, it should fail            
+            // Prepare PO
+            uint poNumber = GetRandomInt();
+            string approverAddress = "0x38ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610";
+            uint quoteId = GetRandomInt();
+            Po poExpected = CreatePoForPoStorageContract(poNumber, approverAddress, quoteId);
+
+            // Store PO using preexisting PO storage service contract, but with tx executed by the non-authorised ("secondary") user
+            await Task.Delay(1);
+            var pss = new PoStorageService(_contracts.Web3SecondaryUser, _contracts.Deployment.PoStorageService.ContractHandler.ContractAddress);
+            Func<Task> act = async () => await pss.SetPoRequestAndWaitForReceiptAsync(poExpected);
+            act.Should().Throw<SmartContractRevertException>().WithMessage(AUTH_EXCEPTION_ONLY_REGISTERED);
+        }
     }
 }

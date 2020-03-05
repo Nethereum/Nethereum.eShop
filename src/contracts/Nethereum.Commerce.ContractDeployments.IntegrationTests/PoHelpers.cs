@@ -16,6 +16,16 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 {
     public static class PoHelpers
     {
+        /// <summary>
+        /// Revert message for the Solidity onlyRegisteredCaller() function modifier
+        /// </summary>
+        public const string AUTH_EXCEPTION_ONLY_REGISTERED = "*Only contract owner or a bound address may call this function*";
+
+        /// <summary>
+        /// Revert message for the Solidity onlyOwner() function modifier
+        /// </summary>
+        public const string AUTH_EXCEPTION_ONLY_OWNER = "*Ownable: caller is not the owner*";
+
         private static Random _random;
 
         static PoHelpers()
@@ -185,7 +195,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         /// <summary>
         /// A test PO intended for passing to contracts WalletBuyer.sol or Purchasing.sol poCreate() functions.
         /// </summary>        
-        public static Storage.Po CreatePoForPurchasingContract(
+        public static Storage.Po CreatePoForPurchasingContracts(
             string buyerAddress,
             string receiverAddress,
             string buyerWalletAddress,
@@ -255,7 +265,8 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         }
 
         /// <summary>
-        /// A test PO intended for writing directly to the PO storage contract PoStorage.sol.
+        /// A test PO intended for writing directly to the PO storage contract PoStorage.sol (ie no validations are done on
+        /// this data, it is written direct to storage only).
         /// </summary>
         public static Storage.Po CreatePoForPoStorageContract(uint poNumber, string approverAddress, uint quoteId)
         {

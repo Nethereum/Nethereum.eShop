@@ -31,7 +31,7 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
     function configure(
         string calldata nameOfPoStorage, 
         string calldata nameOfBusinessPartnerStorage,
-        string calldata nameOfFunding) override external
+        string calldata nameOfFunding) onlyOwner() override external
     {
         // PO Storage contract
         poStorage = IPoStorage(addressRegistry.getAddressString(nameOfPoStorage));
@@ -59,7 +59,7 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
         return poStorage.getPo(poNumber);
     }
     
-    function createPurchaseOrder(IPoTypes.Po memory po) override public
+    function createPurchaseOrder(IPoTypes.Po memory po) onlyRegisteredCaller() override public
     {
         // Record the create request, emitting po exactly as we received it
         emit PurchaseOrderCreateRequestLog(po.buyerAddress, po.sellerId, 0, po);
@@ -112,12 +112,12 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
         emit PurchaseOrderCreatedLog(poAsStored.buyerAddress, poAsStored.sellerId, poAsStored.poNumber, poAsStored);
     }
     
-    function cancelPurchaseOrderItem(uint poNumber, uint8 poItemNumber) override external
+    function cancelPurchaseOrderItem(uint poNumber, uint8 poItemNumber) onlyRegisteredCaller() override external
     {
         revert("Not implemented yet");
     }
     
-    function setPoItemGoodsReceivedBuyer(uint poNumber, uint8 poItemNumber) override external // TODO only buyer
+    function setPoItemGoodsReceivedBuyer(uint poNumber, uint8 poItemNumber) onlyRegisteredCaller() override external // TODO only buyer and admin
     {
         // Common Validations
         IPoTypes.Po memory po = poStorage.getPo(poNumber);
@@ -134,7 +134,7 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
     }
     
     // Only from Seller Wallet
-    function setPoItemAccepted(uint poNumber, uint8 poItemNumber, bytes32 soNumber, bytes32 soItemNumber) override external
+    function setPoItemAccepted(uint poNumber, uint8 poItemNumber, bytes32 soNumber, bytes32 soItemNumber) onlyRegisteredCaller() override external
     {
         // Common Validations
         IPoTypes.Po memory po = poStorage.getPo(poNumber);
@@ -151,7 +151,7 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
         emit PurchaseItemAcceptedLog(po.buyerAddress, po.sellerId, po.poNumber, po.poItems[poItemIndex]);
     }
     
-    function setPoItemRejected(uint poNumber, uint8 poItemNumber) override external
+    function setPoItemRejected(uint poNumber, uint8 poItemNumber) onlyRegisteredCaller() override external
     {
         // Common Validations
         IPoTypes.Po memory po = poStorage.getPo(poNumber);
@@ -170,7 +170,7 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
         emit PurchaseItemRejectedLog(po.buyerAddress, po.sellerId, po.poNumber, po.poItems[poItemIndex]);
     }
     
-    function setPoItemReadyForGoodsIssue(uint poNumber, uint8 poItemNumber) override external
+    function setPoItemReadyForGoodsIssue(uint poNumber, uint8 poItemNumber) onlyRegisteredCaller() override external
     {
         // Common Validations
         IPoTypes.Po memory po = poStorage.getPo(poNumber);
@@ -185,7 +185,7 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
         emit PurchaseItemReadyForGoodsIssueLog(po.buyerAddress, po.sellerId, po.poNumber, po.poItems[poItemIndex]);
     }
     
-    function setPoItemGoodsIssued(uint poNumber, uint8 poItemNumber) override external
+    function setPoItemGoodsIssued(uint poNumber, uint8 poItemNumber) onlyRegisteredCaller() override external
     {
         // Common Validations
         IPoTypes.Po memory po = poStorage.getPo(poNumber);
@@ -202,7 +202,7 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
         emit PurchaseItemGoodsIssuedLog(po.buyerAddress, po.sellerId, po.poNumber, po.poItems[poItemIndex]);
     }
     
-    function setPoItemGoodsReceivedSeller(uint poNumber, uint8 poItemNumber) override external // TODO only seller
+    function setPoItemGoodsReceivedSeller(uint poNumber, uint8 poItemNumber) onlyRegisteredCaller()  override external // TODO only seller and admin
     {
         // Common Validations
         IPoTypes.Po memory po = poStorage.getPo(poNumber);
@@ -222,7 +222,7 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
         emit PurchaseItemGoodsReceivedLog(po.buyerAddress, po.sellerId, po.poNumber, po.poItems[poItemIndex]);
     }
     
-    function setPoItemCompleted(uint poNumber, uint8 poItemNumber) override external
+    function setPoItemCompleted(uint poNumber, uint8 poItemNumber) onlyRegisteredCaller() override external
     {
         // Common Validations
         IPoTypes.Po memory po = poStorage.getPo(poNumber);
