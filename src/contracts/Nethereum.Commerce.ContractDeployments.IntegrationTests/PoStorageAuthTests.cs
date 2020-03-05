@@ -26,7 +26,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         }
 
         [Fact]
-        public async void ShouldNotBeAbleToStoreAPoWhenNotRegisteredCaller()
+        public async void ShouldNotBeAbleToStorePoWhenNotRegisteredCaller()
         {
             // Try to store a PO sent by a non-authorised user, it should fail            
             // Prepare PO

@@ -28,7 +28,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         }
 
         [Fact]
-        public async void ShouldNotBeAbleToCreateAPoWhenNotRegisteredCaller()
+        public async void ShouldNotBeAbleToCreatePoWhenNotRegisteredCaller()
         {
             // Try to create a PO sent by a non-authorised user, it should fail            
             // Prepare a new PO
