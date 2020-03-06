@@ -18,11 +18,11 @@ namespace Nethereum.eShop.ApplicationCore.Queries.Orders
 
         private static string[] SortByColumns = new[] { "Id", "Status" };
 
-        public async Task<Paginated<OrderExcerpt>> GetByBuyerIdAsync(string buyerId, string sortBy = null, int offset = 0, int fetch = 50)
+        public async Task<PaginatedResult<OrderExcerpt>> GetByBuyerIdAsync(string buyerId, PaginationArgs paginationArgs)
         {
-            sortBy = sortBy ?? "Id";
+            paginationArgs.SortBy = paginationArgs.SortBy ?? "Id";
 
-            if (!SortByColumns.Contains(sortBy)) throw new ArgumentException(nameof(sortBy));
+            if (!SortByColumns.Contains(paginationArgs.SortBy)) throw new ArgumentException(nameof(paginationArgs.SortBy));
 
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -30,9 +30,11 @@ namespace Nethereum.eShop.ApplicationCore.Queries.Orders
 
                 var parameters = new DynamicParameters();
                 parameters.Add("@buyerId", buyerId);
-                parameters.Add("@offset", offset);
-                parameters.Add("@fetch", fetch);
+                parameters.Add("@offset", paginationArgs.Offset);
+                parameters.Add("@fetch", paginationArgs.Fetch);
                 parameters.Add("@totalCount", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+                string sortOrder = paginationArgs.SortDescending ? "desc" : "asc";
 
                 var rows = await connection.QueryAsync<OrderExcerpt>(
 @$"
@@ -56,14 +58,14 @@ SELECT
     (select count(1) from OrderItems oi where oi.OrderId = o.Id)  as ItemCount
 FROM [Orders] as o
 WHERE o.BuyerId  = @buyerId
-ORDER BY [{sortBy}]
+ORDER BY [{paginationArgs.SortBy}] {sortOrder}
 OFFSET @offset ROWS
 FETCH NEXT @fetch ROWS ONLY;
 "
                         , parameters
                     );
 
-                return new Paginated<OrderExcerpt>(offset, fetch, parameters.Get<int>("@totalCount"), rows, sortBy);
+                return new PaginatedResult<OrderExcerpt>(parameters.Get<int>("@totalCount"), rows, paginationArgs);
             }
         }
 

@@ -29,7 +29,7 @@ namespace Nethereum.eShop.Web.Features.MyQuotes
 
         public async Task<IEnumerable<QuoteExcerptViewModel>> Handle(GetMyQuotes request, CancellationToken cancellationToken)
         {
-            var quotes = await _quoteQueries.GetByBuyerIdAsync(request.UserName, fetch: 100);
+            var quotes = await _quoteQueries.GetByBuyerIdAsync(request.UserName, new PaginationArgs { Fetch = 100, SortDescending = true });
             return quotes.Data.Select(excerpt => _mapper.Map<QuoteExcerptViewModel>(excerpt));
         }
     }

@@ -1,6 +1,6 @@
 ﻿namespace Nethereum.eShop.ApplicationCore.Queries.Catalog
 {
-    public class GetCatalogItemsSpecification: PaginatedQuerySpecification
+    public class GetCatalogItemsSpecification: PaginationArgs
     {
         public int? BrandId { get; set; }
 

@@ -17,8 +17,9 @@ namespace Nethereum.eShop.ApplicationCore.Queries.Catalog
         }
 
         private static string[] SortByColumns = new[] { "Rank" };
-        public async Task<Paginated<CatalogExcerpt>> GetCatalogItemsAsync(GetCatalogItemsSpecification catalogQuerySpecification)
+        public async Task<PaginatedResult<CatalogExcerpt>> GetCatalogItemsAsync(GetCatalogItemsSpecification catalogQuerySpecification)
         {
+            string sortOrder = catalogQuerySpecification.SortDescending ? "desc" : "asc";
             catalogQuerySpecification.SortBy = catalogQuerySpecification.SortBy ?? "Rank";
 
             if (!SortByColumns.Contains(catalogQuerySpecification.SortBy)) throw new ArgumentException(nameof(catalogQuerySpecification.SortBy));
@@ -34,7 +35,6 @@ namespace Nethereum.eShop.ApplicationCore.Queries.Catalog
                 parameters.Add("@offset", catalogQuerySpecification.Offset);
                 parameters.Add("@fetch", catalogQuerySpecification.Fetch);
                 parameters.Add("@totalCount", dbType: DbType.Int32, direction: ParameterDirection.Output);
-
 
                 var rows = await connection.QueryAsync<CatalogExcerpt>(
 @$"
@@ -54,14 +54,14 @@ namespace Nethereum.eShop.ApplicationCore.Queries.Catalog
 			(@brandId IS NULL OR (b.Id = @brandId)) AND
 			(@typeId IS NULL OR (t.Id = @typeId)) AND
 			(@searchText IS NULL OR ((c.[Name] LIKE '%' + @searchText + '%')) OR (b.Brand LIKE '%' + @searchText + '%'))
-        ORDER BY [{catalogQuerySpecification.SortBy}]
+        ORDER BY [{catalogQuerySpecification.SortBy}] {sortOrder}
         OFFSET @offset ROWS
         FETCH NEXT @fetch ROWS ONLY;
 "
                         , parameters
                     );
 
-                return new Paginated<CatalogExcerpt>(parameters.Get<int>("@totalCount"), rows, catalogQuerySpecification);
+                return new PaginatedResult<CatalogExcerpt>(parameters.Get<int>("@totalCount"), rows, catalogQuerySpecification);
             }
         }
     }

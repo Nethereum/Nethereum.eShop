@@ -2,7 +2,7 @@
 
 namespace Nethereum.eShop.ApplicationCore.Queries
 {
-    public class Paginated<TModel> where TModel : class
+    public class PaginatedResult<TModel> where TModel : class
     {
         public int Offset { get; private set; }
 
@@ -14,7 +14,7 @@ namespace Nethereum.eShop.ApplicationCore.Queries
 
         public string SortedBy { get; private set; }
 
-        public Paginated(int offset, int fetch, int totalCount, IEnumerable<TModel> data, string sortedBy)
+        public PaginatedResult(int offset, int fetch, int totalCount, IEnumerable<TModel> data, string sortedBy)
         {
             Offset = offset;
             Fetch = fetch;
@@ -23,7 +23,7 @@ namespace Nethereum.eShop.ApplicationCore.Queries
             SortedBy = sortedBy;
         }
 
-        public Paginated(int totalCount, IEnumerable<TModel> data, PaginatedQuerySpecification paginatedQuery)
+        public PaginatedResult(int totalCount, IEnumerable<TModel> data, PaginationArgs paginatedQuery)
         {
             TotalCount = totalCount;
             Data = data;
@@ -31,14 +31,5 @@ namespace Nethereum.eShop.ApplicationCore.Queries
             Fetch = paginatedQuery.Fetch;
             SortedBy = paginatedQuery.SortBy;
         }
-    }
-
-    public class PaginatedQuerySpecification
-    {
-        public int Offset { get; set; }
-
-        public int Fetch { get; set; }
-
-        public string SortBy { get; set; }
     }
 }

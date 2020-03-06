@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using MediatR;
+using Nethereum.eShop.ApplicationCore.Queries;
 using Nethereum.eShop.ApplicationCore.Queries.Orders;
-using Nethereum.eShop.ApplicationCore.Specifications;
 using Nethereum.eShop.Web.ViewModels;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,9 +28,7 @@ namespace Nethereum.eShop.Web.Features.MyOrders
 
         public async Task<IEnumerable<OrderExcerptViewModel>> Handle(GetMyOrders request, CancellationToken cancellationToken)
         {
-            var specification = new CustomerOrdersWithItemsSpecification(request.UserName);
-            var orders = await _orderQueries.GetByBuyerIdAsync(request.UserName, fetch: 100);
-
+            var orders = await _orderQueries.GetByBuyerIdAsync(request.UserName, new PaginationArgs { Fetch =  100, SortDescending = true });
             return orders.Data.Select(o => _mapper.Map<OrderExcerptViewModel>(o));
         }
     }
