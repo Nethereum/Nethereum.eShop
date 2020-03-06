@@ -8,13 +8,13 @@ namespace Nethereum.eShop.ApplicationCore.Queries
 
         public int Fetch { get; private set; }
 
-        public long TotalCount { get; private set; }
+        public int TotalCount { get; private set; }
 
         public IEnumerable<TModel> Data { get; private set; }
 
         public string SortedBy { get; private set; }
 
-        public Paginated(int offset, int fetch, long totalCount, IEnumerable<TModel> data, string sortedBy)
+        public Paginated(int offset, int fetch, int totalCount, IEnumerable<TModel> data, string sortedBy)
         {
             Offset = offset;
             Fetch = fetch;
@@ -22,5 +22,23 @@ namespace Nethereum.eShop.ApplicationCore.Queries
             Data = data;
             SortedBy = sortedBy;
         }
+
+        public Paginated(int totalCount, IEnumerable<TModel> data, PaginatedQuerySpecification paginatedQuery)
+        {
+            TotalCount = totalCount;
+            Data = data;
+            Offset = paginatedQuery.Offset;
+            Fetch = paginatedQuery.Fetch;
+            SortedBy = paginatedQuery.SortBy;
+        }
+    }
+
+    public class PaginatedQuerySpecification
+    {
+        public int Offset { get; set; }
+
+        public int Fetch { get; set; }
+
+        public string SortBy { get; set; }
     }
 }

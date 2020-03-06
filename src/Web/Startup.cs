@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Nethereum.eShop.ApplicationCore.Interfaces;
+using Nethereum.eShop.ApplicationCore.Queries.Catalog;
 using Nethereum.eShop.ApplicationCore.Queries.Orders;
 using Nethereum.eShop.ApplicationCore.Queries.Quotes;
 using Nethereum.eShop.ApplicationCore.Services;
@@ -115,6 +116,7 @@ namespace Nethereum.eShop.Web
             string queryConnectionString = Configuration.GetConnectionString("CatalogConnection");
             services.AddSingleton<IQuoteQueries>(new QuoteQueries(queryConnectionString));
             services.AddSingleton<IOrderQueries>(new OrderQueries(queryConnectionString));
+            services.AddSingleton<ICatalogQueries>(new CatalogQueries(queryConnectionString));
 
             services.AddScoped(typeof(IAsyncCache<>), typeof(GeneralCache<>));
             services.AddScoped(typeof(IAsyncRepository<>), typeof(EfRepository<>));
