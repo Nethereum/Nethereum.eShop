@@ -7,7 +7,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Hosting;
 using Nethereum.eShop.ApplicationCore.Interfaces;
+using Nethereum.eShop.ApplicationCore.Queries.Orders;
+using Nethereum.eShop.ApplicationCore.Queries.Quotes;
 using Nethereum.eShop.ApplicationCore.Services;
 using Nethereum.eShop.Infrastructure.Data;
 using Nethereum.eShop.Infrastructure.Identity;
@@ -15,17 +21,11 @@ using Nethereum.eShop.Infrastructure.Logging;
 using Nethereum.eShop.Infrastructure.Services;
 using Nethereum.eShop.Web.Interfaces;
 using Nethereum.eShop.Web.Services;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mime;
-using Nethereum.eShop.ApplicationCore.Queries;
-using Nethereum.eShop.ApplicationCore.Queries.Quotes;
 
 namespace Nethereum.eShop.Web
 {
@@ -112,8 +112,9 @@ namespace Nethereum.eShop.Web
 
             services.AddMediatR(typeof(BasketViewModelService).Assembly);
 
-            IQuoteQueries quoteQueries = new QuoteQueries(Configuration.GetConnectionString("CatalogConnection"));
-            services.AddSingleton<IQuoteQueries>(quoteQueries);
+            string queryConnectionString = Configuration.GetConnectionString("CatalogConnection");
+            services.AddSingleton<IQuoteQueries>(new QuoteQueries(queryConnectionString));
+            services.AddSingleton<IOrderQueries>(new OrderQueries(queryConnectionString));
 
             services.AddScoped(typeof(IAsyncCache<>), typeof(GeneralCache<>));
             services.AddScoped(typeof(IAsyncRepository<>), typeof(EfRepository<>));

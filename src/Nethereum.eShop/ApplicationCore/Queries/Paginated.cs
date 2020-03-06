@@ -12,12 +12,15 @@ namespace Nethereum.eShop.ApplicationCore.Queries
 
         public IEnumerable<TModel> Data { get; private set; }
 
-        public Paginated(int offset, int fetch, long totalCount, IEnumerable<TModel> data)
+        public string SortedBy { get; private set; }
+
+        public Paginated(int offset, int fetch, long totalCount, IEnumerable<TModel> data, string sortedBy)
         {
             Offset = offset;
             Fetch = fetch;
             TotalCount = totalCount;
             Data = data;
+            SortedBy = sortedBy;
         }
     }
 }

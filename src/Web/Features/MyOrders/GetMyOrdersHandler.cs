@@ -1,5 +1,6 @@
-﻿using MediatR;
-using Nethereum.eShop.ApplicationCore.Interfaces;
+﻿using AutoMapper;
+using MediatR;
+using Nethereum.eShop.ApplicationCore.Queries.Orders;
 using Nethereum.eShop.ApplicationCore.Specifications;
 using Nethereum.eShop.Web.ViewModels;
 using System.Collections.Generic;
@@ -9,35 +10,36 @@ using System.Threading.Tasks;
 
 namespace Nethereum.eShop.Web.Features.MyOrders
 {
-    public class GetMyOrdersHandler : IRequestHandler<GetMyOrders, IEnumerable<OrderViewModel>>
+    public class GetMyOrdersHandler : IRequestHandler<GetMyOrders, IEnumerable<OrderExcerptViewModel>>
     {
-        private readonly IOrderRepository _orderRepository;
-
-        public GetMyOrdersHandler(IOrderRepository orderRepository)
+        private readonly static Mapper _mapper;
+        static GetMyOrdersHandler()
         {
-            _orderRepository = orderRepository;
+            var config = new MapperConfiguration(cfg => cfg.AddProfile<OrderExcerptProfile>());
+            _mapper = new Mapper(config);
         }
 
-        public async Task<IEnumerable<OrderViewModel>> Handle(GetMyOrders request, CancellationToken cancellationToken)
+        private readonly IOrderQueries _orderQueries;
+
+        public GetMyOrdersHandler(IOrderQueries orderQueries)
+        {
+            _orderQueries = orderQueries;
+        }
+
+        public async Task<IEnumerable<OrderExcerptViewModel>> Handle(GetMyOrders request, CancellationToken cancellationToken)
         {
             var specification = new CustomerOrdersWithItemsSpecification(request.UserName);
-            var orders = await _orderRepository.ListAsync(specification);
+            var orders = await _orderQueries.GetByBuyerIdAsync(request.UserName, fetch: 100);
 
-            return orders.Select(o => new OrderViewModel
-            {
-                OrderDate = o.OrderDate,
-                OrderItems = o.OrderItems?.Select(oi => new OrderItemViewModel()
-                {
-                    PictureUrl = oi.ItemOrdered.PictureUri,
-                    ProductId = oi.ItemOrdered.CatalogItemId,
-                    ProductName = oi.ItemOrdered.ProductName,
-                    UnitPrice = oi.UnitPrice,
-                    Units = oi.Quantity
-                }).ToList(),
-                OrderNumber = o.Id,
-                ShippingAddress = o.ShipTo,
-                Total = o.Total()
-            });
+            return orders.Data.Select(o => _mapper.Map<OrderExcerptViewModel>(o));
+        }
+    }
+
+    public class OrderExcerptProfile : Profile
+    {
+        public OrderExcerptProfile()
+        {
+            this.CreateMap<OrderExcerpt, OrderExcerptViewModel>();
         }
     }
 }
