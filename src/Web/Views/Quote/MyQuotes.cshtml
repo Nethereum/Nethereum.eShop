@@ -9,7 +9,8 @@
         <article class="esh-orders-titles row">
             <section class="esh-orders-title col-md-1">Id</section>
             <section class="esh-orders-title col-md-4">Date</section>
-            <section class="esh-orders-title col-md-2">Total</section>
+            <section class="esh-orders-title col-md-1">PO</section>
+            <section class="esh-orders-title col-md-1">Total</section>
             <section class="esh-orders-title col-md-3">Status</section>
             <section class="esh-orders-title col-md-2"></section>
         </article>
@@ -17,21 +18,22 @@
         {
             @foreach (var item in Model)
             {
-                <article class="esh-orders-items row">
-                    <section class="esh-orders-item col-md-1">@Html.DisplayFor(modelItem => item.QuoteId)</section>
-                    <section class="esh-orders-item col-md-4">@Html.DisplayFor(modelItem => item.QuoteDate)</section>
-                    <section class="esh-orders-item col-md-2">$ @Html.DisplayFor(modelItem => item.Total)</section>
-                    <section class="esh-orders-item col-md-3">@Html.DisplayFor(modelItem => item.Status)</section>
-                    <section class="esh-orders-item col-md-1">
-                        <a class="esh-orders-link" asp-controller="Quote" asp-action="Detail" asp-route-quoteId="@item.QuoteId">Detail</a>
-                    </section>
-                    <section class="esh-orders-item col-md-1">
-                        @if (item.Status.ToLower() == "submitted")
-                        {
-                            <a class="esh-orders-link" asp-controller="Quote" asp-action="cancel" asp-route-quoteId="@item.QuoteId">Cancel</a>
-                        }
-                    </section>
-                </article>
+    <article class="esh-orders-items row">
+        <section class="esh-orders-item col-md-1">@Html.DisplayFor(modelItem => item.QuoteId)</section>
+        <section class="esh-orders-item col-md-4">@Html.DisplayFor(modelItem => item.QuoteDate)</section>
+        <section class="esh-orders-item col-md-1">@Html.DisplayFor(modelItem => item.PoNumber)</section>
+        <section class="esh-orders-item col-md-1">$ @Html.DisplayFor(modelItem => item.Total)</section>
+        <section class="esh-orders-item col-md-3">@Html.DisplayFor(modelItem => item.Status)</section>
+        <section class="esh-orders-item col-md-1">
+            <a class="esh-orders-link" asp-controller="Quote" asp-action="Detail" asp-route-quoteId="@item.QuoteId">Detail</a>
+        </section>
+        <section class="esh-orders-item col-md-1">
+            @if (item.Status.ToLower() == "submitted")
+            {
+                <a class="esh-orders-link" asp-controller="Quote" asp-action="cancel" asp-route-quoteId="@item.QuoteId">Cancel</a>
+            }
+        </section>
+    </article>
 
                 @if (item.TransactionHash?.Length > 0)
                 {
