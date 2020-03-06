@@ -5,6 +5,8 @@ namespace Nethereum.eShop.ApplicationCore.Interfaces
 {
     public interface IRuleTreeCache : IAsyncCache<RuleTree>
     {
+        Task<RuleTree> GetByIdAsync(string id);
+
         Task<RuleTree> GetLastRuleTreeCreatedAsync();
     }
 }
