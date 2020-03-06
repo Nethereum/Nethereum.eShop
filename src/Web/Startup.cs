@@ -24,6 +24,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mime;
+using Nethereum.eShop.ApplicationCore.Queries;
+using Nethereum.eShop.ApplicationCore.Queries.Quotes;
 
 namespace Nethereum.eShop.Web
 {
@@ -110,15 +112,18 @@ namespace Nethereum.eShop.Web
 
             services.AddMediatR(typeof(BasketViewModelService).Assembly);
 
+            IQuoteQueries quoteQueries = new QuoteQueries(Configuration.GetConnectionString("CatalogConnection"));
+            services.AddSingleton<IQuoteQueries>(quoteQueries);
+
             services.AddScoped(typeof(IAsyncCache<>), typeof(GeneralCache<>));
             services.AddScoped(typeof(IAsyncRepository<>), typeof(EfRepository<>));
+            services.AddScoped<IBasketRepository, BasketRepository>();
             services.AddScoped<ICatalogItemRepository, CatalogItemRepository>();
             services.AddScoped<ICatalogViewModelService, CachedCatalogViewModelService>();
             services.AddScoped<IBasketService, BasketService>();
             services.AddScoped<IBasketViewModelService, BasketViewModelService>();
             services.AddScoped<IQuoteService, QuoteService>();
             services.AddScoped<IOrderService, OrderService>();
-            services.AddScoped<IPurchaseOrderService, PurchaseOrderService>();
             services.AddScoped<IRulesEngineService, RulesEngineService>();
             services.AddScoped<IStockItemRepository, StockItemRepository>();
             services.AddScoped<IQuoteRepository, QuoteRepository>();

@@ -6,6 +6,11 @@ namespace Nethereum.eShop.ApplicationCore.Entities.BasketAggregate
 {
     public class Basket : BaseEntity, IAggregateRoot
     {
+        public static Basket CreateForDeletion(int basketId)
+        {
+            return new Basket { Id = basketId };
+        }
+
         public string BuyerId { get; set; }
 
         /// <summary>

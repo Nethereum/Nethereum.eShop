@@ -1,6 +1,7 @@
-﻿using MediatR;
-using Nethereum.eShop.ApplicationCore.Interfaces;
-using Nethereum.eShop.ApplicationCore.Specifications;
+﻿using AutoMapper;
+using MediatR;
+using Nethereum.eShop.ApplicationCore.Queries;
+using Nethereum.eShop.ApplicationCore.Queries.Quotes;
 using Nethereum.eShop.Web.ViewModels;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,38 +10,35 @@ using System.Threading.Tasks;
 
 namespace Nethereum.eShop.Web.Features.MyQuotes
 {
-    public class GetMyQuotesHandler : IRequestHandler<GetMyQuotes, IEnumerable<QuoteViewModel>>
-    {
-        private readonly IQuoteRepository _quoteRepository;
 
-        public GetMyQuotesHandler(IQuoteRepository quoteRepository)
+    public class GetMyQuotesHandler : IRequestHandler<GetMyQuotes, IEnumerable<QuoteExcerptViewModel>>
+    {
+        private readonly static Mapper _mapper;
+        static GetMyQuotesHandler()
         {
-            _quoteRepository = quoteRepository;
+            var config = new MapperConfiguration(cfg => cfg.AddProfile<QuoteExcerptProfile>());
+            _mapper = new Mapper(config);
         }
 
-        public async Task<IEnumerable<QuoteViewModel>> Handle(GetMyQuotes request, CancellationToken cancellationToken)
-        {
-            var specification = new CustomerQuotesWithItemsSpecification(request.UserName);
-            var orders = await _quoteRepository.ListAsync(specification);
+        private readonly IQuoteQueries _quoteQueries;
 
-            return orders.Select(o => new QuoteViewModel
-            {
-                QuoteDate = o.Date,
-                QuoteItems = o.QuoteItems?.Select(oi => new QuoteItemViewModel()
-                {
-                    PictureUrl = oi.ItemOrdered.PictureUri,
-                    ProductId = oi.ItemOrdered.CatalogItemId,
-                    ProductName = oi.ItemOrdered.ProductName,
-                    UnitPrice = oi.UnitPrice,
-                    Units = oi.Quantity
-                }).ToList(),
-                QuoteId = o.Id,
-                Status = o.Status.ToString(),
-                TransactionHash = o.TransactionHash,
-                ShipTo = o.ShipTo,
-                BillTo = o.BillTo,
-                Total = o.Total()
-            });
+        public GetMyQuotesHandler(IQuoteQueries quoteRepository)
+        {
+            _quoteQueries = quoteRepository;
+        }
+
+        public async Task<IEnumerable<QuoteExcerptViewModel>> Handle(GetMyQuotes request, CancellationToken cancellationToken)
+        {
+            var quotes = await _quoteQueries.GetByBuyerIdAsync(request.UserName, fetch: 100);
+            return quotes.Data.Select(excerpt => _mapper.Map<QuoteExcerptViewModel>(excerpt));
+        }
+    }
+
+    public class QuoteExcerptProfile : Profile
+    {
+        public QuoteExcerptProfile()
+        {
+            this.CreateMap<QuoteExcerpt, QuoteExcerptViewModel>();
         }
     }
 }

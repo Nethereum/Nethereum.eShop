@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Nethereum.eShop.Web.Features.MyQuotes;
-using Nethereum.eShop.Web.Features.OrderDetails;
 using Nethereum.eShop.Web.Features.QuoteDetails;
 using System.Threading.Tasks;
 

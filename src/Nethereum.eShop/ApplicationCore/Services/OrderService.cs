@@ -3,7 +3,6 @@ using Nethereum.Commerce.Contracts.Purchasing.ContractDefinition;
 using Nethereum.eShop.ApplicationCore.Entities.OrderAggregate;
 using Nethereum.eShop.ApplicationCore.Entities.QuoteAggregate;
 using Nethereum.eShop.ApplicationCore.Interfaces;
-using Nethereum.eShop.Infrastructure.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,11 +12,13 @@ namespace Nethereum.eShop.ApplicationCore.Services
 {
     public class OrderService : IOrderService
     {
-        private readonly CatalogContext _dbContext;
+        private readonly IOrderRepository _orderRepository;
+        private readonly IQuoteRepository _quoteRepository;
 
-        public OrderService(CatalogContext catalogContext)
+        public OrderService(IOrderRepository orderRepository, IQuoteRepository quoteRepository)
         {
-            _dbContext = catalogContext;
+            _orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+            _quoteRepository = quoteRepository ?? throw new ArgumentNullException(nameof(quoteRepository));
         }
 
         public async Task CreateOrderAsync(string transactionHash, Po purchaseOrder)
@@ -27,7 +28,7 @@ namespace Nethereum.eShop.ApplicationCore.Services
 
             int quoteId = (int)purchaseOrder.QuoteId;
 
-            var quote = await _dbContext.GetQuoteWithItemsOrDefault(quoteId);
+            var quote = await _quoteRepository.GetByIdWithItemsAsync(quoteId).ConfigureAwait(false);
 
             Guard.Against.NullQuote(quoteId, quote);
             var items = new List<OrderItem>();
@@ -72,9 +73,9 @@ namespace Nethereum.eShop.ApplicationCore.Services
             quote.PoNumber = (long)purchaseOrder.PoNumber;
             quote.Status = QuoteStatus.Complete;
 
-            _dbContext.Orders.Add(order);
+            _orderRepository.Add(order);
 
-            await _dbContext.SaveChangesAsync();
+            await _orderRepository.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
         }
     }
 }

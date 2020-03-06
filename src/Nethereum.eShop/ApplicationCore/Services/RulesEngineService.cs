@@ -53,7 +53,7 @@ namespace Nethereum.eShop.ApplicationCore.Services
             var sBizRulesUrl = _rulesEngineInitializer.GetQuoteBizRulesFileUrl();
 
             RuleTreeSeed quoteTreeSeed =
-                new RuleTreeSeed("QuoteTree", sBizRulesUrl, "default") { Id = 1 };
+                new RuleTreeSeed(1, "QuoteTree", sBizRulesUrl, "default");
 
             var RuleTreeIsCached = await _ruleTreeRepository.ContainsAsync(quoteTreeSeed.Id).ConfigureAwait(false);
 
@@ -74,7 +74,7 @@ namespace Nethereum.eShop.ApplicationCore.Services
             var sBizRulesUrl = _rulesEngineInitializer.GetQuoteItemBizRulesFileUrl();
 
             RuleTreeSeed quoteItemTreeSeed =
-                new RuleTreeSeed("QuoteItemTree", sBizRulesUrl, "default") { Id = 2 };
+                new RuleTreeSeed(2, "QuoteItemTree", sBizRulesUrl, "default");
 
             var RuleTreeIsCached = await _ruleTreeRepository.ContainsAsync(quoteItemTreeSeed.Id).ConfigureAwait(false);
 

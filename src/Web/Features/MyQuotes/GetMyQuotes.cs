@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Nethereum.eShop.Web.Features.MyQuotes
 {
-    public class GetMyQuotes : IRequest<IEnumerable<QuoteViewModel>>
+    public class GetMyQuotes : IRequest<IEnumerable<QuoteExcerptViewModel>>
     {
         public string UserName { get; set; }
 

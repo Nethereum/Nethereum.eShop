@@ -7,16 +7,11 @@ namespace Nethereum.eShop.Infrastructure.Data
 {
     public class QuoteRepository : EfRepository<Quote>, IQuoteRepository
     {
-        public QuoteRepository(CatalogContext dbContext) : base(dbContext)
-        {
-        }
+        public QuoteRepository(CatalogContext dbContext) : base(dbContext){}
 
-        public Task<Quote> GetByIdWithItemsAsync(int id)
-        {
-            return _dbContext.Quotes
-                .Include(o => o.QuoteItems)
-                .Include($"{nameof(Quote.QuoteItems)}.{nameof(QuoteItem.ItemOrdered)}")
-                .FirstOrDefaultAsync(x => x.Id == id);
-        }
+        public IUnitOfWork UnitOfWork => _dbContext;
+        public Quote Add(Quote quote) => _dbContext.Quotes.Add(quote).Entity;
+        public Quote Update(Quote quote) => _dbContext.Quotes.Update(quote).Entity;
+        public Task<Quote> GetByIdWithItemsAsync(int id) => _dbContext.GetQuoteWithItemsOrDefault(id);
     }
 }
