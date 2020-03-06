@@ -331,11 +331,11 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             };
         }
 
-        public static async Task SendFunds(Web3.Web3 fromWeb3, string toAddress, string currency, BigInteger amount)
+        public static async Task PrepSendFundsToBuyerWalletForPo(Web3.Web3 fromWeb3, Buyer.Po po)
         {
-            // Test setup - transfer required funds from Web3 acccount to address given
-            StandardTokenService sts = new StandardTokenService(fromWeb3, currency);
-            var txTransfer = await sts.TransferRequestAndWaitForReceiptAsync(toAddress, amount);
+            // Transfer required funds (tokens) from given Web3 acccount to buyer wallet given on po
+            StandardTokenService sts = new StandardTokenService(fromWeb3, po.CurrencyAddress);
+            var txTransfer = await sts.TransferRequestAndWaitForReceiptAsync(po.BuyerWalletAddress, po.GetTotalCurrencyValue());
             txTransfer.Status.Value.Should().Be(1);
         }
 
