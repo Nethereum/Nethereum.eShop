@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
-using Microsoft.Data.SqlClient;
+using System.Data.SqlClient;
 
 namespace Nethereum.eShop.ApplicationCore.Entities.RulesEngine
 {

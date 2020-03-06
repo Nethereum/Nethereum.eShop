@@ -21,6 +21,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nethereum.Commerce.Contract
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebJobs", "WebJobs\WebJobs.csproj", "{C817D513-88E9-4721-A1EA-57EFE0FABCD5}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nethereum.eShop.SqlServer", "Nethereum.eShop.SqlServer\Nethereum.eShop.SqlServer.csproj", "{658EAD99-D587-4105-9743-8DF2722858EA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{C817D513-88E9-4721-A1EA-57EFE0FABCD5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C817D513-88E9-4721-A1EA-57EFE0FABCD5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C817D513-88E9-4721-A1EA-57EFE0FABCD5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{658EAD99-D587-4105-9743-8DF2722858EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{658EAD99-D587-4105-9743-8DF2722858EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{658EAD99-D587-4105-9743-8DF2722858EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{658EAD99-D587-4105-9743-8DF2722858EA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

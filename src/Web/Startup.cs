@@ -17,6 +17,7 @@ using Nethereum.eShop.ApplicationCore.Queries.Orders;
 using Nethereum.eShop.ApplicationCore.Queries.Quotes;
 using Nethereum.eShop.ApplicationCore.Services;
 using Nethereum.eShop.Infrastructure.Data;
+using Nethereum.eShop.Infrastructure.Data.Config;
 using Nethereum.eShop.Infrastructure.Identity;
 using Nethereum.eShop.Infrastructure.Logging;
 using Nethereum.eShop.Infrastructure.Services;
@@ -110,6 +111,10 @@ namespace Nethereum.eShop.Web
             ConfigureCookieSettings(services);
 
             CreateIdentityIfNotCreated(services);
+
+            // a place to repoint DataContext model builder configuration to another assembly
+            services.AddSingleton<IModelBuilderAssemblyHandler<CatalogContext>>(
+                new ModelBuilderAssemblyHandler<CatalogContext>(typeof(BasketConfiguration).Assembly));
 
             services.AddMediatR(typeof(BasketViewModelService).Assembly);
 

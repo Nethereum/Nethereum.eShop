@@ -14,15 +14,33 @@ using System.Threading.Tasks;
 
 namespace Nethereum.eShop.Infrastructure.Data
 {
+    public interface IModelBuilderAssemblyHandler<T>
+    {
+        Assembly GetModelBuilderAssembly();
+    }
+
+    public class ModelBuilderAssemblyHandler<T> : IModelBuilderAssemblyHandler<T>
+    {
+        private readonly Assembly _assembly;
+
+        public ModelBuilderAssemblyHandler(Assembly assembly)
+        {
+            _assembly = assembly;
+        }
+        public Assembly GetModelBuilderAssembly() => _assembly;
+    }
 
     public class CatalogContext : DbContext, IUnitOfWork
     {
         private readonly IMediator _mediator;
+        private readonly IModelBuilderAssemblyHandler<CatalogContext> _modelBuilderAssemblyHandler;
         private IDbContextTransaction _currentTransaction;
 
-        public CatalogContext(DbContextOptions<CatalogContext> options, IMediator mediator) : base(options)
+        public CatalogContext(
+            DbContextOptions<CatalogContext> options, IMediator mediator, IModelBuilderAssemblyHandler<CatalogContext> modelBuilderAssemblyHandler) : base(options)
         {
             _mediator = mediator;
+            _modelBuilderAssemblyHandler = modelBuilderAssemblyHandler;
         }
 
         public DbSet<Buyer> Buyers { get; set; }
@@ -45,9 +63,9 @@ namespace Nethereum.eShop.Infrastructure.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-            builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+            var modelBuilderAssembly = _modelBuilderAssemblyHandler?.GetModelBuilderAssembly() ?? Assembly.GetExecutingAssembly();
+            builder.ApplyConfigurationsFromAssembly(modelBuilderAssembly);
         }
-
 
         public async Task<bool> SaveEntitiesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {

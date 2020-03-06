@@ -29,20 +29,11 @@ namespace Nethereum.eShop.WebJobs.Jobs
             this._quoteRepository = quoteRepository;
         }
 
-        public class GetQuotesRequiringPurchaseOrderSpec : BaseSpecification<Quote>
-        {
-            public GetQuotesRequiringPurchaseOrderSpec()
-                : base(quote => quote.Status == QuoteStatus.Pending && quote.PoNumber == null)
-            {
-                AddInclude(b => b.QuoteItems);
-            }
-        }
-
         public async Task ExecuteAsync(ILogger logger)
         {
             if (!_config.CreateFakePurchaseOrders) return;
 
-            var pendingQuotes = await _quoteRepository.ListAsync(new GetQuotesRequiringPurchaseOrderSpec());
+            var pendingQuotes = await _quoteRepository.GetQuotesRequiringPurchaseOrderAsync();
 
             logger.LogInformation($"{pendingQuotes.Count} were found requiring a purchase order");
 
@@ -65,7 +56,8 @@ namespace Nethereum.eShop.WebJobs.Jobs
             {
                 quote.PoNumber = (long)existing.Po.PoNumber;
                 quote.Status = QuoteStatus.AwaitingOrder;
-                await _quoteRepository.UpdateAsync(quote);
+                _quoteRepository.Update(quote);
+                await _quoteRepository.UnitOfWork.SaveEntitiesAsync();
                 return;
             }
 
@@ -80,7 +72,8 @@ namespace Nethereum.eShop.WebJobs.Jobs
                 quote.PoNumber = (long)createdEvent.Event.PoNumber;
                 quote.Status = QuoteStatus.AwaitingOrder;
                 quote.TransactionHash = receipt.TransactionHash;
-                await _quoteRepository.UpdateAsync(quote);
+                _quoteRepository.Update(quote);
+                await _quoteRepository.UnitOfWork.SaveEntitiesAsync();
             }
             else
             {

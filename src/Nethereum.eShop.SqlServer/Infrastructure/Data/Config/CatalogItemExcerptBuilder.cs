@@ -6,7 +6,7 @@ namespace Nethereum.eShop.Infrastructure.Data.Config
     public static class CatalogItemExcerptBuilder
     {
         public static void ConfigureCatalogItemExcerpt<TParentEntity>(this OwnedNavigationBuilder<TParentEntity, CatalogItemExcerpt> a) where TParentEntity : class{
-            a.WithOwner();
+
             a.WithOwner();
 
             a.Property(cio => cio.ProductName)

@@ -12,11 +12,11 @@ namespace Nethereum.eShop.Web.Services
 {
     public class BasketViewModelService : IBasketViewModelService
     {
-        private readonly IAsyncRepository<Basket> _basketRepository;
+        private readonly IBasketRepository _basketRepository;
         private readonly IUriComposer _uriComposer;
         private readonly IAsyncRepository<CatalogItem> _itemRepository;
 
-        public BasketViewModelService(IAsyncRepository<Basket> basketRepository,
+        public BasketViewModelService(IBasketRepository basketRepository,
             IAsyncRepository<CatalogItem> itemRepository,
             IUriComposer uriComposer)
         {
@@ -27,8 +27,7 @@ namespace Nethereum.eShop.Web.Services
 
         public async Task<BasketViewModel> GetOrCreateBasketForUser(string userName)
         {
-            var basketSpec = new BasketWithItemsSpecification(userName);
-            var basket = (await _basketRepository.ListAsync(basketSpec)).FirstOrDefault();
+            var basket = await _basketRepository.GetByBuyerIdWithItemsAsync(userName);
 
             if (basket == null)
             {
@@ -50,7 +49,8 @@ namespace Nethereum.eShop.Web.Services
         {
             // TODO: populate from buyer entity
             var basket = new Basket() { BuyerId = userId, BuyerAddress = string.Empty };
-            await _basketRepository.AddAsync(basket);
+            _basketRepository.Add(basket);
+            await _basketRepository.UnitOfWork.SaveEntitiesAsync();
 
             return new BasketViewModel()
             {
