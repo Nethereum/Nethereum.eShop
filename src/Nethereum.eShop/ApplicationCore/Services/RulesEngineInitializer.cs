@@ -20,5 +20,10 @@ namespace Nethereum.eShop.ApplicationCore.Services
         {
             return _rulesEngineSettings.QuoteItemBizRulesFileUrl;
         }
+
+        public int GetBizEngineRetriesOnFailure()
+        {
+            return _rulesEngineSettings.BizEngineRetriesUponFailure;
+        }
     }
 }
