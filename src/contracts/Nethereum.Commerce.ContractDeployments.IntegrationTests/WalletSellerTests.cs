@@ -109,6 +109,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             // Prepare a new PO and create it
             uint quoteId = GetRandomInt();
             Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId);
+            await SendFunds(fromWeb3: _contracts.Web3, toAddress: poAsRequested.BuyerWalletAddress, currency: poAsRequested.CurrencyAddress, amount: poAsRequested.GetTotalCurrencyValue());
             var txReceiptCreate = await _contracts.Deployment.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
             txReceiptCreate.Status.Value.Should().Be(1);
 

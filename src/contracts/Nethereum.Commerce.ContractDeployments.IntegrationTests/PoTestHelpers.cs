@@ -331,6 +331,14 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             };
         }
 
+        public static async Task SendFunds(Web3.Web3 fromWeb3, string toAddress, string currency, BigInteger amount)
+        {
+            // Test setup - transfer required funds from Web3 acccount to address given
+            StandardTokenService sts = new StandardTokenService(fromWeb3, currency);
+            var txTransfer = await sts.TransferRequestAndWaitForReceiptAsync(toAddress, amount);
+            txTransfer.Status.Value.Should().Be(1);
+        }
+
         /// <summary>
         /// Format a token value according to its decimals and symbol
         /// eg "5000000000000000" becomes "50,000 SYM" 

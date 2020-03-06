@@ -56,12 +56,12 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
         {
             await Deployment.InitializeAsync();
 
-            // Transfer money from main web3 primary user to secondary users
+            // Transfer Ether from main web3 primary user to secondary users, so secondary users can post tx
             LogSeparator();
             Log("Transferring Ether to secondary users...");
             var txEtherTransfer = await Web3.Eth.GetEtherTransferService()
                 .TransferEtherAndWaitForReceiptAsync(Web3SecondaryUser.TransactionManager.Account.Address, 1.00m);
-            Log($"Transfer tx status: {txEtherTransfer.Status.Value}");
+            Log($"Transfer tx status: {txEtherTransfer.Status.Value}");            
             LogSeparator();
         }
 
