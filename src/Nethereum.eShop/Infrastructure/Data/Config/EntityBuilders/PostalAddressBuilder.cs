@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Nethereum.eShop.Infrastructure.Data.Config
+namespace Nethereum.eShop.Infrastructure.Data.Config.EntityBuilders
 {
     public static class PostalAddressBuilder
     {

@@ -5,7 +5,7 @@ namespace Nethereum.eShop.ApplicationCore.Queries.Orders
     public class OrderExcerpt
     {
         public int OrderId { get; set; }
-        public int QuoteId { get; set; }
+        public int? QuoteId { get; set; }
         public string TransactionHash { get; set; }
 
         public string PoNumber { get; set; }
@@ -15,9 +15,8 @@ namespace Nethereum.eShop.ApplicationCore.Queries.Orders
 
         public string BuyerId { get; set; }
         public string BuyerAddress { get; set; }
-        public DateTimeOffset QuoteDate { get; set; }
+        public DateTimeOffset OrderDate { get; set; }
 
-        public DateTimeOffset? Expiry { get; set; }
         public decimal Total { get; set; }
         public int ItemCount { get; set; }
         public string Status { get; set; }

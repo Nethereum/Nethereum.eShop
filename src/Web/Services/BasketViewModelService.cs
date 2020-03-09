@@ -1,11 +1,8 @@
-﻿using Nethereum.eShop.ApplicationCore.Entities;
-using Nethereum.eShop.ApplicationCore.Entities.BasketAggregate;
+﻿using Nethereum.eShop.ApplicationCore.Entities.BasketAggregate;
 using Nethereum.eShop.ApplicationCore.Interfaces;
-using Nethereum.eShop.ApplicationCore.Specifications;
 using Nethereum.eShop.Web.Interfaces;
 using Nethereum.eShop.Web.Pages.Basket;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Nethereum.eShop.Web.Services
@@ -14,10 +11,10 @@ namespace Nethereum.eShop.Web.Services
     {
         private readonly IBasketRepository _basketRepository;
         private readonly IUriComposer _uriComposer;
-        private readonly IAsyncRepository<CatalogItem> _itemRepository;
+        private readonly ICatalogItemRepository _itemRepository;
 
         public BasketViewModelService(IBasketRepository basketRepository,
-            IAsyncRepository<CatalogItem> itemRepository,
+            ICatalogItemRepository itemRepository,
             IUriComposer uriComposer)
         {
             _basketRepository = basketRepository;

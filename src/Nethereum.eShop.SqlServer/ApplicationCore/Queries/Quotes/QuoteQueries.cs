@@ -44,7 +44,7 @@ SELECT
     q.BuyerAddress,
 	q.BuyerId,
     q.TransactionHash,
-    q.Date,
+    q.Date as QuoteDate,
     q.Status,
     q.PoNumber,
     q.PoType,

@@ -2,16 +2,16 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Nethereum.eShop.ApplicationCore.Entities;
 
-namespace Nethereum.eShop.Infrastructure.Data.Config
+namespace Nethereum.eShop.Infrastructure.Data.Config.EntityBuilders
 {
     public class StockItemConfiguration : IEntityTypeConfiguration<StockItem>
     {
-        public void Configure(EntityTypeBuilder<StockItem> builder)
+        public virtual void Configure(EntityTypeBuilder<StockItem> builder)
         {
             builder.ToTable("Stock");
 
             builder.Property(ci => ci.Id)
-                .UseHiLo("stock_hilo")
+                // .UseHiLo("stock_hilo")
                 .IsRequired();
 
             builder.Property(ci => ci.Location)

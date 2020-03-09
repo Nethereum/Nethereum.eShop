@@ -103,5 +103,10 @@ namespace Nethereum.eShop.ApplicationCore.Entities.OrderAggregate
             }
             return total;
         }
+
+        public int ItemCount()
+        {
+            return _orderItems == null ? 0 : _orderItems.Count;
+        }
     }
 }

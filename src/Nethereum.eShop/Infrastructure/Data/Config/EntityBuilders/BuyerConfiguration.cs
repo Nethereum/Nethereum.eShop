@@ -2,11 +2,11 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Nethereum.eShop.ApplicationCore.Entities.BuyerAggregate;
 
-namespace Nethereum.eShop.Infrastructure.Data.Config
+namespace Nethereum.eShop.Infrastructure.Data.Config.EntityBuilders
 {
     public class BuyerConfiguration : IEntityTypeConfiguration<Buyer>
     {
-        public void Configure(EntityTypeBuilder<Buyer> builder)
+        public virtual void Configure(EntityTypeBuilder<Buyer> builder)
         {
             var navigation = builder.Metadata.FindNavigation(nameof(Buyer.PostalAddresses));
             navigation.SetPropertyAccessMode(PropertyAccessMode.Field);

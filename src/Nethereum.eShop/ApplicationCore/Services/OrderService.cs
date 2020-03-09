@@ -25,18 +25,33 @@ namespace Nethereum.eShop.ApplicationCore.Services
         {
             // TODO: write purchase order values to order
             // TODO: Ensure po values are consistent with quote
-
             int quoteId = (int)purchaseOrder.QuoteId;
-
             var quote = await _quoteRepository.GetByIdWithItemsAsync(quoteId).ConfigureAwait(false);
-
             Guard.Against.NullQuote(quoteId, quote);
+
+            List<OrderItem> orderItems = MapQuoteItemsToOrderItems(quote);
+            Order order = MapQuoteToOrder(transactionHash, purchaseOrder, quote, orderItems);
+
+            quote.SetConvertedToOrder(order.Id, (long)purchaseOrder.PoNumber, transactionHash);
+
+            _orderRepository.Add(order);
+            await _orderRepository.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
+        }
+
+        private static List<OrderItem> MapQuoteItemsToOrderItems(Quote quote)
+        {
             var items = new List<OrderItem>();
             foreach (var item in quote.QuoteItems)
             {
                 var orderItem = new OrderItem(item.ItemOrdered, item.UnitPrice, item.Quantity);
                 items.Add(orderItem);
             }
+
+            return items;
+        }
+
+        private static Order MapQuoteToOrder(string transactionHash, Po purchaseOrder, Quote quote, List<OrderItem> items)
+        {
             var order = new Order(quote.BuyerId, purchaseOrder.BuyerAddress, quote.BillTo, quote.ShipTo, items);
             order.QuoteId = quote.Id;
             order.PoDate = DateTimeOffset.FromUnixTimeSeconds((long)purchaseOrder.PoCreateDate);
@@ -55,7 +70,7 @@ namespace Nethereum.eShop.ApplicationCore.Services
             order.Status = OrderStatus.Pending;
             order.TransactionHash = transactionHash;
 
-            foreach(var poItem in purchaseOrder.PoItems)
+            foreach (var poItem in purchaseOrder.PoItems)
             {
                 var orderItem = quote.QuoteItems.ElementAtOrDefault((int)poItem.PoItemNumber - 1);
                 if (orderItem == null) continue;
@@ -69,13 +84,7 @@ namespace Nethereum.eShop.ApplicationCore.Services
                 orderItem.EscrowReleaseDate = DateTimeOffset.FromUnixTimeSeconds((long)poItem.PlannedEscrowReleaseDate);
             }
 
-            quote.TransactionHash = transactionHash;
-            quote.PoNumber = (long)purchaseOrder.PoNumber;
-            quote.Status = QuoteStatus.Complete;
-
-            _orderRepository.Add(order);
-
-            await _orderRepository.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
+            return order;
         }
     }
 }

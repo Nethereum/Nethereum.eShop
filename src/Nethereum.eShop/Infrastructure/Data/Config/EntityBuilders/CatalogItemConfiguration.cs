@@ -2,16 +2,16 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Nethereum.eShop.ApplicationCore.Entities;
 
-namespace Nethereum.eShop.Infrastructure.Data.Config
+namespace Nethereum.eShop.Infrastructure.Data.Config.EntityBuilders
 {
     public class CatalogItemConfiguration : IEntityTypeConfiguration<CatalogItem>
     {
-        public void Configure(EntityTypeBuilder<CatalogItem> builder)
+        public virtual void Configure(EntityTypeBuilder<CatalogItem> builder)
         {
             builder.ToTable("Catalog");
 
             builder.Property(ci => ci.Id)
-                .UseHiLo("catalog_hilo")
+                //.UseHiLo("catalog_hilo")
                 .IsRequired();
 
             builder.Property(ci => ci.Name)

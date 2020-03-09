@@ -81,5 +81,15 @@ namespace Nethereum.eShop.ApplicationCore.Entities.QuoteAggregate
             return total;
         }
 
+        public int ItemCount() => _quoteItems == null ? 0 : _quoteItems.Count;
+
+        public void SetConvertedToOrder(int orderNumber, long purchaseOrderNumber, string transactionHash)
+        {
+            //TODO: Add order number/id field
+            TransactionHash = transactionHash;
+            PoNumber = purchaseOrderNumber;
+            Status = QuoteStatus.Complete;
+        }
+
     }
 }

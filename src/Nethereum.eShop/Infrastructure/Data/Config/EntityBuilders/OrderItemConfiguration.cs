@@ -2,16 +2,13 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Nethereum.eShop.ApplicationCore.Entities.OrderAggregate;
 
-namespace Nethereum.eShop.Infrastructure.Data.Config
+namespace Nethereum.eShop.Infrastructure.Data.Config.EntityBuilders
 {
     public class OrderItemConfiguration : IEntityTypeConfiguration<OrderItem>
     {
-        public void Configure(EntityTypeBuilder<OrderItem> builder)
+        public virtual void Configure(EntityTypeBuilder<OrderItem> builder)
         {
-            builder.OwnsOne(i => i.ItemOrdered, io =>
-            {
-                io.ConfigureCatalogItemExcerpt();
-            });
+            builder.OwnsOne(i => i.ItemOrdered, io => io.ConfigureCatalogItemExcerpt());
 
             builder.Property(oi => oi.UnitPrice)
                 .IsRequired(true)

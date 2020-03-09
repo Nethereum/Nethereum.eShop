@@ -39,6 +39,7 @@
     <Folder Include="wwwroot\lib\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Nethereum.eShop.InMemory\Nethereum.eShop.InMemory.csproj" />
     <ProjectReference Include="..\Nethereum.eShop.SqlServer\Nethereum.eShop.SqlServer.csproj" />
     <ProjectReference Include="..\Nethereum.eShop\Nethereum.eShop.csproj" />
   </ItemGroup>

@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using Nethereum.eShop.ApplicationCore.Entities;
 using Nethereum.eShop.ApplicationCore.Interfaces;
 using Nethereum.eShop.ApplicationCore.Queries.Catalog;
-using Nethereum.eShop.ApplicationCore.Specifications;
 using Nethereum.eShop.Web.ViewModels;
 using System;
 using System.Collections.Generic;

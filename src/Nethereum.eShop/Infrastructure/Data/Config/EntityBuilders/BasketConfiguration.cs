@@ -2,11 +2,11 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Nethereum.eShop.ApplicationCore.Entities.BasketAggregate;
 
-namespace Nethereum.eShop.Infrastructure.Data.Config
+namespace Nethereum.eShop.Infrastructure.Data.Config.EntityBuilders
 {
     public class BasketConfiguration : IEntityTypeConfiguration<Basket>
     {
-        public void Configure(EntityTypeBuilder<Basket> builder)
+        public virtual void Configure(EntityTypeBuilder<Basket> builder)
         {
             var navigation = builder.Metadata.FindNavigation(nameof(Basket.Items));
             navigation.SetPropertyAccessMode(PropertyAccessMode.Field);
@@ -20,16 +20,9 @@ namespace Nethereum.eShop.Infrastructure.Data.Config
                 .IsRequired();
 
             builder.Property(b => b.TransactionHash).IsHash();
+            builder.OwnsOne(o => o.ShipTo, a => a.ConfigureAddress());
+            builder.OwnsOne(o => o.BillTo, a => a.ConfigureAddress());
 
-            builder.OwnsOne(o => o.ShipTo, a =>
-            {
-                a.ConfigureAddress();
-            });
-
-            builder.OwnsOne(o => o.BillTo, a =>
-            {
-                a.ConfigureAddress();
-            });
 
             builder.HasIndex(b => b.BuyerId);
             builder.HasIndex(b => b.BuyerAddress);

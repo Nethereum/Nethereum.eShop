@@ -11,6 +11,8 @@ namespace Nethereum.eShop.Infrastructure.Data
     {
         protected readonly CatalogContext _dbContext;
 
+        public virtual IUnitOfWork UnitOfWork => _dbContext;
+
         public EfRepository(CatalogContext dbContext)
         {
             _dbContext = dbContext;
@@ -18,22 +20,26 @@ namespace Nethereum.eShop.Infrastructure.Data
 
         public virtual async Task<T> GetByIdAsync(int id)
         {
-            return await _dbContext.Set<T>().FindAsync(id);
+            return await _dbContext.Set<T>().FindAsync(id).ConfigureAwait(false);
         }
 
-        public async Task<IReadOnlyList<T>> ListAllAsync()
+        public virtual async Task<IReadOnlyList<T>> ListAllAsync()
         {
-            return await _dbContext.Set<T>().ToListAsync();
+            return await _dbContext.Set<T>().ToListAsync().ConfigureAwait(false);
         }
 
-        public async Task<IReadOnlyList<T>> ListAsync(ISpecification<T> spec)
+        public virtual async Task<IReadOnlyList<T>> ListAsync(ISpecification<T> spec)
         {
-            return await ApplySpecification(spec).ToListAsync();
+            return await ApplySpecification(spec).ToListAsync().ConfigureAwait(false);
         }
 
         private IQueryable<T> ApplySpecification(ISpecification<T> spec)
         {
             return SpecificationEvaluator<T>.GetQuery(_dbContext.Set<T>().AsQueryable(), spec);
         }
+
+        public virtual T Add(T entity) => _dbContext.Set<T>().Add(entity).Entity;
+        public virtual T Update(T entity) => _dbContext.Set<T>().Update(entity).Entity;
+        public virtual void Delete(T entity) => _dbContext.Set<T>().Remove(entity);
     }
 }

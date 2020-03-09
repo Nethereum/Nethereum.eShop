@@ -14,22 +14,6 @@ using System.Threading.Tasks;
 
 namespace Nethereum.eShop.Infrastructure.Data
 {
-    public interface IModelBuilderAssemblyHandler<T>
-    {
-        Assembly GetModelBuilderAssembly();
-    }
-
-    public class ModelBuilderAssemblyHandler<T> : IModelBuilderAssemblyHandler<T>
-    {
-        private readonly Assembly _assembly;
-
-        public ModelBuilderAssemblyHandler(Assembly assembly)
-        {
-            _assembly = assembly;
-        }
-        public Assembly GetModelBuilderAssembly() => _assembly;
-    }
-
     public class CatalogContext : DbContext, IUnitOfWork
     {
         private readonly IMediator _mediator;
@@ -44,19 +28,14 @@ namespace Nethereum.eShop.Infrastructure.Data
         }
 
         public DbSet<Buyer> Buyers { get; set; }
-
         public DbSet<Basket> Baskets { get; set; }
-
         public DbSet<BasketItem> BasketItems { get; set; }
         public DbSet<CatalogItem> CatalogItems { get; set; }
         public DbSet<CatalogBrand> CatalogBrands { get; set; }
         public DbSet<CatalogType> CatalogTypes { get; set; }
         public DbSet<StockItem> StockItems { get; set; }
-
         public DbSet<Quote> Quotes { get; set; }
-
         public DbSet<QuoteItem> QuoteItems { get; set; }
-
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
 
@@ -75,11 +54,11 @@ namespace Nethereum.eShop.Infrastructure.Data
             // side effects from the domain event handlers which are using the same DbContext with "InstancePerLifetimeScope" or "scoped" lifetime
             // B) Right AFTER committing data (EF SaveChanges) into the DB will make multiple transactions. 
             // You will need to handle eventual consistency and compensatory actions in case of failures in any of the Handlers. 
-            await _mediator.DispatchDomainEventsAsync(this);
+            await _mediator.DispatchDomainEventsAsync(this).ConfigureAwait(false);
 
             // After executing this line all the changes (from the Command Handler and Domain Event Handlers) 
             // performed through the DbContext will be committed
-            var result = await base.SaveChangesAsync(cancellationToken);
+            var result = await base.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
             return true;
         }
@@ -88,7 +67,7 @@ namespace Nethereum.eShop.Infrastructure.Data
         {
             if (_currentTransaction != null) return null;
 
-            _currentTransaction = await Database.BeginTransactionAsync(IsolationLevel.ReadCommitted);
+            _currentTransaction = await Database.BeginTransactionAsync(IsolationLevel.ReadCommitted).ConfigureAwait(false);
 
             return _currentTransaction;
         }
@@ -100,7 +79,7 @@ namespace Nethereum.eShop.Infrastructure.Data
 
             try
             {
-                await SaveChangesAsync();
+                await SaveChangesAsync().ConfigureAwait(false);
                 transaction.Commit();
             }
             catch

@@ -11,10 +11,11 @@ namespace Nethereum.eShop.Infrastructure.Data
     {
         public QuoteRepository(CatalogContext dbContext) : base(dbContext){}
 
-        public IUnitOfWork UnitOfWork => _dbContext;
-        public Quote Add(Quote quote) => _dbContext.Quotes.Add(quote).Entity;
-        public Quote Update(Quote quote) => _dbContext.Quotes.Update(quote).Entity;
-        public Task<Quote> GetByIdWithItemsAsync(int id) => _dbContext.GetQuoteWithItemsOrDefault(id);
+        public Task<Quote> GetByIdWithItemsAsync(int id) =>
+            _dbContext.Quotes
+            .Include(b => b.QuoteItems)
+            .Where(b => b.Id == id)
+            .FirstOrDefaultAsync();
 
         public Task<List<Quote>> GetQuotesRequiringPurchaseOrderAsync() =>
             _dbContext.Quotes.Where(quote => quote.Status == QuoteStatus.Pending && quote.PoNumber == null)

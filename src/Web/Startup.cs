@@ -12,15 +12,15 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Nethereum.eShop.ApplicationCore.Interfaces;
-using Nethereum.eShop.ApplicationCore.Queries.Catalog;
-using Nethereum.eShop.ApplicationCore.Queries.Orders;
-using Nethereum.eShop.ApplicationCore.Queries.Quotes;
 using Nethereum.eShop.ApplicationCore.Services;
 using Nethereum.eShop.Infrastructure.Data;
 using Nethereum.eShop.Infrastructure.Data.Config;
+using Nethereum.eShop.Infrastructure.Data.Config.EntityBuilders;
 using Nethereum.eShop.Infrastructure.Identity;
 using Nethereum.eShop.Infrastructure.Logging;
 using Nethereum.eShop.Infrastructure.Services;
+using Nethereum.eShop.InMemory;
+using Nethereum.eShop.SqlServer.Infrastructure.Data.Config;
 using Nethereum.eShop.Web.Interfaces;
 using Nethereum.eShop.Web.Services;
 using Newtonsoft.Json;
@@ -63,15 +63,13 @@ namespace Nethereum.eShop.Web
 
         private void ConfigureInMemoryDatabases(IServiceCollection services)
         {
-            // use in-memory database
-            services.AddDbContext<CatalogContext>(c =>
-                c.UseInMemoryDatabase("Catalog"));
+            IEShopDbBootstrapper dbBootstrapper = new InMemoryEShopDbBootrapper();
+            dbBootstrapper.AddDbContext(services, Configuration);
 
-            // Add Identity DbContext
-            services.AddDbContext<AppIdentityDbContext>(options =>
-                options.UseInMemoryDatabase("Identity"));
+            IEShopIdentityDbBootstrapper identityBootstrapper = new InMemoryEShopIdentityDbBootrapper();
+            identityBootstrapper.AddDbContext(services, Configuration);
 
-            ConfigureServices(services);
+            ConfigureServices(services, dbBootstrapper);
         }
 
         public void ConfigureProductionServices(IServiceCollection services)
@@ -89,14 +87,13 @@ namespace Nethereum.eShop.Web
                 See CreateAndApplyDbMigrations.bat in the root of the Web project
              */
 
-            services.AddDbContext<CatalogContext>((serviceProvider, options) =>
-                options.UseSqlServer(Configuration.GetConnectionString("CatalogConnection")));
+            IEShopDbBootstrapper dbBootstrapper = CreateDbBootstrapper(Configuration);
+            dbBootstrapper.AddDbContext(services, Configuration);
 
-            // Add Identity DbContext
-            services.AddDbContext<AppIdentityDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("IdentityConnection")));
+            IEShopIdentityDbBootstrapper identityDbBootstrapper = CreateAppIdentityDbBootstrapper(Configuration);
+            identityDbBootstrapper.AddDbContext(services, Configuration);
 
-            ConfigureServices(services);
+            ConfigureServices(services, dbBootstrapper);
         }
 
         public void ConfigureTestingServices(IServiceCollection services)
@@ -106,36 +103,25 @@ namespace Nethereum.eShop.Web
 
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
+        public void ConfigureServices(
+            IServiceCollection services, IEShopDbBootstrapper dbBootstrapper)
         {
             ConfigureCookieSettings(services);
 
             CreateIdentityIfNotCreated(services);
 
-            // a place to repoint DataContext model builder configuration to another assembly
-            services.AddSingleton<IModelBuilderAssemblyHandler<CatalogContext>>(
-                new ModelBuilderAssemblyHandler<CatalogContext>(typeof(BasketConfiguration).Assembly));
-
             services.AddMediatR(typeof(BasketViewModelService).Assembly);
 
-            string queryConnectionString = Configuration.GetConnectionString("CatalogConnection");
-            services.AddSingleton<IQuoteQueries>(new QuoteQueries(queryConnectionString));
-            services.AddSingleton<IOrderQueries>(new OrderQueries(queryConnectionString));
-            services.AddSingleton<ICatalogQueries>(new CatalogQueries(queryConnectionString));
+            dbBootstrapper.AddQueries(services, Configuration);
+            dbBootstrapper.AddRepositories(services, Configuration);
 
             services.AddScoped(typeof(IAsyncCache<>), typeof(GeneralCache<>));
-            services.AddScoped(typeof(IAsyncRepository<>), typeof(EfRepository<>));
-            services.AddScoped<IBasketRepository, BasketRepository>();
-            services.AddScoped<ICatalogItemRepository, CatalogItemRepository>();
             services.AddScoped<ICatalogViewModelService, CachedCatalogViewModelService>();
             services.AddScoped<IBasketService, BasketService>();
             services.AddScoped<IBasketViewModelService, BasketViewModelService>();
             services.AddScoped<IQuoteService, QuoteService>();
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IRulesEngineService, RulesEngineService>();
-            services.AddScoped<IStockItemRepository, StockItemRepository>();
-            services.AddScoped<IQuoteRepository, QuoteRepository>();
-            services.AddScoped<IOrderRepository, OrderRepository>();
             services.AddScoped<IRuleTreeCache, RuleTreeCache>();
             services.AddScoped<CatalogViewModelService>();
             services.AddScoped<ICatalogItemViewModelService, CatalogItemViewModelService>();
@@ -196,6 +182,12 @@ namespace Nethereum.eShop.Web
 
             _services = services; // used to debug registered services
         }
+
+        private static IEShopDbBootstrapper CreateDbBootstrapper(IConfiguration configuration) 
+            => new SqlServerEShopDbBootstrapper();
+
+        private static IEShopIdentityDbBootstrapper CreateAppIdentityDbBootstrapper(IConfiguration configuration) 
+            => new SqlServerEShopAppIdentityDbBootstrapper();
 
         private static void CreateIdentityIfNotCreated(IServiceCollection services)
         {
@@ -296,4 +288,5 @@ namespace Nethereum.eShop.Web
             });
         }
     }
+
 }

@@ -7,10 +7,16 @@ namespace Nethereum.eShop.WebJobs
 {
     public class JsonFileBlockProgressRepository: JsonBlockProgressRepository
     {
-        public JsonFileBlockProgressRepository(EshopConfiguration eshopConfiguration):base(
-                    () => Task.FromResult(File.Exists(eshopConfiguration.PurchaseOrderEventLogConfiguration.BlockProgressJsonFile)),
-                    async (json) => await File.WriteAllTextAsync(eshopConfiguration.PurchaseOrderEventLogConfiguration.BlockProgressJsonFile, json),
-                    async () => await File.ReadAllTextAsync(eshopConfiguration.PurchaseOrderEventLogConfiguration.BlockProgressJsonFile))
+        public JsonFileBlockProgressRepository(EshopConfiguration eshopConfiguration):
+            this(eshopConfiguration.PurchaseOrderEventLogConfiguration.BlockProgressJsonFile)
+        {
+
+        }
+
+        private JsonFileBlockProgressRepository(string jsonFile):base(
+            () => Task.FromResult(File.Exists(jsonFile)),
+                    async (json) => await File.WriteAllTextAsync(jsonFile, json),
+                    async () => await File.ReadAllTextAsync(jsonFile))
         {
 
         }
