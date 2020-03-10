@@ -8,6 +8,7 @@ using Nethereum.eShop.ApplicationCore.Queries.Quotes;
 using Nethereum.eShop.Infrastructure.Data;
 using Nethereum.eShop.Infrastructure.Data.Config;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Nethereum.eShop.SqlServer.Infrastructure.Data.Config
@@ -35,10 +36,10 @@ namespace Nethereum.eShop.SqlServer.Infrastructure.Data.Config
             services.AddSingleton<ICatalogQueries>(new CatalogQueries(queryConnectionString));
         }
 
-        public Task EnsureCreatedAsync(IServiceProvider serviceProvider)
+        public Task EnsureCreatedAsync(IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
         {
-            //TODO: Configure migrations etc
-            return Task.CompletedTask;
+            var context = serviceProvider.GetRequiredService<CatalogContext>();
+            return context.Database.MigrateAsync(cancellationToken);
         }
     }
 }

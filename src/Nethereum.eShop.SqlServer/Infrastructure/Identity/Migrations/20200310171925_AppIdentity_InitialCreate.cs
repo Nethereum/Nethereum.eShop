@@ -1,9 +1,9 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace Nethereum.eShop.Infrastructure.Identity.Migrations
+namespace Nethereum.eShop.SqlServer.Migrations.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class AppIdentity_InitialCreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

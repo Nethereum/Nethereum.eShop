@@ -12,6 +12,7 @@ using Nethereum.eShop.InMemory.ApplicationCore.Queries.Catalog;
 using Nethereum.eShop.InMemory.ApplicationCore.Queries.Orders;
 using Nethereum.eShop.InMemory.ApplicationCore.Queries.Quotes;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Nethereum.eShop.InMemory.Infrastructure.Data.Config
@@ -35,6 +36,6 @@ namespace Nethereum.eShop.InMemory.Infrastructure.Data.Config
             services.AddScoped<IQuoteQueries, QuoteQueries>();
         }
 
-        public Task EnsureCreatedAsync(IServiceProvider serviceProvider) => Task.CompletedTask;
+        public Task EnsureCreatedAsync(IServiceProvider serviceProvider, CancellationToken cancellationToken = default) => Task.CompletedTask;
     }
 }

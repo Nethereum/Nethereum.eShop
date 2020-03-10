@@ -11,6 +11,7 @@ using Nethereum.eShop.Sqlite.ApplicationCore.Queries.Catalog;
 using Nethereum.eShop.Sqlite.ApplicationCore.Queries.Orders;
 using Nethereum.eShop.Sqlite.ApplicationCore.Queries.Quotes;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Nethereum.eShop.Sqlite.Infrastructure.Data.Config
@@ -37,10 +38,10 @@ namespace Nethereum.eShop.Sqlite.Infrastructure.Data.Config
             services.AddSingleton<ICatalogQueries>(new CatalogQueries(queryConnectionString));
         }
 
-        public Task EnsureCreatedAsync(IServiceProvider serviceProvider)
+        public Task EnsureCreatedAsync(IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
         {
             var context = serviceProvider.GetRequiredService<CatalogContext>();
-            return context.Database.EnsureCreatedAsync();
+            return context.Database.MigrateAsync(cancellationToken);
         }
     }
 }

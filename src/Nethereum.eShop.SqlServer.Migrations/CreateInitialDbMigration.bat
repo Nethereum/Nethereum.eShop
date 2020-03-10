@@ -1,0 +1,3 @@
+rem Create First Migration aka InitialCreate
+dotnet ef migrations add Catalog_InitialCreate --context Nethereum.eShop.Infrastructure.Data.CatalogContext --output-dir ..\Nethereum.eShop.SqlServer\Infrastructure\Data\Migrations
+dotnet ef migrations add AppIdentity_InitialCreate --context Nethereum.eShop.Infrastructure.Identity.AppIdentityDbContext --output-dir ..\Nethereum.eShop.SqlServer\Infrastructure\Identity\Migrations

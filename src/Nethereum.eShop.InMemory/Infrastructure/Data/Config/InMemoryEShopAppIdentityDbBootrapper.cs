@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Nethereum.eShop.ApplicationCore.Interfaces;
 using Nethereum.eShop.Infrastructure.Identity;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Nethereum.eShop.InMemory.Infrastructure.Data.Config
@@ -16,6 +17,6 @@ namespace Nethereum.eShop.InMemory.Infrastructure.Data.Config
                 options.UseInMemoryDatabase("Identity"));
         }
 
-        public Task EnsureCreatedAsync(IServiceProvider serviceProvider) => Task.CompletedTask;
+        public Task EnsureCreatedAsync(IServiceProvider serviceProvider, CancellationToken cancellationToken = default) => Task.CompletedTask;
     }
 }

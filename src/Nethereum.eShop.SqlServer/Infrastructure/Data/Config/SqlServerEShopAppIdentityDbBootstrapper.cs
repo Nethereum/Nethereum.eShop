@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Nethereum.eShop.ApplicationCore.Interfaces;
 using Nethereum.eShop.Infrastructure.Identity;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Nethereum.eShop.SqlServer.Infrastructure.Data.Config
@@ -16,10 +17,10 @@ namespace Nethereum.eShop.SqlServer.Infrastructure.Data.Config
                 options.UseSqlServer(configuration.GetConnectionString("IdentityConnection")));
         }
 
-        public Task EnsureCreatedAsync(IServiceProvider serviceProvider)
+        public Task EnsureCreatedAsync(IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
         {
-            //TODO: implement migrations
-            return Task.CompletedTask;
+            var context = serviceProvider.GetRequiredService<AppIdentityDbContext>();
+            return context.Database.MigrateAsync(cancellationToken);
         }
     }
 }

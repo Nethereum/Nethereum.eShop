@@ -12,13 +12,11 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Nethereum.eShop.ApplicationCore.Interfaces;
 using Nethereum.eShop.ApplicationCore.Services;
+using Nethereum.eShop.DbFactory;
 using Nethereum.eShop.Infrastructure.Data;
 using Nethereum.eShop.Infrastructure.Identity;
 using Nethereum.eShop.Infrastructure.Logging;
 using Nethereum.eShop.Infrastructure.Services;
-using Nethereum.eShop.InMemory.Infrastructure.Data.Config;
-using Nethereum.eShop.Sqlite.Infrastructure.Data.Config;
-using Nethereum.eShop.SqlServer.Infrastructure.Data.Config;
 using Nethereum.eShop.Web.Interfaces;
 using Nethereum.eShop.Web.Services;
 using Newtonsoft.Json;
@@ -43,7 +41,7 @@ namespace Nethereum.eShop.Web
         {
             var inMemoryDbConfig = Configuration["use-in-memory-db"];
             // Default to in memory db
-            // if sql is required - set "use-in-memory-db" to false in appsettings, command line or user secrets 
+            // if sql is required - set "use-in-memory-db" to false in appsettings, command line, user secrets or environmental variables
             var inMemory = string.IsNullOrEmpty(inMemoryDbConfig) ? true : bool.Parse(inMemoryDbConfig);
 
             if (inMemory)
@@ -61,11 +59,11 @@ namespace Nethereum.eShop.Web
 
         private void ConfigureInMemoryDatabases(IServiceCollection services)
         {
-            IEShopDbBootstrapper dbBootstrapper = new InMemoryEShopDbBootrapper();
+            IEShopDbBootstrapper dbBootstrapper = EShopDbBootstrapper.CreateInMemoryDbBootstrapper();
             services.AddSingleton(dbBootstrapper);
             dbBootstrapper.AddDbContext(services, Configuration);
 
-            IEShopIdentityDbBootstrapper identityBootstrapper = new InMemoryEShopAppIdentityDbBootrapper();
+            IEShopIdentityDbBootstrapper identityBootstrapper = EShopDbBootstrapper.CreateInMemoryAppIdentityDbBootstrapper();
             services.AddSingleton(identityBootstrapper);
             identityBootstrapper.AddDbContext(services, Configuration);
 
@@ -87,11 +85,11 @@ namespace Nethereum.eShop.Web
                 See CreateAndApplyDbMigrations.bat in the root of the Web project
              */
 
-            IEShopDbBootstrapper dbBootstrapper = CreateDbBootstrapper(Configuration);
+            IEShopDbBootstrapper dbBootstrapper = EShopDbBootstrapper.CreateDbBootstrapper(Configuration);
             services.AddSingleton(dbBootstrapper);
             dbBootstrapper.AddDbContext(services, Configuration);
 
-            IEShopIdentityDbBootstrapper identityDbBootstrapper = CreateAppIdentityDbBootstrapper(Configuration);
+            IEShopIdentityDbBootstrapper identityDbBootstrapper = EShopDbBootstrapper.CreateAppIdentityDbBootstrapper(Configuration);
             services.AddSingleton(identityDbBootstrapper);
             identityDbBootstrapper.AddDbContext(services, Configuration);
 
@@ -187,28 +185,6 @@ namespace Nethereum.eShop.Web
             });
 
             _services = services; // used to debug registered services
-        }
-
-        private static IEShopDbBootstrapper CreateDbBootstrapper(IConfiguration configuration)
-        {
-            var name = configuration["CatalogDbProvider"];
-            return name switch
-            {
-                "SqlServer" => new SqlServerEShopDbBootstrapper(),
-                "Sqlite" => new SqliteEShopDbBootstrapper(),
-                _ => new InMemoryEShopDbBootrapper()
-            };
-        }
-
-        private static IEShopIdentityDbBootstrapper CreateAppIdentityDbBootstrapper(IConfiguration configuration)
-        {
-            var name = configuration["CatalogDbProvider"];
-            return name switch
-            {
-                "SqlServer" => new SqlServerEShopAppIdentityDbBootstrapper(),
-                "Sqlite" => new SqliteEShopAppIdentityDbBootstrapper(),
-                _ => new InMemoryEShopAppIdentityDbBootrapper()
-            };
         }
 
         private static void CreateIdentityIfNotCreated(IServiceCollection services)

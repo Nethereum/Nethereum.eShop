@@ -35,6 +35,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "apps", "apps", "{826D820C-C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nethereum.eShop.Sqlite", "Nethereum.eShop.Sqlite\Nethereum.eShop.Sqlite.csproj", "{2914543B-FDB7-46A0-BB4D-A192765D4072}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nethereum.eShop.DbFactory", "Nethereum.eShop.DbFactory\Nethereum.eShop.DbFactory.csproj", "{173B3ACF-DB6E-497C-B778-4BBEB53EFA3A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nethereum.eShop.SqlServer.Migrations", "Nethereum.eShop.SqlServer.Migrations\Nethereum.eShop.SqlServer.Migrations.csproj", "{7EEE2B5F-BD20-4CF3-AD7A-4814BDA23523}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -81,6 +85,14 @@ Global
 		{2914543B-FDB7-46A0-BB4D-A192765D4072}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2914543B-FDB7-46A0-BB4D-A192765D4072}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2914543B-FDB7-46A0-BB4D-A192765D4072}.Release|Any CPU.Build.0 = Release|Any CPU
+		{173B3ACF-DB6E-497C-B778-4BBEB53EFA3A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{173B3ACF-DB6E-497C-B778-4BBEB53EFA3A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{173B3ACF-DB6E-497C-B778-4BBEB53EFA3A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{173B3ACF-DB6E-497C-B778-4BBEB53EFA3A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7EEE2B5F-BD20-4CF3-AD7A-4814BDA23523}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7EEE2B5F-BD20-4CF3-AD7A-4814BDA23523}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7EEE2B5F-BD20-4CF3-AD7A-4814BDA23523}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7EEE2B5F-BD20-4CF3-AD7A-4814BDA23523}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -96,6 +108,8 @@ Global
 		{D7C0A1E5-3867-46AE-86F3-1436E514001B} = {8ABF2EF8-3DBE-4F90-A681-9CBAF211EA6D}
 		{EEE22A14-93DE-4F3D-BE2F-748F40CD2706} = {8ABF2EF8-3DBE-4F90-A681-9CBAF211EA6D}
 		{2914543B-FDB7-46A0-BB4D-A192765D4072} = {8ABF2EF8-3DBE-4F90-A681-9CBAF211EA6D}
+		{173B3ACF-DB6E-497C-B778-4BBEB53EFA3A} = {8ABF2EF8-3DBE-4F90-A681-9CBAF211EA6D}
+		{7EEE2B5F-BD20-4CF3-AD7A-4814BDA23523} = {8ABF2EF8-3DBE-4F90-A681-9CBAF211EA6D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8BEA2189-D111-472E-BA29-993E206C6CE3}

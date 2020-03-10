@@ -7,11 +7,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Nethereum.eShop.Infrastructure.Data;
 
-namespace Nethereum.eShop.Infrastructure.Data.Migrations
+namespace Nethereum.eShop.SqlServer.Migrations.Migrations
 {
     [DbContext(typeof(CatalogContext))]
-    [Migration("20200304171630_SetGtinColumnSize")]
-    partial class SetGtinColumnSize
+    [Migration("20200310171921_Catalog_InitialCreate")]
+    partial class Catalog_InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

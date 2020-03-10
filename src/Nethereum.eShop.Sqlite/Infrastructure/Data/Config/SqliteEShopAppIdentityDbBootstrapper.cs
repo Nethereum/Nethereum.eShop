@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Nethereum.eShop.ApplicationCore.Interfaces;
 using Nethereum.eShop.Infrastructure.Identity;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Nethereum.eShop.Sqlite.Infrastructure.Data.Config
@@ -20,10 +21,10 @@ namespace Nethereum.eShop.Sqlite.Infrastructure.Data.Config
                 options.UseSqlite(configuration.GetConnectionString("IdentityConnection")));
         }
 
-        public Task EnsureCreatedAsync(IServiceProvider serviceProvider)
+        public Task EnsureCreatedAsync(IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
         {
             var context = serviceProvider.GetRequiredService<AppIdentityDbContext>();
-            return context.Database.EnsureCreatedAsync();
+            return context.Database.MigrateAsync(cancellationToken);
         }
     }
 }

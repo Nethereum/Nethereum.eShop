@@ -7,17 +7,17 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Nethereum.eShop.Infrastructure.Identity;
 
-namespace Nethereum.eShop.Infrastructure.Identity.Migrations
+namespace Nethereum.eShop.SqlServer.Migrations.Migrations
 {
     [DbContext(typeof(AppIdentityDbContext))]
-    [Migration("20200221124042_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20200310171925_AppIdentity_InitialCreate")]
+    partial class AppIdentity_InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.1")
+                .HasAnnotation("ProductVersion", "3.1.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 

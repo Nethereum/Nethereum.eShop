@@ -1,9 +1,9 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace Nethereum.eShop.Infrastructure.Data.Migrations
+namespace Nethereum.eShop.SqlServer.Migrations.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class Catalog_InitialCreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -43,7 +43,7 @@ namespace Nethereum.eShop.Infrastructure.Data.Migrations
                     ShipTo_State = table.Column<string>(maxLength: 60, nullable: true),
                     ShipTo_Country = table.Column<string>(maxLength: 90, nullable: true),
                     ShipTo_ZipCode = table.Column<string>(maxLength: 18, nullable: true),
-                    TransactionHash = table.Column<string>(nullable: true)
+                    TransactionHash = table.Column<string>(maxLength: 67, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -99,13 +99,13 @@ namespace Nethereum.eShop.Infrastructure.Data.Migrations
                     TransactionHash = table.Column<string>(maxLength: 67, nullable: true),
                     BuyerId = table.Column<string>(maxLength: 256, nullable: false),
                     BuyerAddress = table.Column<string>(maxLength: 43, nullable: true),
-                    CurrencyAddress = table.Column<string>(nullable: true),
-                    CurrencySymbol = table.Column<string>(nullable: true),
+                    CurrencyAddress = table.Column<string>(maxLength: 43, nullable: true),
+                    CurrencySymbol = table.Column<string>(maxLength: 32, nullable: true),
                     ApproverAddress = table.Column<string>(maxLength: 43, nullable: true),
                     PoNumber = table.Column<long>(nullable: true),
                     PoType = table.Column<int>(nullable: false),
                     BuyerWalletAddress = table.Column<string>(maxLength: 43, nullable: true),
-                    SellerId = table.Column<string>(nullable: true),
+                    SellerId = table.Column<string>(maxLength: 32, nullable: true),
                     PoDate = table.Column<DateTimeOffset>(nullable: true),
                     OrderDate = table.Column<DateTimeOffset>(nullable: false),
                     BillTo_RecipientName = table.Column<string>(maxLength: 255, nullable: true),
@@ -137,13 +137,13 @@ namespace Nethereum.eShop.Infrastructure.Data.Migrations
                     Expiry = table.Column<DateTimeOffset>(nullable: false),
                     TransactionHash = table.Column<string>(maxLength: 67, nullable: true),
                     BuyerAddress = table.Column<string>(maxLength: 43, nullable: true),
-                    CurrencySymbol = table.Column<string>(nullable: true),
-                    CurrencyAddress = table.Column<string>(nullable: true),
+                    CurrencySymbol = table.Column<string>(maxLength: 32, nullable: true),
+                    CurrencyAddress = table.Column<string>(maxLength: 43, nullable: true),
                     ApproverAddress = table.Column<string>(maxLength: 43, nullable: true),
                     PoNumber = table.Column<long>(nullable: true),
                     PoType = table.Column<int>(nullable: false),
                     BuyerWalletAddress = table.Column<string>(maxLength: 43, nullable: true),
-                    SellerId = table.Column<string>(nullable: true),
+                    SellerId = table.Column<string>(maxLength: 32, nullable: true),
                     BuyerId = table.Column<string>(maxLength: 256, nullable: false),
                     BillTo_RecipientName = table.Column<string>(maxLength: 255, nullable: true),
                     BillTo_Street = table.Column<string>(maxLength: 180, nullable: true),
@@ -225,10 +225,10 @@ namespace Nethereum.eShop.Infrastructure.Data.Migrations
                     Unit = table.Column<string>(maxLength: 8, nullable: true),
                     CatalogTypeId = table.Column<int>(nullable: false),
                     CatalogBrandId = table.Column<int>(nullable: false),
-                    PictureUri = table.Column<string>(nullable: true),
-                    PictureSmallUri = table.Column<string>(nullable: true),
-                    PictureMediumUri = table.Column<string>(nullable: true),
-                    PictureLargeUri = table.Column<string>(nullable: true),
+                    PictureUri = table.Column<string>(maxLength: 512, nullable: true),
+                    PictureSmallUri = table.Column<string>(maxLength: 512, nullable: true),
+                    PictureMediumUri = table.Column<string>(maxLength: 512, nullable: true),
+                    PictureLargeUri = table.Column<string>(maxLength: 512, nullable: true),
                     AttributeJson = table.Column<string>(nullable: true),
                     Rank = table.Column<int>(nullable: false),
                     Height = table.Column<int>(nullable: false),
@@ -261,22 +261,22 @@ namespace Nethereum.eShop.Infrastructure.Data.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Status = table.Column<int>(nullable: false),
                     ItemOrdered_CatalogItemId = table.Column<int>(nullable: true),
-                    ItemOrdered_Gtin = table.Column<string>(nullable: true),
+                    ItemOrdered_Gtin = table.Column<string>(maxLength: 14, nullable: true),
                     ItemOrdered_GtinRegistryId = table.Column<int>(nullable: true),
                     ItemOrdered_ProductName = table.Column<string>(maxLength: 50, nullable: true),
-                    ItemOrdered_PictureUri = table.Column<string>(nullable: true),
+                    ItemOrdered_PictureUri = table.Column<string>(maxLength: 512, nullable: true),
                     UnitPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Quantity = table.Column<int>(nullable: false),
-                    Unit = table.Column<string>(nullable: true),
+                    Unit = table.Column<string>(maxLength: 50, nullable: true),
                     PoItemStatus = table.Column<int>(nullable: true),
                     PoItemNumber = table.Column<int>(nullable: true),
                     GoodsIssueDate = table.Column<DateTimeOffset>(nullable: true),
                     ActualEscrowReleaseDate = table.Column<DateTimeOffset>(nullable: true),
                     PlannedEscrowReleaseDate = table.Column<DateTimeOffset>(nullable: true),
                     IsEscrowReleased = table.Column<bool>(nullable: true),
-                    QuantitySymbol = table.Column<string>(nullable: true),
-                    QuantityAddress = table.Column<string>(nullable: true),
-                    CurrencyValue = table.Column<string>(nullable: true),
+                    QuantitySymbol = table.Column<string>(maxLength: 32, nullable: true),
+                    QuantityAddress = table.Column<string>(maxLength: 43, nullable: true),
+                    CurrencyValue = table.Column<string>(maxLength: 100, nullable: true),
                     OrderId = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
@@ -297,10 +297,10 @@ namespace Nethereum.eShop.Infrastructure.Data.Migrations
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ItemOrdered_CatalogItemId = table.Column<int>(nullable: true),
-                    ItemOrdered_Gtin = table.Column<string>(nullable: true),
+                    ItemOrdered_Gtin = table.Column<string>(maxLength: 14, nullable: true),
                     ItemOrdered_GtinRegistryId = table.Column<int>(nullable: true),
                     ItemOrdered_ProductName = table.Column<string>(maxLength: 50, nullable: true),
-                    ItemOrdered_PictureUri = table.Column<string>(nullable: true),
+                    ItemOrdered_PictureUri = table.Column<string>(maxLength: 512, nullable: true),
                     UnitPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Quantity = table.Column<int>(nullable: false),
                     Unit = table.Column<string>(nullable: true),

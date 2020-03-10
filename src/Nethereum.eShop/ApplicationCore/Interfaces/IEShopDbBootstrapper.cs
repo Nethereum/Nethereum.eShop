@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Nethereum.eShop.ApplicationCore.Interfaces
@@ -12,6 +13,6 @@ namespace Nethereum.eShop.ApplicationCore.Interfaces
 
         void AddQueries(IServiceCollection services, IConfiguration configuration);
 
-        Task EnsureCreatedAsync(IServiceProvider serviceProvider);
+        Task EnsureCreatedAsync(IServiceProvider serviceProvider, CancellationToken cancellationToken = default);
     }
 }

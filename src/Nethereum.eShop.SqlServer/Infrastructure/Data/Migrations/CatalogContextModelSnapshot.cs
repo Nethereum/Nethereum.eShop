@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Nethereum.eShop.Infrastructure.Data;
 
-namespace Nethereum.eShop.Infrastructure.Data.Migrations
+namespace Nethereum.eShop.SqlServer.Migrations.Migrations
 {
     [DbContext(typeof(CatalogContext))]
     partial class CatalogContextModelSnapshot : ModelSnapshot
