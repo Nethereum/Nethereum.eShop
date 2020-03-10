@@ -25,6 +25,9 @@ namespace Nethereum.eShop.Web
                 var loggerFactory = services.GetRequiredService<ILoggerFactory>();
                 try
                 {
+                    await services.GetRequiredService<IEShopDbBootstrapper>().EnsureCreatedAsync(services);
+                    await services.GetRequiredService<IEShopIdentityDbBootstrapper>().EnsureCreatedAsync(services);
+
                     var catalogContextSeeder = services.GetRequiredService<ICatalogContextSeeder>();
                     await catalogContextSeeder.SeedAsync(loggerFactory);
 

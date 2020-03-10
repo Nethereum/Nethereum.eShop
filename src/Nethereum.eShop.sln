@@ -33,6 +33,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "core", "core", "{757AB3ED-2
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "apps", "apps", "{826D820C-C91E-4FBC-804E-1773C372CCA3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nethereum.eShop.Sqlite", "Nethereum.eShop.Sqlite\Nethereum.eShop.Sqlite.csproj", "{2914543B-FDB7-46A0-BB4D-A192765D4072}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,6 +77,10 @@ Global
 		{EEE22A14-93DE-4F3D-BE2F-748F40CD2706}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EEE22A14-93DE-4F3D-BE2F-748F40CD2706}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EEE22A14-93DE-4F3D-BE2F-748F40CD2706}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2914543B-FDB7-46A0-BB4D-A192765D4072}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2914543B-FDB7-46A0-BB4D-A192765D4072}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2914543B-FDB7-46A0-BB4D-A192765D4072}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2914543B-FDB7-46A0-BB4D-A192765D4072}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -89,6 +95,7 @@ Global
 		{658EAD99-D587-4105-9743-8DF2722858EA} = {8ABF2EF8-3DBE-4F90-A681-9CBAF211EA6D}
 		{D7C0A1E5-3867-46AE-86F3-1436E514001B} = {8ABF2EF8-3DBE-4F90-A681-9CBAF211EA6D}
 		{EEE22A14-93DE-4F3D-BE2F-748F40CD2706} = {8ABF2EF8-3DBE-4F90-A681-9CBAF211EA6D}
+		{2914543B-FDB7-46A0-BB4D-A192765D4072} = {8ABF2EF8-3DBE-4F90-A681-9CBAF211EA6D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8BEA2189-D111-472E-BA29-993E206C6CE3}

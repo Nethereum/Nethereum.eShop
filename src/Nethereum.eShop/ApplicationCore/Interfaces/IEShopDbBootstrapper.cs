@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Threading.Tasks;
 
 namespace Nethereum.eShop.ApplicationCore.Interfaces
 {
@@ -9,5 +11,7 @@ namespace Nethereum.eShop.ApplicationCore.Interfaces
         void AddRepositories(IServiceCollection services, IConfiguration configuration);
 
         void AddQueries(IServiceCollection services, IConfiguration configuration);
+
+        Task EnsureCreatedAsync(IServiceProvider serviceProvider);
     }
 }

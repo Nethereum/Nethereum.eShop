@@ -7,24 +7,26 @@ using Nethereum.eShop.ApplicationCore.Queries.Orders;
 using Nethereum.eShop.ApplicationCore.Queries.Quotes;
 using Nethereum.eShop.Infrastructure.Data;
 using Nethereum.eShop.Infrastructure.Data.Config;
+using Nethereum.eShop.Sqlite.ApplicationCore.Queries.Catalog;
+using Nethereum.eShop.Sqlite.ApplicationCore.Queries.Orders;
+using Nethereum.eShop.Sqlite.ApplicationCore.Queries.Quotes;
 using System;
 using System.Threading.Tasks;
 
-namespace Nethereum.eShop.SqlServer.Infrastructure.Data.Config
+namespace Nethereum.eShop.Sqlite.Infrastructure.Data.Config
 {
-    public class SqlServerEShopDbBootstrapper : EShopDbBootstrapperBase, IEShopDbBootstrapper
+    public class SqliteEShopDbBootstrapper : EShopDbBootstrapperBase, IEShopDbBootstrapper
     {
         private const string ConnectionName = "CatalogConnection";
 
         public void AddDbContext(IServiceCollection services, IConfiguration configuration)
         {
             services.AddDbContext<CatalogContext>((serviceProvider, options) =>
-                options.UseSqlServer(configuration.GetConnectionString(ConnectionName)));
+                options.UseSqlite(configuration.GetConnectionString(ConnectionName)));
 
             // Point the CatalogContext at this assembly for the Model Builder Configurations
-            // these have some SQL specific tweaks
             services.AddSingleton<IModelBuilderAssemblyHandler<CatalogContext>>(
-                new ModelBuilderAssemblyHandler<CatalogContext>(this.GetType().Assembly));
+                new ModelBuilderAssemblyHandler<CatalogContext>(typeof(CatalogContext).Assembly));
         }
 
         public void AddQueries(IServiceCollection services, IConfiguration configuration)
@@ -37,8 +39,8 @@ namespace Nethereum.eShop.SqlServer.Infrastructure.Data.Config
 
         public Task EnsureCreatedAsync(IServiceProvider serviceProvider)
         {
-            //TODO: Configure migrations etc
-            return Task.CompletedTask;
+            var context = serviceProvider.GetRequiredService<CatalogContext>();
+            return context.Database.EnsureCreatedAsync();
         }
     }
 }

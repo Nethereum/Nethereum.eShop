@@ -18,6 +18,7 @@ using Nethereum.eShop.Infrastructure.Identity;
 using Nethereum.eShop.Infrastructure.Logging;
 using Nethereum.eShop.Infrastructure.Services;
 using Nethereum.eShop.InMemory.Infrastructure.Data.Config;
+using Nethereum.eShop.Sqlite.Infrastructure.Data.Config;
 using Nethereum.eShop.SqlServer.Infrastructure.Data.Config;
 using Nethereum.eShop.Web.Interfaces;
 using Nethereum.eShop.Web.Services;
@@ -62,9 +63,11 @@ namespace Nethereum.eShop.Web
         private void ConfigureInMemoryDatabases(IServiceCollection services)
         {
             IEShopDbBootstrapper dbBootstrapper = new InMemoryEShopDbBootrapper();
+            services.AddSingleton(dbBootstrapper);
             dbBootstrapper.AddDbContext(services, Configuration);
 
-            IEShopIdentityDbBootstrapper identityBootstrapper = new InMemoryEShopIdentityDbBootrapper();
+            IEShopIdentityDbBootstrapper identityBootstrapper = new InMemoryEShopAppIdentityDbBootrapper();
+            services.AddSingleton(identityBootstrapper);
             identityBootstrapper.AddDbContext(services, Configuration);
 
             ConfigureServices(services, dbBootstrapper);
@@ -86,9 +89,11 @@ namespace Nethereum.eShop.Web
              */
 
             IEShopDbBootstrapper dbBootstrapper = CreateDbBootstrapper(Configuration);
+            services.AddSingleton(dbBootstrapper);
             dbBootstrapper.AddDbContext(services, Configuration);
 
             IEShopIdentityDbBootstrapper identityDbBootstrapper = CreateAppIdentityDbBootstrapper(Configuration);
+            services.AddSingleton(identityDbBootstrapper);
             identityDbBootstrapper.AddDbContext(services, Configuration);
 
             ConfigureServices(services, dbBootstrapper);
@@ -185,11 +190,27 @@ namespace Nethereum.eShop.Web
             _services = services; // used to debug registered services
         }
 
-        private static IEShopDbBootstrapper CreateDbBootstrapper(IConfiguration configuration) 
-            => new SqlServerEShopDbBootstrapper();
+        private static IEShopDbBootstrapper CreateDbBootstrapper(IConfiguration configuration)
+        {
+            var name = configuration["CatalogDbProvider"];
+            return name switch
+            {
+                "SqlServer" => new SqlServerEShopDbBootstrapper(),
+                "Sqlite" => new SqliteEShopDbBootstrapper(),
+                _ => new InMemoryEShopDbBootrapper()
+            };
+        }
 
-        private static IEShopIdentityDbBootstrapper CreateAppIdentityDbBootstrapper(IConfiguration configuration) 
-            => new SqlServerEShopAppIdentityDbBootstrapper();
+        private static IEShopIdentityDbBootstrapper CreateAppIdentityDbBootstrapper(IConfiguration configuration)
+        {
+            var name = configuration["CatalogDbProvider"];
+            return name switch
+            {
+                "SqlServer" => new SqlServerEShopAppIdentityDbBootstrapper(),
+                "Sqlite" => new SqliteEShopAppIdentityDbBootstrapper(),
+                _ => new InMemoryEShopAppIdentityDbBootrapper()
+            };
+        }
 
         private static void CreateIdentityIfNotCreated(IServiceCollection services)
         {
