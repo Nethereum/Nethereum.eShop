@@ -13,7 +13,6 @@ using Microsoft.Extensions.Hosting;
 using Nethereum.eShop.ApplicationCore.Interfaces;
 using Nethereum.eShop.ApplicationCore.Services;
 using Nethereum.eShop.Infrastructure.Data;
-using Nethereum.eShop.Infrastructure.Data.Config;
 using Nethereum.eShop.Infrastructure.Identity;
 using Nethereum.eShop.Infrastructure.Logging;
 using Nethereum.eShop.Infrastructure.Services;

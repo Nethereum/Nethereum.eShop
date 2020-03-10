@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -6,7 +6,9 @@ using Microsoft.Extensions.Logging;
 using Nethereum.BlockchainProcessing.ProgressRepositories;
 using Nethereum.eShop.ApplicationCore.Interfaces;
 using Nethereum.eShop.ApplicationCore.Services;
-using Nethereum.eShop.Infrastructure.Data;
+using Nethereum.eShop.InMemory.Infrastructure.Data.Config;
+using Nethereum.eShop.Sqlite.Infrastructure.Data.Config;
+using Nethereum.eShop.SqlServer.Infrastructure.Data.Config;
 using Nethereum.eShop.WebJobs.Configuration;
 using Nethereum.eShop.WebJobs.Jobs;
 
@@ -20,19 +22,23 @@ namespace Nethereum.eShop.WebJobs
             EshopConfiguration eShopConfig = null;
             var hostBuilder = Host.CreateDefaultBuilder(args);
 
-            hostBuilder.ConfigureServices(c =>
+            hostBuilder.ConfigureServices(services =>
             {
-                c.AddDbContext<CatalogContext>((serviceProvider, options) =>
-                    options.UseSqlServer(config.GetConnectionString("CatalogConnection")));
+                // TODO: Configure MediatR properly - this is just a place holder
+                services.AddMediatR(typeof(Program));
 
                 // config
-                c.AddSingleton(eShopConfig);
+                services.AddSingleton(eShopConfig);
+
+                // db
+                var dbBootstrapper = CreateDbBootstrapper(config);
+                dbBootstrapper.AddDbContext(services, config);
+
+                //repositories
+                dbBootstrapper.AddRepositories(services, config);
 
                 // supporting services
-                c.AddScoped(typeof(IAsyncRepository<>), typeof(EfRepository<>));
-                c.AddScoped<IQuoteRepository, QuoteRepository>();
-                c.AddScoped<IOrderRepository, OrderRepository>();
-                c.AddScoped<IOrderService, OrderService>();
+                services.AddScoped<IOrderService, OrderService>();
 
                 // TODO: There's a bug in the BlockProgressRepo
                 // It's using string ordering instead of numeric ordering to get the last block processed
@@ -51,11 +57,11 @@ namespace Nethereum.eShop.WebJobs
                 //}
 
                 //IBlockProgressRepository progressRepo = new BlockProgressRepository(blockchainDbContextFactory);
-                c.AddSingleton<IBlockProgressRepository, JsonFileBlockProgressRepository>();
+                services.AddSingleton<IBlockProgressRepository, JsonFileBlockProgressRepository>();
 
                 // jobs
-                c.AddScoped<IProcessPuchaseOrderEventLogs, ProcessPurchaseOrderEventLogs>();
-                c.AddScoped<ICreateFakePurchaseOrders, CreateFakePurchaseOrders>();
+                services.AddScoped<IProcessPuchaseOrderEventLogs, ProcessPurchaseOrderEventLogs>();
+                services.AddScoped<ICreateFakePurchaseOrders, CreateFakePurchaseOrders>();
             });
 
             hostBuilder.ConfigureWebJobs(b =>
@@ -86,6 +92,17 @@ namespace Nethereum.eShop.WebJobs
                     host.Run();
                 }
             }
+        }
+
+        private static IEShopDbBootstrapper CreateDbBootstrapper(IConfiguration configuration)
+        {
+            var name = configuration["CatalogDbProvider"];
+            return name switch
+            {
+                "SqlServer" => new SqlServerEShopDbBootstrapper(),
+                "Sqlite" => new SqliteEShopDbBootstrapper(),
+                _ => new InMemoryEShopDbBootrapper()
+            };
         }
     }
 }
