@@ -6,6 +6,7 @@ using Nethereum.eShop.ApplicationCore.Entities.BasketAggregate;
 using Nethereum.eShop.ApplicationCore.Entities.BuyerAggregate;
 using Nethereum.eShop.ApplicationCore.Entities.OrderAggregate;
 using Nethereum.eShop.ApplicationCore.Entities.QuoteAggregate;
+using Nethereum.eShop.ApplicationCore.Interfaces;
 using System;
 using System.Data;
 using System.Reflection;

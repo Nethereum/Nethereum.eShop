@@ -1,5 +1,4 @@
 ﻿using Nethereum.eShop.ApplicationCore.Entities.QuoteAggregate;
-using Nethereum.eShop.Infrastructure.Data;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 

@@ -1,18 +1,18 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Nethereum.eShop.ApplicationCore.Interfaces;
 using Nethereum.eShop.ApplicationCore.Queries.Catalog;
 using Nethereum.eShop.ApplicationCore.Queries.Orders;
 using Nethereum.eShop.ApplicationCore.Queries.Quotes;
 using Nethereum.eShop.Infrastructure.Data;
 using Nethereum.eShop.Infrastructure.Data.Config;
 using Nethereum.eShop.Infrastructure.Data.Config.EntityBuilders;
-using Nethereum.eShop.Infrastructure.Identity;
 using Nethereum.eShop.InMemory.ApplicationCore.Queries.Catalog;
 using Nethereum.eShop.InMemory.ApplicationCore.Queries.Orders;
 using Nethereum.eShop.InMemory.ApplicationCore.Queries.Quotes;
 
-namespace Nethereum.eShop.InMemory
+namespace Nethereum.eShop.InMemory.Infrastructure.Data.Config
 {
     public class InMemoryEShopDbBootrapper : EShopDbBootstrapperBase, IEShopDbBootstrapper
     {
@@ -31,15 +31,6 @@ namespace Nethereum.eShop.InMemory
             services.AddScoped<ICatalogQueries, CatalogQueries>();
             services.AddScoped<IOrderQueries, OrderQueries>();
             services.AddScoped<IQuoteQueries, QuoteQueries>();
-        }
-    }
-
-    public class InMemoryEShopIdentityDbBootrapper : IEShopIdentityDbBootstrapper
-    {
-        public void AddDbContext(IServiceCollection services, IConfiguration configuration)
-        {
-            services.AddDbContext<AppIdentityDbContext>(options =>
-                options.UseInMemoryDatabase("Identity"));
         }
     }
 }

@@ -3,17 +3,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Nethereum.BlockchainProcessing.BlockStorage.Entities;
 using Nethereum.BlockchainProcessing.ProgressRepositories;
-using Nethereum.BlockchainStore.EFCore;
-using Nethereum.BlockchainStore.EFCore.Repositories;
-using Nethereum.BlockchainStore.EFCore.SqlServer;
 using Nethereum.eShop.ApplicationCore.Interfaces;
 using Nethereum.eShop.ApplicationCore.Services;
 using Nethereum.eShop.Infrastructure.Data;
 using Nethereum.eShop.WebJobs.Configuration;
 using Nethereum.eShop.WebJobs.Jobs;
-using System;
 
 namespace Nethereum.eShop.WebJobs
 {

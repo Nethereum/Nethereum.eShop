@@ -1,5 +1,4 @@
 ﻿using Nethereum.eShop.ApplicationCore.Entities.OrderAggregate;
-using Nethereum.eShop.Infrastructure.Data;
 using System.Threading.Tasks;
 
 namespace Nethereum.eShop.ApplicationCore.Interfaces

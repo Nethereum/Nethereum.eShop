@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
+using Nethereum.eShop.ApplicationCore.Interfaces;
 
 namespace Nethereum.eShop.Web
 {
@@ -24,9 +25,8 @@ namespace Nethereum.eShop.Web
                 var loggerFactory = services.GetRequiredService<ILoggerFactory>();
                 try
                 {
-                    var catalogContext = services.GetRequiredService<CatalogContext>();
                     var catalogContextSeeder = services.GetRequiredService<ICatalogContextSeeder>();
-                    await catalogContextSeeder.SeedAsync(catalogContext, loggerFactory);
+                    await catalogContextSeeder.SeedAsync(loggerFactory);
 
                     var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
                     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();

@@ -1,4 +1,4 @@
-﻿namespace Nethereum.eShop.Infrastructure.Data
+﻿namespace Nethereum.eShop.ApplicationCore.Interfaces
 {
     public interface IRepository
     {

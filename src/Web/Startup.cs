@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -15,11 +14,10 @@ using Nethereum.eShop.ApplicationCore.Interfaces;
 using Nethereum.eShop.ApplicationCore.Services;
 using Nethereum.eShop.Infrastructure.Data;
 using Nethereum.eShop.Infrastructure.Data.Config;
-using Nethereum.eShop.Infrastructure.Data.Config.EntityBuilders;
 using Nethereum.eShop.Infrastructure.Identity;
 using Nethereum.eShop.Infrastructure.Logging;
 using Nethereum.eShop.Infrastructure.Services;
-using Nethereum.eShop.InMemory;
+using Nethereum.eShop.InMemory.Infrastructure.Data.Config;
 using Nethereum.eShop.SqlServer.Infrastructure.Data.Config;
 using Nethereum.eShop.Web.Interfaces;
 using Nethereum.eShop.Web.Services;
@@ -128,14 +126,18 @@ namespace Nethereum.eShop.Web
             services.Configure<CatalogSettings>(Configuration);
 
             var catalogSettings = Configuration.Get<CatalogSettings>();
+            services.AddSingleton(catalogSettings);
 
             services.AddSingleton<IUriComposer>(new UriComposer(catalogSettings));
 
-            var catalogContextSeeder = string.IsNullOrEmpty(catalogSettings.CatalogSeedJsonFile) ? 
-                (ICatalogContextSeeder)new HardCodedCatalogContextSeeder() : 
-                (ICatalogContextSeeder)new JsonCatalogContextSeeder(catalogSettings.CatalogSeedJsonFile);
-
-            services.AddSingleton(catalogContextSeeder);
+            if(string.IsNullOrEmpty(catalogSettings.CatalogSeedJsonFile))
+            {
+                services.AddScoped<ICatalogContextSeeder, HardCodedCatalogContextSeeder>();
+            }
+            else
+            {
+                services.AddScoped<ICatalogContextSeeder, JsonCatalogContextSeeder>();
+            }
 
             var rulesEngineSettings = Configuration.Get<RulesEngineSettings>();
 

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Nethereum.eShop.ApplicationCore.Entities;
+using Nethereum.eShop.ApplicationCore.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,8 +11,13 @@ namespace Nethereum.eShop.Infrastructure.Data
 
     public class HardCodedCatalogContextSeeder: ICatalogContextSeeder
     {
-        public async Task SeedAsync(CatalogContext catalogContext,
-            ILoggerFactory loggerFactory, int? retry = 0)
+        private readonly CatalogContext catalogContext;
+        public HardCodedCatalogContextSeeder(CatalogContext catalogContext)
+        {
+            this.catalogContext = catalogContext;
+        }
+
+        public async Task SeedAsync(ILoggerFactory loggerFactory, int? retry = 0)
         {
             int retryForAvailability = retry.Value;
             try
@@ -50,7 +56,7 @@ namespace Nethereum.eShop.Infrastructure.Data
                     retryForAvailability++;
                     var log = loggerFactory.CreateLogger<HardCodedCatalogContextSeeder>();
                     log.LogError(ex.Message);
-                    await SeedAsync(catalogContext, loggerFactory, retryForAvailability);
+                    await SeedAsync(loggerFactory, retryForAvailability);
                 }
             }
         }

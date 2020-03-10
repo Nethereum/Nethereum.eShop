@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Nethereum.eShop.Infrastructure.Data.Config
+namespace Nethereum.eShop.ApplicationCore.Interfaces
 {
     public interface IEShopDbBootstrapper
     {
@@ -9,10 +9,5 @@ namespace Nethereum.eShop.Infrastructure.Data.Config
         void AddRepositories(IServiceCollection services, IConfiguration configuration);
 
         void AddQueries(IServiceCollection services, IConfiguration configuration);
-    }
-
-    public interface IEShopIdentityDbBootstrapper
-    {
-        void AddDbContext(IServiceCollection services, IConfiguration configuration);
     }
 }

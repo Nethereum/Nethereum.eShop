@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Nethereum.eShop.ApplicationCore.Interfaces;
 using Newtonsoft.Json;
 using System;
 using System.IO;
@@ -11,10 +13,12 @@ namespace Nethereum.eShop.Infrastructure.Data
     public class JsonCatalogContextSeeder : ICatalogContextSeeder
     {
         private readonly string _productImportJsonFile;
+        private readonly CatalogContext catalogContext;
 
-        public JsonCatalogContextSeeder(string productImportJsonFile)
+        public JsonCatalogContextSeeder(CatalogSettings catalogSettings, CatalogContext catalogContext)
         {
-            this._productImportJsonFile = productImportJsonFile;
+            this.catalogContext = catalogContext;
+            _productImportJsonFile = catalogSettings.CatalogSeedJsonFile;
         }
 
         private CatalogImportDto GetImportDataFromJsonFile()
@@ -30,7 +34,7 @@ namespace Nethereum.eShop.Infrastructure.Data
             }
         }
 
-        public async Task SeedAsync(CatalogContext catalogContext, ILoggerFactory loggerFactory, int? retry = 0)
+        public async Task SeedAsync(ILoggerFactory loggerFactory, int? retry = 0)
         {
 
             int retryForAvailability = retry.Value;
@@ -77,7 +81,7 @@ namespace Nethereum.eShop.Infrastructure.Data
                     retryForAvailability++;
                     var log = loggerFactory.CreateLogger<JsonCatalogContextSeeder>();
                     log.LogError(ex.Message);
-                    await SeedAsync(catalogContext, loggerFactory, retryForAvailability);
+                    await SeedAsync(loggerFactory, retryForAvailability);
                 }
             }
         }
