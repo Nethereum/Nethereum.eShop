@@ -1,8 +1,11 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Nethereum.eShop.ApplicationCore.Interfaces;
-using Nethereum.eShop.InMemory.Infrastructure.Data.Config;
-using Nethereum.eShop.Sqlite.Infrastructure.Data.Config;
-using Nethereum.eShop.SqlServer.Infrastructure.Data.Config;
+using Nethereum.eShop.InMemory.Catalog;
+using Nethereum.eShop.InMemory.Infrastructure.Identity;
+using Nethereum.eShop.Sqlite.Catalog;
+using Nethereum.eShop.Sqlite.Identity;
+using Nethereum.eShop.SqlServer.Catalog;
+using Nethereum.eShop.SqlServer.Identity;
 
 namespace Nethereum.eShop.DbFactory
 {
@@ -24,7 +27,7 @@ namespace Nethereum.eShop.DbFactory
 
         public static IEShopIdentityDbBootstrapper CreateAppIdentityDbBootstrapper(IConfiguration configuration)
         {
-            var name = configuration["CatalogDbProvider"]?.ToLower();
+            var name = configuration["AppIdentityDbProvider"]?.ToLower();
             return name switch
             {
                 "sqlserver" => new SqlServerEShopAppIdentityDbBootstrapper(),

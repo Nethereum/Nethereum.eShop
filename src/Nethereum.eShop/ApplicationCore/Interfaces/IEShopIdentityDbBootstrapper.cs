@@ -10,6 +10,6 @@ namespace Nethereum.eShop.ApplicationCore.Interfaces
     {
         void AddDbContext(IServiceCollection services, IConfiguration configuration);
 
-        Task EnsureCreatedAsync(IServiceProvider serviceProvider, CancellationToken cancellationToken = default);
+        Task EnsureCreatedAsync(IServiceProvider serviceProvider, IConfiguration configuration, CancellationToken cancellationToken = default);
     }
 }

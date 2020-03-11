@@ -13,7 +13,8 @@ using Microsoft.Extensions.Hosting;
 using Nethereum.eShop.ApplicationCore.Interfaces;
 using Nethereum.eShop.ApplicationCore.Services;
 using Nethereum.eShop.DbFactory;
-using Nethereum.eShop.Infrastructure.Data;
+using Nethereum.eShop.EntityFramework.Identity;
+using Nethereum.eShop.Infrastructure.Cache;
 using Nethereum.eShop.Infrastructure.Identity;
 using Nethereum.eShop.Infrastructure.Logging;
 using Nethereum.eShop.Infrastructure.Services;
@@ -39,52 +40,11 @@ namespace Nethereum.eShop.Web
 
         public void ConfigureDevelopmentServices(IServiceCollection services)
         {
-            var inMemoryDbConfig = Configuration["use-in-memory-db"];
-            // Default to in memory db
-            // if sql is required - set "use-in-memory-db" to false in appsettings, command line, user secrets or environmental variables
-            var inMemory = string.IsNullOrEmpty(inMemoryDbConfig) ? true : bool.Parse(inMemoryDbConfig);
-
-            if (inMemory)
-            {
-                // use in-memory database
-                ConfigureInMemoryDatabases(services);
-            }
-            else
-            {
-                // use real database
-                ConfigureProductionServices(services);
-            }
-
-        }
-
-        private void ConfigureInMemoryDatabases(IServiceCollection services)
-        {
-            IEShopDbBootstrapper dbBootstrapper = EShopDbBootstrapper.CreateInMemoryDbBootstrapper();
-            services.AddSingleton(dbBootstrapper);
-            dbBootstrapper.AddDbContext(services, Configuration);
-
-            IEShopIdentityDbBootstrapper identityBootstrapper = EShopDbBootstrapper.CreateInMemoryAppIdentityDbBootstrapper();
-            services.AddSingleton(identityBootstrapper);
-            identityBootstrapper.AddDbContext(services, Configuration);
-
-            ConfigureServices(services, dbBootstrapper);
+            ConfigureProductionServices(services);
         }
 
         public void ConfigureProductionServices(IServiceCollection services)
         {
-            // use real database
-            // Requires LocalDB which can be installed with SQL Server Express 2016
-            // https://www.microsoft.com/en-us/download/details.aspx?id=54284
-
-            // migrations require a .net tool
-            // ensure to install the dotnet-ef tool - 3.1.1
-            // dotnet tool install --global dotnet-ef --version 3.1.1
-
-            /*
-             *  A batch file can be run to create the migration and update the DB
-                See CreateAndApplyDbMigrations.bat in the root of the Web project
-             */
-
             IEShopDbBootstrapper dbBootstrapper = EShopDbBootstrapper.CreateDbBootstrapper(Configuration);
             services.AddSingleton(dbBootstrapper);
             dbBootstrapper.AddDbContext(services, Configuration);
@@ -98,7 +58,9 @@ namespace Nethereum.eShop.Web
 
         public void ConfigureTestingServices(IServiceCollection services)
         {
-            ConfigureInMemoryDatabases(services);
+            Configuration["CatalogDbProvider"] = "InMemory";
+            Configuration["AppIdentityDbProvider"] = "InMemory";
+            ConfigureProductionServices(services);
         }
 
 
@@ -122,7 +84,6 @@ namespace Nethereum.eShop.Web
             services.AddScoped<IQuoteService, QuoteService>();
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IRulesEngineService, RulesEngineService>();
-            services.AddScoped<IRuleTreeCache, RuleTreeCache>();
             services.AddScoped<CatalogViewModelService>();
             services.AddScoped<ICatalogItemViewModelService, CatalogItemViewModelService>();
             services.Configure<CatalogSettings>(Configuration);
@@ -132,14 +93,7 @@ namespace Nethereum.eShop.Web
 
             services.AddSingleton<IUriComposer>(new UriComposer(catalogSettings));
 
-            if(string.IsNullOrEmpty(catalogSettings.CatalogSeedJsonFile))
-            {
-                services.AddScoped<ICatalogContextSeeder, HardCodedCatalogContextSeeder>();
-            }
-            else
-            {
-                services.AddScoped<ICatalogContextSeeder, JsonCatalogContextSeeder>();
-            }
+            dbBootstrapper.AddSeeders(services, Configuration);
 
             var rulesEngineSettings = Configuration.Get<RulesEngineSettings>();
 

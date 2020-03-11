@@ -20,8 +20,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Infrastructure\Data\Migrations\" />
-    <Folder Include="Infrastructure\Identity\Migrations\" />
+    <Folder Include="Catalog\Migrations\" />
+    <Folder Include="Identity\Migrations\" />
   </ItemGroup>
 
   <ItemGroup>

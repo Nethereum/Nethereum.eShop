@@ -13,6 +13,8 @@ namespace Nethereum.eShop.ApplicationCore.Interfaces
 
         void AddQueries(IServiceCollection services, IConfiguration configuration);
 
-        Task EnsureCreatedAsync(IServiceProvider serviceProvider, CancellationToken cancellationToken = default);
+        Task EnsureCreatedAsync(IServiceProvider serviceProvider, IConfiguration configuration, CancellationToken cancellationToken = default);
+
+        void AddSeeders(IServiceCollection services, IConfiguration configuration);
     }
 }
