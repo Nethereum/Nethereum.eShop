@@ -1,10 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Nethereum.eShop.ApplicationCore.Entities.RulesEngine;
+﻿using Nethereum.eShop.ApplicationCore.Entities.RulesEngine;
 using Nethereum.eShop.ApplicationCore.Interfaces;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Nethereum.eShop.Infrastructure.Data
+namespace Nethereum.eShop.EntityFramework.Catalog.Repositories
 {
     // NOTE: To be determined where reports will be stored in the database, if at all -
     // We may either need to 1.) alter EFRepository so that it has a DBContext supporting
@@ -15,9 +14,9 @@ namespace Nethereum.eShop.Infrastructure.Data
         {
         }
 
-        public async Task<List<RuleTreeReport>> GetByRuleTreeIdAsync(int ruleTreeId)
+        public Task<List<RuleTreeReport>> GetByRuleTreeIdAsync(int ruleTreeId)
         {
-            return new List<RuleTreeReport>();
+            return Task.FromResult(new List<RuleTreeReport>());
         }
     }
 }

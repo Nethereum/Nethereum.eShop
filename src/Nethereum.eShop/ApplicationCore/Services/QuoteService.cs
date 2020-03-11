@@ -64,7 +64,7 @@ namespace Nethereum.eShop.ApplicationCore.Services
                     // NOTE: Should there be any indication of minor issues to the user?
                 }
             }
-            catch (RuleTreeException ruleTreeEx)
+            catch (RuleTreeException)
             {
                 // NOTE: Should we redirect the user to an error page?
             }

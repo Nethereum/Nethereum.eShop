@@ -23,31 +23,33 @@ namespace Nethereum.eShop.Infrastructure.Cache
             _cache = new Dictionary<int, T>();
         }
 
-        public virtual async Task<bool> ContainsAsync(int id)
+        public virtual Task<bool> ContainsAsync(int id)
         {
-            return _cache.ContainsKey(id);
+            return Task.FromResult(_cache.ContainsKey(id));
         }
 
-        public virtual async Task<T> GetByIdAsync(int id)
+        public virtual Task<T> GetByIdAsync(int id)
         {
-            return _cache[id];
+            return Task.FromResult(_cache[id]);
         }
 
-        public async Task<IReadOnlyList<T>> ListAllAsync()
+        public virtual Task<IReadOnlyList<T>> ListAllAsync()
         {
-            return _cache.Values.ToList();
+            IReadOnlyList<T> list = _cache.Values.ToList().AsReadOnly();
+            return Task.FromResult(list);
         }
 
-        public async Task<T> AddAsync(T entity)
+        public virtual Task<T> AddAsync(T entity)
         {
             _cache[entity.Id] = entity;
-            return entity;
+            return Task.FromResult(entity);
         }
 
-        public async Task DeleteAsync(T entity)
+        public Task DeleteAsync(T entity)
         {
             if (_cache.ContainsKey(entity.Id))
                 _cache.Remove(entity.Id);
+            return Task.CompletedTask;
         }
     }
 }

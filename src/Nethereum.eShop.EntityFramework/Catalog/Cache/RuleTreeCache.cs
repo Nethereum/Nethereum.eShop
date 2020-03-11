@@ -10,14 +10,14 @@ namespace Nethereum.eShop.EntityFramework.Catalog.Cache
         public RuleTreeCache()
         {}
 
-        public async Task<RuleTree> GetByIdAsync(string id)
+        public Task<RuleTree> GetByIdAsync(string id)
         {
-            return new RuleTree(new RuleTreeSeed());
+            return Task.FromResult(new RuleTree(new RuleTreeSeed()));
         }
 
-        public async Task<RuleTree> GetLastRuleTreeCreatedAsync()
+        public Task<RuleTree> GetLastRuleTreeCreatedAsync()
         {
-            return new RuleTree(new RuleTreeSeed());
+            return Task.FromResult(new RuleTree(new RuleTreeSeed()));
         }
     }
 }

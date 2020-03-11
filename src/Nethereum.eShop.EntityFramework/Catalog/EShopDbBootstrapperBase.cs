@@ -21,6 +21,7 @@ namespace Nethereum.eShop.EntityFramework.Catalog
             services.AddScoped<IQuoteRepository, QuoteRepository>();
             services.AddScoped<IOrderRepository, OrderRepository>();
             services.AddScoped<IStockItemRepository, StockItemRepository>();
+            services.AddScoped<IReportRepository, ReportRepository>();
             services.AddScoped<IRuleTreeCache, RuleTreeCache>();
         }
 

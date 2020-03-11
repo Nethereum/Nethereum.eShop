@@ -13,6 +13,7 @@ using Microsoft.Extensions.Hosting;
 using Nethereum.eShop.ApplicationCore.Interfaces;
 using Nethereum.eShop.ApplicationCore.Services;
 using Nethereum.eShop.DbFactory;
+using Nethereum.eShop.EntityFramework.Catalog.Cache;
 using Nethereum.eShop.EntityFramework.Identity;
 using Nethereum.eShop.Infrastructure.Cache;
 using Nethereum.eShop.Infrastructure.Identity;
@@ -84,8 +85,7 @@ namespace Nethereum.eShop.Web
             services.AddScoped<IQuoteService, QuoteService>();
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IRulesEngineService, RulesEngineService>();
-            services.AddScoped<IReportRepository, ReportRepository>();
-            services.AddScoped<IRuleTreeCache, RuleTreeCache>();
+
             services.AddScoped<CatalogViewModelService>();
             services.AddScoped<ICatalogItemViewModelService, CatalogItemViewModelService>();
             services.Configure<CatalogSettings>(Configuration);

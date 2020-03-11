@@ -29,11 +29,10 @@ namespace Nethereum.eShop.ApplicationCore.Services
             _reportRepository = reportRepo;
         }
 
-        public async Task<RulesDomain> CreateRulesDomainAsync(RulesDomainSeed domainSeed)
+        public Task<RulesDomain> CreateRulesDomainAsync(RulesDomainSeed domainSeed)
         {
             // TODO: Do all the work to help initialize the RuleTree
-
-            return new RulesDomain(domainSeed);
+            return Task.FromResult(new RulesDomain(domainSeed));
         }
 
         public async Task<RuleTree> CreateRuleTreeAsync(RulesDomain domain, RuleTreeSeed origin)
@@ -47,17 +46,17 @@ namespace Nethereum.eShop.ApplicationCore.Services
             return new RuleTree(origin);
         }
 
-        public async Task<RuleTreeReport> ExecuteAsync(RuleTree targetRuleTree, RuleTreeRecord targetRecord)
+        public Task<RuleTreeReport> ExecuteAsync(RuleTree targetRuleTree, RuleTreeRecord targetRecord)
         {
             // TODO: Do all the work to execute the RuleTree - and return a report?
 
             Random rnd = new Random();
-            var Report = new RuleTreeReport(new RuleTreeSeed()) { Id = rnd.Next() };
+            var Report = new RuleTreeReport(new RuleTreeSeed( rnd.Next()));
 
             // NOTE: To be determined where reports will be stored in the database, if at all
             // await _reportRepository.AddAsync(Report).ConfigureAwait(false);
 
-            return Report;
+            return Task.FromResult(Report);
         }
 
         public async Task<RuleTree> GetQuoteRuleTree()
@@ -107,11 +106,11 @@ namespace Nethereum.eShop.ApplicationCore.Services
             return await _ruleTreeRepository.ListAllAsync().ConfigureAwait(false);
         }
 
-        public async Task<RuleTreeRecord> Transform(object originalObject)
+        public Task<RuleTreeRecord> Transform(object originalObject)
         {
             // TODO: Convert the object to a RuleTreeRecord - using reflection?
 
-            return new RuleTreeRecord();
+            return Task.FromResult(new RuleTreeRecord());
         }
     }
 }
