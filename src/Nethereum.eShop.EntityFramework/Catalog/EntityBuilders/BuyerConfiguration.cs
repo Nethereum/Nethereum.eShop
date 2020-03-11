@@ -13,9 +13,11 @@ namespace Nethereum.eShop.EntityFramework.Catalog.EntityBuilders
 
             builder.Property(b => b.BuyerId).HasMaxLength(256).IsRequired();
             builder.Property(b => b.BuyerAddress).IsAddress();
+            builder.Property(b => b.BuyerWalletAddress).IsAddress();
 
             builder.HasIndex(b => b.BuyerId).IsUnique();
             builder.HasIndex(b => b.BuyerAddress).IsUnique();
+            builder.HasIndex(b => b.BuyerWalletAddress).IsUnique();
         }
     }
 }

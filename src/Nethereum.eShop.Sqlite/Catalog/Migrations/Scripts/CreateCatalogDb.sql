@@ -228,3 +228,10 @@ CREATE INDEX "IX_Stock_CatalogItemId" ON "Stock" ("CatalogItemId");
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('20200311151703_InitialCreate', '3.1.2');
 
+ALTER TABLE "Buyers" ADD "BuyerWalletAddress" TEXT NULL;
+
+CREATE UNIQUE INDEX "IX_Buyers_BuyerWalletAddress" ON "Buyers" ("BuyerWalletAddress");
+
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('20200311172413_BuyerWalletAddress', '3.1.2');
+

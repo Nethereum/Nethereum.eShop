@@ -414,3 +414,25 @@ END;
 
 GO
 
+IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'20200311172359_BuyerWalletAddress')
+BEGIN
+    ALTER TABLE [Buyers] ADD [BuyerWalletAddress] nvarchar(43) NULL;
+END;
+
+GO
+
+IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'20200311172359_BuyerWalletAddress')
+BEGIN
+    CREATE UNIQUE INDEX [IX_Buyers_BuyerWalletAddress] ON [Buyers] ([BuyerWalletAddress]) WHERE [BuyerWalletAddress] IS NOT NULL;
+END;
+
+GO
+
+IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'20200311172359_BuyerWalletAddress')
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20200311172359_BuyerWalletAddress', N'3.1.2');
+END;
+
+GO
+

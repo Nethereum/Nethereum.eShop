@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Nethereum.eShop.Sqlite.Catalog;
 
 namespace Nethereum.eShop.Sqlite.Catalog.Migrations
 {
     [DbContext(typeof(SqliteCatalogContext))]
-    partial class SqliteCatalogContextModelSnapshot : ModelSnapshot
+    [Migration("20200311172413_BuyerWalletAddress")]
+    partial class BuyerWalletAddress
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

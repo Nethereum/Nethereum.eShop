@@ -172,3 +172,11 @@ END;
 
 GO
 
+IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'20200311172406_BuyerWalletAddress')
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20200311172406_BuyerWalletAddress', N'3.1.2');
+END;
+
+GO
+

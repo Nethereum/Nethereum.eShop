@@ -15,6 +15,8 @@ namespace Nethereum.eShop.ApplicationCore.Entities.BuyerAggregate
         // Expected To Be Ethereum Address
         public string BuyerAddress { get; private set; }
 
+        public string BuyerWalletAddress { get; private set; }
+
         private Buyer()
         {
             // required by EF
@@ -25,6 +27,11 @@ namespace Nethereum.eShop.ApplicationCore.Entities.BuyerAggregate
             Guard.Against.NullOrEmpty(identity, nameof(identity));
 
             BuyerId = identity;
+        }
+
+        public void SetWalletAddress(string walletAddress)
+        {
+            BuyerWalletAddress = walletAddress;
         }
     }
 }

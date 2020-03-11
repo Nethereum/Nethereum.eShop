@@ -95,6 +95,10 @@ namespace Nethereum.eShop.SqlServer.Catalog.Migrations
                         .HasColumnType("nvarchar(256)")
                         .HasMaxLength(256);
 
+                    b.Property<string>("BuyerWalletAddress")
+                        .HasColumnType("nvarchar(43)")
+                        .HasMaxLength(43);
+
                     b.HasKey("Id");
 
                     b.HasIndex("BuyerAddress")
@@ -103,6 +107,10 @@ namespace Nethereum.eShop.SqlServer.Catalog.Migrations
 
                     b.HasIndex("BuyerId")
                         .IsUnique();
+
+                    b.HasIndex("BuyerWalletAddress")
+                        .IsUnique()
+                        .HasFilter("[BuyerWalletAddress] IS NOT NULL");
 
                     b.ToTable("Buyers");
                 });
