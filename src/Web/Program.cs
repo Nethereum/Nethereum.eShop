@@ -24,10 +24,11 @@ namespace Nethereum.eShop.Web
                 var services = scope.ServiceProvider;
 
                 var loggerFactory = services.GetRequiredService<ILoggerFactory>();
+                var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
                 try
                 {
-                    await services.GetRequiredService<IEShopDbBootstrapper>().EnsureCreatedAsync(services, scope.ServiceProvider.GetRequiredService<IConfiguration>());
-                    await services.GetRequiredService<IEShopIdentityDbBootstrapper>().EnsureCreatedAsync(services, scope.ServiceProvider.GetRequiredService<IConfiguration>());
+                    await services.GetRequiredService<IEShopDbBootstrapper>().EnsureCreatedAsync(services, configuration);
+                    await services.GetRequiredService<IEShopIdentityDbBootstrapper>().EnsureCreatedAsync(services, configuration);
 
                     var catalogContextSeeder = services.GetRequiredService<ICatalogContextSeeder>();
                     await catalogContextSeeder.SeedAsync(loggerFactory);
