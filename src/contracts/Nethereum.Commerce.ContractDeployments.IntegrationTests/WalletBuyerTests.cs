@@ -10,11 +10,12 @@ using System.Numerics;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
-using static Nethereum.Commerce.ContractDeployments.IntegrationTests.PoHelpers;
+using static Nethereum.Commerce.ContractDeployments.IntegrationTests.PoTestHelpers;
 using static Nethereum.Commerce.Contracts.ContractEnums;
 using Buyer = Nethereum.Commerce.Contracts.WalletBuyer.ContractDefinition;
 using Storage = Nethereum.Commerce.Contracts.PoStorage.ContractDefinition;
 using Nethereum.StandardTokenEIP20;
+using Nethereum.ABI.FunctionEncoding;
 
 namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 {
@@ -43,6 +44,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             // Prepare a new PO and create it
             uint quoteId = GetRandomInt();
             Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId);
+            await PrepSendFundsToBuyerWalletForPo(_contracts.Web3, poAsRequested);
             var txReceiptCreate = await _contracts.Deployment.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
             txReceiptCreate.Status.Value.Should().Be(1);
 
@@ -54,7 +56,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             // Retrieve PO as-built and check
             var poAsBuilt = await GetPoFromBuyerContractAndDisplayAsync(poNumberAsBuilt);
             CheckCreatedPoFieldsMatch(poAsRequested.ToStoragePo(), poAsBuilt.ToStoragePo(), poNumberAsBuilt);
-        }
+        }        
 
         [Fact]
         public async void ShouldGetPoBySellerAndQuote()
@@ -62,6 +64,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             // Prepare a new PO and create it
             uint quoteId = GetRandomInt();
             Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId);
+            await PrepSendFundsToBuyerWalletForPo(_contracts.Web3, poAsRequested);
             var txReceiptCreate = await _contracts.Deployment.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
             txReceiptCreate.Status.Value.Should().Be(1);
 
@@ -136,11 +139,10 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         [Fact]
         public async void ShouldCreateNewPoAndRetrieveIt()
         {
-            // Prepare a new PO
+            // Prepare a new PO and create it
             uint quoteId = GetRandomInt();
             Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId);
-
-            // Request creation of new PO
+            await PrepSendFundsToBuyerWalletForPo(_contracts.Web3, poAsRequested);
             var txReceipt = await _contracts.Deployment.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
             txReceipt.Status.Value.Should().Be(1);
 
@@ -166,13 +168,23 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         }
 
         [Fact]
-        public async void ShouldCreateNewPoAndRetrieveItBySellerAndQuote()
+        public async void ShouldFailToCreateNewPoWithoutFunding()
         {
             // Prepare a new PO
             uint quoteId = GetRandomInt();
             Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId);
+            // DONT send any funds, so WalletBuyer has insufficient funds and creation should fail
+            Func<Task> act = async () => await _contracts.Deployment.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
+            act.Should().Throw<SmartContractRevertException>(); // exception thrown by token, so can't know what actual message will be                        
+        }
 
-            // Request creation of new PO
+        [Fact]
+        public async void ShouldCreateNewPoAndRetrieveItBySellerAndQuote()
+        {
+            // Prepare a new PO and create it
+            uint quoteId = GetRandomInt();
+            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId);
+            await PrepSendFundsToBuyerWalletForPo(_contracts.Web3, poAsRequested);
             var txReceipt = await _contracts.Deployment.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
             txReceipt.Status.Value.Should().Be(1);
 

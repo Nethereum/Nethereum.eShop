@@ -3,7 +3,7 @@ using Nethereum.Commerce.ContractDeployments.IntegrationTests.Config;
 using Nethereum.Commerce.Contracts.PoStorage.ContractDefinition;
 using Xunit;
 using Xunit.Abstractions;
-using static Nethereum.Commerce.ContractDeployments.IntegrationTests.PoHelpers;
+using static Nethereum.Commerce.ContractDeployments.IntegrationTests.PoTestHelpers;
 
 namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 {
