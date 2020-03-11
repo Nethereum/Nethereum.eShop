@@ -14,13 +14,19 @@ namespace Nethereum.eShop.ApplicationCore.Services
 
         private readonly IRulesEngineInitializer _rulesEngineInitializer;
 
-        public RulesEngineService(IRuleTreeCache ruleTreeRepo, IRulesEngineInitializer rulesEngineInitializer)
+        private readonly IReportRepository _reportRepository;
+
+        public RulesEngineService(IRuleTreeCache ruleTreeRepo, 
+                         IRulesEngineInitializer rulesEngineInitializer,
+                               IReportRepository reportRepo)
         {
             // TODO: Initialize the data domain
 
             _ruleTreeRepository = ruleTreeRepo;
 
             _rulesEngineInitializer = rulesEngineInitializer;
+
+            _reportRepository = reportRepo;
         }
 
         public async Task<RulesDomain> CreateRulesDomainAsync(RulesDomainSeed domainSeed)
@@ -45,7 +51,13 @@ namespace Nethereum.eShop.ApplicationCore.Services
         {
             // TODO: Do all the work to execute the RuleTree - and return a report?
 
-            return new RuleTreeReport(new RuleTreeSeed());
+            Random rnd = new Random();
+            var Report = new RuleTreeReport(new RuleTreeSeed()) { Id = rnd.Next() };
+
+            // NOTE: To be determined where reports will be stored in the database, if at all
+            // await _reportRepository.AddAsync(Report).ConfigureAwait(false);
+
+            return Report;
         }
 
         public async Task<RuleTree> GetQuoteRuleTree()
