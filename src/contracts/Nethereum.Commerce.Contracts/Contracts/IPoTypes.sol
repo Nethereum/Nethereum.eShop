@@ -57,9 +57,9 @@ interface IPoTypes
     struct Po
     {
         uint poNumber;                     // contract managed, PO header key, leave blank at PO creation time
-        address buyerAddress;              // buyer UI managed, buyer EoA address handling currency and "owner" of the PO ("finance address")
+        address buyerAddress;              // buyer UI managed, buyer EoA address represents user identity and "owner" of the PO ("user address")
         address receiverAddress;           // buyer UI managed, buyer EoA address will receive product ownership tokens at end ("logistics address")
-        address buyerWalletAddress;        // buyer UI managed, buyer contract address, needed to locate contract whose functions are called by buyer UI
+        address buyerWalletAddress;        // buyer UI managed, buyer contract address, used to locate contract whose functions are called by buyer UI, handles tokens ("finance address")
         bytes32 currencySymbol;            // buyer UI managed, symbol of the ERC20 that is making payment, eg DAI
         address currencyAddress;           // buyer UI managed, contract address of the ERC20 that is making payment
         uint quoteId;                      // buyer UI managed, a quote signed by seller system, sellerId+quoteId uniquely identifies a single poNumber
@@ -70,6 +70,8 @@ interface IPoTypes
         uint poCreateDate;                 // buyer UI managed, po creation unix timestamp
         uint8 poItemCount;                 // contract managed, count of line items written to storage
         PoItem[] poItems;                  // dynamic array of po items, TODO impose configurable max of eg 16, low enough that contract can iterate all
+        uint8 rulesCount;                  // contract managed, count of rules written to storage
+        bytes32[] rules;                   // buyer UI managed, list of rules that were run on PO by seller system before quote was made
     }
     
     //------------------------------------------------------------------------

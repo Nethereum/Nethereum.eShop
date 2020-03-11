@@ -252,6 +252,21 @@ namespace Nethereum.Commerce.Contracts.Purchasing
             return ContractHandler.QueryDeserializingToObjectAsync<GetPoBySellerAndQuoteFunction, GetPoBySellerAndQuoteOutputDTO>(getPoBySellerAndQuoteFunction, blockParameter);
         }
 
+        public Task<string> GetSignerAddressFromPoAndSignatureQueryAsync(GetSignerAddressFromPoAndSignatureFunction getSignerAddressFromPoAndSignatureFunction, BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<GetSignerAddressFromPoAndSignatureFunction, string>(getSignerAddressFromPoAndSignatureFunction, blockParameter);
+        }
+
+        
+        public Task<string> GetSignerAddressFromPoAndSignatureQueryAsync(Po po, byte[] signature, BlockParameter blockParameter = null)
+        {
+            var getSignerAddressFromPoAndSignatureFunction = new GetSignerAddressFromPoAndSignatureFunction();
+                getSignerAddressFromPoAndSignatureFunction.Po = po;
+                getSignerAddressFromPoAndSignatureFunction.Signature = signature;
+            
+            return ContractHandler.QueryAsync<GetSignerAddressFromPoAndSignatureFunction, string>(getSignerAddressFromPoAndSignatureFunction, blockParameter);
+        }
+
         public Task<bool> IsOwnerQueryAsync(IsOwnerFunction isOwnerFunction, BlockParameter blockParameter = null)
         {
             return ContractHandler.QueryAsync<IsOwnerFunction, bool>(isOwnerFunction, blockParameter);

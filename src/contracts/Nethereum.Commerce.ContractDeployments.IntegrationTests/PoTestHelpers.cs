@@ -65,6 +65,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                 output.WriteLine($"SellerId           : {po.SellerId}");
                 output.WriteLine($"PoCreateDate       : {po.PoCreateDate}");
                 output.WriteLine($"PoItemCount        : {po.PoItemCount}");
+                output.WriteLine($"PoRulesCount       : {po.RulesCount}");
             }
         }
 
@@ -190,10 +191,15 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                 poActual.PoItems[i].IsEscrowReleased.Should().Be(poExpected.PoItems[i].IsEscrowReleased);
                 poActual.PoItems[i].CancelStatus.Should().Be(poExpected.PoItems[i].CancelStatus);
             }
+            poActual.RulesCount.Should().Be(poExpected.RulesCount);
+            for (int i = 0; i < poActual.RulesCount; i++)
+            {
+                poActual.Rules[i].Should().BeEquivalentTo(poExpected.Rules[i]);
+            }
         }
 
         /// <summary>
-        /// A test PO intended for passing to contracts WalletBuyer.sol or Purchasing.sol poCreate() functions.
+        /// A realistic test PO intended for passing to contracts WalletBuyer.sol or Purchasing.sol poCreate() functions.
         /// </summary>        
         public static Storage.Po CreatePoForPurchasingContracts(
             string buyerAddress,
@@ -217,7 +223,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                 PoType = PoType.Cash,
                 SellerId = "Nethereum.eShop",
                 // PoCreateDate assigned by contract
-                // PoItemCount assigned by contract
+                // PoItemCount assigned by contract                
                 PoItems = new List<Storage.PoItem>()
                 {
                     new Storage.PoItem()
@@ -260,12 +266,19 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                         // IsEscrowReleased assigned by contract
                         // CancelStatus assigned by contract
                     }
+                },
+                // RulesCount assigned by contract
+                Rules = new List<byte[]>()
+                { 
+                    "rule01".ConvertToBytes(),
+                    "rule02".ConvertToBytes(),
+                    "rule03".ConvertToBytes()
                 }
             };
         }
 
         /// <summary>
-        /// A test PO intended for writing directly to the PO storage contract PoStorage.sol (ie no validations are done on
+        /// An unrealistic PO intended for writing directly to the PO storage contract PoStorage.sol (ie no validations are done on
         /// this data, it is written direct to storage only).
         /// </summary>
         public static Storage.Po CreatePoForPoStorageContract(uint poNumber, string approverAddress, uint quoteId)
@@ -327,6 +340,13 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                         IsEscrowReleased = false,
                         CancelStatus = PoItemCancelStatus.Initial
                     }
+                },
+                RulesCount = 3,
+                Rules = new List<byte[]>()
+                {
+                    "rule01".ConvertToBytes(),
+                    "rule02".ConvertToBytes(),
+                    "rule03".ConvertToBytes(),
                 }
             };
         }

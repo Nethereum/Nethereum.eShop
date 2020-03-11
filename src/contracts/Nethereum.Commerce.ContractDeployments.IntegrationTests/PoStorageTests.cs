@@ -41,7 +41,8 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             txReceipt.Status.Value.Should().Be(1);
 
             // Retrieve PO 
-            var poActual = (await _contracts.Deployment.PoStorageService.GetPoQueryAsync(poNumber)).Po;
+            var poActualDto = await _contracts.Deployment.PoStorageService.GetPoQueryAsync(poNumber);
+            var poActual = poActualDto.Po;
 
             // They should be the same
             CheckEveryPoFieldMatches(poExpected, poActual);

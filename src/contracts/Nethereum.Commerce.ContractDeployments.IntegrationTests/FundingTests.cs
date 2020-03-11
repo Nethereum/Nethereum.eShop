@@ -36,7 +36,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             _contracts = fixture;
             _output = output;
         }
-
+        
         [Fact]
         public async void ShouldCreateNewPoAndTransferFunds()
         {

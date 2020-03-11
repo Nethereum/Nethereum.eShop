@@ -15,11 +15,11 @@ contract WalletBuyer is IWalletBuyer, Ownable, Bindable
     IAddressRegistry public addressRegistry;
     IPurchasing public purchasing;
     IFunding public funding;
-
+    
     constructor (address contractAddressOfRegistry) public
     {
         addressRegistry = IAddressRegistry(contractAddressOfRegistry);
-    }
+    } 
     
     // Contract setup
     function configure(string calldata nameOfPurchasing, string calldata nameOfFunding) onlyOwner() override external
@@ -38,7 +38,7 @@ contract WalletBuyer is IWalletBuyer, Ownable, Bindable
     {
         return purchasing.getPo(poNumber);
     }
-    
+
     function getPoBySellerAndQuote(string calldata sellerIdString, uint quoteId) override external view returns (IPoTypes.Po memory po)
     {
         return purchasing.getPoBySellerAndQuote(sellerIdString, quoteId);
@@ -46,17 +46,17 @@ contract WalletBuyer is IWalletBuyer, Ownable, Bindable
     
     function createPurchaseOrder(IPoTypes.Po calldata po) override external
     {
-        // Allow Funding contract to withdraw funds
         // Calculate total value
-        uint totalValue = 0;
+        uint     totalValue = 0;
         uint itemCount = po.poItems.length;
         for (uint i = 0; i< itemCount; i++)
         {
             totalValue += po.poItems[i].currencyValue;
         }
         
-        // NB: erc20.approve() is approving from THIS Wallet contract (not msg.sender)
+        // Allow Funding contract to withdraw funds
         IErc20 tokenContract = IErc20(po.currencyAddress);
+        // NB: erc20.approve() is approving from THIS Wallet contract (not msg.sender) into the Funding contract
         tokenContract.approve(address(funding), totalValue);
 
         // Purchasing contract does the creation

@@ -82,8 +82,8 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
         po.poNumber = poStorage.getCurrentPoNumber();
         po.approverAddress = seller.approverAddress;
         po.poCreateDate = now;
-        uint len = po.poItems.length;
-        po.poItemCount = uint8(len);
+        uint lenItems = po.poItems.length;
+        po.poItemCount = uint8(lenItems);
         for (uint i = 0; i < po.poItemCount; i++)
         {
             po.poItems[i].poNumber = po.poNumber;
@@ -96,6 +96,8 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
             po.poItems[i].isEscrowReleased = false;
             po.poItems[i].cancelStatus = IPoTypes.PoItemCancelStatus.Initial;
         }
+        uint lenRules = po.rules.length;
+        po.rulesCount = uint8(lenRules);
         
         //-------------------------------------------------------------------------
         // Store Po details in eternal storage
@@ -259,4 +261,41 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
         // Status
         require(po.poItems[poItemIndex].status == expectedOldPoStatus, "Existing PO item status incorrect");
     }
+    
+    // signature methods
+    function getSignerAddressFromPoAndSignature(IPoTypes.Po memory po, bytes memory signature) public pure returns (address)
+    {
+        // Recreate the message that was signed on the client
+        bytes32 messageAsClient = prefixed(keccak256(abi.encode(po)));
+        
+        // Recover the signer's address
+        return recoverSigner(messageAsClient, signature);
+    }
+    
+    function splitSignature(bytes memory sig) private pure returns (uint8 v, bytes32 r, bytes32 s)
+    {
+        require(sig.length == 65);
+        assembly {
+            // first 32 bytes, after the length prefix.
+            r := mload(add(sig, 32))
+            // second 32 bytes.
+            s := mload(add(sig, 64))
+            // final byte (first byte of the next 32 bytes).
+            v := byte(0, mload(add(sig, 96)))
+        }
+        return (v, r, s);
+    }
+
+    function recoverSigner(bytes32 message, bytes memory sig) private pure returns (address)
+    {
+        (uint8 v, bytes32 r, bytes32 s) = splitSignature(sig);
+        return ecrecover(message, v, r, s);
+    }
+
+    // builds a prefixed hash to mimic the behavior of eth_sign.
+    function prefixed(bytes32 hash) private pure returns (bytes32)
+    {
+        return keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", hash));
+    }
+
 }
