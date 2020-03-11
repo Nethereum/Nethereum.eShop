@@ -5,5 +5,7 @@
         string GetQuoteBizRulesFileUrl();
 
         string GetQuoteItemBizRulesFileUrl();
+
+        int GetBizEngineRetriesOnFailure();
     }
 }

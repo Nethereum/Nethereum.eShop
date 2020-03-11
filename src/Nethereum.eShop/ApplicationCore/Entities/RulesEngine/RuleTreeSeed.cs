@@ -19,17 +19,17 @@ namespace Nethereum.eShop.ApplicationCore.Entities.RulesEngine
             Owner             = psOwner;
         }
 
-        public string RuleTreeId { get; set; }
-
-        public string OwnerName { get; set; }
+        public string RuleTreeId { get;set; }
 
         public string Owner { get; set; }
 
         public string RuleTreeOriginUrl { get; set; }
 
-        public string WarningsPageUrl { get; set; }
+        public string OwnerName { get; set; }
 
-        public string ErrorsPageUrl { get; set; }
+        public Func<RuleTreeReport> WarningTrigger { get; set; }
+
+        public Func<RuleTreeReport> ErrorTrigger { get; set; }
 
         public bool IsValid()
         {

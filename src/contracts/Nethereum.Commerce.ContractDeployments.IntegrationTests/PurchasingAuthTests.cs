@@ -7,7 +7,7 @@ using System;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
-using static Nethereum.Commerce.ContractDeployments.IntegrationTests.PoHelpers;
+using static Nethereum.Commerce.ContractDeployments.IntegrationTests.PoTestHelpers;
 using Purchasing = Nethereum.Commerce.Contracts.Purchasing.ContractDefinition;
 using Storage = Nethereum.Commerce.Contracts.PoStorage.ContractDefinition;
 
@@ -28,7 +28,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         }
 
         [Fact]
-        public async void ShouldNotBeAbleToCreateAPoWhenNotRegisteredCaller()
+        public async void ShouldNotBeAbleToCreatePoWhenNotRegisteredCaller()
         {
             // Try to create a PO sent by a non-authorised user, it should fail            
             // Prepare a new PO

@@ -84,6 +84,8 @@ namespace Nethereum.eShop.Web
             services.AddScoped<IQuoteService, QuoteService>();
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IRulesEngineService, RulesEngineService>();
+            services.AddScoped<IReportRepository, ReportRepository>();
+            services.AddScoped<IRuleTreeCache, RuleTreeCache>();
             services.AddScoped<CatalogViewModelService>();
             services.AddScoped<ICatalogItemViewModelService, CatalogItemViewModelService>();
             services.Configure<CatalogSettings>(Configuration);

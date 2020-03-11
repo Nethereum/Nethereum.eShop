@@ -14,7 +14,7 @@ using Storage = Nethereum.Commerce.Contracts.PoStorage.ContractDefinition;
 
 namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 {
-    public static class PoHelpers
+    public static class PoTestHelpers
     {
         /// <summary>
         /// Revert message for the Solidity onlyRegisteredCaller() function modifier
@@ -28,7 +28,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 
         private static Random _random;
 
-        static PoHelpers()
+        static PoTestHelpers()
         {
             _random = new Random();
         }
@@ -329,6 +329,14 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                     }
                 }
             };
+        }
+
+        public static async Task PrepSendFundsToBuyerWalletForPo(Web3.Web3 fromWeb3, Buyer.Po po)
+        {
+            // Transfer required funds (tokens) from given Web3 acccount to buyer wallet given on po
+            StandardTokenService sts = new StandardTokenService(fromWeb3, po.CurrencyAddress);
+            var txTransfer = await sts.TransferRequestAndWaitForReceiptAsync(po.BuyerWalletAddress, po.GetTotalCurrencyValue());
+            txTransfer.Status.Value.Should().Be(1);
         }
 
         /// <summary>
