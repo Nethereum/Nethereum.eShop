@@ -6,9 +6,7 @@ using Microsoft.Extensions.Logging;
 using Nethereum.BlockchainProcessing.ProgressRepositories;
 using Nethereum.eShop.ApplicationCore.Interfaces;
 using Nethereum.eShop.ApplicationCore.Services;
-using Nethereum.eShop.InMemory.Infrastructure.Data.Config;
-using Nethereum.eShop.Sqlite.Infrastructure.Data.Config;
-using Nethereum.eShop.SqlServer.Infrastructure.Data.Config;
+using Nethereum.eShop.DbFactory;
 using Nethereum.eShop.WebJobs.Configuration;
 using Nethereum.eShop.WebJobs.Jobs;
 
@@ -31,7 +29,7 @@ namespace Nethereum.eShop.WebJobs
                 services.AddSingleton(eShopConfig);
 
                 // db
-                var dbBootstrapper = CreateDbBootstrapper(config);
+                var dbBootstrapper = EShopDbBootstrapper.CreateDbBootstrapper(config);
                 dbBootstrapper.AddDbContext(services, config);
 
                 //repositories
@@ -94,15 +92,5 @@ namespace Nethereum.eShop.WebJobs
             }
         }
 
-        private static IEShopDbBootstrapper CreateDbBootstrapper(IConfiguration configuration)
-        {
-            var name = configuration["CatalogDbProvider"];
-            return name switch
-            {
-                "SqlServer" => new SqlServerEShopDbBootstrapper(),
-                "Sqlite" => new SqliteEShopDbBootstrapper(),
-                _ => new InMemoryEShopDbBootrapper()
-            };
-        }
     }
 }

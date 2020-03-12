@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
+using System.Data;
 
 namespace Nethereum.eShop.ApplicationCore.Entities.RulesEngine
 {
@@ -11,7 +11,7 @@ namespace Nethereum.eShop.ApplicationCore.Entities.RulesEngine
             Init();
         }
 
-        public RulesDomainSeed(SqlConnection conn, string table, HashSet<string> cols)
+        public RulesDomainSeed(IDbConnection conn, string table, HashSet<string> cols)
         {
             Init();
 
@@ -29,7 +29,7 @@ namespace Nethereum.eShop.ApplicationCore.Entities.RulesEngine
 
         #region Properties 
 
-        public SqlConnection Connection { get; protected set; }
+        public IDbConnection Connection { get; protected set; }
 
         public string TargetTable { get; protected set; }
 

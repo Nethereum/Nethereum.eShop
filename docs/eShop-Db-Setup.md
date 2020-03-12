@@ -86,16 +86,21 @@ dotnet tool install --global dotnet-ef --version 3.1.2
 
 #### Adding a migration
 
+Batch files which create a named migration for Catalog and Identity for all supported Db Providers.
+
 ```
-AddMigration.bat <NameOfMigration>
+AddCatalogMigration.bat <NameOfMigration>
+AddIdentityMigration.bat <NameOfMigration>
 ```
 
 Creates a new migration in each DB provider project.  
 
 #### Creating Db Scripts
 
+Generates a complete DB creation script for each supported Db Provider for both the Catalog connection and Identity connection.  This script can be run manually against the chosen database. 
+
 ```
-ScriptDbs.bat
+ScriptCatalogDb.bat
+ScriptIdentityDb.bat
 ```
 
-Generates a complete DB creation script for each supported Db Provider for both the Catalog connection and Identity connection.  This script can be run manually against the chosen database. 

@@ -1,6 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Nethereum.eShop.Infrastructure.Identity;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -24,6 +26,11 @@ namespace Nethereum.eShop.EntityFramework.Identity
         protected virtual bool ApplyMigrationsOnStartup(IConfiguration configuration)
         {
             return configuration.GetValue<bool>("IdentityApplyMigrationsOnStartup", false);
+        }
+
+        public virtual void AddIdentityStores(IdentityBuilder identityBuilder, IServiceCollection services)
+        {
+            identityBuilder.AddEntityFrameworkStores<AppIdentityDbContext>();
         }
     }
 }

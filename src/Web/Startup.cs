@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mime;
+using System.Threading.Tasks;
 
 namespace Nethereum.eShop.Web
 {
@@ -54,7 +55,7 @@ namespace Nethereum.eShop.Web
             services.AddSingleton(identityDbBootstrapper);
             identityDbBootstrapper.AddDbContext(services, Configuration);
 
-            ConfigureServices(services, dbBootstrapper);
+            ConfigureServices(services, dbBootstrapper, identityDbBootstrapper);
         }
 
         public void ConfigureTestingServices(IServiceCollection services)
@@ -67,11 +68,11 @@ namespace Nethereum.eShop.Web
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(
-            IServiceCollection services, IEShopDbBootstrapper dbBootstrapper)
+            IServiceCollection services, IEShopDbBootstrapper dbBootstrapper, IEShopIdentityDbBootstrapper eShopIdentityDbBootstrapper)
         {
             ConfigureCookieSettings(services);
 
-            CreateIdentityIfNotCreated(services);
+            CreateIdentityIfNotCreated(services, eShopIdentityDbBootstrapper);
 
             services.AddMediatR(typeof(BasketViewModelService).Assembly);
 
@@ -143,7 +144,7 @@ namespace Nethereum.eShop.Web
             _services = services; // used to debug registered services
         }
 
-        private static void CreateIdentityIfNotCreated(IServiceCollection services)
+        private static void CreateIdentityIfNotCreated(IServiceCollection services, IEShopIdentityDbBootstrapper eShopIdentityDbBootstrapper)
         {
             var sp = services.BuildServiceProvider();
             using (var scope = sp.CreateScope())
@@ -152,10 +153,9 @@ namespace Nethereum.eShop.Web
                     .GetService<UserManager<ApplicationUser>>();
                 if(existingUserManager == null)
                 {
-                    services.AddIdentity<ApplicationUser, IdentityRole>()
-                        .AddDefaultUI()
-                        .AddEntityFrameworkStores<AppIdentityDbContext>()
-                                        .AddDefaultTokenProviders();
+                    var builder = services.AddIdentity<ApplicationUser, IdentityRole>().AddDefaultUI();
+                    eShopIdentityDbBootstrapper.AddIdentityStores(builder, services);
+                    builder.AddDefaultTokenProviders();
                 }
             }
         }

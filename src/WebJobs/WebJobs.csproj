@@ -20,7 +20,6 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.2" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.2" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.2" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.2" />
     <PackageReference Include="Nethereum.BlockchainStore.EFCore.SqlServer" Version="3.7.1" />
     <PackageReference Include="Nethereum.Microsoft.Logging.Utils" Version="3.7.1" />    
   </ItemGroup>
