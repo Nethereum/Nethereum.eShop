@@ -2,6 +2,7 @@
 
 namespace Nethereum.eShop.ApplicationCore.Queries
 {
+    // TODO: Consider adding properties for Item Count, Page Number, Next Index etc
     public class PaginatedResult<TModel> where TModel : class
     {
         public int Offset { get; private set; }
