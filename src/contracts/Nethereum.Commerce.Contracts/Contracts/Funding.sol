@@ -55,15 +55,15 @@ contract Funding is IFunding, Ownable, Bindable, StringConvertible
     
     function transferOutFundsForPoItemToBuyer(uint poNumber, uint8 poItemNumber) onlyRegisteredCaller() override external
     {
-        // Refund to the PO buyer address on the PO header (NB: not the PO buyer wallet)
+        // Refund to the PO buyer wallet (not the PO buyer from the PO header, which represents the user)
         IPoTypes.Po memory po = purchasing.getPo(poNumber);
         uint poItemIndex = poItemNumber - 1;
         uint poItemValue = po.poItems[poItemIndex].currencyValue;
         IErc20 token = IErc20(po.currencyAddress);
-        require(po.buyerAddress != address(0), "PO has no buyer address");
+        require(po.buyerWalletAddress != address(0), "PO has no buyer wallet address");
         
         // Transfer
-        bool result = token.transfer(po.buyerAddress, poItemValue);
+        bool result = token.transfer(po.buyerWalletAddress, poItemValue);
         require(result == true, "Not enough funds transferred");
     }
     

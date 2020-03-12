@@ -286,9 +286,9 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                 // RulesCount assigned by contract
                 Rules = new List<byte[]>()
                 {
-                    "rule01".ConvertToBytes(),
-                    "rule02".ConvertToBytes(),
-                    "rule03".ConvertToBytes()
+                    "rule01".ConvertToBytes32(),
+                    "rule02".ConvertToBytes32(),
+                    "rule03".ConvertToBytes32()
                 }
             };
             return po;
@@ -362,9 +362,9 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                 RulesCount = 3,
                 Rules = new List<byte[]>()
                 {
-                    "rule01".ConvertToBytes(),
-                    "rule02".ConvertToBytes(),
-                    "rule03".ConvertToBytes(),
+                    "rule01".ConvertToBytes32(),
+                    "rule02".ConvertToBytes32(),
+                    "rule03".ConvertToBytes32(),
                 }
             };
         }

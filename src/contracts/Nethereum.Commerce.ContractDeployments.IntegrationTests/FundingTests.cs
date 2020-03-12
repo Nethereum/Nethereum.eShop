@@ -119,10 +119,10 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             logPoCreated.Should().NotBeNull();
             var poNumberAsBuilt = logPoCreated.Event.Po.PoNumber;
 
-            // NB: Refunds go to the PO buyer address from the PO header (not the WALLET BUYER)
+            // NB: Refunds go to the PO buyer wallet address (not the po buyer address from the PO header, which represents the user)
             // Balance of PO buyer address before refund
-            var poBuyerAddressBalanceBefore = await sts.BalanceOfQueryAsync(poAsRequested.BuyerAddress);
-            _output.WriteLine($"PO buyer address balance before refund: {await poBuyerAddressBalanceBefore.PrettifyAsync(sts)}");
+            var poBuyerWalletAddressBalanceBefore = await sts.BalanceOfQueryAsync(poAsRequested.BuyerWalletAddress);
+            _output.WriteLine($"PO buyer wallet address balance before refund: {await poBuyerWalletAddressBalanceBefore.PrettifyAsync(sts)}");
 
             // Do the refund (achieved by marking the PO item as rejected)
             var txReceiptPoItemReject = await _contracts.Deployment.WalletSellerService.SetPoItemRejectedRequestAndWaitForReceiptAsync(poNumberAsBuilt, PO_ITEM_NUMBER);
@@ -134,13 +134,13 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var logPoItemReject = txReceiptPoItemReject.DecodeAllEvents<PurchaseItemEscrowRefundedLogEventDTO>().FirstOrDefault();
             logPoItemReject.Should().NotBeNull();
 
-            // Balance of PO buyer address after PO item rejection
-            var poBuyerAddressBalanceAfter = await sts.BalanceOfQueryAsync(poAsRequested.BuyerAddress);
-            _output.WriteLine($"PO buyer address balance after refund: {await poBuyerAddressBalanceAfter.PrettifyAsync(sts)}");
+            // Balance of PO buyer wallet address after PO item rejection
+            var poBuyerWalletAddressBalanceAfter = await sts.BalanceOfQueryAsync(poAsRequested.BuyerWalletAddress);
+            _output.WriteLine($"PO buyer wallet address balance after refund: {await poBuyerWalletAddressBalanceAfter.PrettifyAsync(sts)}");
 
             // Checks
-            var diff = poBuyerAddressBalanceAfter - poBuyerAddressBalanceBefore;
-            diff.Should().Be(poItemValue, "PO buyer address from PO header should have increased by value of the PO item");
+            var diff = poBuyerWalletAddressBalanceAfter - poBuyerWalletAddressBalanceBefore;
+            diff.Should().Be(poItemValue, "PO buyer wallet should have increased by value of the PO item");
         }
 
         [Fact]

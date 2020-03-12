@@ -39,7 +39,7 @@ namespace Nethereum.Commerce.Contracts
             _mapper = new Mapper(config);
         }
 
-        public static byte[] ConvertToBytes(this string s)
+        public static byte[] ConvertToBytes32(this string s)
         {
             if (s == null) return null;
             return _encoder.Encode(s);
