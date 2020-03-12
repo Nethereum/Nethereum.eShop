@@ -49,6 +49,8 @@ namespace Nethereum.eShop.EntityFramework.Catalog.Seed
                 // if we are not running an in memory db - we may need allow id's to be inserted intead of auto generated
                 // context.Database.ExecuteSqlCommand("SET IDENTITY_INSERT dbo.Students ON");
 
+                var dictionary = importData.CatalogBrands.ToDictionary(b => b.Brand, b => b.Id);
+
                 if (!catalogContext.CatalogBrands.Any())
                 {
                     catalogContext.CatalogBrands.AddRange(

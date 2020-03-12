@@ -1,0 +1,1 @@
+dotnet ef migrations add %1 --project ..\Nethereum.eShop.MySql --context Nethereum.eShop.MySql.Catalog.MySqlCatalogContext --output-dir ..\Nethereum.eShop.MySql\Catalog\Migrations

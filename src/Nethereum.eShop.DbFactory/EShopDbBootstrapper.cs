@@ -2,6 +2,8 @@
 using Nethereum.eShop.ApplicationCore.Interfaces;
 using Nethereum.eShop.InMemory.Catalog;
 using Nethereum.eShop.InMemory.Infrastructure.Identity;
+using Nethereum.eShop.MySql.Catalog;
+using Nethereum.eShop.MySql.Identity;
 using Nethereum.eShop.Sqlite.Catalog;
 using Nethereum.eShop.Sqlite.Identity;
 using Nethereum.eShop.SqlServer.Catalog;
@@ -21,6 +23,7 @@ namespace Nethereum.eShop.DbFactory
             {
                 "sqlserver" => new SqlServerEShopDbBootstrapper(),
                 "sqlite" => new SqliteEShopDbBootstrapper(),
+                "mysql" => new MySqlEShopDbBootstrapper(),
                 _ => new InMemoryEShopDbBootrapper()
             };
         }
@@ -32,6 +35,7 @@ namespace Nethereum.eShop.DbFactory
             {
                 "sqlserver" => new SqlServerEShopAppIdentityDbBootstrapper(),
                 "sqlite" => new SqliteEShopAppIdentityDbBootstrapper(),
+                "mysql" => new MySqlEShopAppIdentityDbBootstrapper(),
                 _ => new InMemoryEShopAppIdentityDbBootrapper()
             };
         }

@@ -1,0 +1,1 @@
+dotnet ef migrations script --idempotent --project ..\Nethereum.eShop.MySql --context Nethereum.eShop.MySql.Catalog.MySqlCatalogContext --output ..\Nethereum.eShop.MySql\Catalog\Migrations\Scripts\CreateCatalogDb.sql

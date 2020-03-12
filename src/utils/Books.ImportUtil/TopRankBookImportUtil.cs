@@ -1,6 +1,5 @@
-﻿using CsvHelper.Configuration;
-using Nethereum.eShop.ApplicationCore.Entities;
-using Nethereum.eShop.Infrastructure.Data;
+﻿using Nethereum.eShop.ApplicationCore.Entities;
+using Nethereum.eShop.EntityFramework.Catalog.Seed;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -104,10 +103,10 @@ namespace Books.ImportUtil
             Dictionary<string, Dictionary<string, IpfsBookCoverMapping>> bookCoverDictionary)
         {
             var excerpt = new CatalogImportDto();
-            var bookCatalogType = new CatalogType { Id = 1, Type = "Book" };
+            var bookCatalogType = new CatalogTypeForImport { Id = 1, Type = "Book" };
             excerpt.CatalogTypes.Add(bookCatalogType);
 
-            var authorDictionary = new Dictionary<string, CatalogBrand>(StringComparer.OrdinalIgnoreCase);
+            var authorDictionary = new Dictionary<string, CatalogBrandForImport>(StringComparer.OrdinalIgnoreCase);
 
             int id = 0;
             int authorIdCounter = 0;
@@ -125,19 +124,19 @@ namespace Books.ImportUtil
             return excerpt;
         }
 
-        private static CatalogItem Convert(
+        private static CatalogItemForImport Convert(
             int catalogTypeIdForBooks, 
             BookWithDescription book, 
             Dictionary<string, Dictionary<string, IpfsBookCoverMapping>> bookCoverDictionary, 
             int id, 
-            Dictionary<string, CatalogBrand> authorDictionary, 
+            Dictionary<string, CatalogBrandForImport> authorDictionary, 
             ref int authorIdCounter)
         {
 
             if (!authorDictionary.ContainsKey(book.Book.AUTHOR))
             {
                 authorIdCounter++;
-                authorDictionary[book.Book.AUTHOR] = new CatalogBrand 
+                authorDictionary[book.Book.AUTHOR] = new CatalogBrandForImport 
                 { 
                     Id = authorIdCounter, 
                     Brand = book.Book.AUTHOR 
@@ -164,7 +163,7 @@ namespace Books.ImportUtil
                 return Decimal.TryParse(i, out var d) ? (int)(d * 25.4m) : 0;
             });
 
-            var catalogItem = new CatalogItem {
+            var catalogItem = new CatalogItemForImport {
                 Id = id,
                 Rank = id,
                 Gtin = book.Book.EAN,
