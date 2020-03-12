@@ -41,11 +41,11 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         [Fact]
         public async void ShouldGetPo()
         {
-            // Prepare a new PO and create it
-            uint quoteId = GetRandomInt();
-            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId);
+            // Prepare a new PO and create it            
+            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId: GetRandomInt());
+            var signature = poAsRequested.GetSignatureBytes(_contracts.Web3);
             await PrepSendFundsToBuyerWalletForPo(_contracts.Web3, poAsRequested);
-            var txReceiptCreate = await _contracts.Deployment.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
+            var txReceiptCreate = await _contracts.Deployment.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
             txReceiptCreate.Status.Value.Should().Be(1);
 
             // Get the PO number that was assigned
@@ -56,16 +56,17 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             // Retrieve PO as-built and check
             var poAsBuilt = await GetPoFromBuyerContractAndDisplayAsync(poNumberAsBuilt);
             CheckCreatedPoFieldsMatch(poAsRequested.ToStoragePo(), poAsBuilt.ToStoragePo(), poNumberAsBuilt);
-        }        
+        }
 
         [Fact]
         public async void ShouldGetPoBySellerAndQuote()
         {
-            // Prepare a new PO and create it
-            uint quoteId = GetRandomInt();
+            // Prepare a new PO and create it            
+            var quoteId = GetRandomInt();
             Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId);
+            var signature = poAsRequested.GetSignatureBytes(_contracts.Web3);
             await PrepSendFundsToBuyerWalletForPo(_contracts.Web3, poAsRequested);
-            var txReceiptCreate = await _contracts.Deployment.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
+            var txReceiptCreate = await _contracts.Deployment.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
             txReceiptCreate.Status.Value.Should().Be(1);
 
             // Get the PO number that was assigned
@@ -81,9 +82,9 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         [Fact]
         public async void ShouldCreateNewPoAndTransferFunds()
         {
-            // Prepare a new PO
-            uint quoteId = GetRandomInt();
-            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId);
+            // Prepare a new PO            
+            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId: GetRandomInt());
+            var signature = poAsRequested.GetSignatureBytes(_contracts.Web3);
 
             //----------------------------------------------------------
             // BEFORE PO RAISED
@@ -116,7 +117,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             //----------------------------------------------------------
             // Create PO on-chain
             // NB this approves token transfer from WALLET BUYER contract (NOT msg.sender == current web3 account) to FUNDING contract
-            var txReceiptCreate = await _contracts.Deployment.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
+            var txReceiptCreate = await _contracts.Deployment.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
             txReceiptCreate.Status.Value.Should().Be(1);
             _output.WriteLine($"... PO created ...");
 
@@ -139,11 +140,11 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         [Fact]
         public async void ShouldCreateNewPoAndRetrieveIt()
         {
-            // Prepare a new PO and create it
-            uint quoteId = GetRandomInt();
-            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId);
+            // Prepare a new PO and create it            
+            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId: GetRandomInt());
+            var signature = poAsRequested.GetSignatureBytes(_contracts.Web3);
             await PrepSendFundsToBuyerWalletForPo(_contracts.Web3, poAsRequested);
-            var txReceipt = await _contracts.Deployment.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
+            var txReceipt = await _contracts.Deployment.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
             txReceipt.Status.Value.Should().Be(1);
 
             // Check PO create events
@@ -170,22 +171,35 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         [Fact]
         public async void ShouldFailToCreateNewPoWithoutFunding()
         {
-            // Prepare a new PO
-            uint quoteId = GetRandomInt();
-            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId);
+            // Prepare a new PO, notice it is created with a large value, in case of leftover tokens transferred from other tests            
+            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId: GetRandomInt(), isLargeValue: true);
+            var signature = poAsRequested.GetSignatureBytes(_contracts.Web3);
             // DONT send any funds, so WalletBuyer has insufficient funds and creation should fail
-            Func<Task> act = async () => await _contracts.Deployment.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
+            Func<Task> act = async () => await _contracts.Deployment.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
             act.Should().Throw<SmartContractRevertException>(); // exception thrown by token, so can't know what actual message will be                        
+        }
+
+        [Fact]
+        public async void ShouldFailToCreateNewPoWithoutCorrectSignature()
+        {
+            // Prepare a new PO            
+            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId: GetRandomInt());
+            // DONT sign it correctly, creation should fail. Sign it with the 2ndry user, whereas the eshop is configured to have main Web3 user as signer
+            // See BusinessPartnerStorage.sol master data creation in Nethereum.eShop\src\contracts\Nethereum.Commerce.Contracts\Deployment\ContractDeployment.cs
+            var signature = poAsRequested.GetSignatureBytes(_contracts.Web3SecondaryUser);
+            await PrepSendFundsToBuyerWalletForPo(_contracts.Web3, poAsRequested);
+            Func<Task> act = async () => await _contracts.Deployment.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
+            act.Should().Throw<SmartContractRevertException>(SIGNER_EXCEPTION_WRONG_SIGNER);
         }
 
         [Fact]
         public async void ShouldCreateNewPoAndRetrieveItBySellerAndQuote()
         {
-            // Prepare a new PO and create it
-            uint quoteId = GetRandomInt();
-            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId);
+            // Prepare a new PO and create it            
+            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId: GetRandomInt());
+            var signature = poAsRequested.GetSignatureBytes(_contracts.Web3);
             await PrepSendFundsToBuyerWalletForPo(_contracts.Web3, poAsRequested);
-            var txReceipt = await _contracts.Deployment.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
+            var txReceipt = await _contracts.Deployment.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
             txReceipt.Status.Value.Should().Be(1);
 
             // Check PO create events
@@ -205,7 +219,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             DisplayPoHeader(_output, poAsBuilt.ToStoragePo());
         }
 
-        private async Task<Buyer.Po> CreateBuyerPoAsync(uint quoteId)
+        private async Task<Buyer.Po> CreateBuyerPoAsync(uint quoteId, bool isLargeValue = false)
         {
             return CreatePoForPurchasingContracts(
                 buyerAddress: _contracts.Web3.TransactionManager.Account.Address.ToLowerInvariant(),
@@ -213,7 +227,8 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                 buyerWalletAddress: _contracts.Deployment.WalletBuyerService.ContractHandler.ContractAddress.ToLowerInvariant(),
                 currencySymbol: await _contracts.Deployment.MockDaiService.SymbolQueryAsync(),
                 currencyAddress: _contracts.Deployment.MockDaiService.ContractHandler.ContractAddress.ToLowerInvariant(),
-                quoteId).ToBuyerPo();
+                quoteId,
+                isLargeValue).ToBuyerPo();
         }
 
         private async Task<Buyer.Po> GetPoFromBuyerContractAndDisplayAsync(BigInteger poNumber, string title = "PO")

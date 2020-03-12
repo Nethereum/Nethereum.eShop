@@ -59,7 +59,7 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
         return poStorage.getPo(poNumber);
     }
     
-    function createPurchaseOrder(IPoTypes.Po memory po) onlyRegisteredCaller() override public
+    function createPurchaseOrder(IPoTypes.Po memory po, bytes memory signature) onlyRegisteredCaller() override public
     {
         // Record the create request, emitting po exactly as we received it
         emit PurchaseOrderCreateRequestLog(po.buyerAddress, po.sellerId, 0, po);
@@ -72,7 +72,10 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
         // Ensure seller has a master data entry with approver address
         IPoTypes.Seller memory seller = bpStorage.getSeller(po.sellerId);
         require(seller.approverAddress != address(0), "Seller Id has no approver address");
-        // TODO validate quote and quote signer here
+        
+        // Validate quote and quote signer here
+        address expectedSignerAddress = getSignerAddressFromPoAndSignature(po, signature);
+        require(seller.approverAddress == expectedSignerAddress, "Signature for quote does not match expected signature");
         
         //-------------------------------------------------------------------------
         // Add fields that contract owns
@@ -262,8 +265,10 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
         require(po.poItems[poItemIndex].status == expectedOldPoStatus, "Existing PO item status incorrect");
     }
     
-    // signature methods
-    function getSignerAddressFromPoAndSignature(IPoTypes.Po memory po, bytes memory signature) public pure returns (address)
+    //-------------------------------------------------------------------------
+    // Signature functions
+    //-------------------------------------------------------------------------
+    function getSignerAddressFromPoAndSignature(IPoTypes.Po memory po, bytes memory signature) override public pure returns (address)
     {
         // Recreate the message that was signed on the client
         bytes32 messageAsClient = prefixed(keccak256(abi.encode(po)));

@@ -33,6 +33,12 @@ namespace Nethereum.Commerce.Contracts
             this.CreateMap<Buyer.PoItem, Seller.PoItem>();
             this.CreateMap<Seller.Po, Buyer.Po>();
             this.CreateMap<Seller.PoItem, Buyer.PoItem>();
+
+            // WalletBuyer <=> Purchasing
+            this.CreateMap<Buyer.Po, Purchase.Po>();
+            this.CreateMap<Buyer.PoItem, Purchase.PoItem>();
+            this.CreateMap<Purchase.Po, Buyer.Po>();
+            this.CreateMap<Purchase.PoItem, Buyer.PoItem>();
         }
     }
 }

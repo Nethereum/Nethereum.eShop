@@ -44,7 +44,7 @@ contract WalletBuyer is IWalletBuyer, Ownable, Bindable
         return purchasing.getPoBySellerAndQuote(sellerIdString, quoteId);
     }
     
-    function createPurchaseOrder(IPoTypes.Po calldata po) override external
+    function createPurchaseOrder(IPoTypes.Po calldata po, bytes calldata signature) override external
     {
         // Calculate total value
         uint     totalValue = 0;
@@ -60,7 +60,7 @@ contract WalletBuyer is IWalletBuyer, Ownable, Bindable
         tokenContract.approve(address(funding), totalValue);
 
         // Purchasing contract does the creation
-        purchasing.createPurchaseOrder(po);
+        purchasing.createPurchaseOrder(po, signature);
     }
     
     function cancelPurchaseOrderItem(uint poNumber, uint8 poItemNumber) override external

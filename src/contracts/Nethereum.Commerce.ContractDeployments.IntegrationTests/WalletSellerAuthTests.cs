@@ -36,11 +36,11 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         public async void ShouldNotBeAbleToSetPoItemStatusWhenNotWalletSellerOwner()
         {
             // Try to set a PO item status by a non-authorised user, it should fail            
-            // Prepare a new PO and create it
-            uint quoteId = GetRandomInt();
-            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId);
+            // Prepare a new PO and create it            
+            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId: GetRandomInt());
+            var signature = poAsRequested.GetSignatureBytes(_contracts.Web3);
             await PrepSendFundsToBuyerWalletForPo(_contracts.Web3, poAsRequested);
-            var txReceipt = await _contracts.Deployment.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
+            var txReceipt = await _contracts.Deployment.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
             txReceipt.Status.Value.Should().Be(1);
 
             // Check PO create events

@@ -26,6 +26,13 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         /// </summary>
         public const string AUTH_EXCEPTION_ONLY_OWNER = "*Ownable: caller is not the owner*";
 
+        /// <summary>
+        /// Revert message during PO creation, for when a PO + signature does not resolve to the expected signer address held
+        /// in BusinessPartnerStorage.sol master data
+        /// </summary>
+        public const string SIGNER_EXCEPTION_WRONG_SIGNER = "*Signature for quote does not match expected signature*";
+
+        
         private static Random _random;
 
         static PoTestHelpers()
@@ -207,9 +214,18 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             string buyerWalletAddress,
             string currencySymbol,
             string currencyAddress,
-            uint quoteId)
+            uint quoteId,
+            bool isLargeValue = false)
         {
-            return new Storage.Po()
+            BigInteger valueLine01 = BigInteger.Parse("110000000000000000000"); // eg this is 110 dai
+            BigInteger valueLine02 = BigInteger.Parse("220000000000000000000"); // eg this is 220 dai
+            if (isLargeValue)
+            {
+                valueLine01 *= 1000;
+                valueLine02 *= 1000;
+            }
+
+            var po = new Storage.Po()
             {
                 // PoNumber assigned by contract
                 BuyerAddress = buyerAddress,
@@ -237,7 +253,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                         Unit = "EA",
                         QuantitySymbol = "NA",
                         QuantityAddress = "0x40ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
-                        CurrencyValue = BigInteger.Parse("110000000000000000000"), // eg this is 110 dai
+                        CurrencyValue = valueLine01
                         // Status assigned by contract
                         // GoodsIssuedDate assigned by contract
                         // GoodsReceivedDate assigned by contract
@@ -257,7 +273,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                         Unit = "EA",
                         QuantitySymbol = "NA",
                         QuantityAddress = "0x42ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
-                        CurrencyValue = BigInteger.Parse("220000000000000000000"), // eg this is 220 dai
+                        CurrencyValue = valueLine02
                         // Status assigned by contract
                         // GoodsIssuedDate assigned by contract
                         // GoodsReceivedDate assigned by contract
@@ -269,12 +285,14 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                 },
                 // RulesCount assigned by contract
                 Rules = new List<byte[]>()
-                { 
+                {
                     "rule01".ConvertToBytes(),
                     "rule02".ConvertToBytes(),
                     "rule03".ConvertToBytes()
                 }
             };
+            return po;
+
         }
 
         /// <summary>

@@ -282,13 +282,15 @@ namespace Nethereum.Commerce.Contracts.Deployment
                 //-----------------------------------------------------------------------------------
                 // Configure Business Partner Storage
                 //-----------------------------------------------------------------------------------
-                #region configure business partner storage
+                #region configure business partner storage and store master data
                 Log();
                 Log($"Configuring BP Storage...");
                 txReceipt = await BusinessPartnerStorageService.ConfigureRequestAndWaitForReceiptAsync(CONTRACT_NAME_ETERNAL_STORAGE);
                 Log($"Tx status: {txReceipt.Status.Value}");
 
-                // Add some BP master data
+                //-----------------------------------------------------------------------------------                                
+                // Add some Business Partner master data
+                //-----------------------------------------------------------------------------------
                 Log($"Adding eShop master data...");
                 txReceipt = await BusinessPartnerStorageService.SetSellerRequestAndWaitForReceiptAsync(
                     new Seller()

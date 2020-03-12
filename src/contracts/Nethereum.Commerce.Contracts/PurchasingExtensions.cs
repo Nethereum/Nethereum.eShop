@@ -1,6 +1,12 @@
 ﻿using AutoMapper;
+using Nethereum.ABI;
 using Nethereum.ABI.Decoders;
 using Nethereum.ABI.Encoders;
+using Nethereum.Hex.HexConvertors.Extensions;
+using Nethereum.Signer;
+using Nethereum.Web3;
+using Nethereum.Web3.Accounts;
+using System;
 using System.Numerics;
 using Buyer = Nethereum.Commerce.Contracts.WalletBuyer.ContractDefinition;
 using Purchase = Nethereum.Commerce.Contracts.Purchasing.ContractDefinition;
@@ -57,7 +63,28 @@ namespace Nethereum.Commerce.Contracts
                 total += po.PoItems[i].CurrencyValue;
             }
             return total;
-        }       
+        }
+
+        public static byte[] GetSignatureBytes(this Buyer.Po po, IWeb3 web3)
+        {
+            if (!(web3.TransactionManager.Account is Account a)) throw new NotSupportedException("Account object needed to expose private key");
+            return po.GetSignatureBytes(a.PrivateKey);
+        }
+
+        public static byte[] GetSignatureBytes(this Buyer.Po po, string privateKeyHex)
+        {
+            privateKeyHex = privateKeyHex.EnsureHexPrefix();
+            var signature = GetSignatureHexString(po, privateKeyHex);
+            return signature.HexToByteArray();
+        }
+
+        public static string GetSignatureHexString(this Buyer.Po po, string privateKeyHex)
+        {
+            privateKeyHex = privateKeyHex.EnsureHexPrefix();
+            var hashEncoded = new ABIEncode().GetSha3ABIEncoded(new ABIValue(new TupleType(), po));
+            var signature = new EthereumMessageSigner().Sign(hashEncoded, privateKeyHex);
+            return signature;
+        }        
 
         // PoStorage <=> WalletBuyer        
         public static Storage.Po ToStoragePo(this Buyer.Po po) { return _mapper.Map<Storage.Po>(po); }
@@ -76,5 +103,9 @@ namespace Nethereum.Commerce.Contracts
         // WalletBuyer <=> WalletSeller
         public static Buyer.Po ToBuyerPo(this Seller.Po po) { return _mapper.Map<Buyer.Po>(po); }
         public static Seller.Po ToSellerPo(this Buyer.Po po) { return _mapper.Map<Seller.Po>(po); }
+
+        // WalletBuyer <=> Purchasing
+        public static Buyer.Po ToBuyerPo(this Purchase.Po po) { return _mapper.Map<Buyer.Po>(po); }
+        public static Purchase.Po ToPurchasingPo(this Buyer.Po po) { return _mapper.Map<Purchase.Po>(po); }
     }
 }

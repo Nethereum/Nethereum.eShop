@@ -40,9 +40,9 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         [Fact]
         public async void ShouldCreateNewPoAndTransferFunds()
         {
-            // Prepare a new PO
-            uint quoteId = GetRandomInt();
-            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId);
+            // Prepare a new PO            
+            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId: GetRandomInt());
+            var signature = poAsRequested.GetSignatureBytes(_contracts.Web3);
 
             //----------------------------------------------------------
             // BEFORE PO RAISED
@@ -75,7 +75,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             //----------------------------------------------------------
             // Create PO on-chain
             // NB this approves token transfer from WALLET BUYER contract (NOT msg.sender == current web3 account) to FUNDING contract
-            var txReceiptCreate = await _contracts.Deployment.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
+            var txReceiptCreate = await _contracts.Deployment.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
             txReceiptCreate.Status.Value.Should().Be(1);
             _output.WriteLine($"... PO created ...");
 
@@ -98,9 +98,9 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         [Fact]
         public async void ShouldRejectPoItemAndRefundBuyer()
         {
-            // Prepare a new PO
-            uint quoteId = GetRandomInt();
-            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId);
+            // Prepare a new PO            
+            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId: GetRandomInt());
+            var signature = poAsRequested.GetSignatureBytes(_contracts.Web3);
 
             // Test setup - transfer required funds from current Web3 acccount to wallet buyer
             StandardTokenService sts = new StandardTokenService(_contracts.Web3, poAsRequested.CurrencyAddress);
@@ -110,7 +110,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 
             // Create PO on-chain
             // NB: this approves token transfer from WALLET BUYER contract (NOT msg.sender == current web3 account) to FUNDING contract
-            var txReceiptCreate = await _contracts.Deployment.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
+            var txReceiptCreate = await _contracts.Deployment.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
             txReceiptCreate.Status.Value.Should().Be(1);
             _output.WriteLine($"... PO created ...");
 
@@ -146,9 +146,9 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         [Fact]
         public async void ShouldCompletePoItemAndPaySeller()
         {
-            // Prepare a new PO
-            uint quoteId = GetRandomInt();
-            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId);
+            // Prepare a new PO            
+            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId: GetRandomInt());
+            var signature = poAsRequested.GetSignatureBytes(_contracts.Web3);
 
             // Test setup - transfer required funds from current Web3 acccount to wallet buyer
             StandardTokenService sts = new StandardTokenService(_contracts.Web3, poAsRequested.CurrencyAddress);
@@ -158,7 +158,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 
             // Create PO on-chain
             // NB: this approves token transfer from WALLET BUYER contract (NOT msg.sender == current web3 account) to FUNDING contract
-            var txReceiptCreate = await _contracts.Deployment.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested);
+            var txReceiptCreate = await _contracts.Deployment.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
             txReceiptCreate.Status.Value.Should().Be(1);
             _output.WriteLine($"... PO created ...");
 
