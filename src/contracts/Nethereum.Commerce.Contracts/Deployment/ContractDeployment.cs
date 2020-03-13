@@ -36,6 +36,7 @@ namespace Nethereum.Commerce.Contracts.Deployment
         public BusinessPartnerStorageService BusinessPartnerStorageService { get; internal set; }
         public PoStorageService PoStorageService { get; internal set; }
         public WalletBuyerService WalletBuyerService { get; internal set; }
+        public WalletBuyerService WalletBuyerService02 { get; internal set; }
         public WalletSellerService WalletSellerService { get; internal set; }
         public PurchasingService PurchasingService { get; internal set; }
         public FundingService FundingService { get; internal set; }
