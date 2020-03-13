@@ -9,5 +9,7 @@ namespace Nethereum.eShop
         public string QuoteBizRulesFileUrl { get; set; }
 
         public string QuoteItemBizRulesFileUrl { get; set; }
+
+        public int BizEngineRetriesUponFailure { get; set; }
     }
 }

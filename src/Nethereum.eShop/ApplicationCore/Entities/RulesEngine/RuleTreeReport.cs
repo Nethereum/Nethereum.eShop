@@ -7,7 +7,7 @@ using Nethereum.eShop.ApplicationCore.Interfaces;
 
 namespace Nethereum.eShop.ApplicationCore.Entities.RulesEngine
 {
-    public class RuleTreeReport : BaseEntity, IExecutionReport
+    public class RuleTreeReport : BaseEntity, IExecutionReport, IAggregateRoot
     {
         public RuleTreeReport(RuleTreeSeed pOrigin)
         {
