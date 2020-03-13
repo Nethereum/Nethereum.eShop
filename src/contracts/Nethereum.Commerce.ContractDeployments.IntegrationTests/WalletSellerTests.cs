@@ -3,6 +3,7 @@ using Nethereum.ABI.FunctionEncoding;
 using Nethereum.Commerce.ContractDeployments.IntegrationTests.Config;
 using Nethereum.Commerce.Contracts;
 using Nethereum.Commerce.Contracts.Purchasing.ContractDefinition;
+using Nethereum.Commerce.Contracts.WalletBuyer;
 using Nethereum.Contracts;
 using System;
 using System.Linq;
@@ -43,7 +44,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             await Task.Delay(1);
             Func<Task> act = async () => await _contracts.Deployment.WalletSellerService.SetPoItemAcceptedRequestAndWaitForReceiptAsync(
                 12345, 1, SALES_ORDER_NUMBER, SALES_ORDER_ITEM);
-            act.Should().Throw<SmartContractRevertException>().WithMessage("*PO does not exist*");
+            act.Should().Throw<SmartContractRevertException>().WithMessage(PO_EXCEPTION_NOT_EXIST);
         }
 
         [Theory]
@@ -66,9 +67,52 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             // This PO exists, but items specified shouldn't exist
             Func<Task> act = async () => await _contracts.Deployment.WalletSellerService.SetPoItemAcceptedRequestAndWaitForReceiptAsync(
                 poNumberAsBuilt, poItemNumber, SALES_ORDER_NUMBER, SALES_ORDER_ITEM);
-            act.Should().Throw<SmartContractRevertException>().WithMessage("*PO item does not exist*");
+            act.Should().Throw<SmartContractRevertException>().WithMessage(PO_ITEM_EXCEPTION_NOT_EXIST);
         }
 
+        /// <summary>
+        /// Setting Goods Received by an EoA that is not the buyer/PO owner should fail, only PO owner can do this
+        /// </summary>
+        [Fact]
+        public async void ShouldFailToSetStatusTo06GoodsReceivedByNonBuyer()
+        {
+            // Prepare a new PO and create it            
+            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId: GetRandomInt());
+            var signature = poAsRequested.GetSignatureBytes(_contracts.Web3);
+            await PrepSendFundsToBuyerWalletForPo(_contracts.Web3, poAsRequested);
+            var txReceiptCreate = await _contracts.Deployment.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
+            txReceiptCreate.Status.Value.Should().Be(1);
+
+            // Get the PO number that was assigned
+            var logPoCreated = txReceiptCreate.DecodeAllEvents<PurchaseOrderCreatedLogEventDTO>().FirstOrDefault();
+            logPoCreated.Should().NotBeNull();
+            var poNumberAsBuilt = logPoCreated.Event.Po.PoNumber;
+
+            // Mark PO item as Accepted
+            var txReceiptAccept = await _contracts.Deployment.WalletSellerService.SetPoItemAcceptedRequestAndWaitForReceiptAsync(
+                poNumberAsBuilt, PO_ITEM_NUMBER, SALES_ORDER_NUMBER, SALES_ORDER_ITEM);
+            txReceiptAccept.Status.Value.Should().Be(1);
+
+            // Mark PO item as Ready for Goods Issue            
+            var txReceiptReadyForGI = await _contracts.Deployment.WalletSellerService.SetPoItemReadyForGoodsIssueRequestAndWaitForReceiptAsync(
+                poNumberAsBuilt, PO_ITEM_NUMBER);
+            txReceiptReadyForGI.Status.Value.Should().Be(1);
+
+            // Mark PO item as Goods Issued            
+            var txReceiptGI = await _contracts.Deployment.WalletSellerService.SetPoItemGoodsIssuedRequestAndWaitForReceiptAsync(
+                poNumberAsBuilt, PO_ITEM_NUMBER);
+            txReceiptGI.Status.Value.Should().Be(1);
+
+            // Setting Goods Received by an EoA that is not the buyer/PO owner should fail, only PO owner can do this    
+            // Use preexisting WalletBuyer contract, but with tx executed by the non-buyer ("secondary") user                        
+            var wbs = new WalletBuyerService(_contracts.Web3SecondaryUser, _contracts.Deployment.WalletBuyerService.ContractHandler.ContractAddress);
+            Func<Task> act = async () => await wbs.SetPoItemGoodsReceivedRequestAndWaitForReceiptAsync(poNumberAsBuilt, PO_ITEM_NUMBER);
+            act.Should().Throw<SmartContractRevertException>().WithMessage(GOODS_RECEIPT_EXCEPTION_NOT_PO_OWNER);
+        }
+
+        /// <summary>
+        /// Setting Goods Received by Seller should fail, seller can only set GR after 30 days
+        /// </summary>
         [Fact]
         public async void ShouldFailToSetStatusTo06GoodsReceivedBySeller()
         {
@@ -102,7 +146,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             // Setting Goods Received by Seller should fail, seller can only set GR after 30 days
             Func<Task> act = async () => await _contracts.Deployment.WalletSellerService.SetPoItemGoodsReceivedRequestAndWaitForReceiptAsync(
                 poNumberAsBuilt, PO_ITEM_NUMBER);
-            act.Should().Throw<SmartContractRevertException>().WithMessage("*Seller cannot set goods received: insufficient days passed*");
+            act.Should().Throw<SmartContractRevertException>().WithMessage(GOODS_RECEIPT_EXCEPTION_INSUFFICIENT_DAYS);
         }
 
         [Fact]

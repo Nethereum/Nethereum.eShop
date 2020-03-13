@@ -57,7 +57,9 @@ contract WalletBuyer is IWalletBuyer, Ownable, Bindable
         // Allow Funding contract to withdraw funds
         IErc20 tokenContract = IErc20(po.currencyAddress);
         // NB: erc20.approve() is approving from THIS Wallet contract (not msg.sender) into the Funding contract
-        tokenContract.approve(address(funding), totalValue);
+        // Depending on token implementation, this might return false if approval failed
+        bool result = tokenContract.approve(address(funding), totalValue);
+        require(result == true, "Token value could not be approved for spend.");
 
         // Purchasing contract does the creation
         purchasing.createPurchaseOrder(po, signature);
@@ -65,11 +67,19 @@ contract WalletBuyer is IWalletBuyer, Ownable, Bindable
     
     function cancelPurchaseOrderItem(uint poNumber, uint8 poItemNumber) override external
     {
+        // Only the PO owner (BuyerAddress) can request PO item cancellation
+        IPoTypes.Po memory po = purchasing.getPo(poNumber);
+        require(msg.sender == po.buyerAddress, "Only PO owner (BuyerAddress) can request item cancellation");
+        
         revert("Not implemented yet");
     }
     
     function setPoItemGoodsReceived(uint poNumber, uint8 poItemNumber) override external
     {
+        // Only the PO owner (BuyerAddress) can mark a PO as goods received. If they don't, eventually PO will time out 
+        // and the eShop admin will be able to mark PO as goods received instead.
+        IPoTypes.Po memory po = purchasing.getPo(poNumber);
+        require(msg.sender == po.buyerAddress, "Only PO owner (BuyerAddress) can say Goods Received");
         purchasing.setPoItemGoodsReceivedBuyer(poNumber, poItemNumber);
     }
 }

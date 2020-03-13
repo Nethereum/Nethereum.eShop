@@ -32,7 +32,28 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         /// </summary>
         public const string SIGNER_EXCEPTION_WRONG_SIGNER = "*Signature for quote does not match expected signature*";
 
-        
+        /// <summary>
+        /// Revert message when an attempt it made by WalletBuyer to set a PO item to goods received, and the msg.sender
+        /// is not the PO owner / BuyerAddress
+        /// </summary>
+        public const string GOODS_RECEIPT_EXCEPTION_NOT_PO_OWNER = "*Only PO owner (BuyerAddress) can say Goods Received*";
+
+        /// <summary>
+        /// Revert message when an attempt it made by WalletSeller to set a PO item to goods received, but not enough
+        /// days have passed since PO item was goods issued.
+        /// </summary>
+        public const string GOODS_RECEIPT_EXCEPTION_INSUFFICIENT_DAYS = "*Seller cannot set goods received: insufficient days passed*";
+
+        /// <summary>
+        /// Revert message when an attempt it made to access a non-existent PO
+        /// </summary>
+        public const string PO_EXCEPTION_NOT_EXIST = "*PO does not exist*";
+
+        /// <summary>
+        /// Revert message when an attempt it made to access a non-existent PO item
+        /// </summary>
+        public const string PO_ITEM_EXCEPTION_NOT_EXIST = "*PO item does not exist*";
+
         private static Random _random;
 
         static PoTestHelpers()
