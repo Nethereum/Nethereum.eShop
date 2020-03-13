@@ -26,6 +26,34 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         /// </summary>
         public const string AUTH_EXCEPTION_ONLY_OWNER = "*Ownable: caller is not the owner*";
 
+        /// <summary>
+        /// Revert message during PO creation, for when a PO + signature does not resolve to the expected signer address held
+        /// in BusinessPartnerStorage.sol master data
+        /// </summary>
+        public const string SIGNER_EXCEPTION_WRONG_SIGNER = "*Signature for quote does not match expected signature*";
+
+        /// <summary>
+        /// Revert message when an attempt it made by WalletBuyer to set a PO item to goods received, and the msg.sender
+        /// is not the PO owner / BuyerAddress
+        /// </summary>
+        public const string GOODS_RECEIPT_EXCEPTION_NOT_PO_OWNER = "*Only PO owner (BuyerAddress) can say Goods Received*";
+
+        /// <summary>
+        /// Revert message when an attempt it made by WalletSeller to set a PO item to goods received, but not enough
+        /// days have passed since PO item was goods issued.
+        /// </summary>
+        public const string GOODS_RECEIPT_EXCEPTION_INSUFFICIENT_DAYS = "*Seller cannot set goods received: insufficient days passed*";
+
+        /// <summary>
+        /// Revert message when an attempt it made to access a non-existent PO
+        /// </summary>
+        public const string PO_EXCEPTION_NOT_EXIST = "*PO does not exist*";
+
+        /// <summary>
+        /// Revert message when an attempt it made to access a non-existent PO item
+        /// </summary>
+        public const string PO_ITEM_EXCEPTION_NOT_EXIST = "*PO item does not exist*";
+
         private static Random _random;
 
         static PoTestHelpers()
@@ -65,6 +93,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                 output.WriteLine($"SellerId           : {po.SellerId}");
                 output.WriteLine($"PoCreateDate       : {po.PoCreateDate}");
                 output.WriteLine($"PoItemCount        : {po.PoItemCount}");
+                output.WriteLine($"PoRulesCount       : {po.RulesCount}");
             }
         }
 
@@ -190,10 +219,15 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                 poActual.PoItems[i].IsEscrowReleased.Should().Be(poExpected.PoItems[i].IsEscrowReleased);
                 poActual.PoItems[i].CancelStatus.Should().Be(poExpected.PoItems[i].CancelStatus);
             }
+            poActual.RulesCount.Should().Be(poExpected.RulesCount);
+            for (int i = 0; i < poActual.RulesCount; i++)
+            {
+                poActual.Rules[i].Should().BeEquivalentTo(poExpected.Rules[i]);
+            }
         }
 
         /// <summary>
-        /// A test PO intended for passing to contracts WalletBuyer.sol or Purchasing.sol poCreate() functions.
+        /// A realistic test PO intended for passing to contracts WalletBuyer.sol or Purchasing.sol poCreate() functions.
         /// </summary>        
         public static Storage.Po CreatePoForPurchasingContracts(
             string buyerAddress,
@@ -201,9 +235,18 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             string buyerWalletAddress,
             string currencySymbol,
             string currencyAddress,
-            uint quoteId)
+            uint quoteId,
+            bool isLargeValue = false)
         {
-            return new Storage.Po()
+            BigInteger valueLine01 = BigInteger.Parse("110000000000000000000"); // eg this is 110 dai
+            BigInteger valueLine02 = BigInteger.Parse("220000000000000000000"); // eg this is 220 dai
+            if (isLargeValue)
+            {
+                valueLine01 *= 1000;
+                valueLine02 *= 1000;
+            }
+
+            var po = new Storage.Po()
             {
                 // PoNumber assigned by contract
                 BuyerAddress = buyerAddress,
@@ -217,7 +260,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                 PoType = PoType.Cash,
                 SellerId = "Nethereum.eShop",
                 // PoCreateDate assigned by contract
-                // PoItemCount assigned by contract
+                // PoItemCount assigned by contract                
                 PoItems = new List<Storage.PoItem>()
                 {
                     new Storage.PoItem()
@@ -231,7 +274,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                         Unit = "EA",
                         QuantitySymbol = "NA",
                         QuantityAddress = "0x40ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
-                        CurrencyValue = BigInteger.Parse("110000000000000000000"), // eg this is 110 dai
+                        CurrencyValue = valueLine01
                         // Status assigned by contract
                         // GoodsIssuedDate assigned by contract
                         // GoodsReceivedDate assigned by contract
@@ -251,7 +294,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                         Unit = "EA",
                         QuantitySymbol = "NA",
                         QuantityAddress = "0x42ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
-                        CurrencyValue = BigInteger.Parse("220000000000000000000"), // eg this is 220 dai
+                        CurrencyValue = valueLine02
                         // Status assigned by contract
                         // GoodsIssuedDate assigned by contract
                         // GoodsReceivedDate assigned by contract
@@ -260,12 +303,21 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                         // IsEscrowReleased assigned by contract
                         // CancelStatus assigned by contract
                     }
+                },
+                // RulesCount assigned by contract
+                Rules = new List<byte[]>()
+                {
+                    "rule01".ConvertToBytes32(),
+                    "rule02".ConvertToBytes32(),
+                    "rule03".ConvertToBytes32()
                 }
             };
+            return po;
+
         }
 
         /// <summary>
-        /// A test PO intended for writing directly to the PO storage contract PoStorage.sol (ie no validations are done on
+        /// An unrealistic PO intended for writing directly to the PO storage contract PoStorage.sol (ie no validations are done on
         /// this data, it is written direct to storage only).
         /// </summary>
         public static Storage.Po CreatePoForPoStorageContract(uint poNumber, string approverAddress, uint quoteId)
@@ -327,6 +379,13 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                         IsEscrowReleased = false,
                         CancelStatus = PoItemCancelStatus.Initial
                     }
+                },
+                RulesCount = 3,
+                Rules = new List<byte[]>()
+                {
+                    "rule01".ConvertToBytes32(),
+                    "rule02".ConvertToBytes32(),
+                    "rule03".ConvertToBytes32(),
                 }
             };
         }

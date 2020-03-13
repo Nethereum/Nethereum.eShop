@@ -34,7 +34,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                 SellerId = "SellerToTest",
                 SellerDescription = _contracts.Deployment.ContractDeploymentConfig.EShopDescription,
                 ContractAddress = sellerContractAddress,
-                ApproverAddress = _contracts.Deployment.ContractDeploymentConfig.EShopApproverAddress,
+                ApproverAddress = _contracts.Deployment.ContractDeploymentConfig.EShopApproverAddress.ToLowerInvariant(),
                 IsActive = true
             };
 

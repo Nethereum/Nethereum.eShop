@@ -39,5 +39,9 @@ namespace Nethereum.Commerce.Contracts.WalletBuyer.ContractDefinition
         public virtual byte PoItemCount { get; set; }
         [Parameter("tuple[]", "poItems", 14)]
         public virtual List<PoItem> PoItems { get; set; }
+        [Parameter("uint8", "rulesCount", 15)]
+        public virtual byte RulesCount { get; set; }
+        [Parameter("bytes32[]", "rules", 16)]
+        public virtual List<byte[]> Rules { get; set; }
     }
 }

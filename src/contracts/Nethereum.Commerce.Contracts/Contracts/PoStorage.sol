@@ -30,8 +30,10 @@ contract PoStorage is IPoStorage, Ownable, Bindable, StringConvertible
     string constant private SELLER_ID = "sellerId";
     string constant private PO_CREATE_DATE = "poCreateDate";
     string constant private PO_ITEM_COUNT = "poItemCount";
+    string constant private PO_RULES_COUNT = "rulesCount";
 
     // Line Items
+    string constant private LINE_ITEM_PREFIX = "li";
     string constant private PO_ITEM_NUMBER = "poItemNumber";
     string constant private SO_NUMBER = "soNumber";
     string constant private SO_ITEM_NUMBER = "soItemNumber";
@@ -48,6 +50,9 @@ contract PoStorage is IPoStorage, Ownable, Bindable, StringConvertible
     string constant private ACTUAL_ESCROW_RELEASE_DATE = "actualEscrowReleaseDate";
     string constant private IS_ESCROW_RELEASED = "isEscrowReleased";
     string constant private CANCEL_STATUS = "cancelStatus";
+    
+    // Rules
+    string constant private RULE_ITEM_PREFIX = "ru";
     
     // Number range field names
     string constant private PO_GLOBAL_NUMBER = "po.global.number";
@@ -122,13 +127,13 @@ contract PoStorage is IPoStorage, Ownable, Bindable, StringConvertible
         po.sellerId = eternalStorage.getBytes32Value(keccak256(abi.encodePacked(headerKey, SELLER_ID)));
         po.poCreateDate = eternalStorage.getUint256Value(keccak256(abi.encodePacked(headerKey, PO_CREATE_DATE)));
         po.poItemCount = uint8(eternalStorage.getUint256Value(keccak256(abi.encodePacked(headerKey, PO_ITEM_COUNT))));
-        uint len = po.poItemCount;
         
         // Line items
-        po.poItems = new IPoTypes.PoItem[](len);
-        for (uint i = 0; i < len; i++)
+        uint lenItems = po.poItemCount;
+        po.poItems = new IPoTypes.PoItem[](lenItems);
+        for (uint i = 0; i < lenItems; i++)
         {
-            bytes32 lineItemKey = keccak256(abi.encodePacked(CLIENT, po.poNumber, i));
+            bytes32 lineItemKey = keccak256(abi.encodePacked(CLIENT, LINE_ITEM_PREFIX, po.poNumber, i));
             po.poItems[i].poNumber = eternalStorage.getUint256Value(keccak256(abi.encodePacked(lineItemKey, PO_NUMBER)));
             po.poItems[i].poItemNumber = uint8(eternalStorage.getUint256Value(keccak256(abi.encodePacked(lineItemKey, PO_ITEM_NUMBER))));
             po.poItems[i].soNumber = eternalStorage.getBytes32Value(keccak256(abi.encodePacked(lineItemKey, SO_NUMBER)));
@@ -147,12 +152,23 @@ contract PoStorage is IPoStorage, Ownable, Bindable, StringConvertible
             po.poItems[i].isEscrowReleased = eternalStorage.getBooleanValue(keccak256(abi.encodePacked(lineItemKey, IS_ESCROW_RELEASED)));
             po.poItems[i].cancelStatus = IPoTypes.PoItemCancelStatus(eternalStorage.getUint256Value(keccak256(abi.encodePacked(lineItemKey, CANCEL_STATUS))));
         }
+        
+        // Rules
+        po.rulesCount = uint8(eternalStorage.getUint256Value(keccak256(abi.encodePacked(headerKey, PO_RULES_COUNT))));
+        uint lenRules = po.rulesCount;
+        po.rules = new bytes32[](lenRules);
+        for (uint i = 0; i < lenRules; i++)
+        {
+            bytes32 ruleItemKey = keccak256(abi.encodePacked(CLIENT, RULE_ITEM_PREFIX, po.poNumber, i));
+            po.rules[i] = eternalStorage.getBytes32Value(keccak256(abi.encodePacked(ruleItemKey)));
+        }
     }
 
     function setPo(IPoTypes.Po memory po) onlyRegisteredCaller() override public
     {
         // Update main PO storage
-        uint len = po.poItems.length;
+        uint lenItems = po.poItems.length;
+        uint lenRules = po.rules.length;
         
         // Header
         bytes32 headerKey = keccak256(abi.encodePacked(CLIENT, po.poNumber));
@@ -168,12 +184,12 @@ contract PoStorage is IPoStorage, Ownable, Bindable, StringConvertible
         eternalStorage.setUint256Value(keccak256(abi.encodePacked(headerKey, PO_TYPE)), uint256(po.poType));
         eternalStorage.setBytes32Value(keccak256(abi.encodePacked(headerKey, SELLER_ID)), po.sellerId);
         eternalStorage.setUint256Value(keccak256(abi.encodePacked(headerKey, PO_CREATE_DATE)), po.poCreateDate);
-        eternalStorage.setUint256Value(keccak256(abi.encodePacked(headerKey, PO_ITEM_COUNT)), len);
+        eternalStorage.setUint256Value(keccak256(abi.encodePacked(headerKey, PO_ITEM_COUNT)), lenItems);
         
         // Line Items
-        for (uint i = 0; i < len; i++)
+        for (uint i = 0; i < lenItems; i++)
         {
-            bytes32 lineItemKey = keccak256(abi.encodePacked(CLIENT, po.poNumber, i));
+            bytes32 lineItemKey = keccak256(abi.encodePacked(CLIENT, LINE_ITEM_PREFIX, po.poNumber, i));
             eternalStorage.setUint256Value(keccak256(abi.encodePacked(lineItemKey, PO_NUMBER)), po.poItems[i].poNumber);
             eternalStorage.setUint256Value(keccak256(abi.encodePacked(lineItemKey, PO_ITEM_NUMBER)), po.poItems[i].poItemNumber);
             eternalStorage.setBytes32Value(keccak256(abi.encodePacked(lineItemKey, SO_NUMBER)), po.poItems[i].soNumber);
@@ -193,7 +209,15 @@ contract PoStorage is IPoStorage, Ownable, Bindable, StringConvertible
             eternalStorage.setUint256Value(keccak256(abi.encodePacked(lineItemKey, CANCEL_STATUS)), uint256(po.poItems[i].cancelStatus));
         }
         
-        // Update mapping of [buyer address + nonce] => po number
+        // Rules
+        eternalStorage.setUint256Value(keccak256(abi.encodePacked(headerKey, PO_RULES_COUNT)), lenRules);
+        for (uint i = 0; i < lenRules; i++)
+        {
+            bytes32 ruleItemKey = keccak256(abi.encodePacked(CLIENT, RULE_ITEM_PREFIX, po.poNumber, i));
+            eternalStorage.setBytes32Value(keccak256(abi.encodePacked(ruleItemKey)), po.rules[i]);
+        }
+        
+        // Update mapping of [seller id + quote id] => po number
         bytes32 mappingKey = keccak256(abi.encodePacked(CLIENT, po.sellerId, po.quoteId));
         eternalStorage.setMappingBytes32ToUint256Value(stringToBytes32(MAP_SELLER_AND_QUOTE_TO_PO), mappingKey, uint256(po.poNumber));
     }

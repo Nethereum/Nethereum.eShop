@@ -198,18 +198,20 @@ namespace Nethereum.Commerce.Contracts.Purchasing
              return ContractHandler.SendRequestAndWaitForReceiptAsync(createPurchaseOrderFunction, cancellationToken);
         }
 
-        public Task<string> CreatePurchaseOrderRequestAsync(Po po)
+        public Task<string> CreatePurchaseOrderRequestAsync(Po po, byte[] signature)
         {
             var createPurchaseOrderFunction = new CreatePurchaseOrderFunction();
                 createPurchaseOrderFunction.Po = po;
+                createPurchaseOrderFunction.Signature = signature;
             
              return ContractHandler.SendRequestAsync(createPurchaseOrderFunction);
         }
 
-        public Task<TransactionReceipt> CreatePurchaseOrderRequestAndWaitForReceiptAsync(Po po, CancellationTokenSource cancellationToken = null)
+        public Task<TransactionReceipt> CreatePurchaseOrderRequestAndWaitForReceiptAsync(Po po, byte[] signature, CancellationTokenSource cancellationToken = null)
         {
             var createPurchaseOrderFunction = new CreatePurchaseOrderFunction();
                 createPurchaseOrderFunction.Po = po;
+                createPurchaseOrderFunction.Signature = signature;
             
              return ContractHandler.SendRequestAndWaitForReceiptAsync(createPurchaseOrderFunction, cancellationToken);
         }
@@ -250,6 +252,21 @@ namespace Nethereum.Commerce.Contracts.Purchasing
                 getPoBySellerAndQuoteFunction.QuoteId = quoteId;
             
             return ContractHandler.QueryDeserializingToObjectAsync<GetPoBySellerAndQuoteFunction, GetPoBySellerAndQuoteOutputDTO>(getPoBySellerAndQuoteFunction, blockParameter);
+        }
+
+        public Task<string> GetSignerAddressFromPoAndSignatureQueryAsync(GetSignerAddressFromPoAndSignatureFunction getSignerAddressFromPoAndSignatureFunction, BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<GetSignerAddressFromPoAndSignatureFunction, string>(getSignerAddressFromPoAndSignatureFunction, blockParameter);
+        }
+
+        
+        public Task<string> GetSignerAddressFromPoAndSignatureQueryAsync(Po po, byte[] signature, BlockParameter blockParameter = null)
+        {
+            var getSignerAddressFromPoAndSignatureFunction = new GetSignerAddressFromPoAndSignatureFunction();
+                getSignerAddressFromPoAndSignatureFunction.Po = po;
+                getSignerAddressFromPoAndSignatureFunction.Signature = signature;
+            
+            return ContractHandler.QueryAsync<GetSignerAddressFromPoAndSignatureFunction, string>(getSignerAddressFromPoAndSignatureFunction, blockParameter);
         }
 
         public Task<bool> IsOwnerQueryAsync(IsOwnerFunction isOwnerFunction, BlockParameter blockParameter = null)

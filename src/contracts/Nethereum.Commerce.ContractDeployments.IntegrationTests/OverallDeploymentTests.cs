@@ -50,7 +50,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             actualSellerIdString.Should().Be(expectedSellerIdString);
 
             // ... and that seller id should have a master data entry in business partner storage.            
-            var actualSellerIdBytes = actualSellerIdString.ConvertToBytes();
+            var actualSellerIdBytes = actualSellerIdString.ConvertToBytes32();
             var actualSellerIdRecordFromBusinessPartnerStorage = (await _contracts.Deployment.BusinessPartnerStorageService.GetSellerQueryAsync(actualSellerIdBytes)).Seller;
             actualSellerIdRecordFromBusinessPartnerStorage.IsActive.Should().Be(true);
             actualSellerIdRecordFromBusinessPartnerStorage.SellerDescription.Should().Be(_contracts.Deployment.ContractDeploymentConfig.EShopDescription);

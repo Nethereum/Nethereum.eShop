@@ -170,18 +170,20 @@ namespace Nethereum.Commerce.Contracts.WalletBuyer
              return ContractHandler.SendRequestAndWaitForReceiptAsync(createPurchaseOrderFunction, cancellationToken);
         }
 
-        public Task<string> CreatePurchaseOrderRequestAsync(Po po)
+        public Task<string> CreatePurchaseOrderRequestAsync(Po po, byte[] signature)
         {
             var createPurchaseOrderFunction = new CreatePurchaseOrderFunction();
                 createPurchaseOrderFunction.Po = po;
+                createPurchaseOrderFunction.Signature = signature;
             
              return ContractHandler.SendRequestAsync(createPurchaseOrderFunction);
         }
 
-        public Task<TransactionReceipt> CreatePurchaseOrderRequestAndWaitForReceiptAsync(Po po, CancellationTokenSource cancellationToken = null)
+        public Task<TransactionReceipt> CreatePurchaseOrderRequestAndWaitForReceiptAsync(Po po, byte[] signature, CancellationTokenSource cancellationToken = null)
         {
             var createPurchaseOrderFunction = new CreatePurchaseOrderFunction();
                 createPurchaseOrderFunction.Po = po;
+                createPurchaseOrderFunction.Signature = signature;
             
              return ContractHandler.SendRequestAndWaitForReceiptAsync(createPurchaseOrderFunction, cancellationToken);
         }
