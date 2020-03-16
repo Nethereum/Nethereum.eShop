@@ -180,6 +180,43 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         }
 
         [Fact]
+        public async void ShouldFailToCreateNewPoWhenQuoteHasExpired()
+        {
+            // Prepare a new PO with quote expiry date to be expired
+            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId: GetRandomInt());
+            poAsRequested.QuoteExpiryDate = new BigInteger(DateTimeOffset.Now.ToUnixTimeSeconds() - 3600); // quote expired an hour ago
+            var signature = poAsRequested.GetSignatureBytes(_contracts.Web3);
+            await PrepSendFundsToBuyerWalletForPo(_contracts.Web3, poAsRequested);
+            Func<Task> act = async () => await _contracts.Deployment.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
+            act.Should().Throw<SmartContractRevertException>(QUOTE_EXCEPTION_EXPIRY_PASSED);
+        }
+
+        [Fact]
+        public async void ShouldFailToCreateNewPoWhenSellerIdIsInactive()
+        {
+            // Prepare a new PO
+            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId: GetRandomInt());
+            var signature = poAsRequested.GetSignatureBytes(_contracts.Web3);
+            await PrepSendFundsToBuyerWalletForPo(_contracts.Web3, poAsRequested);
+
+            // Temporarily make seller inactive
+            var seller = (await _contracts.Deployment.BusinessPartnerStorageService.GetSellerQueryAsync(poAsRequested.SellerId)).Seller;
+            seller.Should().NotBeNull();
+            seller.IsActive = false;
+            var sellerSetTx = await _contracts.Deployment.BusinessPartnerStorageService.SetSellerRequestAndWaitForReceiptAsync(seller);
+            sellerSetTx.Status.Value.Should().Be(1);
+
+            // Attempt to create PO, it should fail
+            Func<Task> act = async () => await _contracts.Deployment.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
+            act.Should().Throw<SmartContractRevertException>(PO_EXCEPTION_SELLER_INACTIVE);
+
+            // Make seller active again, else we mess up other tests
+            seller.IsActive = true;
+            sellerSetTx = await _contracts.Deployment.BusinessPartnerStorageService.SetSellerRequestAndWaitForReceiptAsync(seller);
+            sellerSetTx.Status.Value.Should().Be(1);
+        }
+
+        [Fact]
         public async void ShouldFailToCreateNewPoWithoutCorrectSignature()
         {
             // Prepare a new PO            
@@ -189,7 +226,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var signature = poAsRequested.GetSignatureBytes(_contracts.Web3SecondaryUser);
             await PrepSendFundsToBuyerWalletForPo(_contracts.Web3, poAsRequested);
             Func<Task> act = async () => await _contracts.Deployment.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
-            act.Should().Throw<SmartContractRevertException>(SIGNER_EXCEPTION_WRONG_SIGNER);
+            act.Should().Throw<SmartContractRevertException>(QUOTE_EXCEPTION_WRONG_SIGNER);
         }
 
         [Fact]

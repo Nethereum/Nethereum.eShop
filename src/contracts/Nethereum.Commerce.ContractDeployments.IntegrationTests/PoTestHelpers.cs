@@ -30,7 +30,12 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         /// Revert message during PO creation, for when a PO + signature does not resolve to the expected signer address held
         /// in BusinessPartnerStorage.sol master data
         /// </summary>
-        public const string SIGNER_EXCEPTION_WRONG_SIGNER = "*Signature for quote does not match expected signature*";
+        public const string QUOTE_EXCEPTION_WRONG_SIGNER = "*Signature for quote does not match expected signature*";
+
+        /// <summary>
+        /// Revert message during PO creation, for when quote expiry date has passed
+        /// </summary>
+        public const string QUOTE_EXCEPTION_EXPIRY_PASSED = "*Quote expiry date has passed*";
 
         /// <summary>
         /// Revert message when an attempt it made by WalletBuyer to set a PO item to goods received, and the msg.sender
@@ -43,6 +48,11 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         /// days have passed since PO item was goods issued.
         /// </summary>
         public const string GOODS_RECEIPT_EXCEPTION_INSUFFICIENT_DAYS = "*Seller cannot set goods received: insufficient days passed*";
+
+        /// <summary>
+        /// Revert message when an attempt it made to create a PO but the seller id is inactive
+        /// </summary>
+        public const string PO_EXCEPTION_SELLER_INACTIVE = "*Seller Id is inactive*";
 
         /// <summary>
         /// Revert message when an attempt it made to access a non-existent PO
@@ -255,7 +265,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                 CurrencySymbol = currencySymbol,
                 CurrencyAddress = currencyAddress,
                 QuoteId = quoteId,
-                QuoteExpiryDate = 1,
+                QuoteExpiryDate = new BigInteger(DateTimeOffset.Now.ToUnixTimeSeconds() + 3600),  // expires in an hour
                 ApproverAddress = string.Empty,  // assigned by contract
                 PoType = PoType.Cash,
                 SellerId = "Nethereum.eShop",
@@ -318,7 +328,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 
         /// <summary>
         /// An unrealistic PO intended for writing directly to the PO storage contract PoStorage.sol (ie no validations are done on
-        /// this data, it is written direct to storage only).
+        /// this data, it is written direct to storage only, so values like quote expiry date are not checked).
         /// </summary>
         public static Storage.Po CreatePoForPoStorageContract(uint poNumber, string approverAddress, uint quoteId)
         {

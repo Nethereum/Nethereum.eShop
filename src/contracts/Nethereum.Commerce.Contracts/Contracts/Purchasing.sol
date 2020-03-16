@@ -72,10 +72,12 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
         // Ensure seller has a master data entry with approver address
         IPoTypes.Seller memory seller = bpStorage.getSeller(po.sellerId);
         require(seller.approverAddress != address(0), "Seller Id has no approver address");
+        require(seller.isActive == true, "Seller Id is inactive");
         
         // Validate quote and quote signer here
         address expectedSignerAddress = getSignerAddressFromPoAndSignature(po, signature);
         require(seller.approverAddress == expectedSignerAddress, "Signature for quote does not match expected signature");
+        require(po.quoteExpiryDate >= now, "Quote expiry date has passed");
         
         //-------------------------------------------------------------------------
         // Add fields that contract owns
