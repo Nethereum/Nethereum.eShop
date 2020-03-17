@@ -26,8 +26,8 @@ namespace Nethereum.Commerce.Contracts.WalletSeller
             var setPoItemAcceptedFunction = new SetPoItemAcceptedFunction();
             setPoItemAcceptedFunction.PoNumber = poNumber;
             setPoItemAcceptedFunction.PoItemNumber = poItemNumber;
-            setPoItemAcceptedFunction.SoNumber = soNumber.ConvertToBytes();
-            setPoItemAcceptedFunction.SoItemNumber = soItemNumber.ConvertToBytes();
+            setPoItemAcceptedFunction.SoNumber = soNumber.ConvertToBytes32();
+            setPoItemAcceptedFunction.SoItemNumber = soItemNumber.ConvertToBytes32();
 
             return ContractHandler.SendRequestAndWaitForReceiptAsync(setPoItemAcceptedFunction, cancellationToken);
         }

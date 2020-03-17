@@ -61,5 +61,13 @@ namespace Nethereum.Commerce.Contracts.PoStorage.ContractDefinition
 
         [Parameter("tuple[]", "poItems", 14)]
         public new List<PoItem> PoItems { get; set; }
+
+
+        [Parameter("uint8", "rulesCount", 15)]
+        public new uint RulesCount { get; set; }
+
+
+        [Parameter("bytes32[]", "rules", 16)]
+        public new List<byte[]> Rules { get; set; }
     }
 }

@@ -34,9 +34,10 @@ interface IPurchasing
     // Purchasing
     function getPo(uint poNumber) external view returns (IPoTypes.Po memory po);
     function getPoBySellerAndQuote(string calldata sellerIdString, uint quoteId) external view returns (IPoTypes.Po memory po);
+    function getSignerAddressFromPoAndSignature(IPoTypes.Po calldata po, bytes calldata signature) external pure returns (address);
     
     // Only from Buyer Wallet
-    function createPurchaseOrder(IPoTypes.Po calldata po) external;
+    function createPurchaseOrder(IPoTypes.Po calldata po, bytes calldata signature) external;
     function cancelPurchaseOrderItem(uint poNumber, uint8 poItemNumber) external;
     function setPoItemGoodsReceivedBuyer(uint poNumber, uint8 poItemNumber) external;
     

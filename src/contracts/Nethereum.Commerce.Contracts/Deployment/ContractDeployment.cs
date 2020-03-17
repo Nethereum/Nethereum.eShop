@@ -36,6 +36,7 @@ namespace Nethereum.Commerce.Contracts.Deployment
         public BusinessPartnerStorageService BusinessPartnerStorageService { get; internal set; }
         public PoStorageService PoStorageService { get; internal set; }
         public WalletBuyerService WalletBuyerService { get; internal set; }
+        public WalletBuyerService WalletBuyerService02 { get; internal set; }
         public WalletSellerService WalletSellerService { get; internal set; }
         public PurchasingService PurchasingService { get; internal set; }
         public FundingService FundingService { get; internal set; }
@@ -282,13 +283,15 @@ namespace Nethereum.Commerce.Contracts.Deployment
                 //-----------------------------------------------------------------------------------
                 // Configure Business Partner Storage
                 //-----------------------------------------------------------------------------------
-                #region configure business partner storage
+                #region configure business partner storage and store master data
                 Log();
                 Log($"Configuring BP Storage...");
                 txReceipt = await BusinessPartnerStorageService.ConfigureRequestAndWaitForReceiptAsync(CONTRACT_NAME_ETERNAL_STORAGE);
                 Log($"Tx status: {txReceipt.Status.Value}");
 
-                // Add some BP master data
+                //-----------------------------------------------------------------------------------                                
+                // Add some Business Partner master data
+                //-----------------------------------------------------------------------------------
                 Log($"Adding eShop master data...");
                 txReceipt = await BusinessPartnerStorageService.SetSellerRequestAndWaitForReceiptAsync(
                     new Seller()

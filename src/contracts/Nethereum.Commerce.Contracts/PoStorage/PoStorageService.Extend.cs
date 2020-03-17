@@ -11,7 +11,7 @@ namespace Nethereum.Commerce.Contracts.PoStorage
         public Task<BigInteger> GetPoNumberBySellerAndQuoteQueryAsync(string sellerId, BigInteger quoteId, BlockParameter blockParameter = null)
         {
             var getPoNumberBySellerAndQuoteFunction = new GetPoNumberBySellerAndQuoteFunction();
-            getPoNumberBySellerAndQuoteFunction.SellerId = sellerId.ConvertToBytes();
+            getPoNumberBySellerAndQuoteFunction.SellerId = sellerId.ConvertToBytes32();
             getPoNumberBySellerAndQuoteFunction.QuoteId = quoteId;
 
             return ContractHandler.QueryAsync<GetPoNumberBySellerAndQuoteFunction, BigInteger>(getPoNumberBySellerAndQuoteFunction, blockParameter);

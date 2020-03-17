@@ -16,7 +16,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
         /// used to deploy and own contracts and to run tests.
         /// </summary>
         public Web3.Web3 Web3 { get; internal set; }
-
+                
         /// <summary>
         /// Web3 representing the "secondary user", that is a user with
         /// ether but without owner rights to any contract. Used for testing 
