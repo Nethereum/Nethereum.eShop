@@ -57,16 +57,21 @@ interface IPoTypes
     struct Po
     {
         uint poNumber;                     // contract managed, PO header key, leave blank at PO creation time
-        address buyerAddress;              // buyer UI managed, buyer EoA address represents user identity and "owner" of the PO ("user address")
-        address receiverAddress;           // buyer UI managed, buyer EoA address will receive product ownership tokens at end ("logistics address")
-        address buyerWalletAddress;        // buyer UI managed, buyer contract address, used to locate contract whose functions are called by buyer UI, handles tokens ("finance address")
+        
+        address buyerUserAddress;          // buyer UI managed, buyer EoA address represents user identity and "owner" of the PO ("user address")
+        address buyerReceiverAddress;      // buyer UI managed, buyer EoA address will receive product ownership tokens at end ("logistics address")
+        address buyerWalletAddress;        // buyer UI managed, buyer wallet contract address, used to locate wallet contract whose functions are called by buyer UI, handles tokens ("finance address")
+        
+        bytes32 eShopId;                   // buyer UI managed, uniquely identifies a shop (GLOBAL)
+        uint quoteId;                      // buyer UI managed, a quote signed by eShop, eShopId+quoteId uniquely identifies a single poNumber
+        uint quoteExpiryDate;              // buyer UI managed, a quote signed by eShop expires on this date
+        address quoteSignerAddress;        // contract managed, signer of quote is looked up from eShop master data during PO creation
+        
+        bytes32 sellerId;                  // buyer UI managed, uniquely identifies a seller (GLOBAL) 
+        
         bytes32 currencySymbol;            // buyer UI managed, symbol of the ERC20 that is making payment, eg DAI
         address currencyAddress;           // buyer UI managed, contract address of the ERC20 that is making payment
-        uint quoteId;                      // buyer UI managed, a quote signed by seller system, sellerId+quoteId uniquely identifies a single poNumber
-        uint quoteExpiryDate;              // buyer UI managed, a quote signed by seller system, sellerId+quoteId uniquely identifies a single poNumber
-        address approverAddress;           // contract managed, signer of quote, looked up from seller master data during PO creation
         PoType poType;                     // buyer UI managed, specifies what workflow PO will use
-        bytes32 sellerId;                  // buyer UI managed, allocated by seller admin to uniquely identify their shop
         uint poCreateDate;                 // buyer UI managed, po creation unix timestamp
         uint8 poItemCount;                 // contract managed, count of line items written to storage
         PoItem[] poItems;                  // dynamic array of po items, TODO impose configurable max of eg 16, low enough that contract can iterate all
@@ -75,14 +80,27 @@ interface IPoTypes
     }
     
     //------------------------------------------------------------------------
+    // eShop
+    //------------------------------------------------------------------------
+    struct Eshop
+    {
+        bytes32 eShopId;                   // uniquely identifies a shop
+        bytes32 eShopDescription;          // optional free text short description
+        address purchasingContractAddress; // contract address of the shops Purchasing.sol contract that handles purchase orders
+        address quoteSignerAddress;        // EoA or contract address, the signer who can a sign a quotation tx to prove shop approves it
+        bool isActive;                     // flag true if shop is active
+        address createdByAddress;          // decentralised admin - only creator can make changes
+    }
+    
+    //------------------------------------------------------------------------
     // Seller
     //------------------------------------------------------------------------
     struct Seller
     {
-        bytes32 sellerId;                  // uniquely identifies a seller/shop
-        bytes32 sellerDescription;         // free text short description
-        address contractAddress;           // Contract address of seller wallet, where money sent after a sale
-        address approverAddress;           // EoA or contract address, the signer who can a sign a quotation tx to prove shop approves it
+        bytes32 sellerId;                  // uniquely identifies a seller
+        bytes32 sellerDescription;         // optional free text short description
+        address adminContractAddress;      // contract address of seller wallet, used to manage listings, also where money sent after a sale
         bool isActive;                     // flag true if seller is active
+        address createdByAddress;          // decentralised admin - only creator can make changes
     }
 }
