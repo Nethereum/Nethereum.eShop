@@ -30,14 +30,14 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         {
             // Try to store a Seller sent by a non-authorised user, it should fail            
             // Create a Seller to store
-            var sellerContractAddress = _contracts.Deployment.WalletSellerService.ContractHandler.ContractAddress;
+            var sellerAdminContractAddress = _contracts.Deployment.WalletSellerService.ContractHandler.ContractAddress;
             var sellerExpected = new Seller()
             {
                 SellerId = "SellerToTest",
-                SellerDescription = _contracts.Deployment.ContractDeploymentConfig.EShopDescription,
-                ContractAddress = sellerContractAddress,
-                ApproverAddress = _contracts.Deployment.ContractDeploymentConfig.EShopApproverAddress,
-                IsActive = true
+                SellerDescription = "SellerDescription",
+                AdminContractAddress = sellerAdminContractAddress,
+                IsActive = true,
+                CreatedByAddress = string.Empty // filled by contract
             };
 
             // Store Seller using preexisting bp storage service contract, but with tx executed by the non-authorised ("secondary") user

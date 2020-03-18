@@ -298,8 +298,8 @@ namespace Nethereum.Commerce.Contracts.Deployment
                     {
                         SellerId = ContractDeploymentConfig.EShopSellerId,
                         SellerDescription = ContractDeploymentConfig.EShopDescription,
-                        ContractAddress = WalletSellerService.ContractHandler.ContractAddress,
-                        ApproverAddress = ContractDeploymentConfig.EShopApproverAddress,
+                        AdminContractAddress = WalletSellerService.ContractHandler.ContractAddress,
+                        // TODO move to shop ApproverAddress = ContractDeploymentConfig.EShopApproverAddress,
                         IsActive = true
                     });
                 Log($"Tx status: {txReceipt.Status.Value}");
