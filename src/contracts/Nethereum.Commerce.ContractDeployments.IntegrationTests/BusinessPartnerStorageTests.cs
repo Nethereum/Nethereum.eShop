@@ -1,8 +1,12 @@
 using FluentAssertions;
+using Nethereum.ABI.FunctionEncoding;
 using Nethereum.Commerce.ContractDeployments.IntegrationTests.Config;
 using Nethereum.Commerce.Contracts.BusinessPartnerStorage.ContractDefinition;
+using System;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
+using static Nethereum.Commerce.ContractDeployments.IntegrationTests.PoTestHelpers;
 
 namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 {
@@ -28,7 +32,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             // Create a Seller to store
             var sellerExpected = new Seller()
             {
-                SellerId = "SellerToTest",
+                SellerId = "SellerToTest" + GetRandomString(),
                 SellerDescription = "SellerDescription",
                 AdminContractAddress = sellerAdminContractAddress,
                 IsActive = true,
@@ -52,7 +56,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             // Create an eShop to store
             var eShopExpected = new Eshop()
             {
-                EShopId = "eShopToTest",
+                EShopId = "eShopToTest" + GetRandomString(),
                 EShopDescription = "eShopDescription",
                 PurchasingContractAddress = "0x94618601FE6cb8912b274E5a00453949A57f8C1e",
                 QuoteSignerAddress = "0x94618601FE6cb8912b274E5a00453949A57f8C1e",
@@ -71,23 +75,41 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             CheckEveryEshopFieldMatches(eShopExpected, eShopActual, createdByAddress: _contracts.Web3.TransactionManager.Account.Address);
         }
 
-        private static void CheckEverySellerFieldMatches(Seller sellerExpected, Seller sellerActual, string createdByAddress)
+        [Fact]
+        public async void ShouldFailToCreateEshopWhenMissingData()
         {
-            sellerActual.SellerId.Should().Be(sellerExpected.SellerId);
-            sellerActual.SellerDescription.Should().Be(sellerExpected.SellerDescription);
-            sellerActual.AdminContractAddress.ToLowerInvariant().Should().Be(sellerExpected.AdminContractAddress.ToLowerInvariant());
-            sellerActual.IsActive.Should().Be(sellerExpected.IsActive);
-            sellerActual.CreatedByAddress.ToLowerInvariant().Should().Be(createdByAddress.ToLowerInvariant());
+            // Create an eShop to store, but miss out required field PurchasingContractAddress            
+            var eShopExpected = new Eshop()
+            {
+                EShopId = "eShopToTest" + GetRandomString(),
+                EShopDescription = "eShopDescription",
+                PurchasingContractAddress = string.Empty,  // causes error
+                QuoteSignerAddress = "0x94618601FE6cb8912b274E5a00453949A57f8C1e",
+                IsActive = true,
+                CreatedByAddress = string.Empty // filled by contract
+            };
+
+            // Try to store eShop, it should fail
+            Func<Task> act = async () => await _contracts.Deployment.BusinessPartnerStorageService.SetEshopRequestAndWaitForReceiptAsync(eShopExpected);
+            act.Should().Throw<SmartContractRevertException>().WithMessage(BP_EXCEPTION_ESHOP_MISSING_PURCH_CONTRACT);
         }
 
-        private static void CheckEveryEshopFieldMatches(Eshop eShopExpected, Eshop eShopActual, string createdByAddress)
+        [Fact]
+        public async void ShouldFailToCreateSellerWhenMissingData()
         {
-            eShopActual.EShopId.Should().Be(eShopExpected.EShopId);
-            eShopActual.EShopDescription.Should().Be(eShopExpected.EShopDescription);
-            eShopActual.PurchasingContractAddress.ToLowerInvariant().Should().Be(eShopExpected.PurchasingContractAddress.ToLowerInvariant());
-            eShopActual.QuoteSignerAddress.ToLowerInvariant().Should().Be(eShopExpected.QuoteSignerAddress.ToLowerInvariant());
-            eShopActual.IsActive.Should().Be(eShopExpected.IsActive);
-            eShopActual.CreatedByAddress.ToLowerInvariant().Should().Be(createdByAddress.ToLowerInvariant());
+            // Create a Seller to store, but miss out required field adminContractAddress            
+            var sellerExpected = new Seller()
+            {
+                SellerId = "Seller" + GetRandomString(),
+                SellerDescription = "SellerDescription",
+                AdminContractAddress = string.Empty,  // causes error
+                IsActive = true,
+                CreatedByAddress = string.Empty // filled by contract
+            };
+
+            // Try to store Seller, it should fail
+            Func<Task> act = async () => await _contracts.Deployment.BusinessPartnerStorageService.SetSellerRequestAndWaitForReceiptAsync(sellerExpected);
+            act.Should().Throw<SmartContractRevertException>().WithMessage(BP_EXCEPTION_SELLER_MISSING_CONTRACT);
         }
     }
 }

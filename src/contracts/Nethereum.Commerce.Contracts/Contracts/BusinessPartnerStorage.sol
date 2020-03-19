@@ -54,11 +54,14 @@ contract BusinessPartnerStorage is IBusinessPartnerStorage, Ownable, StringConve
         eShop.isActive = eternalStorage.getBooleanValue(keccak256(abi.encodePacked(recordKey, IS_ACTIVE)));
         eShop.createdByAddress = eternalStorage.getAddressValue(keccak256(abi.encodePacked(recordKey, CREATED_BY_ADDRESS)));
     }
-    
+        
+    /// @notice Create a new eShop or change existing. If changing an existing eShop, the transaction must by sent
+    /// @notice by the same address that created the record. Any address can create a new record.
     function setEshop(IPoTypes.Eshop memory eShop) override public
     {
         // Validation
         require(eShop.purchasingContractAddress != address(0), "Must specify a purchasing contract address");
+        require(eShop.quoteSignerAddress != address(0), "Must specify a quote signer address");
         
         // Is this a new record?
         IPoTypes.Eshop memory existingEshop = getEshop(eShop.eShopId);
@@ -70,7 +73,8 @@ contract BusinessPartnerStorage is IBusinessPartnerStorage, Ownable, StringConve
         else
         {
             // Existing record
-            require(eShop.createdByAddress == msg.sender, "Only createdByAddress can change this record");
+            require(existingEshop.createdByAddress == msg.sender, "Only createdByAddress can change this record");
+            eShop.createdByAddress = existingEshop.createdByAddress;
         }
         
         // Store
@@ -93,6 +97,8 @@ contract BusinessPartnerStorage is IBusinessPartnerStorage, Ownable, StringConve
         seller.createdByAddress = eternalStorage.getAddressValue(keccak256(abi.encodePacked(recordKey, CREATED_BY_ADDRESS)));
     }
     
+    /// @notice Create a new Seller or change existing. If changing an existing Seller, the transaction must by sent
+    /// @notice by the same address that created the record. Any address can create a new record.
     function setSeller(IPoTypes.Seller memory seller) override public
     {
         // Validation
@@ -108,7 +114,8 @@ contract BusinessPartnerStorage is IBusinessPartnerStorage, Ownable, StringConve
         else
         {
             // Existing record
-            require(seller.createdByAddress == msg.sender, "Only createdByAddress can change this record");
+            require(existingSeller.createdByAddress == msg.sender, "Only createdByAddress can change this record");
+            seller.createdByAddress = existingSeller.createdByAddress;
         }
         
         // Store

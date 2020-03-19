@@ -11,6 +11,7 @@ using static Nethereum.Commerce.Contracts.ContractEnums;
 using Buyer = Nethereum.Commerce.Contracts.WalletBuyer.ContractDefinition;
 using Seller = Nethereum.Commerce.Contracts.WalletSeller.ContractDefinition;
 using Storage = Nethereum.Commerce.Contracts.PoStorage.ContractDefinition;
+using BP = Nethereum.Commerce.Contracts.BusinessPartnerStorage.ContractDefinition;
 
 namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 {
@@ -25,6 +26,11 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         /// Revert message for the Solidity onlyOwner() function modifier
         /// </summary>
         public const string AUTH_EXCEPTION_ONLY_OWNER = "*Ownable: caller is not the owner*";
+
+        /// <summary>
+        /// Revert message for master data maintenance attempted by address that is not the creator
+        /// </summary>
+        public const string AUTH_EXCEPTION_ONLY_CREATEDBY = "*Only createdByAddress can change this record*";
 
         /// <summary>
         /// Revert message during PO creation, for when a PO + signature does not resolve to the expected signer address held
@@ -64,6 +70,16 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         /// </summary>
         public const string PO_ITEM_EXCEPTION_NOT_EXIST = "*PO item does not exist*";
 
+        /// <summary>
+        /// Revert message when an attempt is made to create a seller without an admin contract address. BP = business partner.
+        /// </summary>
+        public const string BP_EXCEPTION_SELLER_MISSING_CONTRACT = "*Must specify an admin contract address*";
+
+        /// <summary>
+        /// Revert message when an attempt is made to create a seller without an admin contract address. BP = business partner.
+        /// </summary>
+        public const string BP_EXCEPTION_ESHOP_MISSING_PURCH_CONTRACT = "*Must specify a purchasing contract address*";
+        
         private static Random _random;
 
         static PoTestHelpers()
@@ -71,6 +87,9 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             _random = new Random();
         }
 
+        /// <summary>
+        /// Random string max length 10 chars
+        /// </summary>
         public static string GetRandomString()
         {
             return ((uint)_random.Next(int.MinValue, int.MaxValue)).ToString(CultureInfo.InvariantCulture);
@@ -133,7 +152,6 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                 output.WriteLine($"ActualEscrowReleaseDate  : {poItem.ActualEscrowReleaseDate}");
                 output.WriteLine($"IsEscrowReleased         : {poItem.IsEscrowReleased}");
                 output.WriteLine($"CancelStatus             : {poItem.CancelStatus}");
-
             }
         }
 
@@ -141,6 +159,25 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         {
             output.WriteLine("");
             output.WriteLine($"------------------------ {s} -----------------------");
+        }
+        
+        public static void CheckEverySellerFieldMatches(BP.Seller sellerExpected, BP.Seller sellerActual, string createdByAddress)
+        {
+            sellerActual.SellerId.Should().Be(sellerExpected.SellerId);
+            sellerActual.SellerDescription.Should().Be(sellerExpected.SellerDescription);
+            sellerActual.AdminContractAddress.ToLowerInvariant().Should().Be(sellerExpected.AdminContractAddress.ToLowerInvariant());
+            sellerActual.IsActive.Should().Be(sellerExpected.IsActive);
+            sellerActual.CreatedByAddress.ToLowerInvariant().Should().Be(createdByAddress.ToLowerInvariant());
+        }
+
+        public static void CheckEveryEshopFieldMatches(BP.Eshop eShopExpected, BP.Eshop eShopActual, string createdByAddress)
+        {
+            eShopActual.EShopId.Should().Be(eShopExpected.EShopId);
+            eShopActual.EShopDescription.Should().Be(eShopExpected.EShopDescription);
+            eShopActual.PurchasingContractAddress.ToLowerInvariant().Should().Be(eShopExpected.PurchasingContractAddress.ToLowerInvariant());
+            eShopActual.QuoteSignerAddress.ToLowerInvariant().Should().Be(eShopExpected.QuoteSignerAddress.ToLowerInvariant());
+            eShopActual.IsActive.Should().Be(eShopExpected.IsActive);
+            eShopActual.CreatedByAddress.ToLowerInvariant().Should().Be(createdByAddress.ToLowerInvariant());
         }
 
         /// <summary>
