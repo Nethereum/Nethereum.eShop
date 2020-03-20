@@ -14,6 +14,6 @@ interface IPoStorage
     // PO documents
     function setPo(IPoTypes.Po calldata po) external;
     function getPo(uint poNumber) external view returns (IPoTypes.Po memory po);
-    function getPoNumberBySellerAndQuote(bytes32 sellerId, uint quoteId) external view returns (uint poNumber);
+    function getPoNumberByEshopIdAndQuote(bytes32 eShopId, uint quoteId) external view returns (uint poNumber);
 }
 

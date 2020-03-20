@@ -259,9 +259,10 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         private async Task<Buyer.Po> CreateBuyerPoAsync(uint quoteId, bool isLargeValue = false)
         {
             return CreatePoForPurchasingContracts(
-                buyerAddress: _contracts.Web3.TransactionManager.Account.Address.ToLowerInvariant(),
-                receiverAddress: _contracts.Web3.TransactionManager.Account.Address.ToLowerInvariant(),
+                buyerUserAddress: _contracts.Web3.TransactionManager.Account.Address.ToLowerInvariant(),
+                buyerReceiverAddress: _contracts.Web3.TransactionManager.Account.Address.ToLowerInvariant(),
                 buyerWalletAddress: _contracts.Deployment.WalletBuyerService.ContractHandler.ContractAddress.ToLowerInvariant(),
+                eShopId: GetRandomString(),
                 currencySymbol: await _contracts.Deployment.MockDaiService.SymbolQueryAsync(),
                 currencyAddress: _contracts.Deployment.MockDaiService.ContractHandler.ContractAddress.ToLowerInvariant(),
                 quoteId,

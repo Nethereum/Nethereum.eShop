@@ -36,12 +36,12 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             _contracts = fixture;
             _output = output;
         }
-        
+
         [Fact]
         public async void ShouldCreateNewPoAndTransferFunds()
         {
             // Prepare a new PO            
-            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId: GetRandomInt());
+            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId: GetRandomInt(), eShopId: GetRandomString());
             var signature = poAsRequested.GetSignatureBytes(_contracts.Web3);
 
             //----------------------------------------------------------
@@ -99,7 +99,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         public async void ShouldRejectPoItemAndRefundBuyer()
         {
             // Prepare a new PO            
-            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId: GetRandomInt());
+            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId: GetRandomInt(), eShopId: GetRandomString());
             var signature = poAsRequested.GetSignatureBytes(_contracts.Web3);
 
             // Test setup - transfer required funds from current Web3 acccount to wallet buyer
@@ -147,7 +147,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         public async void ShouldCompletePoItemAndPaySeller()
         {
             // Prepare a new PO            
-            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId: GetRandomInt());
+            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId: GetRandomInt(), eShopId: GetRandomString());
             var signature = poAsRequested.GetSignatureBytes(_contracts.Web3);
 
             // Test setup - transfer required funds from current Web3 acccount to wallet buyer
@@ -212,12 +212,13 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             diff.Should().Be(poItemValue, "WalletSeller contract address should have increased by value of the PO item");
         }
 
-        private async Task<Buyer.Po> CreateBuyerPoAsync(uint quoteId)
+        private async Task<Buyer.Po> CreateBuyerPoAsync(uint quoteId, string eShopId)
         {
             return CreatePoForPurchasingContracts(
-                buyerAddress: _contracts.Web3.TransactionManager.Account.Address.ToLowerInvariant(),
-                receiverAddress: _contracts.Web3.TransactionManager.Account.Address.ToLowerInvariant(),
+                buyerUserAddress: _contracts.Web3.TransactionManager.Account.Address.ToLowerInvariant(),
+                buyerReceiverAddress: _contracts.Web3.TransactionManager.Account.Address.ToLowerInvariant(),
                 buyerWalletAddress: _contracts.Deployment.WalletBuyerService.ContractHandler.ContractAddress.ToLowerInvariant(),
+                eShopId: eShopId,
                 currencySymbol: await _contracts.Deployment.MockDaiService.SymbolQueryAsync(),
                 currencyAddress: _contracts.Deployment.MockDaiService.ContractHandler.ContractAddress.ToLowerInvariant(),
                 quoteId).ToBuyerPo();

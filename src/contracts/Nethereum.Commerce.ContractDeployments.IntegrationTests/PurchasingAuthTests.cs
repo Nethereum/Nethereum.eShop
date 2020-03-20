@@ -32,7 +32,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         {
             // Try to create a PO sent by a non-authorised user, it should fail            
             // Prepare a new PO            
-            Purchasing.Po poAsRequested = await CreatePurchasingPoAsync(quoteId: GetRandomInt());
+            Purchasing.Po poAsRequested = await CreatePurchasingPoAsync(quoteId: GetRandomInt(), eShopId: GetRandomString());
             var signature = poAsRequested.ToBuyerPo().GetSignatureBytes(_contracts.Web3);
 
             // Request creation of new PO using preexisting Purchasing contract, but with tx executed by the non-authorised ("secondary") user
@@ -42,12 +42,13 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             act.Should().Throw<SmartContractRevertException>().WithMessage(AUTH_EXCEPTION_ONLY_REGISTERED);
         }
 
-        private async Task<Purchasing.Po> CreatePurchasingPoAsync(uint quoteId)
+        private async Task<Purchasing.Po> CreatePurchasingPoAsync(uint quoteId, string eShopId)
         {
             Storage.Po po = CreatePoForPurchasingContracts(
-                buyerAddress: _contracts.Web3.TransactionManager.Account.Address.ToLowerInvariant(),
-                receiverAddress: _contracts.Web3.TransactionManager.Account.Address.ToLowerInvariant(),
+                buyerUserAddress: _contracts.Web3.TransactionManager.Account.Address.ToLowerInvariant(),
+                buyerReceiverAddress: _contracts.Web3.TransactionManager.Account.Address.ToLowerInvariant(),
                 buyerWalletAddress: _contracts.Deployment.WalletBuyerService.ContractHandler.ContractAddress.ToLowerInvariant(),
+                eShopId: eShopId,
                 currencySymbol: await _contracts.Deployment.MockDaiService.SymbolQueryAsync(),
                 currencyAddress: _contracts.Deployment.MockDaiService.ContractHandler.ContractAddress.ToLowerInvariant(),
                 quoteId);
