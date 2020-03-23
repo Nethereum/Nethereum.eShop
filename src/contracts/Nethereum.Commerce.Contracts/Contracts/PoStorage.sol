@@ -237,4 +237,3 @@ contract PoStorage is IPoStorage, Ownable, Bindable, StringConvertible
         eternalStorage.setMappingBytes32ToUint256Value(stringToBytes32(MAP_ESHOP_AND_QUOTE_TO_PO), mappingKey, uint256(po.poNumber));
     }
 }
-
