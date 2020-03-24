@@ -9,6 +9,9 @@ namespace Nethereum.Commerce.Contracts.BusinessPartnerStorage.ContractDefinition
 {
     public partial class Eshop 
     {
+        /// <summary>
+        /// eShop seller id, 32 chars max, eg "Nethereum.eShop"
+        /// </summary>
         [Parameter("bytes32", "eShopId", 1)]
         public new string EShopId { get; set; }
 

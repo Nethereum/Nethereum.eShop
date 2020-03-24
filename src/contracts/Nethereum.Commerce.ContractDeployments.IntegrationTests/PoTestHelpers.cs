@@ -295,6 +295,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             string buyerReceiverAddress,
             string buyerWalletAddress,
             string eShopId,
+            string sellerId,
             string currencySymbol,
             string currencyAddress,
             uint quoteId,
@@ -321,7 +322,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                 QuoteExpiryDate = new BigInteger(DateTimeOffset.Now.ToUnixTimeSeconds() + 3600),  // expires in an hour
                 QuoteSignerAddress = string.Empty,  // assigned by contract
 
-                SellerId = "Nethereum.eShop",
+                SellerId = sellerId,
 
                 CurrencySymbol = currencySymbol,
                 CurrencyAddress = currencyAddress,               

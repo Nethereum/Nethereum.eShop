@@ -46,14 +46,15 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 
             // ... the seller wallet should be configured to have a seller id.
             var actualSellerIdString = (await _contracts.Deployment.WalletSellerService.SellerIdQueryAsync()).ConvertToString();
-            var expectedSellerIdString = _contracts.Deployment.ContractDeploymentConfig.EShopSellerId;
+            var expectedSellerIdString = _contracts.Deployment.ContractNewDeploymentConfig.Seller.SellerId;
             actualSellerIdString.Should().Be(expectedSellerIdString);
 
             // ... and that seller id should have a master data entry in business partner storage.            
             var actualSellerIdBytes = actualSellerIdString.ConvertToBytes32();
             var actualSellerIdRecordFromBusinessPartnerStorage = (await _contracts.Deployment.BusinessPartnerStorageService.GetSellerQueryAsync(actualSellerIdBytes)).Seller;
             actualSellerIdRecordFromBusinessPartnerStorage.IsActive.Should().Be(true);
-            actualSellerIdRecordFromBusinessPartnerStorage.SellerDescription.Should().Be(_contracts.Deployment.ContractDeploymentConfig.EShopDescription);
+            actualSellerIdRecordFromBusinessPartnerStorage.SellerDescription.Should().Be(
+                _contracts.Deployment.ContractNewDeploymentConfig.Seller.SellerDescription);
         }
 
         [Fact]

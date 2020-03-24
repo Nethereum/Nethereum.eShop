@@ -42,7 +42,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
             Web3 = new Web3.Web3(new Account(privateKey), web3Config.BlockchainUrl);
 
             // New deployment
-            var contractDeploymentConfig = appConfig.GetSection("NewDeployment").Get<ContractDeploymentConfig>();
+            var contractDeploymentConfig = appConfig.GetSection("NewDeployment").Get<ContractNewDeploymentConfig>();
             // ...or attach to an existing deployment, swap to this:
             // var contractDeploymentConfig = appConfig.GetSection("ExistingDeployment").Get<ContractConnectExistingConfig>();
             Deployment = new ContractDeployment(Web3, contractDeploymentConfig, new DiagnosticMessageSinkLogger(_diagnosticMessageSink));
