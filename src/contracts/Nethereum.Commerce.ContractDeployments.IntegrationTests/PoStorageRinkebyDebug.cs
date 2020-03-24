@@ -16,7 +16,7 @@ using static Nethereum.Commerce.ContractDeployments.IntegrationTests.PoTestHelpe
 namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 {
     /// <summary>
-    /// DEbugging PoStorage.sol
+    /// Debugging PoStorage.sol on Rinkeby. TODO can delete.
     /// </summary>
     public class PoStorageRinkebyDebug
     {
@@ -83,7 +83,6 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 
             // They should be the same
             CheckEveryPoFieldMatches(poExpected, poActual);
-
         }
 
         [Fact]

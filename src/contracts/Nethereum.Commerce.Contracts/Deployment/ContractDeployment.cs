@@ -292,15 +292,29 @@ namespace Nethereum.Commerce.Contracts.Deployment
                 //-----------------------------------------------------------------------------------                                
                 // Add some Business Partner master data
                 //-----------------------------------------------------------------------------------
+                // Need at least one eShop and one Seller to be a useful deployment
                 Log($"Adding eShop master data...");
+                txReceipt = await BusinessPartnerStorageService.SetEshopRequestAndWaitForReceiptAsync(
+                    new Eshop()
+                    {
+                        EShopId = ContractDeploymentConfig.EShopSellerId,
+                        EShopDescription = ContractDeploymentConfig.EShopDescription,
+                        PurchasingContractAddress = WalletSellerService.ContractHandler.ContractAddress,
+                        QuoteSignerAddress = ContractDeploymentConfig.EShopApproverAddress,
+                        IsActive = true,
+                        CreatedByAddress = string.Empty  // filled by contract
+                    });
+                Log($"Tx status: {txReceipt.Status.Value}");
+
+                Log($"Adding Seller master data...");
                 txReceipt = await BusinessPartnerStorageService.SetSellerRequestAndWaitForReceiptAsync(
                     new Seller()
                     {
                         SellerId = ContractDeploymentConfig.EShopSellerId,
                         SellerDescription = ContractDeploymentConfig.EShopDescription,
                         AdminContractAddress = WalletSellerService.ContractHandler.ContractAddress,
-                        // TODO move to shop ApproverAddress = ContractDeploymentConfig.EShopApproverAddress,
-                        IsActive = true
+                        IsActive = true,
+                        CreatedByAddress = string.Empty  // filled by contract
                     });
                 Log($"Tx status: {txReceipt.Status.Value}");
                 #endregion

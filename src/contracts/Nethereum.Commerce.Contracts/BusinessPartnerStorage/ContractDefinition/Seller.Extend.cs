@@ -20,6 +20,7 @@ namespace Nethereum.Commerce.Contracts.BusinessPartnerStorage.ContractDefinition
         [Parameter("address", "adminContractAddress", 3)]
         public new string AdminContractAddress { get; set; }
 
+
         [Parameter("bool", "isActive", 4)]
         public new bool IsActive { get; set; }
 
