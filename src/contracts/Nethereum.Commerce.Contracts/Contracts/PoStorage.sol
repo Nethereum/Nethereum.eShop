@@ -48,6 +48,7 @@ contract PoStorage is IPoStorage, Ownable, Bindable, StringConvertible
     string constant private QUANTITY_SYMBOL = "quantitySymbol";
     string constant private QUANTITY_ADDRESS = "quantityAddress";
     string constant private CURRENCY_VALUE = "currencyValue";
+    string constant private CURRENCY_VALUE_FEE = "currencyValueFee";
     string constant private STATUS = "status";
     string constant private GOODS_ISSUED_DATE = "goodsIssuedDate";
     string constant private GOODS_RECEIVED_DATE = "goodsReceivedDate";
@@ -154,6 +155,7 @@ contract PoStorage is IPoStorage, Ownable, Bindable, StringConvertible
             po.poItems[i].quantitySymbol = eternalStorage.getBytes32Value(keccak256(abi.encodePacked(lineItemKey, QUANTITY_SYMBOL)));
             po.poItems[i].quantityAddress = eternalStorage.getAddressValue(keccak256(abi.encodePacked(lineItemKey, QUANTITY_ADDRESS)));
             po.poItems[i].currencyValue = eternalStorage.getUint256Value(keccak256(abi.encodePacked(lineItemKey, CURRENCY_VALUE)));
+            po.poItems[i].currencyValueFee = eternalStorage.getUint256Value(keccak256(abi.encodePacked(lineItemKey, CURRENCY_VALUE_FEE)));
             po.poItems[i].status = IPoTypes.PoItemStatus(eternalStorage.getUint256Value(keccak256(abi.encodePacked(lineItemKey, STATUS))));
             po.poItems[i].goodsIssuedDate = eternalStorage.getUint256Value(keccak256(abi.encodePacked(lineItemKey, GOODS_ISSUED_DATE)));
             po.poItems[i].goodsReceivedDate = eternalStorage.getUint256Value(keccak256(abi.encodePacked(lineItemKey, GOODS_RECEIVED_DATE)));
@@ -215,6 +217,7 @@ contract PoStorage is IPoStorage, Ownable, Bindable, StringConvertible
             eternalStorage.setBytes32Value(keccak256(abi.encodePacked(lineItemKey, QUANTITY_SYMBOL)), po.poItems[i].quantitySymbol);
             eternalStorage.setAddressValue(keccak256(abi.encodePacked(lineItemKey, QUANTITY_ADDRESS)), po.poItems[i].quantityAddress);
             eternalStorage.setUint256Value(keccak256(abi.encodePacked(lineItemKey, CURRENCY_VALUE)), uint256(po.poItems[i].currencyValue));
+            eternalStorage.setUint256Value(keccak256(abi.encodePacked(lineItemKey, CURRENCY_VALUE_FEE)), uint256(po.poItems[i].currencyValueFee));
             eternalStorage.setUint256Value(keccak256(abi.encodePacked(lineItemKey, STATUS)), uint256(po.poItems[i].status));
             eternalStorage.setUint256Value(keccak256(abi.encodePacked(lineItemKey, GOODS_ISSUED_DATE)), po.poItems[i].goodsIssuedDate);
             eternalStorage.setUint256Value(keccak256(abi.encodePacked(lineItemKey, GOODS_RECEIVED_DATE)), po.poItems[i].goodsReceivedDate);
@@ -237,3 +240,4 @@ contract PoStorage is IPoStorage, Ownable, Bindable, StringConvertible
         eternalStorage.setMappingBytes32ToUint256Value(stringToBytes32(MAP_ESHOP_AND_QUOTE_TO_PO), mappingKey, uint256(po.poNumber));
     }
 }
+

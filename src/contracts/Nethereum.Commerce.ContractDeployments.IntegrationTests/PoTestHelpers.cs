@@ -79,7 +79,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         /// Revert message when an attempt is made to create a seller without an admin contract address. BP = business partner.
         /// </summary>
         public const string BP_EXCEPTION_ESHOP_MISSING_PURCH_CONTRACT = "*Must specify a purchasing contract address*";
-        
+
         private static Random _random;
 
         static PoTestHelpers()
@@ -164,7 +164,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             output.WriteLine("");
             output.WriteLine($"------------------------ {s} -----------------------");
         }
-        
+
         public static void CheckEverySellerFieldMatches(BP.Seller sellerExpected, BP.Seller sellerActual, string createdByAddress)
         {
             sellerActual.SellerId.Should().Be(sellerExpected.SellerId);
@@ -208,8 +208,8 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             poAsBuilt.SellerId.Should().Be(poAsRequested.SellerId);
 
             poAsBuilt.CurrencySymbol.Should().Be(poAsRequested.CurrencySymbol);
-            poAsBuilt.CurrencyAddress.Should().Be(poAsRequested.CurrencyAddress);            
-            poAsBuilt.PoType.Should().Be(poAsRequested.PoType);            
+            poAsBuilt.CurrencyAddress.Should().Be(poAsRequested.CurrencyAddress);
+            poAsBuilt.PoType.Should().Be(poAsRequested.PoType);
             if (poCreateDateAsBuilt is BigInteger poCreateDateAsBuiltValue)
             {
                 poAsBuilt.PoCreateDate.Should().Be(poCreateDateAsBuiltValue);
@@ -227,6 +227,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                 poAsBuilt.PoItems[i].QuantitySymbol.Should().Be(poAsRequested.PoItems[i].QuantitySymbol);
                 poAsBuilt.PoItems[i].QuantityAddress.Should().Be(poAsRequested.PoItems[i].QuantityAddress);
                 poAsBuilt.PoItems[i].CurrencyValue.Should().Be(poAsRequested.PoItems[i].CurrencyValue);
+                // Don't check CurrencyValueFee, it is assigned by contract
                 poAsBuilt.PoItems[i].Status.Should().Be(PoItemStatus.Created);
                 poAsBuilt.PoItems[i].GoodsIssuedDate.Should().Be(0);
                 poAsBuilt.PoItems[i].GoodsReceivedDate.Should().Be(0);
@@ -256,8 +257,8 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             poActual.SellerId.Should().Be(poExpected.SellerId);
 
             poActual.CurrencySymbol.Should().Be(poExpected.CurrencySymbol);
-            poActual.CurrencyAddress.Should().Be(poExpected.CurrencyAddress);            
-            poActual.PoType.Should().Be(poExpected.PoType);            
+            poActual.CurrencyAddress.Should().Be(poExpected.CurrencyAddress);
+            poActual.PoType.Should().Be(poExpected.PoType);
             poActual.PoCreateDate.Should().Be(poExpected.PoCreateDate);
             poActual.PoItemCount.Should().Be(poExpected.PoItemCount);
             for (int i = 0; i < poActual.PoItemCount; i++)
@@ -272,6 +273,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                 poActual.PoItems[i].QuantitySymbol.Should().Be(poExpected.PoItems[i].QuantitySymbol);
                 poActual.PoItems[i].QuantityAddress.Should().Be(poExpected.PoItems[i].QuantityAddress);
                 poActual.PoItems[i].CurrencyValue.Should().Be(poExpected.PoItems[i].CurrencyValue);
+                poActual.PoItems[i].CurrencyValueFee.Should().Be(poExpected.PoItems[i].CurrencyValueFee);
                 poActual.PoItems[i].Status.Should().Be(poExpected.PoItems[i].Status);
                 poActual.PoItems[i].GoodsIssuedDate.Should().Be(poExpected.PoItems[i].GoodsIssuedDate);
                 poActual.PoItems[i].GoodsReceivedDate.Should().Be(poExpected.PoItems[i].GoodsReceivedDate);
@@ -325,8 +327,8 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                 SellerId = sellerId,
 
                 CurrencySymbol = currencySymbol,
-                CurrencyAddress = currencyAddress,               
-                PoType = PoType.Cash,                
+                CurrencyAddress = currencyAddress,
+                PoType = PoType.Cash,
                 // PoCreateDate assigned by contract
                 // PoItemCount assigned by contract                
                 PoItems = new List<Storage.PoItem>()
@@ -343,6 +345,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                         QuantitySymbol = "NA",
                         QuantityAddress = "0x40ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
                         CurrencyValue = valueLine01
+                        // CurrencyValueFee assigned by contract
                         // Status assigned by contract
                         // GoodsIssuedDate assigned by contract
                         // GoodsReceivedDate assigned by contract
@@ -406,8 +409,8 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                 SellerId = "VitaliksBooks",
 
                 CurrencySymbol = "DAI",
-                CurrencyAddress = "0x41ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",                
-                PoType = PoType.Cash,                
+                CurrencyAddress = "0x41ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
+                PoType = PoType.Cash,
                 PoCreateDate = 100,
                 PoItemCount = 2,
                 PoItems = new List<Storage.PoItem>()
@@ -424,6 +427,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                         QuantitySymbol = "NA",
                         QuantityAddress = "0x40ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
                         CurrencyValue = 11,
+                        CurrencyValueFee = 2,
                         Status = PoItemStatus.Created,
                         GoodsIssuedDate = 100,
                         GoodsReceivedDate = 0,
@@ -444,6 +448,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                         QuantitySymbol = "NA",
                         QuantityAddress = "0x42ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
                         CurrencyValue = 22,
+                        CurrencyValueFee = 4,
                         Status = PoItemStatus.Created,
                         GoodsIssuedDate = 200,
                         GoodsReceivedDate = 0,

@@ -85,7 +85,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             CheckEveryPoFieldMatches(poExpected, poActual);
         }
 
-        [Fact]
+        [Fact(Skip = "rinkeby deployment not valid now, can delete")]
         public async void ShouldStoreAndRetrievePoRinkeby()
         {
             // Get Rinkeby PK from user secrets

@@ -45,6 +45,7 @@ interface IPoTypes
         bytes32 quantitySymbol;            // buyer UI managed, symbol of the ERC20 that represents this productId (assume token quantity same as quantity above)
         address quantityAddress;           // buyer UI managed, contract address of the ERC20 that represents this productId
         uint currencyValue;                // buyer UI managed, value in the units of the ERC20 that is making the payment eg DAI has token precision 18, so 1120000000000000000 DAI is 1.12 USD
+        uint currencyValueFee;             // contract managed at point of po create, currency value to set aside as fee to shop when escrow released
         PoItemStatus status;               // contract managed for create, then seller system managed
         uint goodsIssuedDate;              // contract managed at point of goods issue, unix timestamp
         uint goodsReceivedDate;            // contract managed at point of goods received (or time out), unix timestamp

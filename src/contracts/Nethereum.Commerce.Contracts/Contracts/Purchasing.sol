@@ -95,7 +95,6 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
         //-------------------------------------------------------------------------
         // Add fields that contract owns
         //-------------------------------------------------------------------------
-        // Po header
         poStorage.incrementPoNumber();
         po.poNumber = poStorage.getCurrentPoNumber();
         po.quoteSignerAddress = eShop.quoteSignerAddress;
@@ -106,6 +105,8 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
         {
             po.poItems[i].poNumber = po.poNumber;
             po.poItems[i].poItemNumber = (uint8)(i + 1);
+            // shop fee calculation - arbitrary 1% for now
+            po.poItems[i].currencyValueFee = po.poItems[i].currencyValue / 100; 
             po.poItems[i].status = IPoTypes.PoItemStatus.Created;
             po.poItems[i].goodsIssuedDate = 0;
             po.poItems[i].goodsReceivedDate = 0;
