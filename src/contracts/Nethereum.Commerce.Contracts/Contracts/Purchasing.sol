@@ -17,14 +17,17 @@ import "./StringConvertible.sol";
 /// @title Purchasing
 contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
 {
+    bytes32 public eShopId;
     IAddressRegistry public addressRegistry;
     IPoStorage public poStorage;
     IBusinessPartnerStorage public bpStorage;
     IFunding public funding;
-   
-    constructor (address contractAddressOfRegistry) public
+    
+    /// @notice Specify eShopId at point of contract creation, then it is fixed forever.
+    constructor (address contractAddressOfRegistry, string memory eShopIdString) public
     {
         addressRegistry = IAddressRegistry(contractAddressOfRegistry);
+        eShopId = stringToBytes32(eShopIdString);
     }
     
     // Contract setup
@@ -44,6 +47,10 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
         // Funding contract
         funding = IFunding(addressRegistry.getAddressString(nameOfFunding));
         require(address(funding) != address(0), "Could not find Funding contract address in registry");
+        
+        // Check that the eShop master data purchasing contract points to this contract's address
+        IPoTypes.Eshop memory eShop = bpStorage.getEshop(eShopId);
+        require(eShop.purchasingContractAddress == address(this), "eShop master data points to wrong Purchasing address");
     }
     
     // Purchasing
@@ -52,9 +59,8 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
         return poStorage.getPo(poNumber);
     }
     
-    function getPoByEshopIdAndQuote(string calldata eShopIdString, uint quoteId) override external view returns (IPoTypes.Po memory po)
+    function getPoByQuote(uint quoteId) override external view returns (IPoTypes.Po memory po)
     {
-        bytes32 eShopId = stringToBytes32(eShopIdString);
         uint poNumber = poStorage.getPoNumberByEshopIdAndQuote(eShopId, quoteId);
         return poStorage.getPo(poNumber);
     }
@@ -69,6 +75,7 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
         //-------------------------------------------------------------------------
         // Ensure buyer chose a valid eshop
         require(po.eShopId.length > 0, "eShopId must be specified");
+        require(po.eShopId == eShopId, "eShopId is not correct for this contract");  // must be "our" eShop
         IPoTypes.Eshop memory eShop = bpStorage.getEshop(po.eShopId);
         require(eShop.eShopId.length > 0, "eShop has no master data");
         require(eShop.purchasingContractAddress != address(0), "eShop has no purchasing address");

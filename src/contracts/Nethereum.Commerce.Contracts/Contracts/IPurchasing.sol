@@ -33,7 +33,7 @@ interface IPurchasing
     
     // Purchasing
     function getPo(uint poNumber) external view returns (IPoTypes.Po memory po);
-    function getPoByEshopIdAndQuote(string calldata eShopIdString, uint quoteId) external view returns (IPoTypes.Po memory po);
+    function getPoByQuote(uint quoteId) external view returns (IPoTypes.Po memory po);
     function getSignerAddressFromPoAndSignature(IPoTypes.Po calldata po, bytes calldata signature) external pure returns (address);
     
     // Only from Buyer Wallet

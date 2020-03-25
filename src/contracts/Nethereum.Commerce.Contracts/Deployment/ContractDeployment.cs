@@ -221,7 +221,10 @@ namespace Nethereum.Commerce.Contracts.Deployment
                 Log();
                 contractName = CONTRACT_NAME_PURCHASING;
                 Log($"Deploying {contractName}...");
-                var purchasingDeployment = new PurchasingDeployment() { ContractAddressOfRegistry = AddressRegistryService.ContractHandler.ContractAddress };
+                var purchasingDeployment = new PurchasingDeployment() {
+                    ContractAddressOfRegistry = AddressRegistryService.ContractHandler.ContractAddress,
+                    EShopIdString = ContractNewDeploymentConfig.Eshop.EShopId
+                };
                 PurchasingService = await PurchasingService.DeployContractAndGetServiceAsync(
                     _web3, purchasingDeployment).ConfigureAwait(false);
                 var purchasingOwner = await PurchasingService.OwnerQueryAsync().ConfigureAwait(false);
@@ -326,7 +329,7 @@ namespace Nethereum.Commerce.Contracts.Deployment
                     {
                         EShopId = ContractNewDeploymentConfig.Eshop.EShopId,
                         EShopDescription = ContractNewDeploymentConfig.Eshop.EShopDescription,
-                        PurchasingContractAddress = WalletSellerService.ContractHandler.ContractAddress,
+                        PurchasingContractAddress = PurchasingService.ContractHandler.ContractAddress,
                         QuoteSignerAddress = ContractNewDeploymentConfig.Eshop.QuoteSignerAddress,
                         IsActive = true,
                         CreatedByAddress = string.Empty  // filled by contract
