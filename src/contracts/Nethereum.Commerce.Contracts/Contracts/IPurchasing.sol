@@ -2,6 +2,7 @@ pragma solidity ^0.6.1;
 pragma experimental ABIEncoderV2;
 
 import "./IPoTypes.sol";
+import "./IFunding.sol";
 
 interface IPurchasing
 {
@@ -30,11 +31,14 @@ interface IPurchasing
     //---------------------------------------------------------
     // Contract setup
     function configure(string calldata nameOfPoStorage, string calldata nameOfBusinessPartnerStorage, string calldata nameOfFunding) external;
+    function getFunding() external view returns (IFunding);
     
     // Purchasing
     function getPo(uint poNumber) external view returns (IPoTypes.Po memory po);
     function getPoByQuote(uint quoteId) external view returns (IPoTypes.Po memory po);
     function getSignerAddressFromPoAndSignature(IPoTypes.Po calldata po, bytes calldata signature) external pure returns (address);
+    function getFeeBasisPoints() external pure returns (uint);
+    function getEscrowTimeoutDays() external pure returns (uint);
     
     // Only from Buyer Wallet
     function createPurchaseOrder(IPoTypes.Po calldata po, bytes calldata signature) external;

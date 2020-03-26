@@ -14,10 +14,10 @@ using Nethereum.Commerce.Contracts.PoStorage;
 using Nethereum.Commerce.Contracts.PoStorage.ContractDefinition;
 using Nethereum.Commerce.Contracts.Purchasing;
 using Nethereum.Commerce.Contracts.Purchasing.ContractDefinition;
-using Nethereum.Commerce.Contracts.WalletBuyer;
-using Nethereum.Commerce.Contracts.WalletBuyer.ContractDefinition;
-using Nethereum.Commerce.Contracts.WalletSeller;
-using Nethereum.Commerce.Contracts.WalletSeller.ContractDefinition;
+using Nethereum.Commerce.Contracts.BuyerWallet;
+using Nethereum.Commerce.Contracts.BuyerWallet.ContractDefinition;
+using Nethereum.Commerce.Contracts.SellerAdmin;
+using Nethereum.Commerce.Contracts.SellerAdmin.ContractDefinition;
 using Nethereum.Web3;
 using System;
 using System.Threading.Tasks;
@@ -35,9 +35,9 @@ namespace Nethereum.Commerce.Contracts.Deployment
         public EternalStorageService EternalStorageService { get; internal set; }
         public BusinessPartnerStorageService BusinessPartnerStorageService { get; internal set; }
         public PoStorageService PoStorageService { get; internal set; }
-        public WalletBuyerService WalletBuyerService { get; internal set; }
-        public WalletBuyerService WalletBuyerService02 { get; internal set; }
-        public WalletSellerService WalletSellerService { get; internal set; }
+        public BuyerWalletService BuyerWalletService { get; internal set; }
+        public BuyerWalletService BuyerWalletService02 { get; internal set; }
+        public SellerAdminService SellerAdminService { get; internal set; }
         public PurchasingService PurchasingService { get; internal set; }
         public FundingService FundingService { get; internal set; }
 
@@ -53,8 +53,8 @@ namespace Nethereum.Commerce.Contracts.Deployment
         public const string CONTRACT_NAME_ETERNAL_STORAGE = "EternalStorage";
         public const string CONTRACT_NAME_BUSINESS_PARTNER_STORAGE = "BusinessPartnerStorage";
         public const string CONTRACT_NAME_PO_STORAGE = "PoStorage";
-        public const string CONTRACT_NAME_WALLET_BUYER = "WalletBuyer";
-        public const string CONTRACT_NAME_WALLET_SELLER = "WalletSeller";
+        public const string CONTRACT_NAME_BUYER_WALLET = "BuyerWallet";
+        public const string CONTRACT_NAME_SELLER_ADMIN = "SellerAdmin";
         public const string CONTRACT_NAME_PURCHASING = "Purchasing";
         public const string CONTRACT_NAME_FUNDING = "Funding";
 
@@ -197,24 +197,24 @@ namespace Nethereum.Commerce.Contracts.Deployment
 
                 // Deploy Wallet Buyer
                 Log();
-                contractName = CONTRACT_NAME_WALLET_BUYER;
+                contractName = CONTRACT_NAME_BUYER_WALLET;
                 Log($"Deploying {contractName}...");
-                var walletBuyerDeployment = new WalletBuyerDeployment() { ContractAddressOfRegistry = AddressRegistryService.ContractHandler.ContractAddress };
-                WalletBuyerService = await WalletBuyerService.DeployContractAndGetServiceAsync(
+                var walletBuyerDeployment = new BuyerWalletDeployment() { ContractAddressOfRegistry = AddressRegistryService.ContractHandler.ContractAddress };
+                BuyerWalletService = await BuyerWalletService.DeployContractAndGetServiceAsync(
                     _web3, walletBuyerDeployment).ConfigureAwait(false);
-                var walletBuyerOwner = await WalletBuyerService.OwnerQueryAsync().ConfigureAwait(false);
-                Log($"{contractName} address is: {WalletBuyerService.ContractHandler.ContractAddress}");
+                var walletBuyerOwner = await BuyerWalletService.OwnerQueryAsync().ConfigureAwait(false);
+                Log($"{contractName} address is: {BuyerWalletService.ContractHandler.ContractAddress}");
                 Log($"{contractName} owner is  : {walletBuyerOwner}");
 
                 // Deploy Wallet Seller
                 Log();
-                contractName = CONTRACT_NAME_WALLET_SELLER;
+                contractName = CONTRACT_NAME_SELLER_ADMIN;
                 Log($"Deploying {contractName}...");
-                var walletSellerDeployment = new WalletSellerDeployment() { ContractAddressOfRegistry = AddressRegistryService.ContractHandler.ContractAddress };
-                WalletSellerService = await WalletSellerService.DeployContractAndGetServiceAsync(
+                var walletSellerDeployment = new SellerAdminDeployment() { ContractAddressOfRegistry = AddressRegistryService.ContractHandler.ContractAddress };
+                SellerAdminService = await SellerAdminService.DeployContractAndGetServiceAsync(
                     _web3, walletSellerDeployment).ConfigureAwait(false);
-                var walletSellerOwner = await WalletSellerService.OwnerQueryAsync().ConfigureAwait(false);
-                Log($"{contractName} address is: {WalletSellerService.ContractHandler.ContractAddress}");
+                var walletSellerOwner = await SellerAdminService.OwnerQueryAsync().ConfigureAwait(false);
+                Log($"{contractName} address is: {SellerAdminService.ContractHandler.ContractAddress}");
                 Log($"{contractName} owner is  : {walletSellerOwner}");
 
                 // Deploy Purchasing
@@ -342,7 +342,7 @@ namespace Nethereum.Commerce.Contracts.Deployment
                     {
                         SellerId = ContractNewDeploymentConfig.Seller.SellerId,
                         SellerDescription = ContractNewDeploymentConfig.Seller.SellerDescription,
-                        AdminContractAddress = WalletSellerService.ContractHandler.ContractAddress,
+                        AdminContractAddress = SellerAdminService.ContractHandler.ContractAddress,
                         IsActive = true,
                         CreatedByAddress = string.Empty  // filled by contract
                     }).ConfigureAwait(false);
@@ -375,8 +375,8 @@ namespace Nethereum.Commerce.Contracts.Deployment
                 //-----------------------------------------------------------------------------------
                 Log();
                 Log($"Configuring Wallet Seller...");
-                txReceipt = await WalletSellerService.ConfigureRequestAndWaitForReceiptAsync(
-                    ContractNewDeploymentConfig.Seller.SellerId, CONTRACT_NAME_PURCHASING, CONTRACT_NAME_FUNDING)
+                txReceipt = await SellerAdminService.ConfigureRequestAndWaitForReceiptAsync(
+                    ContractNewDeploymentConfig.Seller.SellerId, CONTRACT_NAME_BUSINESS_PARTNER_STORAGE)
                     .ConfigureAwait(false);
                 Log($"Tx status: {txReceipt.Status.Value}");
 
@@ -385,8 +385,8 @@ namespace Nethereum.Commerce.Contracts.Deployment
                 //-----------------------------------------------------------------------------------
                 Log();
                 Log($"Configuring Wallet Buyer...");
-                txReceipt = await WalletBuyerService.ConfigureRequestAndWaitForReceiptAsync(
-                    CONTRACT_NAME_PURCHASING, CONTRACT_NAME_FUNDING).ConfigureAwait(false);
+                txReceipt = await BuyerWalletService.ConfigureRequestAndWaitForReceiptAsync(
+                    CONTRACT_NAME_BUSINESS_PARTNER_STORAGE).ConfigureAwait(false);
                 Log($"Tx status: {txReceipt.Status.Value}");
 
                 //-----------------------------------------------------------------------------------
@@ -402,16 +402,16 @@ namespace Nethereum.Commerce.Contracts.Deployment
                 // Authorisations. Bind all contracts that will use Purchasing                
                 Log($"Authorisations for Purchasing...");
                 // Bind WalletBuyer to Purchasing
-                contractName = CONTRACT_NAME_WALLET_BUYER;
+                contractName = CONTRACT_NAME_BUYER_WALLET;
                 Log($"Configuring Purchasing, binding {contractName}...");
                 txReceipt = await PurchasingService.BindAddressRequestAndWaitForReceiptAsync(
-                    WalletBuyerService.ContractHandler.ContractAddress).ConfigureAwait(false);
+                    BuyerWalletService.ContractHandler.ContractAddress).ConfigureAwait(false);
                 Log($"Tx status: {txReceipt.Status.Value}");
                 // Bind WalletSeller to Purchasing
-                contractName = CONTRACT_NAME_WALLET_SELLER;
+                contractName = CONTRACT_NAME_SELLER_ADMIN;
                 Log($"Configuring Purchasing, binding {contractName}...");
                 txReceipt = await PurchasingService.BindAddressRequestAndWaitForReceiptAsync(
-                    WalletSellerService.ContractHandler.ContractAddress).ConfigureAwait(false);
+                    SellerAdminService.ContractHandler.ContractAddress).ConfigureAwait(false);
                 Log($"Tx status: {txReceipt.Status.Value}");
                 // Bind Funding to Purchasing
                 contractName = CONTRACT_NAME_FUNDING;
@@ -433,10 +433,10 @@ namespace Nethereum.Commerce.Contracts.Deployment
                 // Authorisations. Bind all contracts that will use Funding                
                 Log($"Authorisations for Funding...");
                 // Bind WalletBuyer to Funding
-                contractName = CONTRACT_NAME_WALLET_BUYER;
+                contractName = CONTRACT_NAME_BUYER_WALLET;
                 Log($"Configuring Funding, binding {contractName}...");
                 txReceipt = await FundingService.BindAddressRequestAndWaitForReceiptAsync(
-                    WalletBuyerService.ContractHandler.ContractAddress).ConfigureAwait(false);
+                    BuyerWalletService.ContractHandler.ContractAddress).ConfigureAwait(false);
                 Log($"Tx status: {txReceipt.Status.Value}");
                 // Bind Purchasing to Funding
                 contractName = CONTRACT_NAME_PURCHASING;

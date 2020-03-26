@@ -238,6 +238,39 @@ namespace Nethereum.Commerce.Contracts.Purchasing
             return ContractHandler.QueryAsync<FundingFunction, string>(null, blockParameter);
         }
 
+        public Task<BigInteger> GetEscrowTimeoutDaysQueryAsync(GetEscrowTimeoutDaysFunction getEscrowTimeoutDaysFunction, BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<GetEscrowTimeoutDaysFunction, BigInteger>(getEscrowTimeoutDaysFunction, blockParameter);
+        }
+
+        
+        public Task<BigInteger> GetEscrowTimeoutDaysQueryAsync(BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<GetEscrowTimeoutDaysFunction, BigInteger>(null, blockParameter);
+        }
+
+        public Task<BigInteger> GetFeeBasisPointsQueryAsync(GetFeeBasisPointsFunction getFeeBasisPointsFunction, BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<GetFeeBasisPointsFunction, BigInteger>(getFeeBasisPointsFunction, blockParameter);
+        }
+
+        
+        public Task<BigInteger> GetFeeBasisPointsQueryAsync(BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<GetFeeBasisPointsFunction, BigInteger>(null, blockParameter);
+        }
+
+        public Task<string> GetFundingQueryAsync(GetFundingFunction getFundingFunction, BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<GetFundingFunction, string>(getFundingFunction, blockParameter);
+        }
+
+        
+        public Task<string> GetFundingQueryAsync(BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<GetFundingFunction, string>(null, blockParameter);
+        }
+
         public Task<GetPoOutputDTO> GetPoQueryAsync(GetPoFunction getPoFunction, BlockParameter blockParameter = null)
         {
             return ContractHandler.QueryDeserializingToObjectAsync<GetPoFunction, GetPoOutputDTO>(getPoFunction, blockParameter);

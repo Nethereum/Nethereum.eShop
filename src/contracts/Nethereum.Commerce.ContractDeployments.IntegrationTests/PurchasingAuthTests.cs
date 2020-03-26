@@ -47,7 +47,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             Storage.Po po = CreatePoForPurchasingContracts(
                 buyerUserAddress: _contracts.Web3.TransactionManager.Account.Address.ToLowerInvariant(),
                 buyerReceiverAddress: _contracts.Web3.TransactionManager.Account.Address.ToLowerInvariant(),
-                buyerWalletAddress: _contracts.Deployment.WalletBuyerService.ContractHandler.ContractAddress.ToLowerInvariant(),
+                buyerWalletAddress: _contracts.Deployment.BuyerWalletService.ContractHandler.ContractAddress.ToLowerInvariant(),
                 eShopId: eShopId,
                 sellerId: _contracts.Deployment.ContractNewDeploymentConfig.Seller.SellerId,
                 currencySymbol: await _contracts.Deployment.MockDaiService.SymbolQueryAsync(),

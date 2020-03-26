@@ -10,33 +10,33 @@ using Nethereum.Contracts.CQS;
 using Nethereum.Contracts.ContractHandlers;
 using Nethereum.Contracts;
 using System.Threading;
-using Nethereum.Commerce.Contracts.WalletSeller.ContractDefinition;
+using Nethereum.Commerce.Contracts.SellerAdmin.ContractDefinition;
 
-namespace Nethereum.Commerce.Contracts.WalletSeller
+namespace Nethereum.Commerce.Contracts.SellerAdmin
 {
-    public partial class WalletSellerService
+    public partial class SellerAdminService
     {
-        public static Task<TransactionReceipt> DeployContractAndWaitForReceiptAsync(Nethereum.Web3.Web3 web3, WalletSellerDeployment walletSellerDeployment, CancellationTokenSource cancellationTokenSource = null)
+        public static Task<TransactionReceipt> DeployContractAndWaitForReceiptAsync(Nethereum.Web3.Web3 web3, SellerAdminDeployment sellerAdminDeployment, CancellationTokenSource cancellationTokenSource = null)
         {
-            return web3.Eth.GetContractDeploymentHandler<WalletSellerDeployment>().SendRequestAndWaitForReceiptAsync(walletSellerDeployment, cancellationTokenSource);
+            return web3.Eth.GetContractDeploymentHandler<SellerAdminDeployment>().SendRequestAndWaitForReceiptAsync(sellerAdminDeployment, cancellationTokenSource);
         }
 
-        public static Task<string> DeployContractAsync(Nethereum.Web3.Web3 web3, WalletSellerDeployment walletSellerDeployment)
+        public static Task<string> DeployContractAsync(Nethereum.Web3.Web3 web3, SellerAdminDeployment sellerAdminDeployment)
         {
-            return web3.Eth.GetContractDeploymentHandler<WalletSellerDeployment>().SendRequestAsync(walletSellerDeployment);
+            return web3.Eth.GetContractDeploymentHandler<SellerAdminDeployment>().SendRequestAsync(sellerAdminDeployment);
         }
 
-        public static async Task<WalletSellerService> DeployContractAndGetServiceAsync(Nethereum.Web3.Web3 web3, WalletSellerDeployment walletSellerDeployment, CancellationTokenSource cancellationTokenSource = null)
+        public static async Task<SellerAdminService> DeployContractAndGetServiceAsync(Nethereum.Web3.Web3 web3, SellerAdminDeployment sellerAdminDeployment, CancellationTokenSource cancellationTokenSource = null)
         {
-            var receipt = await DeployContractAndWaitForReceiptAsync(web3, walletSellerDeployment, cancellationTokenSource);
-            return new WalletSellerService(web3, receipt.ContractAddress);
+            var receipt = await DeployContractAndWaitForReceiptAsync(web3, sellerAdminDeployment, cancellationTokenSource);
+            return new SellerAdminService(web3, receipt.ContractAddress);
         }
 
         protected Nethereum.Web3.Web3 Web3{ get; }
 
         public ContractHandler ContractHandler { get; }
 
-        public WalletSellerService(Nethereum.Web3.Web3 web3, string contractAddress)
+        public SellerAdminService(Nethereum.Web3.Web3 web3, string contractAddress)
         {
             Web3 = web3;
             ContractHandler = web3.Eth.GetContractHandler(contractAddress);
@@ -104,6 +104,17 @@ namespace Nethereum.Commerce.Contracts.WalletSeller
              return ContractHandler.SendRequestAndWaitForReceiptAsync(bindAddressFunction, cancellationToken);
         }
 
+        public Task<string> BpStorageQueryAsync(BpStorageFunction bpStorageFunction, BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<BpStorageFunction, string>(bpStorageFunction, blockParameter);
+        }
+
+        
+        public Task<string> BpStorageQueryAsync(BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<BpStorageFunction, string>(null, blockParameter);
+        }
+
         public Task<string> Bytes32ToStringQueryAsync(Bytes32ToStringFunction bytes32ToStringFunction, BlockParameter blockParameter = null)
         {
             return ContractHandler.QueryAsync<Bytes32ToStringFunction, string>(bytes32ToStringFunction, blockParameter);
@@ -129,35 +140,22 @@ namespace Nethereum.Commerce.Contracts.WalletSeller
              return ContractHandler.SendRequestAndWaitForReceiptAsync(configureFunction, cancellationToken);
         }
 
-        public Task<string> ConfigureRequestAsync(string sellerIdString, string nameOfPurchasing, string nameOfFunding)
+        public Task<string> ConfigureRequestAsync(string sellerIdString, string nameOfBusinessPartnerStorage)
         {
             var configureFunction = new ConfigureFunction();
                 configureFunction.SellerIdString = sellerIdString;
-                configureFunction.NameOfPurchasing = nameOfPurchasing;
-                configureFunction.NameOfFunding = nameOfFunding;
+                configureFunction.NameOfBusinessPartnerStorage = nameOfBusinessPartnerStorage;
             
              return ContractHandler.SendRequestAsync(configureFunction);
         }
 
-        public Task<TransactionReceipt> ConfigureRequestAndWaitForReceiptAsync(string sellerIdString, string nameOfPurchasing, string nameOfFunding, CancellationTokenSource cancellationToken = null)
+        public Task<TransactionReceipt> ConfigureRequestAndWaitForReceiptAsync(string sellerIdString, string nameOfBusinessPartnerStorage, CancellationTokenSource cancellationToken = null)
         {
             var configureFunction = new ConfigureFunction();
                 configureFunction.SellerIdString = sellerIdString;
-                configureFunction.NameOfPurchasing = nameOfPurchasing;
-                configureFunction.NameOfFunding = nameOfFunding;
+                configureFunction.NameOfBusinessPartnerStorage = nameOfBusinessPartnerStorage;
             
              return ContractHandler.SendRequestAndWaitForReceiptAsync(configureFunction, cancellationToken);
-        }
-
-        public Task<string> FundingQueryAsync(FundingFunction fundingFunction, BlockParameter blockParameter = null)
-        {
-            return ContractHandler.QueryAsync<FundingFunction, string>(fundingFunction, blockParameter);
-        }
-
-        
-        public Task<string> FundingQueryAsync(BlockParameter blockParameter = null)
-        {
-            return ContractHandler.QueryAsync<FundingFunction, string>(null, blockParameter);
         }
 
         public Task<GetPoOutputDTO> GetPoQueryAsync(GetPoFunction getPoFunction, BlockParameter blockParameter = null)
@@ -165,26 +163,27 @@ namespace Nethereum.Commerce.Contracts.WalletSeller
             return ContractHandler.QueryDeserializingToObjectAsync<GetPoFunction, GetPoOutputDTO>(getPoFunction, blockParameter);
         }
 
-        public Task<GetPoOutputDTO> GetPoQueryAsync(BigInteger poNumber, BlockParameter blockParameter = null)
+        public Task<GetPoOutputDTO> GetPoQueryAsync(string eShopIdString, BigInteger poNumber, BlockParameter blockParameter = null)
         {
             var getPoFunction = new GetPoFunction();
+                getPoFunction.EShopIdString = eShopIdString;
                 getPoFunction.PoNumber = poNumber;
             
             return ContractHandler.QueryDeserializingToObjectAsync<GetPoFunction, GetPoOutputDTO>(getPoFunction, blockParameter);
         }
 
-        public Task<GetPoBySellerAndQuoteOutputDTO> GetPoBySellerAndQuoteQueryAsync(GetPoBySellerAndQuoteFunction getPoBySellerAndQuoteFunction, BlockParameter blockParameter = null)
+        public Task<GetPoByEshopIdAndQuoteOutputDTO> GetPoByEshopIdAndQuoteQueryAsync(GetPoByEshopIdAndQuoteFunction getPoByEshopIdAndQuoteFunction, BlockParameter blockParameter = null)
         {
-            return ContractHandler.QueryDeserializingToObjectAsync<GetPoBySellerAndQuoteFunction, GetPoBySellerAndQuoteOutputDTO>(getPoBySellerAndQuoteFunction, blockParameter);
+            return ContractHandler.QueryDeserializingToObjectAsync<GetPoByEshopIdAndQuoteFunction, GetPoByEshopIdAndQuoteOutputDTO>(getPoByEshopIdAndQuoteFunction, blockParameter);
         }
 
-        public Task<GetPoBySellerAndQuoteOutputDTO> GetPoBySellerAndQuoteQueryAsync(string sellerIdString, BigInteger quoteId, BlockParameter blockParameter = null)
+        public Task<GetPoByEshopIdAndQuoteOutputDTO> GetPoByEshopIdAndQuoteQueryAsync(string eShopIdString, BigInteger quoteId, BlockParameter blockParameter = null)
         {
-            var getPoBySellerAndQuoteFunction = new GetPoBySellerAndQuoteFunction();
-                getPoBySellerAndQuoteFunction.SellerIdString = sellerIdString;
-                getPoBySellerAndQuoteFunction.QuoteId = quoteId;
+            var getPoByEshopIdAndQuoteFunction = new GetPoByEshopIdAndQuoteFunction();
+                getPoByEshopIdAndQuoteFunction.EShopIdString = eShopIdString;
+                getPoByEshopIdAndQuoteFunction.QuoteId = quoteId;
             
-            return ContractHandler.QueryDeserializingToObjectAsync<GetPoBySellerAndQuoteFunction, GetPoBySellerAndQuoteOutputDTO>(getPoBySellerAndQuoteFunction, blockParameter);
+            return ContractHandler.QueryDeserializingToObjectAsync<GetPoByEshopIdAndQuoteFunction, GetPoByEshopIdAndQuoteOutputDTO>(getPoByEshopIdAndQuoteFunction, blockParameter);
         }
 
         public Task<bool> IsOwnerQueryAsync(IsOwnerFunction isOwnerFunction, BlockParameter blockParameter = null)
@@ -209,17 +208,6 @@ namespace Nethereum.Commerce.Contracts.WalletSeller
             return ContractHandler.QueryAsync<OwnerFunction, string>(null, blockParameter);
         }
 
-        public Task<string> PurchasingQueryAsync(PurchasingFunction purchasingFunction, BlockParameter blockParameter = null)
-        {
-            return ContractHandler.QueryAsync<PurchasingFunction, string>(purchasingFunction, blockParameter);
-        }
-
-        
-        public Task<string> PurchasingQueryAsync(BlockParameter blockParameter = null)
-        {
-            return ContractHandler.QueryAsync<PurchasingFunction, string>(null, blockParameter);
-        }
-
         public Task<byte[]> SellerIdQueryAsync(SellerIdFunction sellerIdFunction, BlockParameter blockParameter = null)
         {
             return ContractHandler.QueryAsync<SellerIdFunction, byte[]>(sellerIdFunction, blockParameter);
@@ -241,9 +229,10 @@ namespace Nethereum.Commerce.Contracts.WalletSeller
              return ContractHandler.SendRequestAndWaitForReceiptAsync(setPoItemAcceptedFunction, cancellationToken);
         }
 
-        public Task<string> SetPoItemAcceptedRequestAsync(BigInteger poNumber, byte poItemNumber, byte[] soNumber, byte[] soItemNumber)
+        public Task<string> SetPoItemAcceptedRequestAsync(string eShopIdString, BigInteger poNumber, byte poItemNumber, byte[] soNumber, byte[] soItemNumber)
         {
             var setPoItemAcceptedFunction = new SetPoItemAcceptedFunction();
+                setPoItemAcceptedFunction.EShopIdString = eShopIdString;
                 setPoItemAcceptedFunction.PoNumber = poNumber;
                 setPoItemAcceptedFunction.PoItemNumber = poItemNumber;
                 setPoItemAcceptedFunction.SoNumber = soNumber;
@@ -252,9 +241,10 @@ namespace Nethereum.Commerce.Contracts.WalletSeller
              return ContractHandler.SendRequestAsync(setPoItemAcceptedFunction);
         }
 
-        public Task<TransactionReceipt> SetPoItemAcceptedRequestAndWaitForReceiptAsync(BigInteger poNumber, byte poItemNumber, byte[] soNumber, byte[] soItemNumber, CancellationTokenSource cancellationToken = null)
+        public Task<TransactionReceipt> SetPoItemAcceptedRequestAndWaitForReceiptAsync(string eShopIdString, BigInteger poNumber, byte poItemNumber, byte[] soNumber, byte[] soItemNumber, CancellationTokenSource cancellationToken = null)
         {
             var setPoItemAcceptedFunction = new SetPoItemAcceptedFunction();
+                setPoItemAcceptedFunction.EShopIdString = eShopIdString;
                 setPoItemAcceptedFunction.PoNumber = poNumber;
                 setPoItemAcceptedFunction.PoItemNumber = poItemNumber;
                 setPoItemAcceptedFunction.SoNumber = soNumber;
@@ -273,18 +263,20 @@ namespace Nethereum.Commerce.Contracts.WalletSeller
              return ContractHandler.SendRequestAndWaitForReceiptAsync(setPoItemCompletedFunction, cancellationToken);
         }
 
-        public Task<string> SetPoItemCompletedRequestAsync(BigInteger poNumber, byte poItemNumber)
+        public Task<string> SetPoItemCompletedRequestAsync(string eShopIdString, BigInteger poNumber, byte poItemNumber)
         {
             var setPoItemCompletedFunction = new SetPoItemCompletedFunction();
+                setPoItemCompletedFunction.EShopIdString = eShopIdString;
                 setPoItemCompletedFunction.PoNumber = poNumber;
                 setPoItemCompletedFunction.PoItemNumber = poItemNumber;
             
              return ContractHandler.SendRequestAsync(setPoItemCompletedFunction);
         }
 
-        public Task<TransactionReceipt> SetPoItemCompletedRequestAndWaitForReceiptAsync(BigInteger poNumber, byte poItemNumber, CancellationTokenSource cancellationToken = null)
+        public Task<TransactionReceipt> SetPoItemCompletedRequestAndWaitForReceiptAsync(string eShopIdString, BigInteger poNumber, byte poItemNumber, CancellationTokenSource cancellationToken = null)
         {
             var setPoItemCompletedFunction = new SetPoItemCompletedFunction();
+                setPoItemCompletedFunction.EShopIdString = eShopIdString;
                 setPoItemCompletedFunction.PoNumber = poNumber;
                 setPoItemCompletedFunction.PoItemNumber = poItemNumber;
             
@@ -301,18 +293,20 @@ namespace Nethereum.Commerce.Contracts.WalletSeller
              return ContractHandler.SendRequestAndWaitForReceiptAsync(setPoItemGoodsIssuedFunction, cancellationToken);
         }
 
-        public Task<string> SetPoItemGoodsIssuedRequestAsync(BigInteger poNumber, byte poItemNumber)
+        public Task<string> SetPoItemGoodsIssuedRequestAsync(string eShopIdString, BigInteger poNumber, byte poItemNumber)
         {
             var setPoItemGoodsIssuedFunction = new SetPoItemGoodsIssuedFunction();
+                setPoItemGoodsIssuedFunction.EShopIdString = eShopIdString;
                 setPoItemGoodsIssuedFunction.PoNumber = poNumber;
                 setPoItemGoodsIssuedFunction.PoItemNumber = poItemNumber;
             
              return ContractHandler.SendRequestAsync(setPoItemGoodsIssuedFunction);
         }
 
-        public Task<TransactionReceipt> SetPoItemGoodsIssuedRequestAndWaitForReceiptAsync(BigInteger poNumber, byte poItemNumber, CancellationTokenSource cancellationToken = null)
+        public Task<TransactionReceipt> SetPoItemGoodsIssuedRequestAndWaitForReceiptAsync(string eShopIdString, BigInteger poNumber, byte poItemNumber, CancellationTokenSource cancellationToken = null)
         {
             var setPoItemGoodsIssuedFunction = new SetPoItemGoodsIssuedFunction();
+                setPoItemGoodsIssuedFunction.EShopIdString = eShopIdString;
                 setPoItemGoodsIssuedFunction.PoNumber = poNumber;
                 setPoItemGoodsIssuedFunction.PoItemNumber = poItemNumber;
             
@@ -329,18 +323,20 @@ namespace Nethereum.Commerce.Contracts.WalletSeller
              return ContractHandler.SendRequestAndWaitForReceiptAsync(setPoItemGoodsReceivedFunction, cancellationToken);
         }
 
-        public Task<string> SetPoItemGoodsReceivedRequestAsync(BigInteger poNumber, byte poItemNumber)
+        public Task<string> SetPoItemGoodsReceivedRequestAsync(string eShopIdString, BigInteger poNumber, byte poItemNumber)
         {
             var setPoItemGoodsReceivedFunction = new SetPoItemGoodsReceivedFunction();
+                setPoItemGoodsReceivedFunction.EShopIdString = eShopIdString;
                 setPoItemGoodsReceivedFunction.PoNumber = poNumber;
                 setPoItemGoodsReceivedFunction.PoItemNumber = poItemNumber;
             
              return ContractHandler.SendRequestAsync(setPoItemGoodsReceivedFunction);
         }
 
-        public Task<TransactionReceipt> SetPoItemGoodsReceivedRequestAndWaitForReceiptAsync(BigInteger poNumber, byte poItemNumber, CancellationTokenSource cancellationToken = null)
+        public Task<TransactionReceipt> SetPoItemGoodsReceivedRequestAndWaitForReceiptAsync(string eShopIdString, BigInteger poNumber, byte poItemNumber, CancellationTokenSource cancellationToken = null)
         {
             var setPoItemGoodsReceivedFunction = new SetPoItemGoodsReceivedFunction();
+                setPoItemGoodsReceivedFunction.EShopIdString = eShopIdString;
                 setPoItemGoodsReceivedFunction.PoNumber = poNumber;
                 setPoItemGoodsReceivedFunction.PoItemNumber = poItemNumber;
             
@@ -357,18 +353,20 @@ namespace Nethereum.Commerce.Contracts.WalletSeller
              return ContractHandler.SendRequestAndWaitForReceiptAsync(setPoItemReadyForGoodsIssueFunction, cancellationToken);
         }
 
-        public Task<string> SetPoItemReadyForGoodsIssueRequestAsync(BigInteger poNumber, byte poItemNumber)
+        public Task<string> SetPoItemReadyForGoodsIssueRequestAsync(string eShopIdString, BigInteger poNumber, byte poItemNumber)
         {
             var setPoItemReadyForGoodsIssueFunction = new SetPoItemReadyForGoodsIssueFunction();
+                setPoItemReadyForGoodsIssueFunction.EShopIdString = eShopIdString;
                 setPoItemReadyForGoodsIssueFunction.PoNumber = poNumber;
                 setPoItemReadyForGoodsIssueFunction.PoItemNumber = poItemNumber;
             
              return ContractHandler.SendRequestAsync(setPoItemReadyForGoodsIssueFunction);
         }
 
-        public Task<TransactionReceipt> SetPoItemReadyForGoodsIssueRequestAndWaitForReceiptAsync(BigInteger poNumber, byte poItemNumber, CancellationTokenSource cancellationToken = null)
+        public Task<TransactionReceipt> SetPoItemReadyForGoodsIssueRequestAndWaitForReceiptAsync(string eShopIdString, BigInteger poNumber, byte poItemNumber, CancellationTokenSource cancellationToken = null)
         {
             var setPoItemReadyForGoodsIssueFunction = new SetPoItemReadyForGoodsIssueFunction();
+                setPoItemReadyForGoodsIssueFunction.EShopIdString = eShopIdString;
                 setPoItemReadyForGoodsIssueFunction.PoNumber = poNumber;
                 setPoItemReadyForGoodsIssueFunction.PoItemNumber = poItemNumber;
             
@@ -385,18 +383,20 @@ namespace Nethereum.Commerce.Contracts.WalletSeller
              return ContractHandler.SendRequestAndWaitForReceiptAsync(setPoItemRejectedFunction, cancellationToken);
         }
 
-        public Task<string> SetPoItemRejectedRequestAsync(BigInteger poNumber, byte poItemNumber)
+        public Task<string> SetPoItemRejectedRequestAsync(string eShopIdString, BigInteger poNumber, byte poItemNumber)
         {
             var setPoItemRejectedFunction = new SetPoItemRejectedFunction();
+                setPoItemRejectedFunction.EShopIdString = eShopIdString;
                 setPoItemRejectedFunction.PoNumber = poNumber;
                 setPoItemRejectedFunction.PoItemNumber = poItemNumber;
             
              return ContractHandler.SendRequestAsync(setPoItemRejectedFunction);
         }
 
-        public Task<TransactionReceipt> SetPoItemRejectedRequestAndWaitForReceiptAsync(BigInteger poNumber, byte poItemNumber, CancellationTokenSource cancellationToken = null)
+        public Task<TransactionReceipt> SetPoItemRejectedRequestAndWaitForReceiptAsync(string eShopIdString, BigInteger poNumber, byte poItemNumber, CancellationTokenSource cancellationToken = null)
         {
             var setPoItemRejectedFunction = new SetPoItemRejectedFunction();
+                setPoItemRejectedFunction.EShopIdString = eShopIdString;
                 setPoItemRejectedFunction.PoNumber = poNumber;
                 setPoItemRejectedFunction.PoItemNumber = poItemNumber;
             

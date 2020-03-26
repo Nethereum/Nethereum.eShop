@@ -27,7 +27,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         [Fact]
         public async void ShouldStoreAndRetrieveSeller()
         {
-            var sellerAdminContractAddress = _contracts.Deployment.WalletSellerService.ContractHandler.ContractAddress;
+            var sellerAdminContractAddress = _contracts.Deployment.SellerAdminService.ContractHandler.ContractAddress;
 
             // Create a Seller to store
             var sellerExpected = new Seller()

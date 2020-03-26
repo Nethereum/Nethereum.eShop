@@ -8,9 +8,9 @@ using Nethereum.Web3;
 using Nethereum.Web3.Accounts;
 using System;
 using System.Numerics;
-using Buyer = Nethereum.Commerce.Contracts.WalletBuyer.ContractDefinition;
+using Buyer = Nethereum.Commerce.Contracts.BuyerWallet.ContractDefinition;
 using Purchase = Nethereum.Commerce.Contracts.Purchasing.ContractDefinition;
-using Seller = Nethereum.Commerce.Contracts.WalletSeller.ContractDefinition;
+using Seller = Nethereum.Commerce.Contracts.SellerAdmin.ContractDefinition;
 using Storage = Nethereum.Commerce.Contracts.PoStorage.ContractDefinition;
 
 namespace Nethereum.Commerce.Contracts

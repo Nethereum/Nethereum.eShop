@@ -7,8 +7,6 @@ import "./IErc20.sol";
 import "./IPoStorage.sol";
 import "./IBusinessPartnerStorage.sol";
 import "./IFunding.sol";
-import "./IWalletBuyer.sol";
-import "./IWalletSeller.sol";
 import "./IAddressRegistry.sol";
 import "./Ownable.sol";
 import "./Bindable.sol";
@@ -23,6 +21,10 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
     IBusinessPartnerStorage public bpStorage;
     IFunding public funding;
     
+    // TODO define where these config values should be held, eternal storage?
+    uint constant private FEE_BASIS_POINTS = 100;  // 100 basis points = 1%
+    uint constant private ESCROW_TIMEOUT_DAYS = 30;
+     
     /// @notice Specify eShopId at point of contract creation, then it is fixed forever.
     constructor (address contractAddressOfRegistry, string memory eShopIdString) public
     {
@@ -51,6 +53,11 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
         // Check that the eShop master data purchasing contract points to this contract's address
         IPoTypes.Eshop memory eShop = bpStorage.getEshop(eShopId);
         require(eShop.purchasingContractAddress == address(this), "eShop master data points to wrong Purchasing address");
+    }
+    
+    function getFunding() override external view returns (IFunding)
+    {
+        return funding;
     }
     
     // Purchasing
@@ -106,7 +113,7 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
             po.poItems[i].poNumber = po.poNumber;
             po.poItems[i].poItemNumber = (uint8)(i + 1);
             // shop fee calculation - arbitrary 1% for now
-            po.poItems[i].currencyValueFee = po.poItems[i].currencyValue / 100; 
+            po.poItems[i].currencyValueFee = ( po.poItems[i].currencyValue * FEE_BASIS_POINTS ) / 10000; 
             po.poItems[i].status = IPoTypes.PoItemStatus.Created;
             po.poItems[i].goodsIssuedDate = 0;
             po.poItems[i].goodsReceivedDate = 0;
@@ -131,6 +138,16 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
         // Record the new PO as it was stored
         IPoTypes.Po memory poAsStored = poStorage.getPo(po.poNumber);
         emit PurchaseOrderCreatedLog(poAsStored.buyerWalletAddress, poAsStored.sellerId, poAsStored.poNumber, poAsStored);
+    }
+    
+    function getFeeBasisPoints() override external pure returns (uint)
+    {
+        return FEE_BASIS_POINTS;
+    }
+    
+    function getEscrowTimeoutDays() override external pure returns (uint)
+    {
+        return ESCROW_TIMEOUT_DAYS;
     }
     
     function cancelPurchaseOrderItem(uint poNumber, uint8 poItemNumber) onlyRegisteredCaller() override external
@@ -216,7 +233,7 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
         uint poItemIndex = poItemNumber - 1;
         po.poItems[poItemIndex].status = IPoTypes.PoItemStatus.GoodsIssued;
         po.poItems[poItemIndex].goodsIssuedDate = now;
-        po.poItems[poItemIndex].plannedEscrowReleaseDate = now + 30 days;   // TODO days to be configurable
+        po.poItems[poItemIndex].plannedEscrowReleaseDate = now + ESCROW_TIMEOUT_DAYS; // eg escrow times out after 30 days
     
         // Write to storage
         poStorage.setPo(po);

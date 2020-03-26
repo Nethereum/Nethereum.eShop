@@ -8,8 +8,8 @@ using System.Numerics;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 using static Nethereum.Commerce.Contracts.ContractEnums;
-using Buyer = Nethereum.Commerce.Contracts.WalletBuyer.ContractDefinition;
-using Seller = Nethereum.Commerce.Contracts.WalletSeller.ContractDefinition;
+using Buyer = Nethereum.Commerce.Contracts.BuyerWallet.ContractDefinition;
+using Seller = Nethereum.Commerce.Contracts.SellerAdmin.ContractDefinition;
 using Storage = Nethereum.Commerce.Contracts.PoStorage.ContractDefinition;
 using BP = Nethereum.Commerce.Contracts.BusinessPartnerStorage.ContractDefinition;
 

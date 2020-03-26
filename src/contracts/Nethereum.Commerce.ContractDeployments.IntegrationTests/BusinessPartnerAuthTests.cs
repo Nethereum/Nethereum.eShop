@@ -29,7 +29,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         public async void ShouldChangeSellerWhenCreatedBy()
         {
             // Create a Seller to store
-            var sellerAdminContractAddress = _contracts.Deployment.WalletSellerService.ContractHandler.ContractAddress;
+            var sellerAdminContractAddress = _contracts.Deployment.SellerAdminService.ContractHandler.ContractAddress;
             var sellerExpected = new Seller()
             {
                 SellerId = "Seller" + GetRandomString(),
@@ -89,7 +89,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         public async void ShouldFailToChangeSellerWhenNotCreatedBy()
         {
             // Create a seller, then try to change it with another account, it should fail
-            var sellerAdminContractAddress = _contracts.Deployment.WalletSellerService.ContractHandler.ContractAddress;
+            var sellerAdminContractAddress = _contracts.Deployment.SellerAdminService.ContractHandler.ContractAddress;
             var sellerExpected = new Seller()
             {
                 SellerId = "Seller" + GetRandomString(),
