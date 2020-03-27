@@ -19,5 +19,13 @@ namespace Nethereum.Commerce.Contracts.BusinessPartnerStorage
 
             return ContractHandler.QueryDeserializingToObjectAsync<GetSellerFunction, GetSellerOutputDTO>(getSellerFunction, blockParameter);
         }
+
+        public Task<GetEshopOutputDTO> GetEshopQueryAsync(string eShopId, BlockParameter blockParameter = null)
+        {
+            var getEshopFunction = new GetEshopFunction();
+            getEshopFunction.EShopId = eShopId.ConvertToBytes32();
+
+            return ContractHandler.QueryDeserializingToObjectAsync<GetEshopFunction, GetEshopOutputDTO>(getEshopFunction, blockParameter);
+        }
     }
 }

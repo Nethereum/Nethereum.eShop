@@ -35,26 +35,29 @@ namespace Nethereum.Commerce.Contracts.PoStorage.ContractDefinition
 
         [Parameter("uint256", "currencyValue", 10)]
         public new BigInteger CurrencyValue { get; set; }
-        
-        [Parameter("uint8", "status", 11)]
+
+        [Parameter("uint256", "currencyValueFee", 11)]
+        public new BigInteger CurrencyValueFee { get; set; }
+
+        [Parameter("uint8", "status", 12)]
         public new PoItemStatus Status { get; set; }
 
-        [Parameter("uint256", "goodsIssuedDate", 12)]
+        [Parameter("uint256", "goodsIssuedDate", 13)]
         public new BigInteger GoodsIssuedDate { get; set; }
 
-        [Parameter("uint256", "goodsReceivedDate", 13)]
+        [Parameter("uint256", "goodsReceivedDate", 14)]
         public new BigInteger GoodsReceivedDate { get; set; }
 
-        [Parameter("uint256", "plannedEscrowReleaseDate", 14)]
+        [Parameter("uint256", "plannedEscrowReleaseDate", 15)]
         public new BigInteger PlannedEscrowReleaseDate { get; set; }
 
-        [Parameter("uint256", "actualEscrowReleaseDate", 15)]
+        [Parameter("uint256", "actualEscrowReleaseDate", 16)]
         public new BigInteger ActualEscrowReleaseDate { get; set; }
 
-        [Parameter("bool", "isEscrowReleased", 16)]
+        [Parameter("bool", "isEscrowReleased", 17)]
         public new bool IsEscrowReleased { get; set; }
 
-        [Parameter("uint8", "cancelStatus", 17)]
+        [Parameter("uint8", "cancelStatus", 18)]
         public new PoItemCancelStatus CancelStatus { get; set; }
     }
 }

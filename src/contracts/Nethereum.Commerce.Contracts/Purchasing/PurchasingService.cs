@@ -216,6 +216,17 @@ namespace Nethereum.Commerce.Contracts.Purchasing
              return ContractHandler.SendRequestAndWaitForReceiptAsync(createPurchaseOrderFunction, cancellationToken);
         }
 
+        public Task<byte[]> EShopIdQueryAsync(EShopIdFunction eShopIdFunction, BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<EShopIdFunction, byte[]>(eShopIdFunction, blockParameter);
+        }
+
+        
+        public Task<byte[]> EShopIdQueryAsync(BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<EShopIdFunction, byte[]>(null, blockParameter);
+        }
+
         public Task<string> FundingQueryAsync(FundingFunction fundingFunction, BlockParameter blockParameter = null)
         {
             return ContractHandler.QueryAsync<FundingFunction, string>(fundingFunction, blockParameter);
@@ -225,6 +236,39 @@ namespace Nethereum.Commerce.Contracts.Purchasing
         public Task<string> FundingQueryAsync(BlockParameter blockParameter = null)
         {
             return ContractHandler.QueryAsync<FundingFunction, string>(null, blockParameter);
+        }
+
+        public Task<BigInteger> GetEscrowTimeoutDaysQueryAsync(GetEscrowTimeoutDaysFunction getEscrowTimeoutDaysFunction, BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<GetEscrowTimeoutDaysFunction, BigInteger>(getEscrowTimeoutDaysFunction, blockParameter);
+        }
+
+        
+        public Task<BigInteger> GetEscrowTimeoutDaysQueryAsync(BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<GetEscrowTimeoutDaysFunction, BigInteger>(null, blockParameter);
+        }
+
+        public Task<BigInteger> GetFeeBasisPointsQueryAsync(GetFeeBasisPointsFunction getFeeBasisPointsFunction, BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<GetFeeBasisPointsFunction, BigInteger>(getFeeBasisPointsFunction, blockParameter);
+        }
+
+        
+        public Task<BigInteger> GetFeeBasisPointsQueryAsync(BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<GetFeeBasisPointsFunction, BigInteger>(null, blockParameter);
+        }
+
+        public Task<string> GetFundingQueryAsync(GetFundingFunction getFundingFunction, BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<GetFundingFunction, string>(getFundingFunction, blockParameter);
+        }
+
+        
+        public Task<string> GetFundingQueryAsync(BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<GetFundingFunction, string>(null, blockParameter);
         }
 
         public Task<GetPoOutputDTO> GetPoQueryAsync(GetPoFunction getPoFunction, BlockParameter blockParameter = null)
@@ -240,18 +284,17 @@ namespace Nethereum.Commerce.Contracts.Purchasing
             return ContractHandler.QueryDeserializingToObjectAsync<GetPoFunction, GetPoOutputDTO>(getPoFunction, blockParameter);
         }
 
-        public Task<GetPoBySellerAndQuoteOutputDTO> GetPoBySellerAndQuoteQueryAsync(GetPoBySellerAndQuoteFunction getPoBySellerAndQuoteFunction, BlockParameter blockParameter = null)
+        public Task<GetPoByQuoteOutputDTO> GetPoByQuoteQueryAsync(GetPoByQuoteFunction getPoByQuoteFunction, BlockParameter blockParameter = null)
         {
-            return ContractHandler.QueryDeserializingToObjectAsync<GetPoBySellerAndQuoteFunction, GetPoBySellerAndQuoteOutputDTO>(getPoBySellerAndQuoteFunction, blockParameter);
+            return ContractHandler.QueryDeserializingToObjectAsync<GetPoByQuoteFunction, GetPoByQuoteOutputDTO>(getPoByQuoteFunction, blockParameter);
         }
 
-        public Task<GetPoBySellerAndQuoteOutputDTO> GetPoBySellerAndQuoteQueryAsync(string sellerIdString, BigInteger quoteId, BlockParameter blockParameter = null)
+        public Task<GetPoByQuoteOutputDTO> GetPoByQuoteQueryAsync(BigInteger quoteId, BlockParameter blockParameter = null)
         {
-            var getPoBySellerAndQuoteFunction = new GetPoBySellerAndQuoteFunction();
-                getPoBySellerAndQuoteFunction.SellerIdString = sellerIdString;
-                getPoBySellerAndQuoteFunction.QuoteId = quoteId;
+            var getPoByQuoteFunction = new GetPoByQuoteFunction();
+                getPoByQuoteFunction.QuoteId = quoteId;
             
-            return ContractHandler.QueryDeserializingToObjectAsync<GetPoBySellerAndQuoteFunction, GetPoBySellerAndQuoteOutputDTO>(getPoBySellerAndQuoteFunction, blockParameter);
+            return ContractHandler.QueryDeserializingToObjectAsync<GetPoByQuoteFunction, GetPoByQuoteOutputDTO>(getPoByQuoteFunction, blockParameter);
         }
 
         public Task<string> GetSignerAddressFromPoAndSignatureQueryAsync(GetSignerAddressFromPoAndSignatureFunction getSignerAddressFromPoAndSignatureFunction, BlockParameter blockParameter = null)

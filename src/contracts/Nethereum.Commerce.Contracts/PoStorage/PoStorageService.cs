@@ -180,19 +180,19 @@ namespace Nethereum.Commerce.Contracts.PoStorage
             return ContractHandler.QueryDeserializingToObjectAsync<GetPoFunction, GetPoOutputDTO>(getPoFunction, blockParameter);
         }
 
-        public Task<BigInteger> GetPoNumberBySellerAndQuoteQueryAsync(GetPoNumberBySellerAndQuoteFunction getPoNumberBySellerAndQuoteFunction, BlockParameter blockParameter = null)
+        public Task<BigInteger> GetPoNumberByEshopIdAndQuoteQueryAsync(GetPoNumberByEshopIdAndQuoteFunction getPoNumberByEshopIdAndQuoteFunction, BlockParameter blockParameter = null)
         {
-            return ContractHandler.QueryAsync<GetPoNumberBySellerAndQuoteFunction, BigInteger>(getPoNumberBySellerAndQuoteFunction, blockParameter);
+            return ContractHandler.QueryAsync<GetPoNumberByEshopIdAndQuoteFunction, BigInteger>(getPoNumberByEshopIdAndQuoteFunction, blockParameter);
         }
 
         
-        public Task<BigInteger> GetPoNumberBySellerAndQuoteQueryAsync(byte[] sellerId, BigInteger quoteId, BlockParameter blockParameter = null)
+        public Task<BigInteger> GetPoNumberByEshopIdAndQuoteQueryAsync(byte[] eShopId, BigInteger quoteId, BlockParameter blockParameter = null)
         {
-            var getPoNumberBySellerAndQuoteFunction = new GetPoNumberBySellerAndQuoteFunction();
-                getPoNumberBySellerAndQuoteFunction.SellerId = sellerId;
-                getPoNumberBySellerAndQuoteFunction.QuoteId = quoteId;
+            var getPoNumberByEshopIdAndQuoteFunction = new GetPoNumberByEshopIdAndQuoteFunction();
+                getPoNumberByEshopIdAndQuoteFunction.EShopId = eShopId;
+                getPoNumberByEshopIdAndQuoteFunction.QuoteId = quoteId;
             
-            return ContractHandler.QueryAsync<GetPoNumberBySellerAndQuoteFunction, BigInteger>(getPoNumberBySellerAndQuoteFunction, blockParameter);
+            return ContractHandler.QueryAsync<GetPoNumberByEshopIdAndQuoteFunction, BigInteger>(getPoNumberByEshopIdAndQuoteFunction, blockParameter);
         }
 
         public Task<string> IncrementPoNumberRequestAsync(IncrementPoNumberFunction incrementPoNumberFunction)

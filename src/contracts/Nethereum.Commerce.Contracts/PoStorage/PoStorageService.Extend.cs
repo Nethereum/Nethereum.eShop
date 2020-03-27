@@ -8,13 +8,13 @@ namespace Nethereum.Commerce.Contracts.PoStorage
 {
     public partial class PoStorageService
     {
-        public Task<BigInteger> GetPoNumberBySellerAndQuoteQueryAsync(string sellerId, BigInteger quoteId, BlockParameter blockParameter = null)
+        public Task<BigInteger> GetPoNumberByEshopIdAndQuoteQueryAsync(string eShopId, BigInteger quoteId, BlockParameter blockParameter = null)
         {
-            var getPoNumberBySellerAndQuoteFunction = new GetPoNumberBySellerAndQuoteFunction();
-            getPoNumberBySellerAndQuoteFunction.SellerId = sellerId.ConvertToBytes32();
+            var getPoNumberBySellerAndQuoteFunction = new GetPoNumberByEshopIdAndQuoteFunction();
+            getPoNumberBySellerAndQuoteFunction.EShopId = eShopId.ConvertToBytes32();
             getPoNumberBySellerAndQuoteFunction.QuoteId = quoteId;
 
-            return ContractHandler.QueryAsync<GetPoNumberBySellerAndQuoteFunction, BigInteger>(getPoNumberBySellerAndQuoteFunction, blockParameter);
+            return ContractHandler.QueryAsync<GetPoNumberByEshopIdAndQuoteFunction, BigInteger>(getPoNumberBySellerAndQuoteFunction, blockParameter);
         }
     }
 }

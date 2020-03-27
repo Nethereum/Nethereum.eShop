@@ -69,16 +69,31 @@ contract Funding is IFunding, Ownable, Bindable, StringConvertible
     
     function transferOutFundsForPoItemToSeller(uint poNumber, uint8 poItemNumber) onlyRegisteredCaller() override external
     {
-        // Pay the seller wallet
+        // Get the Po Item, the token and the Seller
         IPoTypes.Po memory po = purchasing.getPo(poNumber);
         uint poItemIndex = poItemNumber - 1;
         uint poItemValue = po.poItems[poItemIndex].currencyValue;
+        uint poItemValueFee = po.poItems[poItemIndex].currencyValueFee;
         IErc20 token = IErc20(po.currencyAddress);
         IPoTypes.Seller memory seller = businessPartnerStorage.getSeller(po.sellerId);
-        require(seller.contractAddress != address(0), "Seller Id has no contract address");
+        require(seller.adminContractAddress != address(0), "Seller has no admin contract address");
         
-        // Transfer
-        bool result = token.transfer(seller.contractAddress, poItemValue);
+        // Transfer escrow payment to seller
+        if (poItemValueFee > poItemValue)
+        {
+            revert("PO Item fee exceeds PO Item value");
+        }
+        uint poItemNetValue = poItemValue - poItemValueFee;
+        bool result = token.transfer(seller.adminContractAddress, poItemNetValue);
         require(result == true, "Not enough funds transferred");
+        
+        // Transfer fee to shop
+        if (poItemValueFee > 0)
+        {
+            IPoTypes.Eshop memory eShop = businessPartnerStorage.getEshop(po.eShopId);
+            require(eShop.purchasingContractAddress != address(0), "eShop has no contract address");
+            bool resultFee = token.transfer(eShop.purchasingContractAddress, poItemValueFee);
+            require(resultFee == true, "Not enough funds transferred for fee");
+        }
     }
 }

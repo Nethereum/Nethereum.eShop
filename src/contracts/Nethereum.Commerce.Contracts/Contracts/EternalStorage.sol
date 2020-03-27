@@ -23,7 +23,7 @@ contract EternalStorage is IEternalStorage, Ownable, Bindable
     mapping(bytes32 => mapping(bytes32 => address)) private MappingBytes32ToAddressStorage;
     mapping(bytes32 => mapping(bytes32 => bool)) private MappingBytes32ToBoolStorage;
     mapping(bytes32 => mapping(address => uint256)) private MappingAddressToUintStorage;
-
+    
     //-------------------------------------------------------------------------------------------
     // Storage functions
     //-------------------------------------------------------------------------------------------

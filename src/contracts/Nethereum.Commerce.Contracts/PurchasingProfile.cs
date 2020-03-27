@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using Buyer = Nethereum.Commerce.Contracts.WalletBuyer.ContractDefinition;
-using Seller = Nethereum.Commerce.Contracts.WalletSeller.ContractDefinition;
+using Buyer = Nethereum.Commerce.Contracts.BuyerWallet.ContractDefinition;
+using Seller = Nethereum.Commerce.Contracts.SellerAdmin.ContractDefinition;
 using Purchase = Nethereum.Commerce.Contracts.Purchasing.ContractDefinition;
 using Storage = Nethereum.Commerce.Contracts.PoStorage.ContractDefinition;
 

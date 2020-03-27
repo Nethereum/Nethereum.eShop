@@ -4,7 +4,7 @@ using Nethereum.Commerce.ContractDeployments.IntegrationTests.Config;
 using Nethereum.Commerce.Contracts;
 using Nethereum.Commerce.Contracts.Purchasing;
 using Nethereum.Commerce.Contracts.Purchasing.ContractDefinition;
-using Nethereum.Commerce.Contracts.WalletSeller;
+using Nethereum.Commerce.Contracts.SellerAdmin;
 using Nethereum.Contracts;
 using System;
 using System.Linq;
@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 using static Nethereum.Commerce.ContractDeployments.IntegrationTests.PoTestHelpers;
-using Buyer = Nethereum.Commerce.Contracts.WalletBuyer.ContractDefinition;
+using Buyer = Nethereum.Commerce.Contracts.BuyerWallet.ContractDefinition;
 using Purchasing = Nethereum.Commerce.Contracts.Purchasing.ContractDefinition;
 using Storage = Nethereum.Commerce.Contracts.PoStorage.ContractDefinition;
 
@@ -40,7 +40,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId: GetRandomInt());
             var signature = poAsRequested.GetSignatureBytes(_contracts.Web3);
             await PrepSendFundsToBuyerWalletForPo(_contracts.Web3, poAsRequested);
-            var txReceipt = await _contracts.Deployment.WalletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
+            var txReceipt = await _contracts.Deployment.BuyerWalletService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
             txReceipt.Status.Value.Should().Be(1);
 
             // Check PO create events
@@ -49,17 +49,20 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var poNumberAsBuilt = logPoCreated.Event.Po.PoNumber;
 
             // Attempt to mark PO item as accepted using preexisting WalletSeller contract, but with tx executed by the non-authorised ("secondary") user
-            var wss = new WalletSellerService(_contracts.Web3SecondaryUser, _contracts.Deployment.WalletSellerService.ContractHandler.ContractAddress);
-            Func<Task> act = async () => await wss.SetPoItemAcceptedRequestAndWaitForReceiptAsync(poNumberAsBuilt, 1, "SalesOrder1", "Item1");
+            var wss = new SellerAdminService(_contracts.Web3SecondaryUser, _contracts.Deployment.SellerAdminService.ContractHandler.ContractAddress);
+            Func<Task> act = async () => await wss.SetPoItemAcceptedRequestAndWaitForReceiptAsync(
+                poAsRequested.EShopId, poNumberAsBuilt, 1, "SalesOrder1", "Item1");
             act.Should().Throw<SmartContractRevertException>().WithMessage(AUTH_EXCEPTION_ONLY_OWNER);
         }
 
         private async Task<Buyer.Po> CreateBuyerPoAsync(uint quoteId)
         {
             return CreatePoForPurchasingContracts(
-                buyerAddress: _contracts.Web3.TransactionManager.Account.Address.ToLowerInvariant(),
-                receiverAddress: _contracts.Web3.TransactionManager.Account.Address.ToLowerInvariant(),
-                buyerWalletAddress: _contracts.Deployment.WalletBuyerService.ContractHandler.ContractAddress.ToLowerInvariant(),
+                buyerUserAddress: _contracts.Web3.TransactionManager.Account.Address.ToLowerInvariant(),
+                buyerReceiverAddress: _contracts.Web3.TransactionManager.Account.Address.ToLowerInvariant(),
+                buyerWalletAddress: _contracts.Deployment.BuyerWalletService.ContractHandler.ContractAddress.ToLowerInvariant(),
+                eShopId: GetRandomString(),
+                sellerId: _contracts.Deployment.ContractNewDeploymentConfig.Seller.SellerId,
                 currencySymbol: await _contracts.Deployment.MockDaiService.SymbolQueryAsync(),
                 currencyAddress: _contracts.Deployment.MockDaiService.ContractHandler.ContractAddress.ToLowerInvariant(),
                 quoteId).ToBuyerPo();
