@@ -18,7 +18,7 @@ namespace Nethereum.Commerce.Contracts
     /// <summary>
     /// Extension methods for:
     ///   Converting byte[] to string and back
-    ///   Converting POs defined in one namespace to another namespace, eg WalletBuyer PO to PoStorage PO (uses automap).
+    ///   Converting POs defined in one namespace to another namespace, eg BuyerWallet PO to PoStorage PO (uses automap).
     /// </summary>
     public static class PurchasingExtensions
     {
@@ -86,11 +86,11 @@ namespace Nethereum.Commerce.Contracts
             return signature;
         }        
 
-        // PoStorage <=> WalletBuyer        
+        // PoStorage <=> Buyer        
         public static Storage.Po ToStoragePo(this Buyer.Po po) { return _mapper.Map<Storage.Po>(po); }
         public static Buyer.Po ToBuyerPo(this Storage.Po po) { return _mapper.Map<Buyer.Po>(po); }
 
-        // PoStorage <=> WalletSeller
+        // PoStorage <=> Seller
         public static Storage.Po ToStoragePo(this Seller.Po po) { return _mapper.Map<Storage.Po>(po); }
         public static Seller.Po ToSellerPo(this Storage.Po po) { return _mapper.Map<Seller.Po>(po); }
 
@@ -100,11 +100,11 @@ namespace Nethereum.Commerce.Contracts
         public static Storage.PoItem ToStoragePoItem(this Purchase.PoItem poItem) { return _mapper.Map<Storage.PoItem>(poItem); }
         public static Purchase.PoItem ToPurchasingPoItem(this Storage.PoItem poItem) { return _mapper.Map<Purchase.PoItem>(poItem); }
 
-        // WalletBuyer <=> WalletSeller
+        // Buyer <=> Seller
         public static Buyer.Po ToBuyerPo(this Seller.Po po) { return _mapper.Map<Buyer.Po>(po); }
         public static Seller.Po ToSellerPo(this Buyer.Po po) { return _mapper.Map<Seller.Po>(po); }
 
-        // WalletBuyer <=> Purchasing
+        // Buyer <=> Purchasing
         public static Buyer.Po ToBuyerPo(this Purchase.Po po) { return _mapper.Map<Buyer.Po>(po); }
         public static Purchase.Po ToPurchasingPo(this Buyer.Po po) { return _mapper.Map<Purchase.Po>(po); }
     }

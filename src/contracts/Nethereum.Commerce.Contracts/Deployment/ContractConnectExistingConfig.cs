@@ -5,8 +5,8 @@
     /// </summary>
     public class ContractConnectExistingConfig
     {
-        public string WalletSellerAddress { get; set; }
+        public string SellerAdminAddress { get; set; }
 
-        public string WalletBuyerAddress { get; set; }
+        public string BuyerWalletAddress { get; set; }
     }
 }

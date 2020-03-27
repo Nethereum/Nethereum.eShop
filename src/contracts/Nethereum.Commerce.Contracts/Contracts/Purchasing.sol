@@ -87,12 +87,14 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
         require(eShop.eShopId.length > 0, "eShop has no master data");
         require(eShop.purchasingContractAddress != address(0), "eShop has no purchasing address");
         require(eShop.quoteSignerAddress != address(0), "eShop has no quote signer address");
+        require(eShop.isActive == true, "eShop is inactive");
         
         // Ensure buyer chose a valid seller
         require(po.sellerId.length > 0, "SellerId must be specified");
         IPoTypes.Seller memory seller = bpStorage.getSeller(po.sellerId);
         require(seller.sellerId.length > 0, "Seller has no master data");
         require(seller.adminContractAddress != address(0), "Seller has no admin address");
+        require(seller.isActive == true, "Seller is inactive");
         
         // Validate quote and quote signer
         address expectedSignerAddress = getSignerAddressFromPoAndSignature(po, signature);

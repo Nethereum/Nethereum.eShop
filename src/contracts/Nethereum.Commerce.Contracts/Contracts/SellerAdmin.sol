@@ -10,7 +10,7 @@ import "./Ownable.sol";
 import "./Bindable.sol";
 import "./StringConvertible.sol";
 
-/// @title WalletSeller
+/// @title SellerAdmin
 contract SellerAdmin is ISellerAdmin, Ownable, Bindable, StringConvertible
 {
     IAddressRegistry public addressRegistry;

@@ -44,21 +44,26 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         public const string QUOTE_EXCEPTION_EXPIRY_PASSED = "*Quote expiry date has passed*";
 
         /// <summary>
-        /// Revert message when an attempt it made by WalletBuyer to set a PO item to goods received, and the msg.sender
+        /// Revert message when an attempt it made by BuyerWallet to set a PO item to goods received, and the msg.sender
         /// is not the PO owner / BuyerAddress
         /// </summary>
-        public const string GOODS_RECEIPT_EXCEPTION_NOT_PO_OWNER = "*Only PO owner (BuyerAddress) can say Goods Received*";
+        public const string GOODS_RECEIPT_EXCEPTION_NOT_PO_OWNER = "*Only PO owner (BuyerUserAddress) can say Goods Received*";
 
         /// <summary>
-        /// Revert message when an attempt it made by WalletSeller to set a PO item to goods received, but not enough
+        /// Revert message when an attempt it made by SellerAdmin to set a PO item to goods received, but not enough
         /// days have passed since PO item was goods issued.
         /// </summary>
         public const string GOODS_RECEIPT_EXCEPTION_INSUFFICIENT_DAYS = "*Seller cannot set goods received: insufficient days passed*";
 
         /// <summary>
-        /// Revert message when an attempt it made to create a PO but the seller id is inactive
+        /// Revert message when an attempt it made to create a PO but the seller is inactive
         /// </summary>
-        public const string PO_EXCEPTION_SELLER_INACTIVE = "*Seller Id is inactive*";
+        public const string PO_EXCEPTION_SELLER_INACTIVE = "*Seller is inactive*";
+
+        /// <summary>
+        /// Revert message when an attempt it made to create a PO but the eShop is inactive
+        /// </summary>
+        public const string PO_EXCEPTION_ESHOP_INACTIVE = "*eShop is inactive*";
 
         /// <summary>
         /// Revert message when an attempt it made to access a non-existent PO
@@ -290,7 +295,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         }
 
         /// <summary>
-        /// A realistic test PO intended for passing to contracts WalletBuyer.sol or Purchasing.sol poCreate() functions.
+        /// A realistic test PO intended for passing to contracts BuyerWallet.sol or Purchasing.sol poCreate() functions.
         /// </summary>        
         public static Storage.Po CreatePoForPurchasingContracts(
             string buyerUserAddress,

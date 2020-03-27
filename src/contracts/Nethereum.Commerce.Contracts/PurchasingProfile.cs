@@ -10,13 +10,13 @@ namespace Nethereum.Commerce.Contracts
     {
         public PurchasingProfile()
         {
-            // PoStorage <=> WalletBuyer            
+            // PoStorage <=> Buyer            
             this.CreateMap<Storage.Po, Buyer.Po>();
             this.CreateMap<Storage.PoItem, Buyer.PoItem>();
             this.CreateMap<Buyer.Po, Storage.Po>();
             this.CreateMap<Buyer.PoItem, Storage.PoItem>();
 
-            // PoStorage <=> WalletSeller
+            // PoStorage <=> Seller
             this.CreateMap<Storage.Po, Seller.Po>();
             this.CreateMap<Storage.PoItem, Seller.PoItem>();
             this.CreateMap<Seller.Po, Storage.Po>();
@@ -28,13 +28,13 @@ namespace Nethereum.Commerce.Contracts
             this.CreateMap<Purchase.Po, Storage.Po>();
             this.CreateMap<Purchase.PoItem, Storage.PoItem>();
 
-            // WalletBuyer <=> WalletSeller
+            // Buyer <=> Seller
             this.CreateMap<Buyer.Po, Seller.Po>();
             this.CreateMap<Buyer.PoItem, Seller.PoItem>();
             this.CreateMap<Seller.Po, Buyer.Po>();
             this.CreateMap<Seller.PoItem, Buyer.PoItem>();
 
-            // WalletBuyer <=> Purchasing
+            // Buyer <=> Purchasing
             this.CreateMap<Buyer.Po, Purchase.Po>();
             this.CreateMap<Buyer.PoItem, Purchase.PoItem>();
             this.CreateMap<Purchase.Po, Buyer.Po>();

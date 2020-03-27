@@ -35,16 +35,15 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var expectedBusinessPartnerAddress = _contracts.Deployment.BusinessPartnerStorageService.ContractHandler.ContractAddress;
             actualBusinessPartnerStorageAddressHeldAgainstFunding.Should().Be(expectedBusinessPartnerAddress);
 
-            //// ... the buyer wallet should be configured to point to the purchasing contract.
-            //var actualPurchasingAddressHeldAgainstBuyerWallet = await _contracts.Deployment.BuyerWalletService.PurchasingQueryAsync();
-            //var expectedPurchasingAddress = _contracts.Deployment.PurchasingService.ContractHandler.ContractAddress;
-            //actualPurchasingAddressHeldAgainstBuyerWallet.Should().Be(expectedPurchasingAddress);
+            // ... the buyer wallet should be configured to point to the business partner storage contract.
+            var actualBusinessPartnerStorageAddressHeldAgainstBuyerWallet = await _contracts.Deployment.BuyerWalletService.BpStorageQueryAsync();
+            actualBusinessPartnerStorageAddressHeldAgainstBuyerWallet.Should().Be(expectedBusinessPartnerAddress);
 
-            //// ... the seller wallet should be configured to point to the purchasing contract.
-            //var actualPurchasingAddressHeldAgainstSellerWallet = await _contracts.Deployment.SellerAdminService.PurchasingQueryAsync();
-            //actualPurchasingAddressHeldAgainstSellerWallet.Should().Be(expectedPurchasingAddress);
+            // ... the seller admin should be configured to point to the business partner storage contract.
+            var actualBusinessPartnerStorageAddressHeldAgainstSellerAdmin = await _contracts.Deployment.SellerAdminService.BpStorageQueryAsync();
+            actualBusinessPartnerStorageAddressHeldAgainstSellerAdmin.Should().Be(expectedBusinessPartnerAddress);
 
-            // ... the seller wallet should be configured to have a seller id.
+            // ... the seller admin should be configured to have a seller id.
             var actualSellerIdString = (await _contracts.Deployment.SellerAdminService.SellerIdQueryAsync()).ConvertToString();
             var expectedSellerIdString = _contracts.Deployment.ContractNewDeploymentConfig.Seller.SellerId;
             actualSellerIdString.Should().Be(expectedSellerIdString);
