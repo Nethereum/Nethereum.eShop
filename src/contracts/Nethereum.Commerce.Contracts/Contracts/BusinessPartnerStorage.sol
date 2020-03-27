@@ -10,16 +10,19 @@ import "./StringConvertible.sol";
 contract BusinessPartnerStorage is IBusinessPartnerStorage, Ownable, StringConvertible
 {
     // Client is hashed into every key to avoid collisions with other contracts using the same eternal storage
-    string constant private CLIENT = "BpStorage"; 
+    string constant private CLIENT = "GlobalBpStorage"; 
     
-    // Shop Id
+    // eShop
     string constant private DATA_ESHOP = "eShop";
     string constant private ESHOP_ID = "eShopId";
     string constant private ESHOP_DESCRIPTION = "eShopDescription";
     string constant private PURCH_CONTRACT_ADDRESS = "purchasingContractAddress";
-    string constant private QUOTE_SIGNER_ADDRESS = "quoteSignerAddress";
     string constant private IS_ACTIVE = "isActive";
     string constant private CREATED_BY_ADDRESS = "createdByAddress";
+    string constant private QUOTE_SIGNER_COUNT = "quoteSignerCount";
+    
+    // eShop quote signers
+    string constant private QUOTE_SIGNER_PREFIX = "qsp";
     
     // Seller Id
     string constant private DATA_SELLER = "seller";
@@ -50,9 +53,18 @@ contract BusinessPartnerStorage is IBusinessPartnerStorage, Ownable, StringConve
         eShop.eShopId = eternalStorage.getBytes32Value(keccak256(abi.encodePacked(recordKey, ESHOP_ID)));
         eShop.eShopDescription = eternalStorage.getBytes32Value(keccak256(abi.encodePacked(recordKey, ESHOP_DESCRIPTION)));
         eShop.purchasingContractAddress = eternalStorage.getAddressValue(keccak256(abi.encodePacked(recordKey, PURCH_CONTRACT_ADDRESS)));
-        eShop.quoteSignerAddress = eternalStorage.getAddressValue(keccak256(abi.encodePacked(recordKey, QUOTE_SIGNER_ADDRESS)));
         eShop.isActive = eternalStorage.getBooleanValue(keccak256(abi.encodePacked(recordKey, IS_ACTIVE)));
         eShop.createdByAddress = eternalStorage.getAddressValue(keccak256(abi.encodePacked(recordKey, CREATED_BY_ADDRESS)));
+        
+        // Quote signers
+        eShop.quoteSignerCount = uint8(eternalStorage.getUint256Value(keccak256(abi.encodePacked(recordKey, QUOTE_SIGNER_COUNT))));
+        uint lenSigners = eShop.quoteSignerCount;
+        eShop.quoteSigners = new address[](lenSigners);
+        for (uint i = 0; i < lenSigners; i++)
+        {
+            bytes32 signerItemKey = keccak256(abi.encodePacked(recordKey, QUOTE_SIGNER_PREFIX, i));
+            eShop.quoteSigners[i] = eternalStorage.getAddressValue(keccak256(abi.encodePacked(signerItemKey)));
+        }
     }
         
     /// @notice Create a new eShop or change existing. If changing an existing eShop, the transaction must by sent
@@ -60,8 +72,9 @@ contract BusinessPartnerStorage is IBusinessPartnerStorage, Ownable, StringConve
     function setEshop(IPoTypes.Eshop memory eShop) override public
     {
         // Validation
+        uint lenSigners = eShop.quoteSigners.length;
         require(eShop.purchasingContractAddress != address(0), "Must specify a purchasing contract address");
-        require(eShop.quoteSignerAddress != address(0), "Must specify a quote signer address");
+        require(lenSigners != 0, "Must specify at least one quote signer address");
         
         // Is this a new record?
         IPoTypes.Eshop memory existingEshop = getEshop(eShop.eShopId);
@@ -82,9 +95,16 @@ contract BusinessPartnerStorage is IBusinessPartnerStorage, Ownable, StringConve
         eternalStorage.setBytes32Value(keccak256(abi.encodePacked(recordKey, ESHOP_ID)), eShop.eShopId);
         eternalStorage.setBytes32Value(keccak256(abi.encodePacked(recordKey, ESHOP_DESCRIPTION)), eShop.eShopDescription);
         eternalStorage.setAddressValue(keccak256(abi.encodePacked(recordKey, PURCH_CONTRACT_ADDRESS)), eShop.purchasingContractAddress);
-        eternalStorage.setAddressValue(keccak256(abi.encodePacked(recordKey, QUOTE_SIGNER_ADDRESS)), eShop.quoteSignerAddress);
         eternalStorage.setBooleanValue(keccak256(abi.encodePacked(recordKey, IS_ACTIVE)), eShop.isActive);
         eternalStorage.setAddressValue(keccak256(abi.encodePacked(recordKey, CREATED_BY_ADDRESS)), eShop.createdByAddress);
+        
+        // Quote signers
+        eternalStorage.setUint256Value(keccak256(abi.encodePacked(recordKey, QUOTE_SIGNER_COUNT)), lenSigners);
+        for (uint i = 0; i < lenSigners; i++)
+        {
+            bytes32 signerItemKey = keccak256(abi.encodePacked(recordKey, QUOTE_SIGNER_PREFIX, i));
+            eternalStorage.setAddressValue(keccak256(abi.encodePacked(signerItemKey)), eShop.quoteSigners[i]);
+        }
     }
     
     function getSeller(bytes32 sellerId) override public view returns (IPoTypes.Seller memory seller)

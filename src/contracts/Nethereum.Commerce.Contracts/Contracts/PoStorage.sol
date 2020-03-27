@@ -171,7 +171,7 @@ contract PoStorage is IPoStorage, Ownable, Bindable, StringConvertible
         po.rules = new bytes32[](lenRules);
         for (uint i = 0; i < lenRules; i++)
         {
-            bytes32 ruleItemKey = keccak256(abi.encodePacked(CLIENT, RULE_ITEM_PREFIX, po.poNumber, i));
+            bytes32 ruleItemKey = keccak256(abi.encodePacked(headerKey, RULE_ITEM_PREFIX, i));
             po.rules[i] = eternalStorage.getBytes32Value(keccak256(abi.encodePacked(ruleItemKey)));
         }
     }
@@ -231,7 +231,7 @@ contract PoStorage is IPoStorage, Ownable, Bindable, StringConvertible
         eternalStorage.setUint256Value(keccak256(abi.encodePacked(headerKey, PO_RULES_COUNT)), lenRules);
         for (uint i = 0; i < lenRules; i++)
         {
-            bytes32 ruleItemKey = keccak256(abi.encodePacked(CLIENT, RULE_ITEM_PREFIX, po.poNumber, i));
+            bytes32 ruleItemKey = keccak256(abi.encodePacked(headerKey, RULE_ITEM_PREFIX, i));
             eternalStorage.setBytes32Value(keccak256(abi.encodePacked(ruleItemKey)), po.rules[i]);
         }
         

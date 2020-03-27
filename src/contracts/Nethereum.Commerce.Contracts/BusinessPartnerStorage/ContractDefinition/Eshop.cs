@@ -17,11 +17,13 @@ namespace Nethereum.Commerce.Contracts.BusinessPartnerStorage.ContractDefinition
         public virtual byte[] EShopDescription { get; set; }
         [Parameter("address", "purchasingContractAddress", 3)]
         public virtual string PurchasingContractAddress { get; set; }
-        [Parameter("address", "quoteSignerAddress", 4)]
-        public virtual string QuoteSignerAddress { get; set; }
-        [Parameter("bool", "isActive", 5)]
+        [Parameter("bool", "isActive", 4)]
         public virtual bool IsActive { get; set; }
-        [Parameter("address", "createdByAddress", 6)]
+        [Parameter("address", "createdByAddress", 5)]
         public virtual string CreatedByAddress { get; set; }
+        [Parameter("uint8", "quoteSignerCount", 6)]
+        public virtual byte QuoteSignerCount { get; set; }
+        [Parameter("address[]", "quoteSigners", 7)]
+        public virtual List<string> QuoteSigners { get; set; }
     }
 }

@@ -4,6 +4,7 @@ using Nethereum.Commerce.ContractDeployments.IntegrationTests.Config;
 using Nethereum.Commerce.Contracts.BusinessPartnerStorage;
 using Nethereum.Commerce.Contracts.BusinessPartnerStorage.ContractDefinition;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -64,9 +65,14 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                 EShopId = "eShopToTest" + GetRandomString(),
                 EShopDescription = "eShopDescription",
                 PurchasingContractAddress = "0x94618601FE6cb8912b274E5a00453949A57f8C1e",
-                QuoteSignerAddress = "0x94618601FE6cb8912b274E5a00453949A57f8C1e",
                 IsActive = true,
-                CreatedByAddress = string.Empty // filled by contract
+                CreatedByAddress = string.Empty, // filled by contract
+                QuoteSignerCount = 2,
+                QuoteSigners = new List<string>()
+                {
+                    "0x32A555F2328e85E489f9a5f03669DC820CE7EBe9",
+                    "0x94618601FE6cb8912b274E5a00453949A57f8C1e"
+                }
             };
 
             // Store eShop
@@ -119,9 +125,14 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                 EShopId = "eShopToTest" + GetRandomString(),
                 EShopDescription = "eShopDescription",
                 PurchasingContractAddress = "0x94618601FE6cb8912b274E5a00453949A57f8C1e",
-                QuoteSignerAddress = "0x94618601FE6cb8912b274E5a00453949A57f8C1e",
                 IsActive = true,
-                CreatedByAddress = string.Empty // filled by contract
+                CreatedByAddress = string.Empty, // filled by contract
+                QuoteSignerCount = 2,
+                QuoteSigners = new List<string>()
+                {
+                    "0x32A555F2328e85E489f9a5f03669DC820CE7EBe9",
+                    "0x94618601FE6cb8912b274E5a00453949A57f8C1e"
+                }
             };
 
             // Store eShop

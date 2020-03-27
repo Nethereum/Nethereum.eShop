@@ -33,10 +33,10 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         public const string AUTH_EXCEPTION_ONLY_CREATEDBY = "*Only createdByAddress can change this record*";
 
         /// <summary>
-        /// Revert message during PO creation, for when a PO + signature does not resolve to the expected signer address held
-        /// in BusinessPartnerStorage.sol master data
+        /// Revert message during PO creation, for when a PO + signature does not resolve to any of the expected
+        /// signer addresses held in eShop master data in BusinessPartnerStorage.sol 
         /// </summary>
-        public const string QUOTE_EXCEPTION_WRONG_SIGNER = "*Signature for quote does not match expected signature*";
+        public const string QUOTE_EXCEPTION_WRONG_SIGNER = "*Signature for quote does not match any expected signatures*";
 
         /// <summary>
         /// Revert message during PO creation, for when quote expiry date has passed
@@ -184,9 +184,13 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             eShopActual.EShopId.Should().Be(eShopExpected.EShopId);
             eShopActual.EShopDescription.Should().Be(eShopExpected.EShopDescription);
             eShopActual.PurchasingContractAddress.ToLowerInvariant().Should().Be(eShopExpected.PurchasingContractAddress.ToLowerInvariant());
-            eShopActual.QuoteSignerAddress.ToLowerInvariant().Should().Be(eShopExpected.QuoteSignerAddress.ToLowerInvariant());
             eShopActual.IsActive.Should().Be(eShopExpected.IsActive);
             eShopActual.CreatedByAddress.ToLowerInvariant().Should().Be(createdByAddress.ToLowerInvariant());
+            eShopActual.QuoteSignerCount.Should().Be(eShopExpected.QuoteSignerCount);
+            for (int i = 0; i < eShopActual.QuoteSignerCount; i++)
+            {
+                eShopActual.QuoteSigners[i].ToLowerInvariant().Should().Be(eShopExpected.QuoteSigners[i].ToLowerInvariant());
+            }
         }
 
         /// <summary>
@@ -391,7 +395,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             return po;
 
         }
-
+        
         /// <summary>
         /// An unrealistic PO intended for writing directly to the PO storage contract PoStorage.sol (ie no validations are done on
         /// this data, it is written direct to storage only, so values like quote expiry date are not checked).

@@ -74,7 +74,7 @@ namespace Nethereum.Commerce.Contracts.Deployment
             Guard.Against.Null(cdc.Eshop, nameof(cdc.Eshop));
             Guard.Against.NullOrWhiteSpace(cdc.Eshop.EShopId, nameof(cdc.Eshop.EShopId));
             cdc.Eshop.EShopDescription = cdc.Eshop.EShopDescription ?? string.Empty;
-            Guard.Against.NullOrWhiteSpace(cdc.Eshop.QuoteSignerAddress, nameof(cdc.Eshop.QuoteSignerAddress));
+            Guard.Against.Zero(cdc.Eshop.QuoteSigners.Count, nameof(cdc.Eshop.QuoteSigners.Count));
 
             // Validate Seller config
             Guard.Against.Null(cdc.Seller, nameof(cdc.Seller));
@@ -221,7 +221,8 @@ namespace Nethereum.Commerce.Contracts.Deployment
                 Log();
                 contractName = CONTRACT_NAME_PURCHASING;
                 Log($"Deploying {contractName}...");
-                var purchasingDeployment = new PurchasingDeployment() {
+                var purchasingDeployment = new PurchasingDeployment()
+                {
                     ContractAddressOfRegistry = AddressRegistryService.ContractHandler.ContractAddress,
                     EShopIdString = ContractNewDeploymentConfig.Eshop.EShopId
                 };
@@ -330,9 +331,10 @@ namespace Nethereum.Commerce.Contracts.Deployment
                         EShopId = ContractNewDeploymentConfig.Eshop.EShopId,
                         EShopDescription = ContractNewDeploymentConfig.Eshop.EShopDescription,
                         PurchasingContractAddress = PurchasingService.ContractHandler.ContractAddress,
-                        QuoteSignerAddress = ContractNewDeploymentConfig.Eshop.QuoteSignerAddress,
                         IsActive = true,
-                        CreatedByAddress = string.Empty  // filled by contract
+                        CreatedByAddress = string.Empty,  // filled by contract
+                        QuoteSignerCount = Convert.ToUInt32(ContractNewDeploymentConfig.Eshop.QuoteSigners.Count),
+                        QuoteSigners = ContractNewDeploymentConfig.Eshop.QuoteSigners
                     }).ConfigureAwait(false);
                 Log($"Tx status: {txReceipt.Status.Value}");
 
