@@ -106,7 +106,6 @@ contract BuyerWallet is IBuyerWallet, Ownable, Bindable, StringConvertible
     function getAndValidateEshop(bytes32 eShopId) private view returns (IPoTypes.Eshop memory validShop)
     {
         IPoTypes.Eshop memory eShop = bpStorage.getEshop(eShopId);
-        require(eShop.eShopId.length > 0, "eShop has no master data");
         require(eShop.purchasingContractAddress != address(0), "eShop has no purchasing address");
         require(eShop.quoteSignerCount > 0, "No quote signers found for eShop");
         return eShop;

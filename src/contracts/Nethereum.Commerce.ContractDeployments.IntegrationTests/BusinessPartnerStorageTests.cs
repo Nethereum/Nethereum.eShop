@@ -83,7 +83,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         }
 
         [Fact]
-        public async void ShouldFailToCreateEshopWhenMissingData()
+        public async void ShouldFailToCreateEshopWhenMissingPurchasingAddress()
         {
             await Task.Delay(1);
             // Create an eShop to store, but miss out required field PurchasingContractAddress            
@@ -93,8 +93,8 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                 EShopDescription = "eShopDescription",
                 PurchasingContractAddress = string.Empty,  // causes error
                 IsActive = true,
-                CreatedByAddress = string.Empty, // filled by contract
-                QuoteSignerCount = 0, // filled by contract
+                CreatedByAddress = string.Empty,           // filled by contract
+                QuoteSignerCount = 0,                      // filled by contract
                 QuoteSigners = new List<string>()
                 {
                     "0x32A555F2328e85E489f9a5f03669DC820CE7EBe9",
@@ -108,8 +108,30 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         }
 
         [Fact]
-        public async void ShouldFailToCreateSellerWhenMissingData()
+        public async void ShouldFailToCreateEshopWhenMissingSigners()
         {
+            await Task.Delay(1);
+            // Create an eShop to store, but miss out all quote signers            
+            var eShopExpected = new Eshop()
+            {
+                EShopId = "eShopToTest" + GetRandomString(),
+                EShopDescription = "eShopDescription",
+                PurchasingContractAddress = "0x32A555F2328e85E489f9a5f03669DC820CE7EBe9",
+                IsActive = true,
+                CreatedByAddress = string.Empty,       // filled by contract
+                QuoteSignerCount = 0,                  // filled by contract
+                QuoteSigners = new List<string>() { }  // causes error
+            };
+
+            // Try to store eShop, it should fail
+            Func<Task> act = async () => await _contracts.Deployment.BusinessPartnerStorageService.SetEshopRequestAndWaitForReceiptAsync(eShopExpected);
+            act.Should().Throw<SmartContractRevertException>().WithMessage(BP_EXCEPTION_ESHOP_MISSING_SIGNERS);
+        }
+
+        [Fact]
+        public async void ShouldFailToCreateSellerWhenMissingAdminAddress()
+        {
+            await Task.Delay(1);
             // Create a Seller to store, but miss out required field adminContractAddress            
             var sellerExpected = new Seller()
             {
@@ -117,7 +139,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                 SellerDescription = "SellerDescription",
                 AdminContractAddress = string.Empty,  // causes error
                 IsActive = true,
-                CreatedByAddress = string.Empty // filled by contract
+                CreatedByAddress = string.Empty       // filled by contract
             };
 
             // Try to store Seller, it should fail

@@ -82,11 +82,10 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
         //-------------------------------------------------------------------------
         // Ensure buyer chose a valid eshop
         require(po.eShopId.length > 0, "eShopId must be specified");
-        require(po.eShopId == eShopId, "eShopId is not correct for this contract");  // must be "our" eShop
         IPoTypes.Eshop memory eShop = bpStorage.getEshop(po.eShopId);
-        require(eShop.eShopId.length > 0, "eShop has no master data");
         require(eShop.purchasingContractAddress != address(0), "eShop has no purchasing address");
         require(eShop.quoteSignerCount > 0, "No quote signers found for eShop");
+        require(po.eShopId == eShopId, "eShopId is not correct for this contract");  // must be "our" eShop
         require(eShop.isActive == true, "eShop is inactive");
         
         // Ensure buyer chose a valid seller
