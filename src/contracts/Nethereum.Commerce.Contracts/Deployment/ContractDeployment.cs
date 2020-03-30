@@ -21,6 +21,7 @@ using Nethereum.Commerce.Contracts.SellerAdmin.ContractDefinition;
 using Nethereum.Web3;
 using System;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace Nethereum.Commerce.Contracts.Deployment
 {
@@ -74,7 +75,7 @@ namespace Nethereum.Commerce.Contracts.Deployment
             Guard.Against.Null(cdc.Eshop, nameof(cdc.Eshop));
             Guard.Against.NullOrWhiteSpace(cdc.Eshop.EShopId, nameof(cdc.Eshop.EShopId));
             cdc.Eshop.EShopDescription = cdc.Eshop.EShopDescription ?? string.Empty;
-            Guard.Against.NullOrWhiteSpace(cdc.Eshop.QuoteSignerAddress, nameof(cdc.Eshop.QuoteSignerAddress));
+            Guard.Against.Zero(cdc.Eshop.QuoteSigners.Count, nameof(cdc.Eshop.QuoteSigners.Count));
 
             // Validate Seller config
             Guard.Against.Null(cdc.Seller, nameof(cdc.Seller));
@@ -93,8 +94,8 @@ namespace Nethereum.Commerce.Contracts.Deployment
         {
             // TODO this needs updated to check new fields
             Guard.Against.Null(web3, nameof(web3));
-            Guard.Against.NullOrWhiteSpace(contractConnectExistingConfig.WalletBuyerAddress, nameof(contractConnectExistingConfig.WalletBuyerAddress));
-            Guard.Against.NullOrWhiteSpace(contractConnectExistingConfig.WalletSellerAddress, nameof(contractConnectExistingConfig.WalletSellerAddress));
+            Guard.Against.NullOrWhiteSpace(contractConnectExistingConfig.BuyerWalletAddress, nameof(contractConnectExistingConfig.BuyerWalletAddress));
+            Guard.Against.NullOrWhiteSpace(contractConnectExistingConfig.SellerAdminAddress, nameof(contractConnectExistingConfig.SellerAdminAddress));
             // eg Guard.Against.NullOrWhiteSpace(cdc.Eshop.PurchasingContractAddress, nameof(cdc.Eshop.PurchasingContractAddress));
             _web3 = (Web3.Web3)web3; // code-genned classes require web3, not an iweb3
             ContractConnectExistingConfig = contractConnectExistingConfig;
@@ -102,8 +103,14 @@ namespace Nethereum.Commerce.Contracts.Deployment
             _isToConnectToExistingDeployment = true;
         }
 
+        /// <summary>
+        /// Deployment
+        /// </summary>
         public async Task InitializeAsync()
         {
+            // Measure duration, tx count, ETH cost
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
             var txCountStart = await _web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(
                 _web3.TransactionManager.Account.Address).ConfigureAwait(false);
             var ethBalanceStartInWei = await _web3.Eth.GetBalance.SendRequestAsync(
@@ -127,6 +134,7 @@ namespace Nethereum.Commerce.Contracts.Deployment
             }
             LogSeparator();
 
+            // End meaurements
             var txCountEnd = await _web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(
                 _web3.TransactionManager.Account.Address).ConfigureAwait(false);
             var txCountOverall = txCountEnd.Value - txCountStart.Value;
@@ -137,7 +145,10 @@ namespace Nethereum.Commerce.Contracts.Deployment
             var ethCostOverallInWei = ethBalanceStartInWei.Value - ethBalanceEndInWei.Value;
             var ethCostOverall = Web3.Web3.Convert.FromWei(ethCostOverallInWei);
             Log($"Cost for deployment: {ethCostOverall} ETH");
-            //Log($"Cost for deployment in Wei: {ethCostOverallInWei}");
+
+            stopwatch.Stop();
+            Log($"Duration for deployment: {stopwatch.ElapsedMilliseconds.ToString("N0")} ms");
+
             LogSeparator();
         }
 
@@ -199,29 +210,30 @@ namespace Nethereum.Commerce.Contracts.Deployment
                 Log();
                 contractName = CONTRACT_NAME_BUYER_WALLET;
                 Log($"Deploying {contractName}...");
-                var walletBuyerDeployment = new BuyerWalletDeployment() { ContractAddressOfRegistry = AddressRegistryService.ContractHandler.ContractAddress };
+                var buyerWalletDeployment = new BuyerWalletDeployment() { ContractAddressOfRegistry = AddressRegistryService.ContractHandler.ContractAddress };
                 BuyerWalletService = await BuyerWalletService.DeployContractAndGetServiceAsync(
-                    _web3, walletBuyerDeployment).ConfigureAwait(false);
-                var walletBuyerOwner = await BuyerWalletService.OwnerQueryAsync().ConfigureAwait(false);
+                    _web3, buyerWalletDeployment).ConfigureAwait(false);
+                var buyerWalletOwner = await BuyerWalletService.OwnerQueryAsync().ConfigureAwait(false);
                 Log($"{contractName} address is: {BuyerWalletService.ContractHandler.ContractAddress}");
-                Log($"{contractName} owner is  : {walletBuyerOwner}");
+                Log($"{contractName} owner is  : {buyerWalletOwner}");
 
                 // Deploy Wallet Seller
                 Log();
                 contractName = CONTRACT_NAME_SELLER_ADMIN;
                 Log($"Deploying {contractName}...");
-                var walletSellerDeployment = new SellerAdminDeployment() { ContractAddressOfRegistry = AddressRegistryService.ContractHandler.ContractAddress };
+                var sellerAdminDeployment = new SellerAdminDeployment() { ContractAddressOfRegistry = AddressRegistryService.ContractHandler.ContractAddress };
                 SellerAdminService = await SellerAdminService.DeployContractAndGetServiceAsync(
-                    _web3, walletSellerDeployment).ConfigureAwait(false);
-                var walletSellerOwner = await SellerAdminService.OwnerQueryAsync().ConfigureAwait(false);
+                    _web3, sellerAdminDeployment).ConfigureAwait(false);
+                var sellerAdminOwner = await SellerAdminService.OwnerQueryAsync().ConfigureAwait(false);
                 Log($"{contractName} address is: {SellerAdminService.ContractHandler.ContractAddress}");
-                Log($"{contractName} owner is  : {walletSellerOwner}");
+                Log($"{contractName} owner is  : {sellerAdminOwner}");
 
                 // Deploy Purchasing
                 Log();
                 contractName = CONTRACT_NAME_PURCHASING;
                 Log($"Deploying {contractName}...");
-                var purchasingDeployment = new PurchasingDeployment() {
+                var purchasingDeployment = new PurchasingDeployment()
+                {
                     ContractAddressOfRegistry = AddressRegistryService.ContractHandler.ContractAddress,
                     EShopIdString = ContractNewDeploymentConfig.Eshop.EShopId
                 };
@@ -330,9 +342,10 @@ namespace Nethereum.Commerce.Contracts.Deployment
                         EShopId = ContractNewDeploymentConfig.Eshop.EShopId,
                         EShopDescription = ContractNewDeploymentConfig.Eshop.EShopDescription,
                         PurchasingContractAddress = PurchasingService.ContractHandler.ContractAddress,
-                        QuoteSignerAddress = ContractNewDeploymentConfig.Eshop.QuoteSignerAddress,
                         IsActive = true,
-                        CreatedByAddress = string.Empty  // filled by contract
+                        CreatedByAddress = string.Empty,  // filled by contract
+                        QuoteSignerCount = Convert.ToUInt32(ContractNewDeploymentConfig.Eshop.QuoteSigners.Count),
+                        QuoteSigners = ContractNewDeploymentConfig.Eshop.QuoteSigners
                     }).ConfigureAwait(false);
                 Log($"Tx status: {txReceipt.Status.Value}");
 
@@ -401,13 +414,13 @@ namespace Nethereum.Commerce.Contracts.Deployment
 
                 // Authorisations. Bind all contracts that will use Purchasing                
                 Log($"Authorisations for Purchasing...");
-                // Bind WalletBuyer to Purchasing
+                // Bind BuyerWallet to Purchasing
                 contractName = CONTRACT_NAME_BUYER_WALLET;
                 Log($"Configuring Purchasing, binding {contractName}...");
                 txReceipt = await PurchasingService.BindAddressRequestAndWaitForReceiptAsync(
                     BuyerWalletService.ContractHandler.ContractAddress).ConfigureAwait(false);
                 Log($"Tx status: {txReceipt.Status.Value}");
-                // Bind WalletSeller to Purchasing
+                // Bind SellerAdmin to Purchasing
                 contractName = CONTRACT_NAME_SELLER_ADMIN;
                 Log($"Configuring Purchasing, binding {contractName}...");
                 txReceipt = await PurchasingService.BindAddressRequestAndWaitForReceiptAsync(
@@ -432,7 +445,7 @@ namespace Nethereum.Commerce.Contracts.Deployment
 
                 // Authorisations. Bind all contracts that will use Funding                
                 Log($"Authorisations for Funding...");
-                // Bind WalletBuyer to Funding
+                // Bind BuyerWallet to Funding
                 contractName = CONTRACT_NAME_BUYER_WALLET;
                 Log($"Configuring Funding, binding {contractName}...");
                 txReceipt = await FundingService.BindAddressRequestAndWaitForReceiptAsync(

@@ -19,12 +19,12 @@ using Storage = Nethereum.Commerce.Contracts.PoStorage.ContractDefinition;
 namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 {
     [Collection("Contract Deployment Collection")]
-    public class WalletSellerAuthTests
+    public class SellerAdminAuthTests
     {
         private readonly ITestOutputHelper _output;
         private readonly ContractDeploymentsFixture _contracts;
 
-        public WalletSellerAuthTests(ContractDeploymentsFixture fixture, ITestOutputHelper output)
+        public SellerAdminAuthTests(ContractDeploymentsFixture fixture, ITestOutputHelper output)
         {
             // ContractDeploymentsFixture performed a complete deployment.
             // See Output window -> Tests for deployment logs.
@@ -33,7 +33,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         }
 
         [Fact]
-        public async void ShouldNotBeAbleToSetPoItemStatusWhenNotWalletSellerOwner()
+        public async void ShouldNotBeAbleToSetPoItemStatusWhenNotSellerAdminOwner()
         {
             // Try to set a PO item status by a non-authorised user, it should fail            
             // Prepare a new PO and create it            
@@ -48,7 +48,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             logPoCreated.Should().NotBeNull();
             var poNumberAsBuilt = logPoCreated.Event.Po.PoNumber;
 
-            // Attempt to mark PO item as accepted using preexisting WalletSeller contract, but with tx executed by the non-authorised ("secondary") user
+            // Attempt to mark PO item as accepted using preexisting SellerAdmin contract, but with tx executed by the non-authorised ("secondary") user
             var wss = new SellerAdminService(_contracts.Web3SecondaryUser, _contracts.Deployment.SellerAdminService.ContractHandler.ContractAddress);
             Func<Task> act = async () => await wss.SetPoItemAcceptedRequestAndWaitForReceiptAsync(
                 poAsRequested.EShopId, poNumberAsBuilt, 1, "SalesOrder1", "Item1");
@@ -61,7 +61,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                 buyerUserAddress: _contracts.Web3.TransactionManager.Account.Address.ToLowerInvariant(),
                 buyerReceiverAddress: _contracts.Web3.TransactionManager.Account.Address.ToLowerInvariant(),
                 buyerWalletAddress: _contracts.Deployment.BuyerWalletService.ContractHandler.ContractAddress.ToLowerInvariant(),
-                eShopId: GetRandomString(),
+                eShopId: _contracts.Deployment.ContractNewDeploymentConfig.Eshop.EShopId,
                 sellerId: _contracts.Deployment.ContractNewDeploymentConfig.Seller.SellerId,
                 currencySymbol: await _contracts.Deployment.MockDaiService.SymbolQueryAsync(),
                 currencyAddress: _contracts.Deployment.MockDaiService.ContractHandler.ContractAddress.ToLowerInvariant(),

@@ -10,7 +10,7 @@ import "./Ownable.sol";
 import "./Bindable.sol";
 import "./StringConvertible.sol";
 
-/// @title WalletSeller
+/// @title SellerAdmin
 contract SellerAdmin is ISellerAdmin, Ownable, Bindable, StringConvertible
 {
     IAddressRegistry public addressRegistry;
@@ -117,7 +117,7 @@ contract SellerAdmin is ISellerAdmin, Ownable, Bindable, StringConvertible
         IPoTypes.Eshop memory eShop = bpStorage.getEshop(eShopId);
         require(eShop.eShopId.length > 0, "eShop has no master data");
         require(eShop.purchasingContractAddress != address(0), "eShop has no purchasing address");
-        require(eShop.quoteSignerAddress != address(0), "eShop has no quote signer address");
+        require(eShop.quoteSignerCount > 0, "No quote signers found for eShop");
         return eShop;
     }
 }

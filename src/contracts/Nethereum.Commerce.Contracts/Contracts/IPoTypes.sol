@@ -88,9 +88,10 @@ interface IPoTypes
         bytes32 eShopId;                   // uniquely identifies a shop
         bytes32 eShopDescription;          // optional free text short description
         address purchasingContractAddress; // contract address of the shops Purchasing.sol contract that handles purchase orders
-        address quoteSignerAddress;        // EoA or contract address, the signer who can a sign a quotation tx to prove shop approves it
         bool isActive;                     // flag true if shop is active
         address createdByAddress;          // decentralised admin - only creator can make changes
+        uint8 quoteSignerCount;             // count of quote signers
+        address[] quoteSigners;            // list of addresses that can sign a quotation tx to prove shop approves it
     }
     
     //------------------------------------------------------------------------

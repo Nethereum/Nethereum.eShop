@@ -3,6 +3,7 @@ using Nethereum.ABI.FunctionEncoding;
 using Nethereum.Commerce.ContractDeployments.IntegrationTests.Config;
 using Nethereum.Commerce.Contracts.BusinessPartnerStorage.ContractDefinition;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -53,15 +54,21 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         [Fact]
         public async void ShouldStoreAndRetrieveEshop()
         {
+            await Task.Delay(1);
             // Create an eShop to store
             var eShopExpected = new Eshop()
             {
                 EShopId = "eShopToTest" + GetRandomString(),
                 EShopDescription = "eShopDescription",
                 PurchasingContractAddress = "0x94618601FE6cb8912b274E5a00453949A57f8C1e",
-                QuoteSignerAddress = "0x94618601FE6cb8912b274E5a00453949A57f8C1e",
                 IsActive = true,
-                CreatedByAddress = string.Empty // filled by contract
+                CreatedByAddress = string.Empty,  // filled by contract
+                QuoteSignerCount = 2,
+                QuoteSigners = new List<string>()
+                {
+                    "0x32A555F2328e85E489f9a5f03669DC820CE7EBe9",
+                    "0x94618601FE6cb8912b274E5a00453949A57f8C1e"
+                }
             };
 
             // Store eShop
@@ -78,15 +85,21 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         [Fact]
         public async void ShouldFailToCreateEshopWhenMissingData()
         {
+            await Task.Delay(1);
             // Create an eShop to store, but miss out required field PurchasingContractAddress            
             var eShopExpected = new Eshop()
             {
                 EShopId = "eShopToTest" + GetRandomString(),
                 EShopDescription = "eShopDescription",
                 PurchasingContractAddress = string.Empty,  // causes error
-                QuoteSignerAddress = "0x94618601FE6cb8912b274E5a00453949A57f8C1e",
                 IsActive = true,
-                CreatedByAddress = string.Empty // filled by contract
+                CreatedByAddress = string.Empty, // filled by contract
+                QuoteSignerCount = 0, // filled by contract
+                QuoteSigners = new List<string>()
+                {
+                    "0x32A555F2328e85E489f9a5f03669DC820CE7EBe9",
+                    "0x94618601FE6cb8912b274E5a00453949A57f8C1e"
+                }
             };
 
             // Try to store eShop, it should fail

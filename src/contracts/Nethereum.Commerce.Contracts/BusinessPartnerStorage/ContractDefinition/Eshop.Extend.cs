@@ -23,16 +23,20 @@ namespace Nethereum.Commerce.Contracts.BusinessPartnerStorage.ContractDefinition
         [Parameter("address", "purchasingContractAddress", 3)]
         public new string PurchasingContractAddress { get; set; }
 
-
-        [Parameter("address", "quoteSignerAddress", 4)]
-        public new string QuoteSignerAddress { get; set; }
-
-
-        [Parameter("bool", "isActive", 5)]
+        
+        [Parameter("bool", "isActive", 4)]
         public new bool IsActive { get; set; }
 
 
-        [Parameter("address", "createdByAddress", 6)]
+        [Parameter("address", "createdByAddress", 5)]
         public new string CreatedByAddress { get; set; }
+
+
+        [Parameter("uint8", "quoteSignerCount", 6)]
+        public new uint QuoteSignerCount { get; set; }
+
+
+        [Parameter("address[]", "quoteSigners", 7)]
+        public new List<string> QuoteSigners { get; set; }
     }
 }

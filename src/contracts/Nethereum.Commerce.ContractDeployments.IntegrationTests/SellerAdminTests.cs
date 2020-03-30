@@ -19,7 +19,7 @@ using Seller = Nethereum.Commerce.Contracts.SellerAdmin.ContractDefinition;
 namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 {
     [Collection("Contract Deployment Collection")]
-    public class WalletSellerTests
+    public class SellerAdminTests
     {
         private readonly ITestOutputHelper _output;
         private readonly ContractDeploymentsFixture _contracts;
@@ -29,7 +29,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         private const string SALES_ORDER_NUMBER = "SalesOrder01";
         private const string SALES_ORDER_ITEM = "10";
 
-        public WalletSellerTests(ContractDeploymentsFixture fixture, ITestOutputHelper output)
+        public SellerAdminTests(ContractDeploymentsFixture fixture, ITestOutputHelper output)
         {
             // ContractDeploymentsFixture performed a complete deployment.
             // See Output window -> Tests for deployment logs.
@@ -104,7 +104,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             txReceiptGI.Status.Value.Should().Be(1);
 
             // Setting Goods Received by an EoA that is not the buyer/PO owner should fail, only PO owner can do this    
-            // Use preexisting WalletBuyer contract, but with tx executed by the non-buyer ("secondary") user                        
+            // Use preexisting BuyerWallet contract, but with tx executed by the non-buyer ("secondary") user                        
             var wbs = new BuyerWalletService(_contracts.Web3SecondaryUser, _contracts.Deployment.BuyerWalletService.ContractHandler.ContractAddress);
             Func<Task> act = async () => await wbs.SetPoItemGoodsReceivedRequestAndWaitForReceiptAsync(
                 poAsRequested.EShopId, poNumberAsBuilt, PO_ITEM_NUMBER);
@@ -463,7 +463,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                 buyerUserAddress: _contracts.Web3.TransactionManager.Account.Address.ToLowerInvariant(),
                 buyerReceiverAddress: _contracts.Web3.TransactionManager.Account.Address.ToLowerInvariant(),
                 buyerWalletAddress: _contracts.Deployment.BuyerWalletService.ContractHandler.ContractAddress.ToLowerInvariant(),
-                eShopId: GetRandomString(),
+                eShopId: _contracts.Deployment.ContractNewDeploymentConfig.Eshop.EShopId,
                 sellerId: _contracts.Deployment.ContractNewDeploymentConfig.Seller.SellerId,
                 currencySymbol: await _contracts.Deployment.MockDaiService.SymbolQueryAsync(),
                 currencyAddress: _contracts.Deployment.MockDaiService.ContractHandler.ContractAddress.ToLowerInvariant(),

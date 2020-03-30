@@ -86,17 +86,29 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
         IPoTypes.Eshop memory eShop = bpStorage.getEshop(po.eShopId);
         require(eShop.eShopId.length > 0, "eShop has no master data");
         require(eShop.purchasingContractAddress != address(0), "eShop has no purchasing address");
-        require(eShop.quoteSignerAddress != address(0), "eShop has no quote signer address");
+        require(eShop.quoteSignerCount > 0, "No quote signers found for eShop");
+        require(eShop.isActive == true, "eShop is inactive");
         
         // Ensure buyer chose a valid seller
         require(po.sellerId.length > 0, "SellerId must be specified");
         IPoTypes.Seller memory seller = bpStorage.getSeller(po.sellerId);
         require(seller.sellerId.length > 0, "Seller has no master data");
         require(seller.adminContractAddress != address(0), "Seller has no admin address");
+        require(seller.isActive == true, "Seller is inactive");
         
         // Validate quote and quote signer
         address expectedSignerAddress = getSignerAddressFromPoAndSignature(po, signature);
-        require(eShop.quoteSignerAddress == expectedSignerAddress, "Signature for quote does not match expected signature");
+        bool isSignerFound = false;
+        address matchingSignerAddress = address(0);
+        for (uint i = 0; i < eShop.quoteSignerCount; i++)
+        {
+            if (eShop.quoteSigners[i] == expectedSignerAddress)
+            {
+                isSignerFound = true;
+                break;
+            }
+        }
+        require(isSignerFound == true, "Signature for quote does not match any expected signatures");
         require(po.quoteExpiryDate >= now, "Quote expiry date has passed");
         
         //-------------------------------------------------------------------------
@@ -104,7 +116,7 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
         //-------------------------------------------------------------------------
         poStorage.incrementPoNumber();
         po.poNumber = poStorage.getCurrentPoNumber();
-        po.quoteSignerAddress = eShop.quoteSignerAddress;
+        po.quoteSignerAddress = matchingSignerAddress;
         po.poCreateDate = now;
         uint lenItems = po.poItems.length;
         po.poItemCount = uint8(lenItems);

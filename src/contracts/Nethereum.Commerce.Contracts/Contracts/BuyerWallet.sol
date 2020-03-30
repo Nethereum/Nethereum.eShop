@@ -16,8 +16,6 @@ contract BuyerWallet is IBuyerWallet, Ownable, Bindable, StringConvertible
 {
     IAddressRegistry public addressRegistry;
     IBusinessPartnerStorage public bpStorage;
-    //IPurchasing public purchasing;
-    //IFunding public funding;
     
     constructor (address contractAddressOfRegistry) public
     {
@@ -110,7 +108,7 @@ contract BuyerWallet is IBuyerWallet, Ownable, Bindable, StringConvertible
         IPoTypes.Eshop memory eShop = bpStorage.getEshop(eShopId);
         require(eShop.eShopId.length > 0, "eShop has no master data");
         require(eShop.purchasingContractAddress != address(0), "eShop has no purchasing address");
-        require(eShop.quoteSignerAddress != address(0), "eShop has no quote signer address");
+        require(eShop.quoteSignerCount > 0, "No quote signers found for eShop");
         return eShop;
     }
 }
