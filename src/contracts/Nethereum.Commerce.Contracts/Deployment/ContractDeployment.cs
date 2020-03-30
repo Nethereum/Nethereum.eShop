@@ -21,6 +21,7 @@ using Nethereum.Commerce.Contracts.SellerAdmin.ContractDefinition;
 using Nethereum.Web3;
 using System;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace Nethereum.Commerce.Contracts.Deployment
 {
@@ -102,8 +103,14 @@ namespace Nethereum.Commerce.Contracts.Deployment
             _isToConnectToExistingDeployment = true;
         }
 
+        /// <summary>
+        /// Deployment
+        /// </summary>
         public async Task InitializeAsync()
         {
+            // Measure duration, tx count, ETH cost
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
             var txCountStart = await _web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(
                 _web3.TransactionManager.Account.Address).ConfigureAwait(false);
             var ethBalanceStartInWei = await _web3.Eth.GetBalance.SendRequestAsync(
@@ -127,6 +134,7 @@ namespace Nethereum.Commerce.Contracts.Deployment
             }
             LogSeparator();
 
+            // End meaurements
             var txCountEnd = await _web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(
                 _web3.TransactionManager.Account.Address).ConfigureAwait(false);
             var txCountOverall = txCountEnd.Value - txCountStart.Value;
@@ -137,7 +145,10 @@ namespace Nethereum.Commerce.Contracts.Deployment
             var ethCostOverallInWei = ethBalanceStartInWei.Value - ethBalanceEndInWei.Value;
             var ethCostOverall = Web3.Web3.Convert.FromWei(ethCostOverallInWei);
             Log($"Cost for deployment: {ethCostOverall} ETH");
-            //Log($"Cost for deployment in Wei: {ethCostOverallInWei}");
+
+            stopwatch.Stop();
+            Log($"Duration for deployment: {stopwatch.ElapsedMilliseconds.ToString("N0")} ms");
+
             LogSeparator();
         }
 
