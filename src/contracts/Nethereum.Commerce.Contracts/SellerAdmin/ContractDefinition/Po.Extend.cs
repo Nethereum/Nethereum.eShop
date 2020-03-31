@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using static Nethereum.Commerce.Contracts.ContractEnums;
 
-namespace Nethereum.Commerce.Contracts.PoStorage.ContractDefinition
+namespace Nethereum.Commerce.Contracts.SellerAdmin.ContractDefinition
 {
     public partial class Po
     {

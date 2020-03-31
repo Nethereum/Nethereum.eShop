@@ -11,63 +11,71 @@ namespace Nethereum.Commerce.Contracts.Purchasing.ContractDefinition
         public new BigInteger PoNumber { get; set; }
 
 
-        [Parameter("address", "buyerAddress", 2)]
-        public new string BuyerAddress { get; set; }
+
+        [Parameter("address", "buyerUserAddress", 2)]
+        public new string BuyerUserAddress { get; set; }
 
 
-        [Parameter("address", "receiverAddress", 3)]
-        public new string ReceiverAddress { get; set; }
+        [Parameter("address", "buyerReceiverAddress", 3)]
+        public new string BuyerReceiverAddress { get; set; }
 
 
         [Parameter("address", "buyerWalletAddress", 4)]
         public new string BuyerWalletAddress { get; set; }
 
 
-        [Parameter("bytes32", "currencySymbol", 5)]
-        public new string CurrencySymbol { get; set; }
+
+        [Parameter("bytes32", "eShopId", 5)]
+        public new string EShopId { get; set; }
 
 
-        [Parameter("address", "currencyAddress", 6)]
-        public new string CurrencyAddress { get; set; }
-
-
-        [Parameter("uint256", "quoteId", 7)]
+        [Parameter("uint256", "quoteId", 6)]
         public new BigInteger QuoteId { get; set; }
 
 
-        [Parameter("uint256", "quoteExpiryDate", 8)]
+        [Parameter("uint256", "quoteExpiryDate", 7)]
         public new BigInteger QuoteExpiryDate { get; set; }
 
 
-        [Parameter("address", "approverAddress", 9)]
-        public new string ApproverAddress { get; set; }
+        [Parameter("address", "quoteSignerAddress", 8)]
+        public new string QuoteSignerAddress { get; set; }
 
 
-        [Parameter("uint8", "poType", 10)]
-        public new PoType PoType { get; set; }
 
-
-        [Parameter("bytes32", "sellerId", 11)]
+        [Parameter("bytes32", "sellerId", 9)]
         public new string SellerId { get; set; }
 
 
-        [Parameter("uint256", "poCreateDate", 12)]
+
+        [Parameter("bytes32", "currencySymbol", 10)]
+        public new string CurrencySymbol { get; set; }
+
+
+        [Parameter("address", "currencyAddress", 11)]
+        public new string CurrencyAddress { get; set; }
+
+
+        [Parameter("uint8", "poType", 12)]
+        public new PoType PoType { get; set; }
+
+
+        [Parameter("uint256", "poCreateDate", 13)]
         public new BigInteger PoCreateDate { get; set; }
 
 
-        [Parameter("uint8", "poItemCount", 13)]
+        [Parameter("uint8", "poItemCount", 14)]
         public new uint PoItemCount { get; set; }
 
 
-        [Parameter("tuple[]", "poItems", 14)]
+        [Parameter("tuple[]", "poItems", 15)]
         public new List<PoItem> PoItems { get; set; }
 
 
-        [Parameter("uint8", "rulesCount", 15)]
+        [Parameter("uint8", "rulesCount", 16)]
         public new uint RulesCount { get; set; }
 
 
-        [Parameter("bytes32[]", "rules", 16)]
+        [Parameter("bytes32[]", "rules", 17)]
         public new List<byte[]> Rules { get; set; }
     }
 }

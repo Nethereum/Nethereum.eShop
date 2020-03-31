@@ -12,16 +12,20 @@ namespace Nethereum.Commerce.Contracts.BusinessPartnerStorage.ContractDefinition
         [Parameter("bytes32", "sellerId", 1)]
         public new string SellerId { get; set; }
 
+
         [Parameter("bytes32", "sellerDescription", 2)]
         public new string SellerDescription { get; set; }
 
-        [Parameter("address", "contractAddress", 3)]
-        public new string ContractAddress { get; set; }
 
-        [Parameter("address", "approverAddress", 4)]
-        public new string ApproverAddress { get; set; }
+        [Parameter("address", "adminContractAddress", 3)]
+        public new string AdminContractAddress { get; set; }
 
-        [Parameter("bool", "isActive", 5)]
+
+        [Parameter("bool", "isActive", 4)]
         public new bool IsActive { get; set; }
+
+
+        [Parameter("address", "createdByAddress", 5)]
+        public new string CreatedByAddress { get; set; }
     }
 }

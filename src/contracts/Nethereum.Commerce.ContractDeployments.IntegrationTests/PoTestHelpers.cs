@@ -8,9 +8,10 @@ using System.Numerics;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 using static Nethereum.Commerce.Contracts.ContractEnums;
-using Buyer = Nethereum.Commerce.Contracts.WalletBuyer.ContractDefinition;
-using Seller = Nethereum.Commerce.Contracts.WalletSeller.ContractDefinition;
+using Buyer = Nethereum.Commerce.Contracts.BuyerWallet.ContractDefinition;
+using Seller = Nethereum.Commerce.Contracts.SellerAdmin.ContractDefinition;
 using Storage = Nethereum.Commerce.Contracts.PoStorage.ContractDefinition;
+using BP = Nethereum.Commerce.Contracts.BusinessPartnerStorage.ContractDefinition;
 
 namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 {
@@ -27,22 +28,42 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         public const string AUTH_EXCEPTION_ONLY_OWNER = "*Ownable: caller is not the owner*";
 
         /// <summary>
-        /// Revert message during PO creation, for when a PO + signature does not resolve to the expected signer address held
-        /// in BusinessPartnerStorage.sol master data
+        /// Revert message for master data maintenance attempted by address that is not the creator
         /// </summary>
-        public const string SIGNER_EXCEPTION_WRONG_SIGNER = "*Signature for quote does not match expected signature*";
+        public const string AUTH_EXCEPTION_ONLY_CREATEDBY = "*Only createdByAddress can change this record*";
 
         /// <summary>
-        /// Revert message when an attempt it made by WalletBuyer to set a PO item to goods received, and the msg.sender
+        /// Revert message during PO creation, for when a PO + signature does not resolve to any of the expected
+        /// signer addresses held in eShop master data in BusinessPartnerStorage.sol 
+        /// </summary>
+        public const string QUOTE_EXCEPTION_WRONG_SIGNER = "*Signature for quote does not match any expected signatures*";
+
+        /// <summary>
+        /// Revert message during PO creation, for when quote expiry date has passed
+        /// </summary>
+        public const string QUOTE_EXCEPTION_EXPIRY_PASSED = "*Quote expiry date has passed*";
+
+        /// <summary>
+        /// Revert message when an attempt it made by BuyerWallet to set a PO item to goods received, and the msg.sender
         /// is not the PO owner / BuyerAddress
         /// </summary>
-        public const string GOODS_RECEIPT_EXCEPTION_NOT_PO_OWNER = "*Only PO owner (BuyerAddress) can say Goods Received*";
+        public const string GOODS_RECEIPT_EXCEPTION_NOT_PO_OWNER = "*Only PO owner (BuyerUserAddress) can say Goods Received*";
 
         /// <summary>
-        /// Revert message when an attempt it made by WalletSeller to set a PO item to goods received, but not enough
+        /// Revert message when an attempt it made by SellerAdmin to set a PO item to goods received, but not enough
         /// days have passed since PO item was goods issued.
         /// </summary>
         public const string GOODS_RECEIPT_EXCEPTION_INSUFFICIENT_DAYS = "*Seller cannot set goods received: insufficient days passed*";
+
+        /// <summary>
+        /// Revert message when an attempt it made to create a PO but the seller is inactive
+        /// </summary>
+        public const string PO_EXCEPTION_SELLER_INACTIVE = "*Seller is inactive*";
+
+        /// <summary>
+        /// Revert message when an attempt it made to create a PO but the eShop is inactive
+        /// </summary>
+        public const string PO_EXCEPTION_ESHOP_INACTIVE = "*eShop is inactive*";
 
         /// <summary>
         /// Revert message when an attempt it made to access a non-existent PO
@@ -54,6 +75,16 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         /// </summary>
         public const string PO_ITEM_EXCEPTION_NOT_EXIST = "*PO item does not exist*";
 
+        /// <summary>
+        /// Revert message when an attempt is made to create a seller without an admin contract address. BP = business partner.
+        /// </summary>
+        public const string BP_EXCEPTION_SELLER_MISSING_CONTRACT = "*Must specify an admin contract address*";
+
+        /// <summary>
+        /// Revert message when an attempt is made to create a seller without an admin contract address. BP = business partner.
+        /// </summary>
+        public const string BP_EXCEPTION_ESHOP_MISSING_PURCH_CONTRACT = "*Must specify a purchasing contract address*";
+
         private static Random _random;
 
         static PoTestHelpers()
@@ -61,6 +92,9 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             _random = new Random();
         }
 
+        /// <summary>
+        /// Random string max length 10 chars
+        /// </summary>
         public static string GetRandomString()
         {
             return ((uint)_random.Next(int.MinValue, int.MaxValue)).ToString(CultureInfo.InvariantCulture);
@@ -80,20 +114,24 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             }
             else
             {
-                output.WriteLine($"PO number          : {po.PoNumber}");
-                output.WriteLine($"BuyerAddress       : {po.BuyerAddress}");
-                output.WriteLine($"ReceiverAddress    : {po.ReceiverAddress}");
-                output.WriteLine($"BuyerWalletAddress : {po.BuyerWalletAddress}");
-                output.WriteLine($"CurrencySymbol     : {po.CurrencySymbol}");
-                output.WriteLine($"CurrencyAddress    : {po.CurrencyAddress}");
-                output.WriteLine($"QuoteId            : {po.QuoteId}");
-                output.WriteLine($"QuoteExpiryDate    : {po.QuoteExpiryDate}");
-                output.WriteLine($"ApproverAddress    : {po.ApproverAddress}");
-                output.WriteLine($"PoType             : {po.PoType}");
-                output.WriteLine($"SellerId           : {po.SellerId}");
-                output.WriteLine($"PoCreateDate       : {po.PoCreateDate}");
-                output.WriteLine($"PoItemCount        : {po.PoItemCount}");
-                output.WriteLine($"PoRulesCount       : {po.RulesCount}");
+                output.WriteLine($"PO number            : {po.PoNumber}");
+
+                output.WriteLine($"BuyerUserAddress     : {po.BuyerUserAddress}");
+                output.WriteLine($"BuyerReceiverAddress : {po.BuyerReceiverAddress}");
+                output.WriteLine($"BuyerWalletAddress   : {po.BuyerWalletAddress}");
+
+                output.WriteLine($"EShopId              : {po.EShopId}");
+                output.WriteLine($"QuoteId              : {po.QuoteId}");
+                output.WriteLine($"QuoteExpiryDate      : {po.QuoteExpiryDate}");
+                output.WriteLine($"QuoteSignerAddress   : {po.QuoteSignerAddress}");
+
+                output.WriteLine($"CurrencySymbol       : {po.CurrencySymbol}");
+                output.WriteLine($"CurrencyAddress      : {po.CurrencyAddress}");
+                output.WriteLine($"PoType               : {po.PoType}");
+                output.WriteLine($"SellerId             : {po.SellerId}");
+                output.WriteLine($"PoCreateDate         : {po.PoCreateDate}");
+                output.WriteLine($"PoItemCount          : {po.PoItemCount}");
+                output.WriteLine($"PoRulesCount         : {po.RulesCount}");
             }
         }
 
@@ -123,7 +161,6 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                 output.WriteLine($"ActualEscrowReleaseDate  : {poItem.ActualEscrowReleaseDate}");
                 output.WriteLine($"IsEscrowReleased         : {poItem.IsEscrowReleased}");
                 output.WriteLine($"CancelStatus             : {poItem.CancelStatus}");
-
             }
         }
 
@@ -133,27 +170,55 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             output.WriteLine($"------------------------ {s} -----------------------");
         }
 
+        public static void CheckEverySellerFieldMatches(BP.Seller sellerExpected, BP.Seller sellerActual, string createdByAddress)
+        {
+            sellerActual.SellerId.Should().Be(sellerExpected.SellerId);
+            sellerActual.SellerDescription.Should().Be(sellerExpected.SellerDescription);
+            sellerActual.AdminContractAddress.ToLowerInvariant().Should().Be(sellerExpected.AdminContractAddress.ToLowerInvariant());
+            sellerActual.IsActive.Should().Be(sellerExpected.IsActive);
+            sellerActual.CreatedByAddress.ToLowerInvariant().Should().Be(createdByAddress.ToLowerInvariant());
+        }
+
+        public static void CheckEveryEshopFieldMatches(BP.Eshop eShopExpected, BP.Eshop eShopActual, string createdByAddress)
+        {
+            eShopActual.EShopId.Should().Be(eShopExpected.EShopId);
+            eShopActual.EShopDescription.Should().Be(eShopExpected.EShopDescription);
+            eShopActual.PurchasingContractAddress.ToLowerInvariant().Should().Be(eShopExpected.PurchasingContractAddress.ToLowerInvariant());
+            eShopActual.IsActive.Should().Be(eShopExpected.IsActive);
+            eShopActual.CreatedByAddress.ToLowerInvariant().Should().Be(createdByAddress.ToLowerInvariant());
+            eShopActual.QuoteSignerCount.Should().Be(eShopExpected.QuoteSignerCount);
+            for (int i = 0; i < eShopActual.QuoteSignerCount; i++)
+            {
+                eShopActual.QuoteSigners[i].ToLowerInvariant().Should().Be(eShopExpected.QuoteSigners[i].ToLowerInvariant());
+            }
+        }
+
         /// <summary>
         /// Compare a requested PO with an as-built version of the same PO.
         /// Optionally also check the approver address and creation date.
         /// </summary>
         public static void CheckCreatedPoFieldsMatch(Storage.Po poAsRequested, Storage.Po poAsBuilt,
-        BigInteger poNumberAsBuilt, string approverAddressAsBuilt = null, BigInteger? poCreateDateAsBuilt = null)
+        BigInteger poNumberAsBuilt, string quoteSignerAddressAsBuilt = null, BigInteger? poCreateDateAsBuilt = null)
         {
             poAsBuilt.PoNumber.Should().Be(poNumberAsBuilt);
-            poAsBuilt.BuyerAddress.Should().Be(poAsRequested.BuyerAddress);
-            poAsBuilt.ReceiverAddress.Should().Be(poAsRequested.ReceiverAddress);
+
+            poAsBuilt.BuyerUserAddress.Should().Be(poAsRequested.BuyerUserAddress);
+            poAsBuilt.BuyerReceiverAddress.Should().Be(poAsRequested.BuyerReceiverAddress);
             poAsBuilt.BuyerWalletAddress.Should().Be(poAsRequested.BuyerWalletAddress);
-            poAsBuilt.CurrencySymbol.Should().Be(poAsRequested.CurrencySymbol);
-            poAsBuilt.CurrencyAddress.Should().Be(poAsRequested.CurrencyAddress);
+
+            poAsBuilt.EShopId.Should().Be(poAsRequested.EShopId);
             poAsBuilt.QuoteId.Should().Be(poAsRequested.QuoteId);
             poAsBuilt.QuoteExpiryDate.Should().Be(poAsRequested.QuoteExpiryDate);
-            if (approverAddressAsBuilt is string approverAddressAsBuiltValue)
+            if (quoteSignerAddressAsBuilt is string quoteSignerAddressAsBuiltValue)
             {
-                poAsBuilt.ApproverAddress.Should().Be(approverAddressAsBuiltValue);
+                poAsBuilt.QuoteSignerAddress.Should().Be(quoteSignerAddressAsBuiltValue);
             }
-            poAsBuilt.PoType.Should().Be(poAsRequested.PoType);
+
             poAsBuilt.SellerId.Should().Be(poAsRequested.SellerId);
+
+            poAsBuilt.CurrencySymbol.Should().Be(poAsRequested.CurrencySymbol);
+            poAsBuilt.CurrencyAddress.Should().Be(poAsRequested.CurrencyAddress);
+            poAsBuilt.PoType.Should().Be(poAsRequested.PoType);
             if (poCreateDateAsBuilt is BigInteger poCreateDateAsBuiltValue)
             {
                 poAsBuilt.PoCreateDate.Should().Be(poCreateDateAsBuiltValue);
@@ -171,6 +236,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                 poAsBuilt.PoItems[i].QuantitySymbol.Should().Be(poAsRequested.PoItems[i].QuantitySymbol);
                 poAsBuilt.PoItems[i].QuantityAddress.Should().Be(poAsRequested.PoItems[i].QuantityAddress);
                 poAsBuilt.PoItems[i].CurrencyValue.Should().Be(poAsRequested.PoItems[i].CurrencyValue);
+                // Don't check CurrencyValueFee, it is assigned by contract
                 poAsBuilt.PoItems[i].Status.Should().Be(PoItemStatus.Created);
                 poAsBuilt.PoItems[i].GoodsIssuedDate.Should().Be(0);
                 poAsBuilt.PoItems[i].GoodsReceivedDate.Should().Be(0);
@@ -187,16 +253,21 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         public static void CheckEveryPoFieldMatches(Storage.Po poExpected, Storage.Po poActual)
         {
             poActual.PoNumber.Should().Be(poExpected.PoNumber);
-            poActual.BuyerAddress.Should().Be(poExpected.BuyerAddress);
-            poActual.ReceiverAddress.Should().Be(poExpected.ReceiverAddress);
+
+            poActual.BuyerUserAddress.Should().Be(poExpected.BuyerUserAddress);
+            poActual.BuyerReceiverAddress.Should().Be(poExpected.BuyerReceiverAddress);
             poActual.BuyerWalletAddress.Should().Be(poExpected.BuyerWalletAddress);
-            poActual.CurrencySymbol.Should().Be(poExpected.CurrencySymbol);
-            poActual.CurrencyAddress.Should().Be(poExpected.CurrencyAddress);
+
+            poActual.EShopId.Should().Be(poExpected.EShopId);
             poActual.QuoteId.Should().Be(poExpected.QuoteId);
             poActual.QuoteExpiryDate.Should().Be(poExpected.QuoteExpiryDate);
-            poActual.ApproverAddress.Should().Be(poExpected.ApproverAddress);
-            poActual.PoType.Should().Be(poExpected.PoType);
+            poActual.QuoteSignerAddress.Should().Be(poExpected.QuoteSignerAddress);
+
             poActual.SellerId.Should().Be(poExpected.SellerId);
+
+            poActual.CurrencySymbol.Should().Be(poExpected.CurrencySymbol);
+            poActual.CurrencyAddress.Should().Be(poExpected.CurrencyAddress);
+            poActual.PoType.Should().Be(poExpected.PoType);
             poActual.PoCreateDate.Should().Be(poExpected.PoCreateDate);
             poActual.PoItemCount.Should().Be(poExpected.PoItemCount);
             for (int i = 0; i < poActual.PoItemCount; i++)
@@ -211,6 +282,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                 poActual.PoItems[i].QuantitySymbol.Should().Be(poExpected.PoItems[i].QuantitySymbol);
                 poActual.PoItems[i].QuantityAddress.Should().Be(poExpected.PoItems[i].QuantityAddress);
                 poActual.PoItems[i].CurrencyValue.Should().Be(poExpected.PoItems[i].CurrencyValue);
+                poActual.PoItems[i].CurrencyValueFee.Should().Be(poExpected.PoItems[i].CurrencyValueFee);
                 poActual.PoItems[i].Status.Should().Be(poExpected.PoItems[i].Status);
                 poActual.PoItems[i].GoodsIssuedDate.Should().Be(poExpected.PoItems[i].GoodsIssuedDate);
                 poActual.PoItems[i].GoodsReceivedDate.Should().Be(poExpected.PoItems[i].GoodsReceivedDate);
@@ -227,12 +299,14 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         }
 
         /// <summary>
-        /// A realistic test PO intended for passing to contracts WalletBuyer.sol or Purchasing.sol poCreate() functions.
+        /// A realistic test PO intended for passing to contracts BuyerWallet.sol or Purchasing.sol poCreate() functions.
         /// </summary>        
         public static Storage.Po CreatePoForPurchasingContracts(
-            string buyerAddress,
-            string receiverAddress,
+            string buyerUserAddress,
+            string buyerReceiverAddress,
             string buyerWalletAddress,
+            string eShopId,
+            string sellerId,
             string currencySymbol,
             string currencyAddress,
             uint quoteId,
@@ -249,16 +323,21 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var po = new Storage.Po()
             {
                 // PoNumber assigned by contract
-                BuyerAddress = buyerAddress,
-                ReceiverAddress = receiverAddress,
+
+                BuyerUserAddress = buyerUserAddress,
+                BuyerReceiverAddress = buyerReceiverAddress,
                 BuyerWalletAddress = buyerWalletAddress,
+
+                EShopId = eShopId,
+                QuoteId = quoteId,
+                QuoteExpiryDate = new BigInteger(DateTimeOffset.Now.ToUnixTimeSeconds() + 3600),  // expires in an hour
+                QuoteSignerAddress = string.Empty,  // assigned by contract
+
+                SellerId = sellerId,
+
                 CurrencySymbol = currencySymbol,
                 CurrencyAddress = currencyAddress,
-                QuoteId = quoteId,
-                QuoteExpiryDate = 1,
-                ApproverAddress = string.Empty,  // assigned by contract
                 PoType = PoType.Cash,
-                SellerId = "Nethereum.eShop",
                 // PoCreateDate assigned by contract
                 // PoItemCount assigned by contract                
                 PoItems = new List<Storage.PoItem>()
@@ -275,6 +354,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                         QuantitySymbol = "NA",
                         QuantityAddress = "0x40ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
                         CurrencyValue = valueLine01
+                        // CurrencyValueFee assigned by contract
                         // Status assigned by contract
                         // GoodsIssuedDate assigned by contract
                         // GoodsReceivedDate assigned by contract
@@ -315,26 +395,31 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             return po;
 
         }
-
+        
         /// <summary>
         /// An unrealistic PO intended for writing directly to the PO storage contract PoStorage.sol (ie no validations are done on
-        /// this data, it is written direct to storage only).
+        /// this data, it is written direct to storage only, so values like quote expiry date are not checked).
         /// </summary>
         public static Storage.Po CreatePoForPoStorageContract(uint poNumber, string approverAddress, uint quoteId)
         {
             return new Storage.Po()
             {
                 PoNumber = poNumber,
-                BuyerAddress = "0x37ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
-                ReceiverAddress = "0x36ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
+
+                BuyerUserAddress = "0x37ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
+                BuyerReceiverAddress = "0x36ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
                 BuyerWalletAddress = "0x39ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
-                CurrencySymbol = "DAI",
-                CurrencyAddress = "0x41ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
+
+                EShopId = "Nethereum.eShop",
                 QuoteId = quoteId,
                 QuoteExpiryDate = 1,
-                ApproverAddress = approverAddress,
+                QuoteSignerAddress = approverAddress,
+
+                SellerId = "VitaliksBooks",
+
+                CurrencySymbol = "DAI",
+                CurrencyAddress = "0x41ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
                 PoType = PoType.Cash,
-                SellerId = "Nethereum.eShop",
                 PoCreateDate = 100,
                 PoItemCount = 2,
                 PoItems = new List<Storage.PoItem>()
@@ -351,6 +436,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                         QuantitySymbol = "NA",
                         QuantityAddress = "0x40ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
                         CurrencyValue = 11,
+                        CurrencyValueFee = 2,
                         Status = PoItemStatus.Created,
                         GoodsIssuedDate = 100,
                         GoodsReceivedDate = 0,
@@ -371,6 +457,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                         QuantitySymbol = "NA",
                         QuantityAddress = "0x42ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610",
                         CurrencyValue = 22,
+                        CurrencyValueFee = 4,
                         Status = PoItemStatus.Created,
                         GoodsIssuedDate = 200,
                         GoodsReceivedDate = 0,
