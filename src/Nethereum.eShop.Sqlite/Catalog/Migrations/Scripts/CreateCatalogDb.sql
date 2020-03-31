@@ -237,6 +237,44 @@ VALUES ('20200311172413_BuyerWalletAddress', '3.1.2');
 
 DROP INDEX "IX_Orders_BuyerAddress";
 
+CREATE TABLE "TmpOrders" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_TmpOrders" PRIMARY KEY AUTOINCREMENT,
+    "QuoteId" INTEGER NULL,
+    "Status" INTEGER NOT NULL,
+    "TransactionHash" TEXT NULL,
+    "BuyerId" TEXT NOT NULL,
+    "CurrencyAddress" TEXT NULL,
+    "CurrencySymbol" TEXT NULL,
+    "PoNumber" INTEGER NULL,
+    "PoType" INTEGER NOT NULL,
+    "BuyerWalletAddress" TEXT NULL,
+    "SellerId" TEXT NULL,
+    "PoDate" TEXT NULL,
+    "OrderDate" TEXT NOT NULL,
+    "BillTo_RecipientName" TEXT NULL,
+    "BillTo_Street" TEXT NULL,
+    "BillTo_City" TEXT NULL,
+    "BillTo_State" TEXT NULL,
+    "BillTo_Country" TEXT NULL,
+    "BillTo_ZipCode" TEXT NULL,
+    "ShipTo_RecipientName" TEXT NULL,
+    "ShipTo_Street" TEXT NULL,
+    "ShipTo_City" TEXT NULL,
+    "ShipTo_State" TEXT NULL,
+    "ShipTo_Country" TEXT NULL,
+    "ShipTo_ZipCode" TEXT NULL
+);
+
+INSERT INTO TmpOrders SELECT Id, QuoteId, Status, TransactionHash, BuyerId, CurrencyAddress, CurrencySymbol, PoNumber, PoType, BuyerWalletAddress, Sellerid, PoDate, OrderDate, BillTo_RecipientName, BillTo_Street, BillTo_City, BillTo_State, BillTo_Country, BillTo_ZipCode, ShipTo_RecipientName, ShipTo_Street, ShipTo_City, ShipTo_State, ShipTo_Country, ShipTo_ZipCode  FROM Orders;
+
+PRAGMA foreign_keys="0"
+
+DROP TABLE Orders
+
+ALTER TABLE TmpOrders RENAME TO Orders
+
+PRAGMA foreign_keys="1"
+
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('20200331114826_RemoveBuyerAndWalletAddress', '3.1.2');
 
