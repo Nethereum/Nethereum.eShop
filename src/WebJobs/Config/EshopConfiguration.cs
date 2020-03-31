@@ -13,9 +13,11 @@ namespace Nethereum.eShop.WebJobs.Configuration
         public string EthereumRpcUrl { get; set; }
         public string AccountPrivateKey { get; set; }
 
-        public string SellerId { get; set; }
+        public string EShopId { get; set; }
 
         public string BuyerWalletAddress { get; set; }
+
+        public string BusinessPartnerStorageServiceAddress { get; set; }
 
         public bool CreateFakePurchaseOrders { get; set; }
 

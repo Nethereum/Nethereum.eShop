@@ -242,14 +242,6 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<string>("ApproverAddress")
-                        .HasColumnType("varchar(43) CHARACTER SET utf8mb4")
-                        .HasMaxLength(43);
-
-                    b.Property<string>("BuyerAddress")
-                        .HasColumnType("varchar(43) CHARACTER SET utf8mb4")
-                        .HasMaxLength(43);
-
                     b.Property<string>("BuyerId")
                         .IsRequired()
                         .HasColumnType("varchar(256) CHARACTER SET utf8mb4")
@@ -294,8 +286,6 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                         .HasMaxLength(67);
 
                     b.HasKey("Id");
-
-                    b.HasIndex("BuyerAddress");
 
                     b.HasIndex("BuyerId");
 

@@ -241,14 +241,6 @@ namespace Nethereum.eShop.Sqlite.Catalog.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("ApproverAddress")
-                        .HasColumnType("TEXT")
-                        .HasMaxLength(43);
-
-                    b.Property<string>("BuyerAddress")
-                        .HasColumnType("TEXT")
-                        .HasMaxLength(43);
-
                     b.Property<string>("BuyerId")
                         .IsRequired()
                         .HasColumnType("TEXT")
@@ -293,8 +285,6 @@ namespace Nethereum.eShop.Sqlite.Catalog.Migrations
                         .HasMaxLength(67);
 
                     b.HasKey("Id");
-
-                    b.HasIndex("BuyerAddress");
 
                     b.HasIndex("BuyerId");
 

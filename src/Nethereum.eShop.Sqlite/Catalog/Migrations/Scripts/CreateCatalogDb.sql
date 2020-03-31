@@ -235,3 +235,8 @@ CREATE UNIQUE INDEX "IX_Buyers_BuyerWalletAddress" ON "Buyers" ("BuyerWalletAddr
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('20200311172413_BuyerWalletAddress', '3.1.2');
 
+DROP INDEX "IX_Orders_BuyerAddress";
+
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('20200331114826_RemoveBuyerAndWalletAddress', '3.1.2');
+

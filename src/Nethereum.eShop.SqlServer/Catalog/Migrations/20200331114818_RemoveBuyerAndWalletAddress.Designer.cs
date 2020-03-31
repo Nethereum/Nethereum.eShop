@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Nethereum.eShop.SqlServer.Catalog;
 
 namespace Nethereum.eShop.SqlServer.Catalog.Migrations
 {
     [DbContext(typeof(SqlServerCatalogContext))]
-    partial class SqlServerCatalogContextModelSnapshot : ModelSnapshot
+    [Migration("20200331114818_RemoveBuyerAndWalletAddress")]
+    partial class RemoveBuyerAndWalletAddress
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

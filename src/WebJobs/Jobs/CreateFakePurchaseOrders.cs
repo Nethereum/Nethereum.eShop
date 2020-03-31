@@ -1,11 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
 using Nethereum.Commerce.Contracts;
+using Nethereum.Commerce.Contracts.BuyerWallet;
 using Nethereum.Commerce.Contracts.Purchasing.ContractDefinition;
-using Nethereum.Commerce.Contracts.WalletBuyer;
 using Nethereum.Contracts;
 using Nethereum.eShop.ApplicationCore.Entities.QuoteAggregate;
 using Nethereum.eShop.ApplicationCore.Interfaces;
-using Nethereum.eShop.ApplicationCore.Specifications;
 using Nethereum.eShop.WebJobs.Configuration;
 using Nethereum.Web3.Accounts;
 using System;
@@ -14,7 +13,6 @@ using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
 using static Nethereum.Commerce.Contracts.ContractEnums;
-using Storage = Nethereum.Commerce.Contracts.PoStorage.ContractDefinition;
 
 namespace Nethereum.eShop.WebJobs.Jobs
 {
@@ -41,7 +39,7 @@ namespace Nethereum.eShop.WebJobs.Jobs
 
             var account = new Account(_config.AccountPrivateKey);
             var web3 = new Web3.Web3(account);
-            var walletBuyerService = new WalletBuyerService(web3, _config.BuyerWalletAddress);
+            var walletBuyerService = new BuyerWalletService(web3, _config.BuyerWalletAddress);
 
             foreach (var quote in pendingQuotes)
             {
@@ -49,9 +47,9 @@ namespace Nethereum.eShop.WebJobs.Jobs
             }
         }
 
-        private async Task CreatePoForQuote(ILogger logger, WalletBuyerService walletBuyerService, Quote quote)
+        private async Task CreatePoForQuote(ILogger logger, BuyerWalletService walletBuyerService, Quote quote)
         {
-            var existing = await walletBuyerService.GetPoBySellerAndQuoteQueryAsync(_config.SellerId, quote.Id);
+            var existing = await walletBuyerService.GetPoQueryAsync(_config.EShopId, quote.Id);
             if (existing?.Po?.PoNumber > 0)
             {
                 quote.PoNumber = (long)existing.Po.PoNumber;
@@ -62,7 +60,8 @@ namespace Nethereum.eShop.WebJobs.Jobs
             }
 
             var po = CreateDummyPoForPurchasingCreate(quote, walletBuyerService.ContractHandler.ContractAddress).ToBuyerPo();
-            var receipt = await walletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(po);
+            var poArgs = new Nethereum.Commerce.Contracts.BuyerWallet.ContractDefinition.CreatePurchaseOrderFunction { Po = po };
+            var receipt = await walletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poArgs);
 
             var createdEvent = receipt.DecodeAllEvents<PurchaseOrderCreatedLogEventDTO>().FirstOrDefault();
 
@@ -81,31 +80,28 @@ namespace Nethereum.eShop.WebJobs.Jobs
             }
         }
 
-        public Storage.Po CreateDummyPoForPurchasingCreate(Quote quote, string buyerWalletAddress)
+        public Po CreateDummyPoForPurchasingCreate(Quote quote, string buyerWalletAddress)
         {
-            var po = new Storage.Po()
+            var po = new Po()
             {
                 // PoNumber assigned by contract
-                BuyerAddress = "0x94618601fe6cb8912b274e5a00453949a57f8c1e",
-                ReceiverAddress = "0x94618601fe6cb8912b274e5a00453949a57f8c1e",
                 BuyerWalletAddress = buyerWalletAddress,
                 CurrencySymbol = "DAI",
                 CurrencyAddress = "0xef76bcb4216fbbbd4d6e88082d5654def9b6fe2f",
                 QuoteId = quote.Id,
                 QuoteExpiryDate = DateTimeOffset.UtcNow.AddMonths(1).ToUnixTimeSeconds(),
-                ApproverAddress = string.Empty,  // assigned by contract
                 PoType = PoType.Cash,
-                SellerId = _config.SellerId,
+                SellerId = _config.EShopId,
                 // PoCreateDate assigned by contract
                 // PoItemCount assigned by contract
-                PoItems = new List<Storage.PoItem>()
+                PoItems = new List<PoItem>()
             };
 
             //gtin1111
 
             foreach (var quoteItem in quote.QuoteItems)
             {
-                po.PoItems.Add(new Storage.PoItem
+                po.PoItems.Add(new PoItem
                 {
                     // PoNumber assigned by contract
                     // PoItemNumber assigned by contract

@@ -29,7 +29,6 @@ namespace Nethereum.eShop.InMemory.Catalog.Queries
                 {
                     BillTo_RecipientName = o.BillTo.RecipientName,
                     BillTo_ZipCode = o.BillTo.ZipCode,
-                    BuyerAddress = o.BuyerAddress,
                     BuyerId = o.BuyerId,
                     CurrencySymbol = o.CurrencySymbol,
                     ItemCount = o.ItemCount(),
