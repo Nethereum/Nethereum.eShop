@@ -5,8 +5,8 @@ using Nethereum.BlockchainProcessing.LogProcessing;
 using Nethereum.BlockchainProcessing.Orchestrator;
 using Nethereum.BlockchainProcessing.Processor;
 using Nethereum.BlockchainProcessing.ProgressRepositories;
-using Nethereum.Commerce.Contracts.BusinessPartnerStorage;
 using Nethereum.Commerce.Contracts.BuyerWallet;
+using Nethereum.Commerce.Contracts.Purchasing;
 using Nethereum.Commerce.Contracts.Purchasing.ContractDefinition;
 using Nethereum.eShop.ApplicationCore.Exceptions;
 using Nethereum.eShop.ApplicationCore.Interfaces;
@@ -50,13 +50,7 @@ namespace Nethereum.eShop.WebJobs.Jobs
             const int RequestRetryWeight = 0; // see below for retry algorithm
 
             var web3 = new Web3.Web3(_eshopConfiguration.EthereumRpcUrl);
-            var walletBuyerService = new BuyerWalletService(web3, _eshopConfiguration.BuyerWalletAddress);
-
-            var businessPartnerStorageService = new BusinessPartnerStorageService(web3, _eshopConfiguration.BusinessPartnerStorageServiceAddress);
-            var eshop = await businessPartnerStorageService.GetEshopQueryAsync(_eshopConfiguration.EShopId);
-            var purchasingContractAddress = eshop.EShop.PurchasingContractAddress;
-
-            var filter = new NewFilterInput { Address = new[] { purchasingContractAddress } };
+            var filter = new NewFilterInput { Address = new[] { _eshopConfiguration.PurchasingContractAddress } };
 
             ILog log = logger.ToILog();
 

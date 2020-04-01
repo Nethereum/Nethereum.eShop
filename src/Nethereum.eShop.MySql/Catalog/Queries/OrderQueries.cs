@@ -40,7 +40,6 @@ SELECT COUNT(1) FROM Orders as o WHERE o.BuyerId = @buyerId;
 SELECT 
     o.Id as OrderId,
     o.QuoteId as QuoteId,
-    o.BuyerAddress,
 	o.BuyerId,
     o.TransactionHash,
     o.OrderDate,

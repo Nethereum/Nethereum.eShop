@@ -15,11 +15,19 @@ namespace Nethereum.eShop.WebJobs.Configuration
 
         public string EShopId { get; set; }
 
+        public string SellerId { get; set; }
+
         public string BuyerWalletAddress { get; set; }
 
-        public string BusinessPartnerStorageServiceAddress { get; set; }
+        public string PurchasingContractAddress { get; set; }
+
+        public string CurrencySymbol { get; set; }
+
+        public string CurrencyAddress { get; set; }
 
         public bool CreateFakePurchaseOrders { get; set; }
+
+        public string QuantityAddress { get; set; }
 
         public PurchaseOrderEventLogProcessingConfiguration PurchaseOrderEventLogConfiguration { get; set; }
     }

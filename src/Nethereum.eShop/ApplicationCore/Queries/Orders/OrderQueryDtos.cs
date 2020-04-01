@@ -14,7 +14,6 @@ namespace Nethereum.eShop.ApplicationCore.Queries.Orders
         public string CurrencySymbol { get; set; }
 
         public string BuyerId { get; set; }
-        public string BuyerAddress { get; set; }
         public DateTimeOffset OrderDate { get; set; }
 
         public decimal Total { get; set; }

@@ -34,7 +34,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
         public ContractDeploymentsFixture(IMessageSink diagnosticMessageSink)
         {
             _diagnosticMessageSink = diagnosticMessageSink;
-            var appConfig = ConfigurationUtils.Build(Array.Empty<string>(), "UserSecret");
+            var appConfig = ConfigurationUtils.Build(Array.Empty<string>(), "Nethereum.Commerce.ContractDeployments.IntegrationTests");
 
             // Web3
             var web3Config = appConfig.GetSection("Web3Config").Get<Web3Config>();
