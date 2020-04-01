@@ -190,6 +190,8 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             poAsRequested.QuoteExpiryDate = new BigInteger(DateTimeOffset.Now.ToUnixTimeSeconds() - 3600); // quote expired an hour ago
             var signature = poAsRequested.GetSignatureBytes(_contracts.Web3);
             await PrepSendFundsToBuyerWalletForPo(_contracts.Web3, poAsRequested);
+
+            // Attempt to create PO, it should fail
             Func<Task> act = async () => await _contracts.Deployment.BuyerWalletService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
             act.Should().Throw<SmartContractRevertException>().WithMessage(QUOTE_EXCEPTION_EXPIRY_PASSED);
         }
@@ -262,6 +264,22 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             await PrepSendFundsToBuyerWalletForPo(_contracts.Web3, poAsRequested);
             Func<Task> act = async () => await _contracts.Deployment.BuyerWalletService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
             act.Should().Throw<SmartContractRevertException>().WithMessage(QUOTE_EXCEPTION_WRONG_SIG);
+        }
+
+        [Fact]
+        public async void ShouldFailToCreatePoWhenQuoteAlreadyUsed()
+        {
+            // Prepare a new PO and create it            
+            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId: GetRandomInt());
+            var signature = poAsRequested.GetSignatureBytes(_contracts.Web3);
+            await PrepSendFundsToBuyerWalletForPo(_contracts.Web3, poAsRequested);
+            var txReceiptCreate = await _contracts.Deployment.BuyerWalletService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
+            txReceiptCreate.Status.Value.Should().Be(1);
+
+            // Attempt to create PO using the same quote again, it should fail
+            await PrepSendFundsToBuyerWalletForPo(_contracts.Web3, poAsRequested);
+            Func<Task> act = async () => await _contracts.Deployment.BuyerWalletService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
+            act.Should().Throw<SmartContractRevertException>().WithMessage(QUOTE_EXCEPTION_QUOTE_IN_USE);
         }
 
         [Fact]

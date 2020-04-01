@@ -35,7 +35,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
         {
             _diagnosticMessageSink = diagnosticMessageSink;
             var appConfig = ConfigurationUtils.Build(Array.Empty<string>(), "UserSecret");
-
+          
             // Web3
             var web3Config = appConfig.GetSection("Web3Config").Get<Web3Config>();
             var privateKey = web3Config.TransactionCreatorPrivateKey;

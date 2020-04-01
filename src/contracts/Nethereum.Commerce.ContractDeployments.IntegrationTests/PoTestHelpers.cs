@@ -44,6 +44,11 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         public const string QUOTE_EXCEPTION_EXPIRY_PASSED = "*Quote expiry date has passed*";
 
         /// <summary>
+        /// Revert message during PO creation, for when quote date has passed
+        /// </summary>
+        public const string QUOTE_EXCEPTION_QUOTE_IN_USE = "*Quote already in use*";
+
+        /// <summary>
         /// Revert message when an attempt it made by BuyerWallet to set a PO item to goods received, and the msg.sender
         /// is not the PO owner / BuyerAddress
         /// </summary>

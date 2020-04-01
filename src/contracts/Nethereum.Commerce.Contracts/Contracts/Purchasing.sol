@@ -66,7 +66,7 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
         return poStorage.getPo(poNumber);
     }
     
-    function getPoByQuote(uint quoteId) override external view returns (IPoTypes.Po memory po)
+    function getPoByQuote(uint quoteId) override public view returns (IPoTypes.Po memory po)
     {
         uint poNumber = poStorage.getPoNumberByEshopIdAndQuote(eShopId, quoteId);
         return poStorage.getPo(poNumber);
@@ -109,6 +109,10 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
         }
         require(isSignerFound == true, "Signature for quote does not match any expected signatures");
         require(po.quoteExpiryDate >= now, "Quote expiry date has passed");
+        
+        // Quote should not already have been used
+        IPoTypes.Po memory poExisting = getPoByQuote(po.quoteId);
+        require(poExisting.poNumber == 0, "Quote already in use");
         
         //-------------------------------------------------------------------------
         // Add fields that contract owns
@@ -346,5 +350,4 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
     {
         return keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", hash));
     }
-
 }
