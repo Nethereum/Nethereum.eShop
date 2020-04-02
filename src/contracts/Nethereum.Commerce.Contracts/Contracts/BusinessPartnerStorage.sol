@@ -82,12 +82,14 @@ contract BusinessPartnerStorage is IBusinessPartnerStorage, Ownable, StringConve
         {
             // New record
             eShop.createdByAddress = msg.sender;
+            emit EshopCreatedLog(eShop.createdByAddress, eShop.eShopId, eShop);
         }
         else
         {
             // Existing record
             require(existingEshop.createdByAddress == msg.sender, "Only createdByAddress can change this record");
             eShop.createdByAddress = existingEshop.createdByAddress;
+            emit EshopChangedLog(eShop.createdByAddress, eShop.eShopId, eShop);
         }
         
         // Store
@@ -130,12 +132,14 @@ contract BusinessPartnerStorage is IBusinessPartnerStorage, Ownable, StringConve
         {
             // New record
             seller.createdByAddress = msg.sender;
+            emit SellerCreatedLog(seller.createdByAddress, seller.sellerId, seller);
         }
         else
         {
             // Existing record
             require(existingSeller.createdByAddress == msg.sender, "Only createdByAddress can change this record");
             seller.createdByAddress = existingSeller.createdByAddress;
+            emit SellerChangedLog(seller.createdByAddress, seller.sellerId, seller);
         }
         
         // Store

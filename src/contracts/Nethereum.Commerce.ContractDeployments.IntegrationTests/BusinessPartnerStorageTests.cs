@@ -2,12 +2,15 @@ using FluentAssertions;
 using Nethereum.ABI.FunctionEncoding;
 using Nethereum.Commerce.ContractDeployments.IntegrationTests.Config;
 using Nethereum.Commerce.Contracts.BusinessPartnerStorage.ContractDefinition;
+using Nethereum.Contracts;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 using static Nethereum.Commerce.ContractDeployments.IntegrationTests.PoTestHelpers;
+using static Nethereum.Commerce.Contracts.PurchasingExtensions;
 
 namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 {
@@ -26,7 +29,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         }
 
         [Fact]
-        public async void ShouldStoreAndRetrieveSeller()
+        public async void ShouldStoreRetrieveAndChangeSeller()
         {
             var sellerAdminContractAddress = _contracts.Deployment.SellerAdminService.ContractHandler.ContractAddress;
 
@@ -41,18 +44,39 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             };
 
             // Store Seller
-            var txReceipt = await _contracts.Deployment.BusinessPartnerStorageService.SetSellerRequestAndWaitForReceiptAsync(sellerExpected);
-            txReceipt.Status.Value.Should().Be(1);
+            var txReceiptCreate = await _contracts.Deployment.BusinessPartnerStorageService.SetSellerRequestAndWaitForReceiptAsync(sellerExpected);
+            txReceiptCreate.Status.Value.Should().Be(1);
+
+            // Check Seller create events
+            var logSellerCreateEvent = txReceiptCreate.DecodeAllEvents<SellerCreatedLogEventDTO>().FirstOrDefault();
+            logSellerCreateEvent.Should().NotBeNull();
+            logSellerCreateEvent.Event.SellerId.ConvertToString().Should().Be(sellerExpected.SellerId);
 
             // Retrieve Seller
             var sellerActual = (await _contracts.Deployment.BusinessPartnerStorageService.GetSellerQueryAsync(sellerExpected.SellerId)).Seller;
 
             // They should be the same
             CheckEverySellerFieldMatches(sellerExpected, sellerActual, createdByAddress: _contracts.Web3.TransactionManager.Account.Address);
+
+            // Change Seller
+            sellerExpected.SellerDescription = "New description";
+            var txReceiptChange = await _contracts.Deployment.BusinessPartnerStorageService.SetSellerRequestAndWaitForReceiptAsync(sellerExpected);
+            txReceiptChange.Status.Value.Should().Be(1);
+
+            // Check Seller change events
+            var logSellerChangeEvent = txReceiptChange.DecodeAllEvents<SellerChangedLogEventDTO>().FirstOrDefault();
+            logSellerChangeEvent.Should().NotBeNull();
+            logSellerChangeEvent.Event.SellerId.ConvertToString().Should().BeEquivalentTo(sellerExpected.SellerId);
+
+            // Retrieve the updated Seller
+            var sellerActualPostChange = (await _contracts.Deployment.BusinessPartnerStorageService.GetSellerQueryAsync(sellerExpected.SellerId)).Seller;
+
+            // Check seller values match
+            CheckEverySellerFieldMatches(sellerExpected, sellerActualPostChange, createdByAddress: _contracts.Web3.TransactionManager.Account.Address);
         }
 
         [Fact]
-        public async void ShouldStoreAndRetrieveEshop()
+        public async void ShouldStoreRetrieveAndChangeEshop()
         {
             await Task.Delay(1);
             // Create an eShop to store
@@ -72,14 +96,35 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             };
 
             // Store eShop
-            var txReceipt = await _contracts.Deployment.BusinessPartnerStorageService.SetEshopRequestAndWaitForReceiptAsync(eShopExpected);
-            txReceipt.Status.Value.Should().Be(1);
+            var txReceiptCreate = await _contracts.Deployment.BusinessPartnerStorageService.SetEshopRequestAndWaitForReceiptAsync(eShopExpected);
+            txReceiptCreate.Status.Value.Should().Be(1);
+
+            // Check eShop create events
+            var logEshopCreateEvent = txReceiptCreate.DecodeAllEvents<EshopCreatedLogEventDTO>().FirstOrDefault();
+            logEshopCreateEvent.Should().NotBeNull();
+            logEshopCreateEvent.Event.EShopId.ConvertToString().Should().Be(eShopExpected.EShopId);
 
             // Retrieve eShop
             var eShopActual = (await _contracts.Deployment.BusinessPartnerStorageService.GetEshopQueryAsync(eShopExpected.EShopId)).EShop;
 
             // They should be the same
             CheckEveryEshopFieldMatches(eShopExpected, eShopActual, createdByAddress: _contracts.Web3.TransactionManager.Account.Address);
+
+            // Change eShop
+            eShopExpected.EShopDescription = "New description";
+            var txReceiptChange = await _contracts.Deployment.BusinessPartnerStorageService.SetEshopRequestAndWaitForReceiptAsync(eShopExpected);
+            txReceiptChange.Status.Value.Should().Be(1);
+
+            // Check eShop change events
+            var logEshopChangeEvent = txReceiptCreate.DecodeAllEvents<EshopCreatedLogEventDTO>().FirstOrDefault();
+            logEshopChangeEvent.Should().NotBeNull();
+            logEshopChangeEvent.Event.EShopId.ConvertToString().Should().BeEquivalentTo(eShopExpected.EShopId);
+
+            // Retrieve the updated eShop
+            var eShopActualPostChange = (await _contracts.Deployment.BusinessPartnerStorageService.GetEshopQueryAsync(eShopExpected.EShopId)).EShop;
+
+            // Check eshop values match
+            CheckEveryEshopFieldMatches(eShopExpected, eShopActualPostChange, createdByAddress: _contracts.Web3.TransactionManager.Account.Address);
         }
 
         [Fact]
