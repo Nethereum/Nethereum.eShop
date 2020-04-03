@@ -36,12 +36,17 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         /// Revert message during PO creation, for when a PO + signature does not resolve to any of the expected
         /// signer addresses held in eShop master data in BusinessPartnerStorage.sol 
         /// </summary>
-        public const string QUOTE_EXCEPTION_WRONG_SIGNER = "*Signature for quote does not match any expected signatures*";
+        public const string QUOTE_EXCEPTION_WRONG_SIG = "*Signature for quote does not match any expected signatures*";
 
         /// <summary>
         /// Revert message during PO creation, for when quote expiry date has passed
         /// </summary>
         public const string QUOTE_EXCEPTION_EXPIRY_PASSED = "*Quote expiry date has passed*";
+
+        /// <summary>
+        /// Revert message during PO creation, for when quote date has passed
+        /// </summary>
+        public const string QUOTE_EXCEPTION_QUOTE_IN_USE = "*Quote already in use*";
 
         /// <summary>
         /// Revert message when an attempt it made by BuyerWallet to set a PO item to goods received, and the msg.sender
@@ -66,6 +71,16 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         public const string PO_EXCEPTION_ESHOP_INACTIVE = "*eShop is inactive*";
 
         /// <summary>
+        /// Revert message when an attempt it made to create a PO but the eShop has no or missing master data
+        /// </summary>
+        public const string PO_EXCEPTION_ESHOP_NO_PURCH_ADD = "*eShop has no purchasing address*";
+
+        /// <summary>
+        /// Revert message when an attempt it made to create a PO but the eShop has no quote signers configured
+        /// </summary>
+        public const string PO_EXCEPTION_ESHOP_NO_SIGNERS = "*No quote signers found for eShop*";
+
+        /// <summary>
         /// Revert message when an attempt it made to access a non-existent PO
         /// </summary>
         public const string PO_EXCEPTION_NOT_EXIST = "*PO does not exist*";
@@ -81,9 +96,14 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         public const string BP_EXCEPTION_SELLER_MISSING_CONTRACT = "*Must specify an admin contract address*";
 
         /// <summary>
-        /// Revert message when an attempt is made to create a seller without an admin contract address. BP = business partner.
+        /// Revert message when an attempt is made to create an eshop without an admin contract address. BP = business partner.
         /// </summary>
         public const string BP_EXCEPTION_ESHOP_MISSING_PURCH_CONTRACT = "*Must specify a purchasing contract address*";
+
+        /// <summary>
+        /// Revert message when an attempt is made to create an eshop without any quote signers. BP = business partner.
+        /// </summary>
+        public const string BP_EXCEPTION_ESHOP_MISSING_SIGNERS = "*Must specify at least one quote signer address*";
 
         private static Random _random;
 
@@ -395,7 +415,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             return po;
 
         }
-        
+
         /// <summary>
         /// An unrealistic PO intended for writing directly to the PO storage contract PoStorage.sol (ie no validations are done on
         /// this data, it is written direct to storage only, so values like quote expiry date are not checked).

@@ -73,6 +73,9 @@ contract BuyerWallet is IBuyerWallet, Ownable, Bindable, StringConvertible
 
         // Purchasing contract does the creation
         purchasing.createPurchaseOrder(po, signature);
+        
+        // Creation was successful
+        emit QuoteConvertedToPoLog(po.eShopId, po.quoteId, po.sellerId);
     }
     
     function cancelPurchaseOrderItem(string calldata eShopIdString, uint poNumber, uint8 poItemNumber) override external
@@ -82,7 +85,7 @@ contract BuyerWallet is IBuyerWallet, Ownable, Bindable, StringConvertible
         IPoTypes.Eshop memory eShop = getAndValidateEshop(eShopId);
         IPurchasing purchasing = IPurchasing(eShop.purchasingContractAddress);
         
-        // Only the PO owner (BuyerAddress) can request PO item cancellation
+        // Only the PO owner (BuyerUserAddress) can request PO item cancellation
         IPoTypes.Po memory po = purchasing.getPo(poNumber);
         require(msg.sender == po.buyerUserAddress, "Only PO owner (BuyerUserAddress) can request item cancellation");
         
@@ -96,7 +99,7 @@ contract BuyerWallet is IBuyerWallet, Ownable, Bindable, StringConvertible
         IPoTypes.Eshop memory eShop = getAndValidateEshop(eShopId);
         IPurchasing purchasing = IPurchasing(eShop.purchasingContractAddress);
         
-        // Only the PO owner (BuyerAddress) can mark a PO as goods received. If they don't, eventually PO will time out 
+        // Only the PO owner (BuyerUserAddress) can mark a PO as goods received. If they don't, eventually PO will time out 
         // and the eShop admin will be able to mark PO as goods received instead.
         IPoTypes.Po memory po = purchasing.getPo(poNumber);
         require(msg.sender == po.buyerUserAddress, "Only PO owner (BuyerUserAddress) can say Goods Received");
@@ -106,7 +109,6 @@ contract BuyerWallet is IBuyerWallet, Ownable, Bindable, StringConvertible
     function getAndValidateEshop(bytes32 eShopId) private view returns (IPoTypes.Eshop memory validShop)
     {
         IPoTypes.Eshop memory eShop = bpStorage.getEshop(eShopId);
-        require(eShop.eShopId.length > 0, "eShop has no master data");
         require(eShop.purchasingContractAddress != address(0), "eShop has no purchasing address");
         require(eShop.quoteSignerCount > 0, "No quote signers found for eShop");
         return eShop;

@@ -221,7 +221,10 @@ namespace Nethereum.Commerce.Contracts.Deployment
                 Log();
                 contractName = CONTRACT_NAME_SELLER_ADMIN;
                 Log($"Deploying {contractName}...");
-                var sellerAdminDeployment = new SellerAdminDeployment() { ContractAddressOfRegistry = AddressRegistryService.ContractHandler.ContractAddress };
+                var sellerAdminDeployment = new SellerAdminDeployment() { 
+                    ContractAddressOfRegistry = AddressRegistryService.ContractHandler.ContractAddress,
+                    SellerIdString = ContractNewDeploymentConfig.Seller.SellerId,
+                };
                 SellerAdminService = await SellerAdminService.DeployContractAndGetServiceAsync(
                     _web3, sellerAdminDeployment).ConfigureAwait(false);
                 var sellerAdminOwner = await SellerAdminService.OwnerQueryAsync().ConfigureAwait(false);
@@ -384,20 +387,19 @@ namespace Nethereum.Commerce.Contracts.Deployment
                 Log($"Tx status: {txReceipt.Status.Value}");
 
                 //-----------------------------------------------------------------------------------
-                // Configure Wallet Seller
+                // Configure Seller Admin
                 //-----------------------------------------------------------------------------------
                 Log();
-                Log($"Configuring Wallet Seller...");
+                Log($"Configuring Seller Admin...");
                 txReceipt = await SellerAdminService.ConfigureRequestAndWaitForReceiptAsync(
-                    ContractNewDeploymentConfig.Seller.SellerId, CONTRACT_NAME_BUSINESS_PARTNER_STORAGE)
-                    .ConfigureAwait(false);
+                    CONTRACT_NAME_BUSINESS_PARTNER_STORAGE).ConfigureAwait(false);
                 Log($"Tx status: {txReceipt.Status.Value}");
 
                 //-----------------------------------------------------------------------------------
-                // Configure Wallet Buyer
+                // Configure Buyer Wallet
                 //-----------------------------------------------------------------------------------
                 Log();
-                Log($"Configuring Wallet Buyer...");
+                Log($"Configuring Buyer Wallet...");
                 txReceipt = await BuyerWalletService.ConfigureRequestAndWaitForReceiptAsync(
                     CONTRACT_NAME_BUSINESS_PARTNER_STORAGE).ConfigureAwait(false);
                 Log($"Tx status: {txReceipt.Status.Value}");
