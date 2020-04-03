@@ -43,6 +43,7 @@ Supported values are:
 * InMemory
 * SqlServer
 * Sqlite
+* MySql
 
 ``` json
   "ConnectionStrings": {
@@ -50,6 +51,8 @@ Supported values are:
     "IdentityConnection_SqlServer": "Server=localhost;Integrated Security=true;Initial Catalog=eShop;",
     "CatalogConnection_Sqlite": "Data Source=C:/temp/eshop_catalog.db",
     "IdentityConnection_Sqlite": "Data Source=C:/temp/eshop_app_identity.db",
+    "CatalogConnection_MySql": "server=localhost;database=eShop;user=eShop;password=oDEcHyOmr1ujVIWLBtQp;Allow User Variables=True",
+    "IdentityConnection_MySql": "server=localhost;database=eShop;user=eShop;password=oDEcHyOmr1ujVIWLBtQp;Allow User Variables=True",    
     "BlockchainProcessingProgressDb": "Server=localhost\\sqldev;Integrated Security=true;Initial Catalog=eShopWebJobs;"
   },
   "CatalogDbProvider": "SqlServer",
