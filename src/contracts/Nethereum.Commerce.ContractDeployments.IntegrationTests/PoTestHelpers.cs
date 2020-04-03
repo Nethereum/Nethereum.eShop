@@ -49,47 +49,52 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         public const string QUOTE_EXCEPTION_QUOTE_IN_USE = "*Quote already in use*";
 
         /// <summary>
-        /// Revert message when an attempt it made by BuyerWallet to set a PO item to goods received, and the msg.sender
+        /// Revert message when an attempt is made by BuyerWallet to set a PO item to goods received, and the msg.sender
         /// is not the PO owner / BuyerAddress
         /// </summary>
         public const string GOODS_RECEIPT_EXCEPTION_NOT_PO_OWNER = "*Only PO owner (BuyerUserAddress) can say Goods Received*";
 
         /// <summary>
-        /// Revert message when an attempt it made by SellerAdmin to set a PO item to goods received, but not enough
+        /// Revert message when an attempt is made by SellerAdmin to set a PO item to goods received, but not enough
         /// days have passed since PO item was goods issued.
         /// </summary>
         public const string GOODS_RECEIPT_EXCEPTION_INSUFFICIENT_DAYS = "*Seller cannot set goods received: insufficient days passed*";
 
         /// <summary>
-        /// Revert message when an attempt it made to create a PO but the seller is inactive
+        /// Revert message when an attempt is made to create a PO but the seller is inactive
         /// </summary>
         public const string PO_EXCEPTION_SELLER_INACTIVE = "*Seller is inactive*";
 
         /// <summary>
-        /// Revert message when an attempt it made to create a PO but the eShop is inactive
+        /// Revert message when an attempt is made to create a PO but the eShop is inactive
         /// </summary>
         public const string PO_EXCEPTION_ESHOP_INACTIVE = "*eShop is inactive*";
 
         /// <summary>
-        /// Revert message when an attempt it made to create a PO but the eShop has no or missing master data
+        /// Revert message when an attempt is made to create a PO but the eShop has no or missing master data
         /// </summary>
         public const string PO_EXCEPTION_ESHOP_NO_PURCH_ADD = "*eShop has no purchasing address*";
 
         /// <summary>
-        /// Revert message when an attempt it made to create a PO but the eShop has no quote signers configured
+        /// Revert message when an attempt is made to create a PO but the eShop has no quote signers configured
         /// </summary>
         public const string PO_EXCEPTION_ESHOP_NO_SIGNERS = "*No quote signers found for eShop*";
 
         /// <summary>
-        /// Revert message when an attempt it made to access a non-existent PO
+        /// Revert message when an attempt is made to access a non-existent PO
         /// </summary>
         public const string PO_EXCEPTION_NOT_EXIST = "*PO does not exist*";
 
         /// <summary>
-        /// Revert message when an attempt it made to access a non-existent PO item
+        /// Revert message when an attempt is made to access a non-existent PO item
         /// </summary>
         public const string PO_ITEM_EXCEPTION_NOT_EXIST = "*PO item does not exist*";
 
+        /// <summary>
+        /// Revert message when an attempt is made to call a function that can only be called from an eShop contract
+        /// </summary>
+        public const string ESHOP_EXCEPTION_FUNCTION_ONLY_CALLABLE_BY_ESHOP = "*Function can only be called by eShop*";
+        
         /// <summary>
         /// Revert message when an attempt is made to create a seller without an admin contract address. BP = business partner.
         /// </summary>

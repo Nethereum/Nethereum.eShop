@@ -168,6 +168,14 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             // Retrieve PO as-built and check
             var poAsBuilt = await GetPoFromSellerContractAndDisplayAsync(poAsRequested.EShopId, poNumberAsBuilt);
             CheckCreatedPoFieldsMatch(poAsRequested.ToStoragePo(), poAsBuilt.ToStoragePo(), poNumberAsBuilt);
+
+            // Check PO create event from SellerAdmin contract
+            var logQuoteConvertedToPo = txReceiptCreate.DecodeAllEvents<Seller.QuoteConvertedToPoLogEventDTO>().FirstOrDefault();
+            logQuoteConvertedToPo.Should().NotBeNull();  // <= Quote converted ok
+            // Check event fields
+            logQuoteConvertedToPo.Event.EShopId.ConvertToString().Should().Be(poAsRequested.EShopId);
+            logQuoteConvertedToPo.Event.QuoteId.Should().Be(poAsRequested.QuoteId);
+            logQuoteConvertedToPo.Event.BuyerWalletAddress.Should().Be(poAsRequested.BuyerWalletAddress);
         }
 
         [Fact]

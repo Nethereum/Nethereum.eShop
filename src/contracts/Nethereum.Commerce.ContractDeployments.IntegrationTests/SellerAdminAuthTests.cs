@@ -55,6 +55,24 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             act.Should().Throw<SmartContractRevertException>().WithMessage(AUTH_EXCEPTION_ONLY_OWNER);
         }
 
+        [Fact]
+        public async void ShouldNotAllowNonEshopToCallEmitEventForNewPo()
+        {
+            // SellerAdmin has a fn emitEventForNewPo that is called by Purchasing.sol when a shop successfully
+            // raises a new PO. If a non-shop address tries to call the fn directly then the tx should revert.
+
+            // Prepare a new PO and create it            
+            Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId: GetRandomInt());
+            var signature = poAsRequested.GetSignatureBytes(_contracts.Web3);
+            await PrepSendFundsToBuyerWalletForPo(_contracts.Web3, poAsRequested);
+            var txReceiptCreate = await _contracts.Deployment.BuyerWalletService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
+            txReceiptCreate.Status.Value.Should().Be(1);
+
+            // Direct call of the SellerAdmin.sol function EmitEventForNewPoRequest should fail, since the caller is not an eShop
+            Func<Task> act = async () => await _contracts.Deployment.SellerAdminService.EmitEventForNewPoRequestAndWaitForReceiptAsync(poAsRequested.ToSellerPo());
+            act.Should().Throw<SmartContractRevertException>().WithMessage(ESHOP_EXCEPTION_FUNCTION_ONLY_CALLABLE_BY_ESHOP);
+        }
+
         private async Task<Buyer.Po> CreateBuyerPoAsync(uint quoteId)
         {
             return CreatePoForPurchasingContracts(
