@@ -2,6 +2,7 @@ pragma solidity ^0.6.1;
 pragma experimental ABIEncoderV2;
 
 import "./IPurchasing.sol";
+import "./ISellerAdmin.sol";
 import "./IPoTypes.sol";
 import "./IErc20.sol";
 import "./IPoStorage.sol";
@@ -153,6 +154,10 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
         // Record the new PO as it was stored
         IPoTypes.Po memory poAsStored = poStorage.getPo(po.poNumber);
         emit PurchaseOrderCreatedLog(poAsStored.buyerWalletAddress, poAsStored.sellerId, poAsStored.poNumber, poAsStored);
+        
+        // Tell seller a new PO has arrive
+        ISellerAdmin sellerAdminContract = ISellerAdmin(seller.adminContractAddress);
+        sellerAdminContract.emitEventForNewPo(poAsStored);
     }
     
     function getFeeBasisPoints() override external pure returns (uint)

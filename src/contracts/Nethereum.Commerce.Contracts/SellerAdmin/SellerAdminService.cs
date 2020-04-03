@@ -140,22 +140,46 @@ namespace Nethereum.Commerce.Contracts.SellerAdmin
              return ContractHandler.SendRequestAndWaitForReceiptAsync(configureFunction, cancellationToken);
         }
 
-        public Task<string> ConfigureRequestAsync(string sellerIdString, string nameOfBusinessPartnerStorage)
+        public Task<string> ConfigureRequestAsync(string nameOfBusinessPartnerStorage)
         {
             var configureFunction = new ConfigureFunction();
-                configureFunction.SellerIdString = sellerIdString;
                 configureFunction.NameOfBusinessPartnerStorage = nameOfBusinessPartnerStorage;
             
              return ContractHandler.SendRequestAsync(configureFunction);
         }
 
-        public Task<TransactionReceipt> ConfigureRequestAndWaitForReceiptAsync(string sellerIdString, string nameOfBusinessPartnerStorage, CancellationTokenSource cancellationToken = null)
+        public Task<TransactionReceipt> ConfigureRequestAndWaitForReceiptAsync(string nameOfBusinessPartnerStorage, CancellationTokenSource cancellationToken = null)
         {
             var configureFunction = new ConfigureFunction();
-                configureFunction.SellerIdString = sellerIdString;
                 configureFunction.NameOfBusinessPartnerStorage = nameOfBusinessPartnerStorage;
             
              return ContractHandler.SendRequestAndWaitForReceiptAsync(configureFunction, cancellationToken);
+        }
+
+        public Task<string> EmitEventForNewPoRequestAsync(EmitEventForNewPoFunction emitEventForNewPoFunction)
+        {
+             return ContractHandler.SendRequestAsync(emitEventForNewPoFunction);
+        }
+
+        public Task<TransactionReceipt> EmitEventForNewPoRequestAndWaitForReceiptAsync(EmitEventForNewPoFunction emitEventForNewPoFunction, CancellationTokenSource cancellationToken = null)
+        {
+             return ContractHandler.SendRequestAndWaitForReceiptAsync(emitEventForNewPoFunction, cancellationToken);
+        }
+
+        public Task<string> EmitEventForNewPoRequestAsync(Po po)
+        {
+            var emitEventForNewPoFunction = new EmitEventForNewPoFunction();
+                emitEventForNewPoFunction.Po = po;
+            
+             return ContractHandler.SendRequestAsync(emitEventForNewPoFunction);
+        }
+
+        public Task<TransactionReceipt> EmitEventForNewPoRequestAndWaitForReceiptAsync(Po po, CancellationTokenSource cancellationToken = null)
+        {
+            var emitEventForNewPoFunction = new EmitEventForNewPoFunction();
+                emitEventForNewPoFunction.Po = po;
+            
+             return ContractHandler.SendRequestAndWaitForReceiptAsync(emitEventForNewPoFunction, cancellationToken);
         }
 
         public Task<GetPoOutputDTO> GetPoQueryAsync(GetPoFunction getPoFunction, BlockParameter blockParameter = null)
