@@ -14,20 +14,21 @@ import "./StringConvertible.sol";
 /// @title BuyerWallet
 contract BuyerWallet is IBuyerWallet, Ownable, Bindable, StringConvertible
 {
-    IAddressRegistry public addressRegistry;
-    IBusinessPartnerStorage public bpStorage;
+    // Global data
+    IAddressRegistry public addressRegistryGlobal;
+    IBusinessPartnerStorage public bpStorageGlobal;
     
-    constructor (address contractAddressOfRegistry) public
+    constructor (address contractAddressOfRegistryGlobal) public
     {
-        addressRegistry = IAddressRegistry(contractAddressOfRegistry);
+        addressRegistryGlobal = IAddressRegistry(contractAddressOfRegistryGlobal);
     } 
     
     // Contract setup
-    function configure(string calldata nameOfBusinessPartnerStorage) onlyOwner() override external
+    function configure(string calldata nameOfBusinessPartnerStorageGlobal) onlyOwner() override external
     {
         // Lookup address registry to find the global repo for business partners
-        bpStorage = IBusinessPartnerStorage(addressRegistry.getAddressString(nameOfBusinessPartnerStorage));
-        require(address(bpStorage) != address(0), "Could not find Business Partner Storage contract address in registry");
+        bpStorageGlobal = IBusinessPartnerStorage(addressRegistryGlobal.getAddressString(nameOfBusinessPartnerStorageGlobal));
+        require(address(bpStorageGlobal) != address(0), "Could not find Business Partner Storage contract address in registry");
     }
     
     // Purchasing
@@ -108,7 +109,7 @@ contract BuyerWallet is IBuyerWallet, Ownable, Bindable, StringConvertible
     
     function getAndValidateEshop(bytes32 eShopId) private view returns (IPoTypes.Eshop memory validShop)
     {
-        IPoTypes.Eshop memory eShop = bpStorage.getEshop(eShopId);
+        IPoTypes.Eshop memory eShop = bpStorageGlobal.getEshop(eShopId);
         require(eShop.purchasingContractAddress != address(0), "eShop has no purchasing address");
         require(eShop.quoteSignerCount > 0, "No quote signers found for eShop");
         return eShop;

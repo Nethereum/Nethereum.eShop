@@ -28,7 +28,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         public async void ShouldNotBeAbleToChangeOwnerWhenNotOwner()
         {
             await Task.Delay(1);
-            var fs = new FundingService(_contracts.Web3SecondaryUser, _contracts.Deployment.FundingService.ContractHandler.ContractAddress);
+            var fs = new FundingService(_contracts.Web3SecondaryUser, _contracts.Deployment.FundingServiceLocal.ContractHandler.ContractAddress);
             Func<Task> act = async () => await fs.TransferOwnershipRequestAndWaitForReceiptAsync(_contracts.Web3SecondaryUser.TransactionManager.Account.Address);
             act.Should().Throw<SmartContractRevertException>().WithMessage(AUTH_EXCEPTION_ONLY_OWNER);
         }
@@ -39,7 +39,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             // Try to transfer funds for a PO using preexisting Funding contract, but with tx executed by the non-authorised ("secondary") user
             // PO may or may not exist, exception thrown will be before PO existence check
             await Task.Delay(1);
-            var fs = new FundingService(_contracts.Web3SecondaryUser, _contracts.Deployment.FundingService.ContractHandler.ContractAddress);
+            var fs = new FundingService(_contracts.Web3SecondaryUser, _contracts.Deployment.FundingServiceLocal.ContractHandler.ContractAddress);
             Func<Task> act1 = async () => await fs.TransferInFundsForPoFromBuyerWalletRequestAndWaitForReceiptAsync(1);
             act1.Should().Throw<SmartContractRevertException>().WithMessage(AUTH_EXCEPTION_ONLY_REGISTERED);
 

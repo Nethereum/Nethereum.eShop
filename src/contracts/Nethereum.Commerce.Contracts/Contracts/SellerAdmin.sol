@@ -13,29 +13,32 @@ import "./StringConvertible.sol";
 /// @title SellerAdmin
 contract SellerAdmin is ISellerAdmin, Ownable, Bindable, StringConvertible
 {
-    IAddressRegistry public addressRegistry;
-    IBusinessPartnerStorage public bpStorage;
+    // Global data (shared by all eShops)
+    IAddressRegistry public addressRegistryGlobal;
+    IBusinessPartnerStorage public bpStorageGlobal;
+    
+    // Local data (for this Seller)
     bytes32 public sellerId;
 
-    constructor (address contractAddressOfRegistry, string memory sellerIdString) public
+    constructor (address contractAddressOfRegistryGlobal, string memory sellerIdString) public
     {
-        addressRegistry = IAddressRegistry(contractAddressOfRegistry);
+        addressRegistryGlobal = IAddressRegistry(contractAddressOfRegistryGlobal);
         sellerId = stringToBytes32(sellerIdString);
     }
     
     // Contract setup
-    function configure(string calldata nameOfBusinessPartnerStorage) onlyOwner() override external
+    function configure(string calldata nameOfBusinessPartnerStorageGlobal) onlyOwner() override external
     {
         // Lookup address registry to find the global repo for business partners
-        bpStorage = IBusinessPartnerStorage(addressRegistry.getAddressString(nameOfBusinessPartnerStorage));
-        require(address(bpStorage) != address(0), "Could not find Business Partner Storage contract address in registry");
+        bpStorageGlobal = IBusinessPartnerStorage(addressRegistryGlobal.getAddressString(nameOfBusinessPartnerStorageGlobal));
+        require(address(bpStorageGlobal) != address(0), "Could not find Business Partner Storage contract address in registry");
     }
     
     // Purchasing
     /// @notice This function can only be called by the eShop (Purchasing.sol) for the given PO 
     function emitEventForNewPo(IPoTypes.Po calldata po) override external
     {
-        // Don't trust the PO being passed, use the eShopId to lookup the Purchasing.sol address
+        // Don't trust the PO being passed, use the eShopId to lookup the Purchasing.sol address in the global store
         IPoTypes.Eshop memory eShop = getAndValidateEshop(po.eShopId);
         require(eShop.purchasingContractAddress == msg.sender, "Function can only be called by eShop");
         emit QuoteConvertedToPoLog(po.eShopId, po.quoteId, po.buyerWalletAddress);
@@ -122,7 +125,7 @@ contract SellerAdmin is ISellerAdmin, Ownable, Bindable, StringConvertible
     
     function getAndValidateEshop(bytes32 eShopId) private view returns (IPoTypes.Eshop memory validShop)
     {
-        IPoTypes.Eshop memory eShop = bpStorage.getEshop(eShopId);
+        IPoTypes.Eshop memory eShop = bpStorageGlobal.getEshop(eShopId);
         require(eShop.purchasingContractAddress != address(0), "eShop has no purchasing address");
         require(eShop.quoteSignerCount > 0, "No quote signers found for eShop");
         return eShop;

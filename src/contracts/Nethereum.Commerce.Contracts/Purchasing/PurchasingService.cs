@@ -67,15 +67,26 @@ namespace Nethereum.Commerce.Contracts.Purchasing
             return ContractHandler.QueryAsync<BoundAddressesFunction, bool>(boundAddressesFunction, blockParameter);
         }
 
-        public Task<string> AddressRegistryQueryAsync(AddressRegistryFunction addressRegistryFunction, BlockParameter blockParameter = null)
+        public Task<string> AddressRegistryGlobalQueryAsync(AddressRegistryGlobalFunction addressRegistryGlobalFunction, BlockParameter blockParameter = null)
         {
-            return ContractHandler.QueryAsync<AddressRegistryFunction, string>(addressRegistryFunction, blockParameter);
+            return ContractHandler.QueryAsync<AddressRegistryGlobalFunction, string>(addressRegistryGlobalFunction, blockParameter);
         }
 
         
-        public Task<string> AddressRegistryQueryAsync(BlockParameter blockParameter = null)
+        public Task<string> AddressRegistryGlobalQueryAsync(BlockParameter blockParameter = null)
         {
-            return ContractHandler.QueryAsync<AddressRegistryFunction, string>(null, blockParameter);
+            return ContractHandler.QueryAsync<AddressRegistryGlobalFunction, string>(null, blockParameter);
+        }
+
+        public Task<string> AddressRegistryLocalQueryAsync(AddressRegistryLocalFunction addressRegistryLocalFunction, BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<AddressRegistryLocalFunction, string>(addressRegistryLocalFunction, blockParameter);
+        }
+
+        
+        public Task<string> AddressRegistryLocalQueryAsync(BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<AddressRegistryLocalFunction, string>(null, blockParameter);
         }
 
         public Task<string> BindAddressRequestAsync(BindAddressFunction bindAddressFunction)
@@ -104,15 +115,15 @@ namespace Nethereum.Commerce.Contracts.Purchasing
              return ContractHandler.SendRequestAndWaitForReceiptAsync(bindAddressFunction, cancellationToken);
         }
 
-        public Task<string> BpStorageQueryAsync(BpStorageFunction bpStorageFunction, BlockParameter blockParameter = null)
+        public Task<string> BpStorageGlobalQueryAsync(BpStorageGlobalFunction bpStorageGlobalFunction, BlockParameter blockParameter = null)
         {
-            return ContractHandler.QueryAsync<BpStorageFunction, string>(bpStorageFunction, blockParameter);
+            return ContractHandler.QueryAsync<BpStorageGlobalFunction, string>(bpStorageGlobalFunction, blockParameter);
         }
 
         
-        public Task<string> BpStorageQueryAsync(BlockParameter blockParameter = null)
+        public Task<string> BpStorageGlobalQueryAsync(BlockParameter blockParameter = null)
         {
-            return ContractHandler.QueryAsync<BpStorageFunction, string>(null, blockParameter);
+            return ContractHandler.QueryAsync<BpStorageGlobalFunction, string>(null, blockParameter);
         }
 
         public Task<string> Bytes32ToStringQueryAsync(Bytes32ToStringFunction bytes32ToStringFunction, BlockParameter blockParameter = null)
@@ -168,22 +179,22 @@ namespace Nethereum.Commerce.Contracts.Purchasing
              return ContractHandler.SendRequestAndWaitForReceiptAsync(configureFunction, cancellationToken);
         }
 
-        public Task<string> ConfigureRequestAsync(string nameOfPoStorage, string nameOfBusinessPartnerStorage, string nameOfFunding)
+        public Task<string> ConfigureRequestAsync(string nameOfBusinessPartnerStorageGlobal, string nameOfPoStorageLocal, string nameOfFundingLocal)
         {
             var configureFunction = new ConfigureFunction();
-                configureFunction.NameOfPoStorage = nameOfPoStorage;
-                configureFunction.NameOfBusinessPartnerStorage = nameOfBusinessPartnerStorage;
-                configureFunction.NameOfFunding = nameOfFunding;
+                configureFunction.NameOfBusinessPartnerStorageGlobal = nameOfBusinessPartnerStorageGlobal;
+                configureFunction.NameOfPoStorageLocal = nameOfPoStorageLocal;
+                configureFunction.NameOfFundingLocal = nameOfFundingLocal;
             
              return ContractHandler.SendRequestAsync(configureFunction);
         }
 
-        public Task<TransactionReceipt> ConfigureRequestAndWaitForReceiptAsync(string nameOfPoStorage, string nameOfBusinessPartnerStorage, string nameOfFunding, CancellationTokenSource cancellationToken = null)
+        public Task<TransactionReceipt> ConfigureRequestAndWaitForReceiptAsync(string nameOfBusinessPartnerStorageGlobal, string nameOfPoStorageLocal, string nameOfFundingLocal, CancellationTokenSource cancellationToken = null)
         {
             var configureFunction = new ConfigureFunction();
-                configureFunction.NameOfPoStorage = nameOfPoStorage;
-                configureFunction.NameOfBusinessPartnerStorage = nameOfBusinessPartnerStorage;
-                configureFunction.NameOfFunding = nameOfFunding;
+                configureFunction.NameOfBusinessPartnerStorageGlobal = nameOfBusinessPartnerStorageGlobal;
+                configureFunction.NameOfPoStorageLocal = nameOfPoStorageLocal;
+                configureFunction.NameOfFundingLocal = nameOfFundingLocal;
             
              return ContractHandler.SendRequestAndWaitForReceiptAsync(configureFunction, cancellationToken);
         }
@@ -227,15 +238,15 @@ namespace Nethereum.Commerce.Contracts.Purchasing
             return ContractHandler.QueryAsync<EShopIdFunction, byte[]>(null, blockParameter);
         }
 
-        public Task<string> FundingQueryAsync(FundingFunction fundingFunction, BlockParameter blockParameter = null)
+        public Task<string> FundingLocalQueryAsync(FundingLocalFunction fundingLocalFunction, BlockParameter blockParameter = null)
         {
-            return ContractHandler.QueryAsync<FundingFunction, string>(fundingFunction, blockParameter);
+            return ContractHandler.QueryAsync<FundingLocalFunction, string>(fundingLocalFunction, blockParameter);
         }
 
         
-        public Task<string> FundingQueryAsync(BlockParameter blockParameter = null)
+        public Task<string> FundingLocalQueryAsync(BlockParameter blockParameter = null)
         {
-            return ContractHandler.QueryAsync<FundingFunction, string>(null, blockParameter);
+            return ContractHandler.QueryAsync<FundingLocalFunction, string>(null, blockParameter);
         }
 
         public Task<BigInteger> GetEscrowTimeoutDaysQueryAsync(GetEscrowTimeoutDaysFunction getEscrowTimeoutDaysFunction, BlockParameter blockParameter = null)
@@ -334,15 +345,15 @@ namespace Nethereum.Commerce.Contracts.Purchasing
             return ContractHandler.QueryAsync<OwnerFunction, string>(null, blockParameter);
         }
 
-        public Task<string> PoStorageQueryAsync(PoStorageFunction poStorageFunction, BlockParameter blockParameter = null)
+        public Task<string> PoStorageLocalQueryAsync(PoStorageLocalFunction poStorageLocalFunction, BlockParameter blockParameter = null)
         {
-            return ContractHandler.QueryAsync<PoStorageFunction, string>(poStorageFunction, blockParameter);
+            return ContractHandler.QueryAsync<PoStorageLocalFunction, string>(poStorageLocalFunction, blockParameter);
         }
 
         
-        public Task<string> PoStorageQueryAsync(BlockParameter blockParameter = null)
+        public Task<string> PoStorageLocalQueryAsync(BlockParameter blockParameter = null)
         {
-            return ContractHandler.QueryAsync<PoStorageFunction, string>(null, blockParameter);
+            return ContractHandler.QueryAsync<PoStorageLocalFunction, string>(null, blockParameter);
         }
 
         public Task<string> SetPoItemAcceptedRequestAsync(SetPoItemAcceptedFunction setPoItemAcceptedFunction)

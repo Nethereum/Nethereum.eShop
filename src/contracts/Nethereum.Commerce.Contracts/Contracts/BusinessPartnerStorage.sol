@@ -10,7 +10,7 @@ import "./StringConvertible.sol";
 contract BusinessPartnerStorage is IBusinessPartnerStorage, Ownable, StringConvertible
 {
     // Client is hashed into every key to avoid collisions with other contracts using the same eternal storage
-    string constant private CLIENT = "GlobalBpStorage"; 
+    string constant private CLIENT = "BpStorage"; 
     
     // eShop
     string constant private DATA_ESHOP = "eShop";

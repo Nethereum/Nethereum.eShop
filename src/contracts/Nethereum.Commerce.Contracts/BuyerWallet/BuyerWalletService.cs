@@ -67,15 +67,15 @@ namespace Nethereum.Commerce.Contracts.BuyerWallet
             return ContractHandler.QueryAsync<BoundAddressesFunction, bool>(boundAddressesFunction, blockParameter);
         }
 
-        public Task<string> AddressRegistryQueryAsync(AddressRegistryFunction addressRegistryFunction, BlockParameter blockParameter = null)
+        public Task<string> AddressRegistryGlobalQueryAsync(AddressRegistryGlobalFunction addressRegistryGlobalFunction, BlockParameter blockParameter = null)
         {
-            return ContractHandler.QueryAsync<AddressRegistryFunction, string>(addressRegistryFunction, blockParameter);
+            return ContractHandler.QueryAsync<AddressRegistryGlobalFunction, string>(addressRegistryGlobalFunction, blockParameter);
         }
 
         
-        public Task<string> AddressRegistryQueryAsync(BlockParameter blockParameter = null)
+        public Task<string> AddressRegistryGlobalQueryAsync(BlockParameter blockParameter = null)
         {
-            return ContractHandler.QueryAsync<AddressRegistryFunction, string>(null, blockParameter);
+            return ContractHandler.QueryAsync<AddressRegistryGlobalFunction, string>(null, blockParameter);
         }
 
         public Task<string> BindAddressRequestAsync(BindAddressFunction bindAddressFunction)
@@ -104,15 +104,15 @@ namespace Nethereum.Commerce.Contracts.BuyerWallet
              return ContractHandler.SendRequestAndWaitForReceiptAsync(bindAddressFunction, cancellationToken);
         }
 
-        public Task<string> BpStorageQueryAsync(BpStorageFunction bpStorageFunction, BlockParameter blockParameter = null)
+        public Task<string> BpStorageGlobalQueryAsync(BpStorageGlobalFunction bpStorageGlobalFunction, BlockParameter blockParameter = null)
         {
-            return ContractHandler.QueryAsync<BpStorageFunction, string>(bpStorageFunction, blockParameter);
+            return ContractHandler.QueryAsync<BpStorageGlobalFunction, string>(bpStorageGlobalFunction, blockParameter);
         }
 
         
-        public Task<string> BpStorageQueryAsync(BlockParameter blockParameter = null)
+        public Task<string> BpStorageGlobalQueryAsync(BlockParameter blockParameter = null)
         {
-            return ContractHandler.QueryAsync<BpStorageFunction, string>(null, blockParameter);
+            return ContractHandler.QueryAsync<BpStorageGlobalFunction, string>(null, blockParameter);
         }
 
         public Task<string> Bytes32ToStringQueryAsync(Bytes32ToStringFunction bytes32ToStringFunction, BlockParameter blockParameter = null)
@@ -170,18 +170,18 @@ namespace Nethereum.Commerce.Contracts.BuyerWallet
              return ContractHandler.SendRequestAndWaitForReceiptAsync(configureFunction, cancellationToken);
         }
 
-        public Task<string> ConfigureRequestAsync(string nameOfBusinessPartnerStorage)
+        public Task<string> ConfigureRequestAsync(string nameOfBusinessPartnerStorageGlobal)
         {
             var configureFunction = new ConfigureFunction();
-                configureFunction.NameOfBusinessPartnerStorage = nameOfBusinessPartnerStorage;
+                configureFunction.NameOfBusinessPartnerStorageGlobal = nameOfBusinessPartnerStorageGlobal;
             
              return ContractHandler.SendRequestAsync(configureFunction);
         }
 
-        public Task<TransactionReceipt> ConfigureRequestAndWaitForReceiptAsync(string nameOfBusinessPartnerStorage, CancellationTokenSource cancellationToken = null)
+        public Task<TransactionReceipt> ConfigureRequestAndWaitForReceiptAsync(string nameOfBusinessPartnerStorageGlobal, CancellationTokenSource cancellationToken = null)
         {
             var configureFunction = new ConfigureFunction();
-                configureFunction.NameOfBusinessPartnerStorage = nameOfBusinessPartnerStorage;
+                configureFunction.NameOfBusinessPartnerStorageGlobal = nameOfBusinessPartnerStorageGlobal;
             
              return ContractHandler.SendRequestAndWaitForReceiptAsync(configureFunction, cancellationToken);
         }

@@ -41,7 +41,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         public async void ShouldFailToSetStatusOnNonExistentPo()
         {
             // PO 12345 shouldn't exist
-            var eShopId = await _contracts.Deployment.PurchasingService.EShopIdQueryAsync();
+            var eShopId = await _contracts.Deployment.PurchasingServiceLocal.EShopIdQueryAsync();
             Func<Task> act = async () => await _contracts.Deployment.SellerAdminService.SetPoItemAcceptedRequestAndWaitForReceiptAsync(
                 eShopId.ConvertToString(), 12345, 1, SALES_ORDER_NUMBER, SALES_ORDER_ITEM);
             act.Should().Throw<SmartContractRevertException>().WithMessage(PO_EXCEPTION_NOT_EXIST);

@@ -41,16 +41,16 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             };
 
             // Store Seller
-            var txReceipt = await _contracts.Deployment.BusinessPartnerStorageService.SetSellerRequestAndWaitForReceiptAsync(sellerExpected);
+            var txReceipt = await _contracts.Deployment.BusinessPartnerStorageServiceGlobal.SetSellerRequestAndWaitForReceiptAsync(sellerExpected);
             txReceipt.Status.Value.Should().Be(1);
 
             // Change Seller
             sellerExpected.SellerDescription = "New description";
-            txReceipt = await _contracts.Deployment.BusinessPartnerStorageService.SetSellerRequestAndWaitForReceiptAsync(sellerExpected);
+            txReceipt = await _contracts.Deployment.BusinessPartnerStorageServiceGlobal.SetSellerRequestAndWaitForReceiptAsync(sellerExpected);
             txReceipt.Status.Value.Should().Be(1);
 
             // Retrieve Seller
-            var sellerActualPostChange = (await _contracts.Deployment.BusinessPartnerStorageService.GetSellerQueryAsync(sellerExpected.SellerId)).Seller;
+            var sellerActualPostChange = (await _contracts.Deployment.BusinessPartnerStorageServiceGlobal.GetSellerQueryAsync(sellerExpected.SellerId)).Seller;
 
             // They should be the same
             CheckEverySellerFieldMatches(sellerExpected, sellerActualPostChange, createdByAddress: _contracts.Web3.TransactionManager.Account.Address);
@@ -76,16 +76,16 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             };
 
             // Store eShop
-            var txReceipt = await _contracts.Deployment.BusinessPartnerStorageService.SetEshopRequestAndWaitForReceiptAsync(eShopExpected);
+            var txReceipt = await _contracts.Deployment.BusinessPartnerStorageServiceGlobal.SetEshopRequestAndWaitForReceiptAsync(eShopExpected);
             txReceipt.Status.Value.Should().Be(1);
 
             // Change eShop
             eShopExpected.EShopDescription = "New description";
-            txReceipt = await _contracts.Deployment.BusinessPartnerStorageService.SetEshopRequestAndWaitForReceiptAsync(eShopExpected);
+            txReceipt = await _contracts.Deployment.BusinessPartnerStorageServiceGlobal.SetEshopRequestAndWaitForReceiptAsync(eShopExpected);
             txReceipt.Status.Value.Should().Be(1);
 
             // Retrieve eShop
-            var eShopActualPostChange = (await _contracts.Deployment.BusinessPartnerStorageService.GetEshopQueryAsync(eShopExpected.EShopId)).EShop;
+            var eShopActualPostChange = (await _contracts.Deployment.BusinessPartnerStorageServiceGlobal.GetEshopQueryAsync(eShopExpected.EShopId)).EShop;
 
             // They should be the same
             CheckEveryEshopFieldMatches(eShopExpected, eShopActualPostChange, createdByAddress: _contracts.Web3.TransactionManager.Account.Address);
@@ -106,12 +106,12 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             };
 
             // Store Seller
-            var txReceipt = await _contracts.Deployment.BusinessPartnerStorageService.SetSellerRequestAndWaitForReceiptAsync(sellerExpected);
+            var txReceipt = await _contracts.Deployment.BusinessPartnerStorageServiceGlobal.SetSellerRequestAndWaitForReceiptAsync(sellerExpected);
             txReceipt.Status.Value.Should().Be(1);
 
             // Try to change Seller using preexisting bp storage service contract, but with tx executed by a different ("secondary") user
             sellerExpected.SellerDescription = "New description";
-            var bpss = new BusinessPartnerStorageService(_contracts.Web3SecondaryUser, _contracts.Deployment.BusinessPartnerStorageService.ContractHandler.ContractAddress);
+            var bpss = new BusinessPartnerStorageService(_contracts.Web3SecondaryUser, _contracts.Deployment.BusinessPartnerStorageServiceGlobal.ContractHandler.ContractAddress);
             Func<Task> act = async () => await bpss.SetSellerRequestAndWaitForReceiptAsync(sellerExpected);
             act.Should().Throw<SmartContractRevertException>().WithMessage(AUTH_EXCEPTION_ONLY_CREATEDBY);
         }
@@ -136,12 +136,12 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             };
 
             // Store eShop
-            var txReceipt = await _contracts.Deployment.BusinessPartnerStorageService.SetEshopRequestAndWaitForReceiptAsync(eShopExpected);
+            var txReceipt = await _contracts.Deployment.BusinessPartnerStorageServiceGlobal.SetEshopRequestAndWaitForReceiptAsync(eShopExpected);
             txReceipt.Status.Value.Should().Be(1);
 
             // Try to change eShop using preexisting bp storage service contract, but with tx executed by a different ("secondary") user
             eShopExpected.EShopDescription = "New description";
-            var bpss = new BusinessPartnerStorageService(_contracts.Web3SecondaryUser, _contracts.Deployment.BusinessPartnerStorageService.ContractHandler.ContractAddress);
+            var bpss = new BusinessPartnerStorageService(_contracts.Web3SecondaryUser, _contracts.Deployment.BusinessPartnerStorageServiceGlobal.ContractHandler.ContractAddress);
             Func<Task> act = async () => await bpss.SetEshopRequestAndWaitForReceiptAsync(eShopExpected);
             act.Should().Throw<SmartContractRevertException>().WithMessage(AUTH_EXCEPTION_ONLY_CREATEDBY);
         }

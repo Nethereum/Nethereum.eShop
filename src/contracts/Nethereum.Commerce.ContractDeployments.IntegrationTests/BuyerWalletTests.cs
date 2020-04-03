@@ -111,7 +111,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             _output.WriteLine($"Wallet Buyer balance after receiving funding from Web3 account: {await buyerWalletBalance.PrettifyAsync(sts)}");
 
             // Balance of Funding, before PO raised   
-            var fundingBalanceBefore = await sts.BalanceOfQueryAsync(_contracts.Deployment.FundingService.ContractHandler.ContractAddress);
+            var fundingBalanceBefore = await sts.BalanceOfQueryAsync(_contracts.Deployment.FundingServiceLocal.ContractHandler.ContractAddress);
             _output.WriteLine($"Funding balance before PO: {await fundingBalanceBefore.PrettifyAsync(sts)}");
 
             //----------------------------------------------------------
@@ -131,7 +131,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             _output.WriteLine($"Wallet Buyer balance after PO: {await buyerWalletBalance.PrettifyAsync(sts)}");
 
             // Balance of Funding, after PO raised   
-            var fundingBalanceAfter = await sts.BalanceOfQueryAsync(_contracts.Deployment.FundingService.ContractHandler.ContractAddress);
+            var fundingBalanceAfter = await sts.BalanceOfQueryAsync(_contracts.Deployment.FundingServiceLocal.ContractHandler.ContractAddress);
             _output.WriteLine($"Funding balance after PO: {await fundingBalanceAfter.PrettifyAsync(sts)}");
 
             // Check
@@ -227,10 +227,10 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             await PrepSendFundsToBuyerWalletForPo(_contracts.Web3, poAsRequested);
 
             // Temporarily make eShop inactive
-            var eShop = (await _contracts.Deployment.BusinessPartnerStorageService.GetEshopQueryAsync(poAsRequested.EShopId)).EShop;
+            var eShop = (await _contracts.Deployment.BusinessPartnerStorageServiceGlobal.GetEshopQueryAsync(poAsRequested.EShopId)).EShop;
             eShop.Should().NotBeNull();
             eShop.IsActive = false;
-            var eShopSetTx = await _contracts.Deployment.BusinessPartnerStorageService.SetEshopRequestAndWaitForReceiptAsync(eShop);
+            var eShopSetTx = await _contracts.Deployment.BusinessPartnerStorageServiceGlobal.SetEshopRequestAndWaitForReceiptAsync(eShop);
             eShopSetTx.Status.Value.Should().Be(1);
 
             // Attempt to create PO, it should fail
@@ -239,14 +239,14 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 
             // Make eShop active again, else we will mess up other tests
             eShop.IsActive = true;
-            eShopSetTx = await _contracts.Deployment.BusinessPartnerStorageService.SetEshopRequestAndWaitForReceiptAsync(eShop);
+            eShopSetTx = await _contracts.Deployment.BusinessPartnerStorageServiceGlobal.SetEshopRequestAndWaitForReceiptAsync(eShop);
             eShopSetTx.Status.Value.Should().Be(1);
 
             // Temporarily make Seller inactive
-            var seller = (await _contracts.Deployment.BusinessPartnerStorageService.GetSellerQueryAsync(poAsRequested.SellerId)).Seller;
+            var seller = (await _contracts.Deployment.BusinessPartnerStorageServiceGlobal.GetSellerQueryAsync(poAsRequested.SellerId)).Seller;
             seller.Should().NotBeNull();
             seller.IsActive = false;
-            var sellerSetTx = await _contracts.Deployment.BusinessPartnerStorageService.SetSellerRequestAndWaitForReceiptAsync(seller);
+            var sellerSetTx = await _contracts.Deployment.BusinessPartnerStorageServiceGlobal.SetSellerRequestAndWaitForReceiptAsync(seller);
             sellerSetTx.Status.Value.Should().Be(1);
 
             // Attempt to create PO, it should fail
@@ -255,7 +255,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 
             // Make seller active again, else we mess up other tests
             seller.IsActive = true;
-            sellerSetTx = await _contracts.Deployment.BusinessPartnerStorageService.SetSellerRequestAndWaitForReceiptAsync(seller);
+            sellerSetTx = await _contracts.Deployment.BusinessPartnerStorageServiceGlobal.SetSellerRequestAndWaitForReceiptAsync(seller);
             sellerSetTx.Status.Value.Should().Be(1);
         }
 

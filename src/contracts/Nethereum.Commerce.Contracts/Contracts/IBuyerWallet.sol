@@ -10,7 +10,7 @@ interface IBuyerWallet
     event QuoteConvertedToPoLog(bytes32 indexed eShopId, uint indexed quoteId, bytes32 indexed sellerId);
     
     // Contract setup
-    function configure(string calldata nameOfBusinessPartnerStorage) external;
+    function configure(string calldata nameOfBusinessPartnerStorageGlobal) external;
     
     // Purchasing
     function getPo(string calldata eShopIdString, uint poNumber) external view returns (IPoTypes.Po memory po);

@@ -26,13 +26,13 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         {
             // If all contracts deployed and configured ok, then...
             // ...the PO storage contract should be configured to point to the eternal storage contract.
-            var actualEternalStorageAddressHeldAgainstPoStorage = await _contracts.Deployment.PoStorageService.EternalStorageQueryAsync();
-            var expectedEternalStorageAddress = _contracts.Deployment.EternalStorageService.ContractHandler.ContractAddress;
+            var actualEternalStorageAddressHeldAgainstPoStorage = await _contracts.Deployment.PoStorageServiceLocal.EternalStorageQueryAsync();
+            var expectedEternalStorageAddress = _contracts.Deployment.EternalStorageServiceLocal.ContractHandler.ContractAddress;
             actualEternalStorageAddressHeldAgainstPoStorage.Should().Be(expectedEternalStorageAddress);
 
             // ...the funding contract should be configured to point to the business partner storage contract.
-            var actualBusinessPartnerStorageAddressHeldAgainstFunding = await _contracts.Deployment.FundingService.BusinessPartnerStorageQueryAsync();
-            var expectedBusinessPartnerAddress = _contracts.Deployment.BusinessPartnerStorageService.ContractHandler.ContractAddress;
+            var actualBusinessPartnerStorageAddressHeldAgainstFunding = await _contracts.Deployment.FundingServiceLocal.BusinessPartnerStorageQueryAsync();
+            var expectedBusinessPartnerAddress = _contracts.Deployment.BusinessPartnerStorageServiceGlobal.ContractHandler.ContractAddress;
             actualBusinessPartnerStorageAddressHeldAgainstFunding.Should().Be(expectedBusinessPartnerAddress);
 
             // ... the buyer wallet should be configured to point to the business partner storage contract.
@@ -50,7 +50,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 
             // ... and that seller id should have a master data entry in business partner storage.            
             var actualSellerIdBytes = actualSellerIdString.ConvertToBytes32();
-            var actualSellerIdRecordFromBusinessPartnerStorage = (await _contracts.Deployment.BusinessPartnerStorageService.GetSellerQueryAsync(actualSellerIdBytes)).Seller;
+            var actualSellerIdRecordFromBusinessPartnerStorage = (await _contracts.Deployment.BusinessPartnerStorageServiceGlobal.GetSellerQueryAsync(actualSellerIdBytes)).Seller;
             actualSellerIdRecordFromBusinessPartnerStorage.IsActive.Should().Be(true);
             actualSellerIdRecordFromBusinessPartnerStorage.SellerDescription.Should().Be(
                 _contracts.Deployment.ContractNewDeploymentConfig.Seller.SellerDescription);

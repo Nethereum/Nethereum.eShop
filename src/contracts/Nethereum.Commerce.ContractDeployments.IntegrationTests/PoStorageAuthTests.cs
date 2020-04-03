@@ -37,7 +37,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 
             // Store PO using preexisting PO storage service contract, but with tx executed by the non-authorised ("secondary") user
             await Task.Delay(1);
-            var pss = new PoStorageService(_contracts.Web3SecondaryUser, _contracts.Deployment.PoStorageService.ContractHandler.ContractAddress);
+            var pss = new PoStorageService(_contracts.Web3SecondaryUser, _contracts.Deployment.PoStorageServiceLocal.ContractHandler.ContractAddress);
             Func<Task> act = async () => await pss.SetPoRequestAndWaitForReceiptAsync(poExpected);
             act.Should().Throw<SmartContractRevertException>().WithMessage(AUTH_EXCEPTION_ONLY_REGISTERED);
         }
