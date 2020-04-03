@@ -23,6 +23,7 @@ namespace Nethereum.eShop.EntityFramework.Catalog
             services.AddScoped<IStockItemRepository, StockItemRepository>();
             services.AddScoped<IReportRepository, ReportRepository>();
             services.AddScoped<IRuleTreeCache, RuleTreeCache>();
+            services.AddScoped<ISettingRepository, SettingRepository>();
         }
 
         public virtual void AddSeeders(IServiceCollection services, IConfiguration configuration)

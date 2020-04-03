@@ -235,6 +235,26 @@ namespace Nethereum.eShop.Sqlite.Catalog.Migrations
                     b.ToTable("CatalogTypes");
                 });
 
+            modelBuilder.Entity("Nethereum.eShop.ApplicationCore.Entities.ConfigurationAggregate.Setting", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Key")
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(100);
+
+                    b.Property<string>("Value")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Key");
+
+                    b.ToTable("Settings");
+                });
+
             modelBuilder.Entity("Nethereum.eShop.ApplicationCore.Entities.OrderAggregate.Order", b =>
                 {
                     b.Property<int>("Id")

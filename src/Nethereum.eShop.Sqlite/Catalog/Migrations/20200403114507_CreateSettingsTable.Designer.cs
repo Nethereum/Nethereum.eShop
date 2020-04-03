@@ -2,39 +2,40 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Nethereum.eShop.MySql.Catalog;
+using Nethereum.eShop.Sqlite.Catalog;
 
-namespace Nethereum.eShop.MySql.Catalog.Migrations
+namespace Nethereum.eShop.Sqlite.Catalog.Migrations
 {
-    [DbContext(typeof(MySqlCatalogContext))]
-    partial class MySqlCatalogContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(SqliteCatalogContext))]
+    [Migration("20200403114507_CreateSettingsTable")]
+    partial class CreateSettingsTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.2")
-                .HasAnnotation("Relational:MaxIdentifierLength", 64);
+                .HasAnnotation("ProductVersion", "3.1.2");
 
             modelBuilder.Entity("Nethereum.eShop.ApplicationCore.Entities.BasketAggregate.Basket", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("BuyerAddress")
                         .IsRequired()
-                        .HasColumnType("varchar(43) CHARACTER SET utf8mb4")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(43);
 
                     b.Property<string>("BuyerId")
                         .IsRequired()
-                        .HasColumnType("varchar(256) CHARACTER SET utf8mb4")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(256);
 
                     b.Property<string>("TransactionHash")
-                        .HasColumnType("varchar(67) CHARACTER SET utf8mb4")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(67);
 
                     b.HasKey("Id");
@@ -50,16 +51,16 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("BasketId")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("CatalogItemId")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Quantity")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<decimal>("UnitPrice")
                         .HasColumnType("decimal(18,2)");
@@ -75,19 +76,19 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("BuyerAddress")
-                        .HasColumnType("varchar(43) CHARACTER SET utf8mb4")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(43);
 
                     b.Property<string>("BuyerId")
                         .IsRequired()
-                        .HasColumnType("varchar(256) CHARACTER SET utf8mb4")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(256);
 
                     b.Property<string>("BuyerWalletAddress")
-                        .HasColumnType("varchar(43) CHARACTER SET utf8mb4")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(43);
 
                     b.HasKey("Id");
@@ -108,13 +109,13 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("BuyerId")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -127,11 +128,11 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Brand")
                         .IsRequired()
-                        .HasColumnType("varchar(100) CHARACTER SET utf8mb4")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(100);
 
                     b.HasKey("Id");
@@ -143,73 +144,73 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("AttributeJson")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("CatalogBrandId")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("CatalogTypeId")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Depth")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Description")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Gtin")
                         .IsRequired()
-                        .HasColumnType("varchar(14) CHARACTER SET utf8mb4")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(14);
 
                     b.Property<int?>("GtinRegistryId")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Height")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("varchar(50) CHARACTER SET utf8mb4")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(50);
 
                     b.Property<string>("PictureLargeUri")
-                        .HasColumnType("varchar(512) CHARACTER SET utf8mb4")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(512);
 
                     b.Property<string>("PictureMediumUri")
-                        .HasColumnType("varchar(512) CHARACTER SET utf8mb4")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(512);
 
                     b.Property<string>("PictureSmallUri")
-                        .HasColumnType("varchar(512) CHARACTER SET utf8mb4")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(512);
 
                     b.Property<string>("PictureUri")
-                        .HasColumnType("varchar(512) CHARACTER SET utf8mb4")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(512);
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("Rank")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Status")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Unit")
-                        .HasColumnType("varchar(8) CHARACTER SET utf8mb4")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(8);
 
                     b.Property<int>("Weight")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Width")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -224,11 +225,11 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Type")
                         .IsRequired()
-                        .HasColumnType("varchar(100) CHARACTER SET utf8mb4")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(100);
 
                     b.HasKey("Id");
@@ -240,14 +241,14 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Key")
-                        .HasColumnType("varchar(100) CHARACTER SET utf8mb4")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(100);
 
                     b.Property<string>("Value")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -260,49 +261,49 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("BuyerId")
                         .IsRequired()
-                        .HasColumnType("varchar(256) CHARACTER SET utf8mb4")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(256);
 
                     b.Property<string>("BuyerWalletAddress")
-                        .HasColumnType("varchar(43) CHARACTER SET utf8mb4")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(43);
 
                     b.Property<string>("CurrencyAddress")
-                        .HasColumnType("varchar(43) CHARACTER SET utf8mb4")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(43);
 
                     b.Property<string>("CurrencySymbol")
-                        .HasColumnType("varchar(32) CHARACTER SET utf8mb4")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(32);
 
                     b.Property<DateTimeOffset>("OrderDate")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTimeOffset?>("PoDate")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("TEXT");
 
                     b.Property<long?>("PoNumber")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("PoType")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("QuoteId")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("SellerId")
-                        .HasColumnType("varchar(32) CHARACTER SET utf8mb4")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(32);
 
                     b.Property<int>("Status")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("TransactionHash")
-                        .HasColumnType("varchar(67) CHARACTER SET utf8mb4")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(67);
 
                     b.HasKey("Id");
@@ -316,49 +317,49 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTimeOffset?>("ActualEscrowReleaseDate")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("CurrencyValue")
-                        .HasColumnType("varchar(100) CHARACTER SET utf8mb4")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(100);
 
                     b.Property<DateTimeOffset?>("GoodsIssueDate")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("TEXT");
 
                     b.Property<bool?>("IsEscrowReleased")
-                        .HasColumnType("tinyint(1)");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("OrderId")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTimeOffset?>("PlannedEscrowReleaseDate")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("PoItemNumber")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("PoItemStatus")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Quantity")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("QuantityAddress")
-                        .HasColumnType("varchar(43) CHARACTER SET utf8mb4")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(43);
 
                     b.Property<string>("QuantitySymbol")
-                        .HasColumnType("varchar(32) CHARACTER SET utf8mb4")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(32);
 
                     b.Property<int>("Status")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Unit")
-                        .HasColumnType("varchar(50) CHARACTER SET utf8mb4")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(50);
 
                     b.Property<decimal>("UnitPrice")
@@ -375,54 +376,54 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("ApproverAddress")
-                        .HasColumnType("varchar(43) CHARACTER SET utf8mb4")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(43);
 
                     b.Property<string>("BuyerAddress")
-                        .HasColumnType("varchar(43) CHARACTER SET utf8mb4")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(43);
 
                     b.Property<string>("BuyerId")
                         .IsRequired()
-                        .HasColumnType("varchar(256) CHARACTER SET utf8mb4")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(256);
 
                     b.Property<string>("BuyerWalletAddress")
-                        .HasColumnType("varchar(43) CHARACTER SET utf8mb4")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(43);
 
                     b.Property<string>("CurrencyAddress")
-                        .HasColumnType("varchar(43) CHARACTER SET utf8mb4")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(43);
 
                     b.Property<string>("CurrencySymbol")
-                        .HasColumnType("varchar(32) CHARACTER SET utf8mb4")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(32);
 
                     b.Property<DateTimeOffset>("Date")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTimeOffset>("Expiry")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("TEXT");
 
                     b.Property<long?>("PoNumber")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("PoType")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("SellerId")
-                        .HasColumnType("varchar(32) CHARACTER SET utf8mb4")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(32);
 
                     b.Property<int>("Status")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("TransactionHash")
-                        .HasColumnType("varchar(67) CHARACTER SET utf8mb4")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(67);
 
                     b.HasKey("Id");
@@ -438,31 +439,31 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("CurrencyValue")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTimeOffset?>("EscrowReleaseDate")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("PoItemNumber")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Quantity")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("QuantityAddress")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("QuantitySymbol")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("QuoteId")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Unit")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("TEXT");
 
                     b.Property<decimal>("UnitPrice")
                         .HasColumnType("decimal(18,2)");
@@ -478,18 +479,18 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("CatalogItemId")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Location")
                         .IsRequired()
-                        .HasColumnType("varchar(50) CHARACTER SET utf8mb4")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(50);
 
                     b.Property<int>("Quantity")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -503,35 +504,35 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                     b.OwnsOne("Nethereum.eShop.ApplicationCore.Entities.PostalAddress", "BillTo", b1 =>
                         {
                             b1.Property<int>("BasketId")
-                                .HasColumnType("int");
+                                .HasColumnType("INTEGER");
 
                             b1.Property<string>("City")
                                 .IsRequired()
-                                .HasColumnType("varchar(100) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(100);
 
                             b1.Property<string>("Country")
                                 .IsRequired()
-                                .HasColumnType("varchar(90) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(90);
 
                             b1.Property<string>("RecipientName")
                                 .IsRequired()
-                                .HasColumnType("varchar(255) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(255);
 
                             b1.Property<string>("State")
-                                .HasColumnType("varchar(60) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(60);
 
                             b1.Property<string>("Street")
                                 .IsRequired()
-                                .HasColumnType("varchar(180) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(180);
 
                             b1.Property<string>("ZipCode")
                                 .IsRequired()
-                                .HasColumnType("varchar(18) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(18);
 
                             b1.HasKey("BasketId");
@@ -545,35 +546,35 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                     b.OwnsOne("Nethereum.eShop.ApplicationCore.Entities.PostalAddress", "ShipTo", b1 =>
                         {
                             b1.Property<int>("BasketId")
-                                .HasColumnType("int");
+                                .HasColumnType("INTEGER");
 
                             b1.Property<string>("City")
                                 .IsRequired()
-                                .HasColumnType("varchar(100) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(100);
 
                             b1.Property<string>("Country")
                                 .IsRequired()
-                                .HasColumnType("varchar(90) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(90);
 
                             b1.Property<string>("RecipientName")
                                 .IsRequired()
-                                .HasColumnType("varchar(255) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(255);
 
                             b1.Property<string>("State")
-                                .HasColumnType("varchar(60) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(60);
 
                             b1.Property<string>("Street")
                                 .IsRequired()
-                                .HasColumnType("varchar(180) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(180);
 
                             b1.Property<string>("ZipCode")
                                 .IsRequired()
-                                .HasColumnType("varchar(18) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(18);
 
                             b1.HasKey("BasketId");
@@ -603,35 +604,35 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                     b.OwnsOne("Nethereum.eShop.ApplicationCore.Entities.PostalAddress", "PostalAddress", b1 =>
                         {
                             b1.Property<int>("BuyerPostalAddressId")
-                                .HasColumnType("int");
+                                .HasColumnType("INTEGER");
 
                             b1.Property<string>("City")
                                 .IsRequired()
-                                .HasColumnType("varchar(100) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(100);
 
                             b1.Property<string>("Country")
                                 .IsRequired()
-                                .HasColumnType("varchar(90) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(90);
 
                             b1.Property<string>("RecipientName")
                                 .IsRequired()
-                                .HasColumnType("varchar(255) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(255);
 
                             b1.Property<string>("State")
-                                .HasColumnType("varchar(60) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(60);
 
                             b1.Property<string>("Street")
                                 .IsRequired()
-                                .HasColumnType("varchar(180) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(180);
 
                             b1.Property<string>("ZipCode")
                                 .IsRequired()
-                                .HasColumnType("varchar(18) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(18);
 
                             b1.HasKey("BuyerPostalAddressId");
@@ -663,35 +664,35 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                     b.OwnsOne("Nethereum.eShop.ApplicationCore.Entities.PostalAddress", "BillTo", b1 =>
                         {
                             b1.Property<int>("OrderId")
-                                .HasColumnType("int");
+                                .HasColumnType("INTEGER");
 
                             b1.Property<string>("City")
                                 .IsRequired()
-                                .HasColumnType("varchar(100) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(100);
 
                             b1.Property<string>("Country")
                                 .IsRequired()
-                                .HasColumnType("varchar(90) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(90);
 
                             b1.Property<string>("RecipientName")
                                 .IsRequired()
-                                .HasColumnType("varchar(255) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(255);
 
                             b1.Property<string>("State")
-                                .HasColumnType("varchar(60) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(60);
 
                             b1.Property<string>("Street")
                                 .IsRequired()
-                                .HasColumnType("varchar(180) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(180);
 
                             b1.Property<string>("ZipCode")
                                 .IsRequired()
-                                .HasColumnType("varchar(18) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(18);
 
                             b1.HasKey("OrderId");
@@ -705,35 +706,35 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                     b.OwnsOne("Nethereum.eShop.ApplicationCore.Entities.PostalAddress", "ShipTo", b1 =>
                         {
                             b1.Property<int>("OrderId")
-                                .HasColumnType("int");
+                                .HasColumnType("INTEGER");
 
                             b1.Property<string>("City")
                                 .IsRequired()
-                                .HasColumnType("varchar(100) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(100);
 
                             b1.Property<string>("Country")
                                 .IsRequired()
-                                .HasColumnType("varchar(90) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(90);
 
                             b1.Property<string>("RecipientName")
                                 .IsRequired()
-                                .HasColumnType("varchar(255) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(255);
 
                             b1.Property<string>("State")
-                                .HasColumnType("varchar(60) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(60);
 
                             b1.Property<string>("Street")
                                 .IsRequired()
-                                .HasColumnType("varchar(180) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(180);
 
                             b1.Property<string>("ZipCode")
                                 .IsRequired()
-                                .HasColumnType("varchar(18) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(18);
 
                             b1.HasKey("OrderId");
@@ -754,25 +755,25 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                     b.OwnsOne("Nethereum.eShop.ApplicationCore.Entities.CatalogItemExcerpt", "ItemOrdered", b1 =>
                         {
                             b1.Property<int>("OrderItemId")
-                                .HasColumnType("int");
+                                .HasColumnType("INTEGER");
 
                             b1.Property<int>("CatalogItemId")
-                                .HasColumnType("int");
+                                .HasColumnType("INTEGER");
 
                             b1.Property<string>("Gtin")
-                                .HasColumnType("varchar(14) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(14);
 
                             b1.Property<int?>("GtinRegistryId")
-                                .HasColumnType("int");
+                                .HasColumnType("INTEGER");
 
                             b1.Property<string>("PictureUri")
-                                .HasColumnType("varchar(512) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(512);
 
                             b1.Property<string>("ProductName")
                                 .IsRequired()
-                                .HasColumnType("varchar(50) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(50);
 
                             b1.HasKey("OrderItemId");
@@ -789,35 +790,35 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                     b.OwnsOne("Nethereum.eShop.ApplicationCore.Entities.PostalAddress", "BillTo", b1 =>
                         {
                             b1.Property<int>("QuoteId")
-                                .HasColumnType("int");
+                                .HasColumnType("INTEGER");
 
                             b1.Property<string>("City")
                                 .IsRequired()
-                                .HasColumnType("varchar(100) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(100);
 
                             b1.Property<string>("Country")
                                 .IsRequired()
-                                .HasColumnType("varchar(90) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(90);
 
                             b1.Property<string>("RecipientName")
                                 .IsRequired()
-                                .HasColumnType("varchar(255) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(255);
 
                             b1.Property<string>("State")
-                                .HasColumnType("varchar(60) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(60);
 
                             b1.Property<string>("Street")
                                 .IsRequired()
-                                .HasColumnType("varchar(180) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(180);
 
                             b1.Property<string>("ZipCode")
                                 .IsRequired()
-                                .HasColumnType("varchar(18) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(18);
 
                             b1.HasKey("QuoteId");
@@ -831,35 +832,35 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                     b.OwnsOne("Nethereum.eShop.ApplicationCore.Entities.PostalAddress", "ShipTo", b1 =>
                         {
                             b1.Property<int>("QuoteId")
-                                .HasColumnType("int");
+                                .HasColumnType("INTEGER");
 
                             b1.Property<string>("City")
                                 .IsRequired()
-                                .HasColumnType("varchar(100) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(100);
 
                             b1.Property<string>("Country")
                                 .IsRequired()
-                                .HasColumnType("varchar(90) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(90);
 
                             b1.Property<string>("RecipientName")
                                 .IsRequired()
-                                .HasColumnType("varchar(255) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(255);
 
                             b1.Property<string>("State")
-                                .HasColumnType("varchar(60) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(60);
 
                             b1.Property<string>("Street")
                                 .IsRequired()
-                                .HasColumnType("varchar(180) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(180);
 
                             b1.Property<string>("ZipCode")
                                 .IsRequired()
-                                .HasColumnType("varchar(18) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(18);
 
                             b1.HasKey("QuoteId");
@@ -880,25 +881,25 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                     b.OwnsOne("Nethereum.eShop.ApplicationCore.Entities.CatalogItemExcerpt", "ItemOrdered", b1 =>
                         {
                             b1.Property<int>("QuoteItemId")
-                                .HasColumnType("int");
+                                .HasColumnType("INTEGER");
 
                             b1.Property<int>("CatalogItemId")
-                                .HasColumnType("int");
+                                .HasColumnType("INTEGER");
 
                             b1.Property<string>("Gtin")
-                                .HasColumnType("varchar(14) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(14);
 
                             b1.Property<int?>("GtinRegistryId")
-                                .HasColumnType("int");
+                                .HasColumnType("INTEGER");
 
                             b1.Property<string>("PictureUri")
-                                .HasColumnType("varchar(512) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(512);
 
                             b1.Property<string>("ProductName")
                                 .IsRequired()
-                                .HasColumnType("varchar(50) CHARACTER SET utf8mb4")
+                                .HasColumnType("TEXT")
                                 .HasMaxLength(50);
 
                             b1.HasKey("QuoteItemId");

@@ -128,8 +128,6 @@ namespace Nethereum.Commerce.Contracts.Deployment
                 // Make a whole new deployment
                 await DeployAndConfigureEShopAsync().ConfigureAwait(false);
 
-                await WriteContractAddressesToFile().ConfigureAwait(false);
-
                 // With mocks if needed
                 if (ContractNewDeploymentConfig.AlsoDeployMockContracts)
                 {
@@ -156,32 +154,6 @@ namespace Nethereum.Commerce.Contracts.Deployment
             LogSeparator();
         }
 
-        // A temporary method which writes the addresses created by the deployment to a file
-        // This can be used by the web job project for testing
-        private Task WriteContractAddressesToFile()
-        {
-            var configJson = new
-            {
-                Web3User = _web3.TransactionManager.Account.Address.ToLowerInvariant(),
-                ContractNameFunding = FundingService.ContractHandler.ContractAddress.ToLowerInvariant(),
-                SellerAdminOwner = SellerAdminService.ContractHandler.ContractAddress.ToLowerInvariant(),
-                AddressRegistry = AddressRegistryService.ContractHandler.ContractAddress.ToLowerInvariant(),
-                PurchasingContract = PurchasingService.ContractHandler.ContractAddress.ToLowerInvariant(),
-                BusinessPartnerStorage = BusinessPartnerStorageService.ContractHandler.ContractAddress.ToLowerInvariant(),
-                BuyerUserAddress = _web3.TransactionManager.Account.Address.ToLowerInvariant(),
-                BuyerReceiverAddress = _web3.TransactionManager.Account.Address.ToLowerInvariant(),
-                BuyerWalletAddress = BuyerWalletService.ContractHandler.ContractAddress.ToLowerInvariant(),
-                CurrencyAddress = MockDaiService.ContractHandler.ContractAddress.ToLowerInvariant(),
-                EShopId = ContractNewDeploymentConfig.Eshop.EShopId,
-                SellerId = ContractNewDeploymentConfig.Seller.SellerId,
-                CurrencySymbol = "DAI",
-                QuoteSigners = new[] { "0x32A555F2328e85E489f9a5f03669DC820CE7EBe9", "0x94618601FE6cb8912b274E5a00453949A57f8C1e" }
-            };
-
-            File.WriteAllText("c:/temp/eshop_contracts.json", JsonConvert.SerializeObject(configJson));
-
-            return Task.CompletedTask;
-        }
 
         private async Task DeployAndConfigureEShopAsync()
         {

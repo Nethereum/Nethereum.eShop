@@ -278,3 +278,14 @@ PRAGMA foreign_keys="1"
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('20200331114826_RemoveBuyerAndWalletAddress', '3.1.2');
 
+CREATE TABLE "Settings" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_Settings" PRIMARY KEY AUTOINCREMENT,
+    "Key" TEXT NULL,
+    "Value" TEXT NULL
+);
+
+CREATE INDEX "IX_Settings_Key" ON "Settings" ("Key");
+
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('20200403114507_CreateSettingsTable', '3.1.2');
+

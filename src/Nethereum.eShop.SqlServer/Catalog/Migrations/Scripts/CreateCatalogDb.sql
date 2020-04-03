@@ -477,3 +477,23 @@ END;
 
 GO
 
+IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'20200403114458_CreateSettingsTable')
+BEGIN
+    CREATE TABLE [Settings] (
+        [Id] int NOT NULL IDENTITY,
+        [Key] nvarchar(max) NULL,
+        [Value] nvarchar(max) NULL,
+        CONSTRAINT [PK_Settings] PRIMARY KEY ([Id])
+    );
+END;
+
+GO
+
+IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'20200403114458_CreateSettingsTable')
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20200403114458_CreateSettingsTable', N'3.1.2');
+END;
+
+GO
+

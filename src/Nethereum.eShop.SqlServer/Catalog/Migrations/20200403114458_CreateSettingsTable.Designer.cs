@@ -2,39 +2,48 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Nethereum.eShop.MySql.Catalog;
+using Nethereum.eShop.SqlServer.Catalog;
 
-namespace Nethereum.eShop.MySql.Catalog.Migrations
+namespace Nethereum.eShop.SqlServer.Catalog.Migrations
 {
-    [DbContext(typeof(MySqlCatalogContext))]
-    partial class MySqlCatalogContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(SqlServerCatalogContext))]
+    [Migration("20200403114458_CreateSettingsTable")]
+    partial class CreateSettingsTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "3.1.2")
-                .HasAnnotation("Relational:MaxIdentifierLength", 64);
+                .HasAnnotation("Relational:MaxIdentifierLength", 128)
+                .HasAnnotation("Relational:Sequence:.catalog_brand_hilo", "'catalog_brand_hilo', '', '1', '10', '', '', 'Int64', 'False'")
+                .HasAnnotation("Relational:Sequence:.catalog_hilo", "'catalog_hilo', '', '1', '10', '', '', 'Int64', 'False'")
+                .HasAnnotation("Relational:Sequence:.catalog_type_hilo", "'catalog_type_hilo', '', '1', '10', '', '', 'Int64', 'False'")
+                .HasAnnotation("Relational:Sequence:.stock_hilo", "'stock_hilo', '', '1', '10', '', '', 'Int64', 'False'")
+                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             modelBuilder.Entity("Nethereum.eShop.ApplicationCore.Entities.BasketAggregate.Basket", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("BuyerAddress")
                         .IsRequired()
-                        .HasColumnType("varchar(43) CHARACTER SET utf8mb4")
+                        .HasColumnType("nvarchar(43)")
                         .HasMaxLength(43);
 
                     b.Property<string>("BuyerId")
                         .IsRequired()
-                        .HasColumnType("varchar(256) CHARACTER SET utf8mb4")
+                        .HasColumnType("nvarchar(256)")
                         .HasMaxLength(256);
 
                     b.Property<string>("TransactionHash")
-                        .HasColumnType("varchar(67) CHARACTER SET utf8mb4")
+                        .HasColumnType("nvarchar(67)")
                         .HasMaxLength(67);
 
                     b.HasKey("Id");
@@ -50,7 +59,8 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<int>("BasketId")
                         .HasColumnType("int");
@@ -75,31 +85,34 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("BuyerAddress")
-                        .HasColumnType("varchar(43) CHARACTER SET utf8mb4")
+                        .HasColumnType("nvarchar(43)")
                         .HasMaxLength(43);
 
                     b.Property<string>("BuyerId")
                         .IsRequired()
-                        .HasColumnType("varchar(256) CHARACTER SET utf8mb4")
+                        .HasColumnType("nvarchar(256)")
                         .HasMaxLength(256);
 
                     b.Property<string>("BuyerWalletAddress")
-                        .HasColumnType("varchar(43) CHARACTER SET utf8mb4")
+                        .HasColumnType("nvarchar(43)")
                         .HasMaxLength(43);
 
                     b.HasKey("Id");
 
                     b.HasIndex("BuyerAddress")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[BuyerAddress] IS NOT NULL");
 
                     b.HasIndex("BuyerId")
                         .IsUnique();
 
                     b.HasIndex("BuyerWalletAddress")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[BuyerWalletAddress] IS NOT NULL");
 
                     b.ToTable("Buyers");
                 });
@@ -108,13 +121,14 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<int?>("BuyerId")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -127,11 +141,13 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:HiLoSequenceName", "catalog_brand_hilo")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.SequenceHiLo);
 
                     b.Property<string>("Brand")
                         .IsRequired()
-                        .HasColumnType("varchar(100) CHARACTER SET utf8mb4")
+                        .HasColumnType("nvarchar(100)")
                         .HasMaxLength(100);
 
                     b.HasKey("Id");
@@ -143,10 +159,12 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:HiLoSequenceName", "catalog_hilo")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.SequenceHiLo);
 
                     b.Property<string>("AttributeJson")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("CatalogBrandId")
                         .HasColumnType("int");
@@ -158,11 +176,11 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Gtin")
                         .IsRequired()
-                        .HasColumnType("varchar(14) CHARACTER SET utf8mb4")
+                        .HasColumnType("nvarchar(14)")
                         .HasMaxLength(14);
 
                     b.Property<int?>("GtinRegistryId")
@@ -173,23 +191,23 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("varchar(50) CHARACTER SET utf8mb4")
+                        .HasColumnType("nvarchar(50)")
                         .HasMaxLength(50);
 
                     b.Property<string>("PictureLargeUri")
-                        .HasColumnType("varchar(512) CHARACTER SET utf8mb4")
+                        .HasColumnType("nvarchar(512)")
                         .HasMaxLength(512);
 
                     b.Property<string>("PictureMediumUri")
-                        .HasColumnType("varchar(512) CHARACTER SET utf8mb4")
+                        .HasColumnType("nvarchar(512)")
                         .HasMaxLength(512);
 
                     b.Property<string>("PictureSmallUri")
-                        .HasColumnType("varchar(512) CHARACTER SET utf8mb4")
+                        .HasColumnType("nvarchar(512)")
                         .HasMaxLength(512);
 
                     b.Property<string>("PictureUri")
-                        .HasColumnType("varchar(512) CHARACTER SET utf8mb4")
+                        .HasColumnType("nvarchar(512)")
                         .HasMaxLength(512);
 
                     b.Property<decimal>("Price")
@@ -202,7 +220,7 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Unit")
-                        .HasColumnType("varchar(8) CHARACTER SET utf8mb4")
+                        .HasColumnType("nvarchar(8)")
                         .HasMaxLength(8);
 
                     b.Property<int>("Weight")
@@ -224,11 +242,13 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:HiLoSequenceName", "catalog_type_hilo")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.SequenceHiLo);
 
                     b.Property<string>("Type")
                         .IsRequired()
-                        .HasColumnType("varchar(100) CHARACTER SET utf8mb4")
+                        .HasColumnType("nvarchar(100)")
                         .HasMaxLength(100);
 
                     b.HasKey("Id");
@@ -240,18 +260,16 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Key")
-                        .HasColumnType("varchar(100) CHARACTER SET utf8mb4")
-                        .HasMaxLength(100);
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Value")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("Key");
 
                     b.ToTable("Settings");
                 });
@@ -260,30 +278,31 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("BuyerId")
                         .IsRequired()
-                        .HasColumnType("varchar(256) CHARACTER SET utf8mb4")
+                        .HasColumnType("nvarchar(256)")
                         .HasMaxLength(256);
 
                     b.Property<string>("BuyerWalletAddress")
-                        .HasColumnType("varchar(43) CHARACTER SET utf8mb4")
+                        .HasColumnType("nvarchar(43)")
                         .HasMaxLength(43);
 
                     b.Property<string>("CurrencyAddress")
-                        .HasColumnType("varchar(43) CHARACTER SET utf8mb4")
+                        .HasColumnType("nvarchar(43)")
                         .HasMaxLength(43);
 
                     b.Property<string>("CurrencySymbol")
-                        .HasColumnType("varchar(32) CHARACTER SET utf8mb4")
+                        .HasColumnType("nvarchar(32)")
                         .HasMaxLength(32);
 
                     b.Property<DateTimeOffset>("OrderDate")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<DateTimeOffset?>("PoDate")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<long?>("PoNumber")
                         .HasColumnType("bigint");
@@ -295,14 +314,14 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("SellerId")
-                        .HasColumnType("varchar(32) CHARACTER SET utf8mb4")
+                        .HasColumnType("nvarchar(32)")
                         .HasMaxLength(32);
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
                     b.Property<string>("TransactionHash")
-                        .HasColumnType("varchar(67) CHARACTER SET utf8mb4")
+                        .HasColumnType("nvarchar(67)")
                         .HasMaxLength(67);
 
                     b.HasKey("Id");
@@ -316,26 +335,27 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<DateTimeOffset?>("ActualEscrowReleaseDate")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("CurrencyValue")
-                        .HasColumnType("varchar(100) CHARACTER SET utf8mb4")
+                        .HasColumnType("nvarchar(100)")
                         .HasMaxLength(100);
 
                     b.Property<DateTimeOffset?>("GoodsIssueDate")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<bool?>("IsEscrowReleased")
-                        .HasColumnType("tinyint(1)");
+                        .HasColumnType("bit");
 
                     b.Property<int?>("OrderId")
                         .HasColumnType("int");
 
                     b.Property<DateTimeOffset?>("PlannedEscrowReleaseDate")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<int?>("PoItemNumber")
                         .HasColumnType("int");
@@ -347,18 +367,18 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("QuantityAddress")
-                        .HasColumnType("varchar(43) CHARACTER SET utf8mb4")
+                        .HasColumnType("nvarchar(43)")
                         .HasMaxLength(43);
 
                     b.Property<string>("QuantitySymbol")
-                        .HasColumnType("varchar(32) CHARACTER SET utf8mb4")
+                        .HasColumnType("nvarchar(32)")
                         .HasMaxLength(32);
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
                     b.Property<string>("Unit")
-                        .HasColumnType("varchar(50) CHARACTER SET utf8mb4")
+                        .HasColumnType("nvarchar(50)")
                         .HasMaxLength(50);
 
                     b.Property<decimal>("UnitPrice")
@@ -375,38 +395,39 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("ApproverAddress")
-                        .HasColumnType("varchar(43) CHARACTER SET utf8mb4")
+                        .HasColumnType("nvarchar(43)")
                         .HasMaxLength(43);
 
                     b.Property<string>("BuyerAddress")
-                        .HasColumnType("varchar(43) CHARACTER SET utf8mb4")
+                        .HasColumnType("nvarchar(43)")
                         .HasMaxLength(43);
 
                     b.Property<string>("BuyerId")
                         .IsRequired()
-                        .HasColumnType("varchar(256) CHARACTER SET utf8mb4")
+                        .HasColumnType("nvarchar(256)")
                         .HasMaxLength(256);
 
                     b.Property<string>("BuyerWalletAddress")
-                        .HasColumnType("varchar(43) CHARACTER SET utf8mb4")
+                        .HasColumnType("nvarchar(43)")
                         .HasMaxLength(43);
 
                     b.Property<string>("CurrencyAddress")
-                        .HasColumnType("varchar(43) CHARACTER SET utf8mb4")
+                        .HasColumnType("nvarchar(43)")
                         .HasMaxLength(43);
 
                     b.Property<string>("CurrencySymbol")
-                        .HasColumnType("varchar(32) CHARACTER SET utf8mb4")
+                        .HasColumnType("nvarchar(32)")
                         .HasMaxLength(32);
 
                     b.Property<DateTimeOffset>("Date")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<DateTimeOffset>("Expiry")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<long?>("PoNumber")
                         .HasColumnType("bigint");
@@ -415,14 +436,14 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("SellerId")
-                        .HasColumnType("varchar(32) CHARACTER SET utf8mb4")
+                        .HasColumnType("nvarchar(32)")
                         .HasMaxLength(32);
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
                     b.Property<string>("TransactionHash")
-                        .HasColumnType("varchar(67) CHARACTER SET utf8mb4")
+                        .HasColumnType("nvarchar(67)")
                         .HasMaxLength(67);
 
                     b.HasKey("Id");
@@ -438,13 +459,14 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("CurrencyValue")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTimeOffset?>("EscrowReleaseDate")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<int?>("PoItemNumber")
                         .HasColumnType("int");
@@ -453,16 +475,16 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("QuantityAddress")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("QuantitySymbol")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("QuoteId")
                         .HasColumnType("int");
 
                     b.Property<string>("Unit")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("UnitPrice")
                         .HasColumnType("decimal(18,2)");
@@ -478,14 +500,16 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:HiLoSequenceName", "stock_hilo")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.SequenceHiLo);
 
                     b.Property<int>("CatalogItemId")
                         .HasColumnType("int");
 
                     b.Property<string>("Location")
                         .IsRequired()
-                        .HasColumnType("varchar(50) CHARACTER SET utf8mb4")
+                        .HasColumnType("nvarchar(50)")
                         .HasMaxLength(50);
 
                     b.Property<int>("Quantity")
@@ -503,35 +527,37 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                     b.OwnsOne("Nethereum.eShop.ApplicationCore.Entities.PostalAddress", "BillTo", b1 =>
                         {
                             b1.Property<int>("BasketId")
-                                .HasColumnType("int");
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("int")
+                                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                             b1.Property<string>("City")
                                 .IsRequired()
-                                .HasColumnType("varchar(100) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(100)")
                                 .HasMaxLength(100);
 
                             b1.Property<string>("Country")
                                 .IsRequired()
-                                .HasColumnType("varchar(90) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(90)")
                                 .HasMaxLength(90);
 
                             b1.Property<string>("RecipientName")
                                 .IsRequired()
-                                .HasColumnType("varchar(255) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(255)")
                                 .HasMaxLength(255);
 
                             b1.Property<string>("State")
-                                .HasColumnType("varchar(60) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(60)")
                                 .HasMaxLength(60);
 
                             b1.Property<string>("Street")
                                 .IsRequired()
-                                .HasColumnType("varchar(180) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(180)")
                                 .HasMaxLength(180);
 
                             b1.Property<string>("ZipCode")
                                 .IsRequired()
-                                .HasColumnType("varchar(18) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(18)")
                                 .HasMaxLength(18);
 
                             b1.HasKey("BasketId");
@@ -545,35 +571,37 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                     b.OwnsOne("Nethereum.eShop.ApplicationCore.Entities.PostalAddress", "ShipTo", b1 =>
                         {
                             b1.Property<int>("BasketId")
-                                .HasColumnType("int");
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("int")
+                                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                             b1.Property<string>("City")
                                 .IsRequired()
-                                .HasColumnType("varchar(100) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(100)")
                                 .HasMaxLength(100);
 
                             b1.Property<string>("Country")
                                 .IsRequired()
-                                .HasColumnType("varchar(90) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(90)")
                                 .HasMaxLength(90);
 
                             b1.Property<string>("RecipientName")
                                 .IsRequired()
-                                .HasColumnType("varchar(255) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(255)")
                                 .HasMaxLength(255);
 
                             b1.Property<string>("State")
-                                .HasColumnType("varchar(60) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(60)")
                                 .HasMaxLength(60);
 
                             b1.Property<string>("Street")
                                 .IsRequired()
-                                .HasColumnType("varchar(180) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(180)")
                                 .HasMaxLength(180);
 
                             b1.Property<string>("ZipCode")
                                 .IsRequired()
-                                .HasColumnType("varchar(18) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(18)")
                                 .HasMaxLength(18);
 
                             b1.HasKey("BasketId");
@@ -603,35 +631,37 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                     b.OwnsOne("Nethereum.eShop.ApplicationCore.Entities.PostalAddress", "PostalAddress", b1 =>
                         {
                             b1.Property<int>("BuyerPostalAddressId")
-                                .HasColumnType("int");
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("int")
+                                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                             b1.Property<string>("City")
                                 .IsRequired()
-                                .HasColumnType("varchar(100) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(100)")
                                 .HasMaxLength(100);
 
                             b1.Property<string>("Country")
                                 .IsRequired()
-                                .HasColumnType("varchar(90) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(90)")
                                 .HasMaxLength(90);
 
                             b1.Property<string>("RecipientName")
                                 .IsRequired()
-                                .HasColumnType("varchar(255) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(255)")
                                 .HasMaxLength(255);
 
                             b1.Property<string>("State")
-                                .HasColumnType("varchar(60) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(60)")
                                 .HasMaxLength(60);
 
                             b1.Property<string>("Street")
                                 .IsRequired()
-                                .HasColumnType("varchar(180) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(180)")
                                 .HasMaxLength(180);
 
                             b1.Property<string>("ZipCode")
                                 .IsRequired()
-                                .HasColumnType("varchar(18) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(18)")
                                 .HasMaxLength(18);
 
                             b1.HasKey("BuyerPostalAddressId");
@@ -663,35 +693,37 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                     b.OwnsOne("Nethereum.eShop.ApplicationCore.Entities.PostalAddress", "BillTo", b1 =>
                         {
                             b1.Property<int>("OrderId")
-                                .HasColumnType("int");
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("int")
+                                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                             b1.Property<string>("City")
                                 .IsRequired()
-                                .HasColumnType("varchar(100) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(100)")
                                 .HasMaxLength(100);
 
                             b1.Property<string>("Country")
                                 .IsRequired()
-                                .HasColumnType("varchar(90) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(90)")
                                 .HasMaxLength(90);
 
                             b1.Property<string>("RecipientName")
                                 .IsRequired()
-                                .HasColumnType("varchar(255) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(255)")
                                 .HasMaxLength(255);
 
                             b1.Property<string>("State")
-                                .HasColumnType("varchar(60) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(60)")
                                 .HasMaxLength(60);
 
                             b1.Property<string>("Street")
                                 .IsRequired()
-                                .HasColumnType("varchar(180) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(180)")
                                 .HasMaxLength(180);
 
                             b1.Property<string>("ZipCode")
                                 .IsRequired()
-                                .HasColumnType("varchar(18) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(18)")
                                 .HasMaxLength(18);
 
                             b1.HasKey("OrderId");
@@ -705,35 +737,37 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                     b.OwnsOne("Nethereum.eShop.ApplicationCore.Entities.PostalAddress", "ShipTo", b1 =>
                         {
                             b1.Property<int>("OrderId")
-                                .HasColumnType("int");
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("int")
+                                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                             b1.Property<string>("City")
                                 .IsRequired()
-                                .HasColumnType("varchar(100) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(100)")
                                 .HasMaxLength(100);
 
                             b1.Property<string>("Country")
                                 .IsRequired()
-                                .HasColumnType("varchar(90) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(90)")
                                 .HasMaxLength(90);
 
                             b1.Property<string>("RecipientName")
                                 .IsRequired()
-                                .HasColumnType("varchar(255) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(255)")
                                 .HasMaxLength(255);
 
                             b1.Property<string>("State")
-                                .HasColumnType("varchar(60) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(60)")
                                 .HasMaxLength(60);
 
                             b1.Property<string>("Street")
                                 .IsRequired()
-                                .HasColumnType("varchar(180) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(180)")
                                 .HasMaxLength(180);
 
                             b1.Property<string>("ZipCode")
                                 .IsRequired()
-                                .HasColumnType("varchar(18) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(18)")
                                 .HasMaxLength(18);
 
                             b1.HasKey("OrderId");
@@ -754,25 +788,27 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                     b.OwnsOne("Nethereum.eShop.ApplicationCore.Entities.CatalogItemExcerpt", "ItemOrdered", b1 =>
                         {
                             b1.Property<int>("OrderItemId")
-                                .HasColumnType("int");
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("int")
+                                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                             b1.Property<int>("CatalogItemId")
                                 .HasColumnType("int");
 
                             b1.Property<string>("Gtin")
-                                .HasColumnType("varchar(14) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(14)")
                                 .HasMaxLength(14);
 
                             b1.Property<int?>("GtinRegistryId")
                                 .HasColumnType("int");
 
                             b1.Property<string>("PictureUri")
-                                .HasColumnType("varchar(512) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(512)")
                                 .HasMaxLength(512);
 
                             b1.Property<string>("ProductName")
                                 .IsRequired()
-                                .HasColumnType("varchar(50) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(50)")
                                 .HasMaxLength(50);
 
                             b1.HasKey("OrderItemId");
@@ -789,35 +825,37 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                     b.OwnsOne("Nethereum.eShop.ApplicationCore.Entities.PostalAddress", "BillTo", b1 =>
                         {
                             b1.Property<int>("QuoteId")
-                                .HasColumnType("int");
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("int")
+                                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                             b1.Property<string>("City")
                                 .IsRequired()
-                                .HasColumnType("varchar(100) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(100)")
                                 .HasMaxLength(100);
 
                             b1.Property<string>("Country")
                                 .IsRequired()
-                                .HasColumnType("varchar(90) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(90)")
                                 .HasMaxLength(90);
 
                             b1.Property<string>("RecipientName")
                                 .IsRequired()
-                                .HasColumnType("varchar(255) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(255)")
                                 .HasMaxLength(255);
 
                             b1.Property<string>("State")
-                                .HasColumnType("varchar(60) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(60)")
                                 .HasMaxLength(60);
 
                             b1.Property<string>("Street")
                                 .IsRequired()
-                                .HasColumnType("varchar(180) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(180)")
                                 .HasMaxLength(180);
 
                             b1.Property<string>("ZipCode")
                                 .IsRequired()
-                                .HasColumnType("varchar(18) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(18)")
                                 .HasMaxLength(18);
 
                             b1.HasKey("QuoteId");
@@ -831,35 +869,37 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                     b.OwnsOne("Nethereum.eShop.ApplicationCore.Entities.PostalAddress", "ShipTo", b1 =>
                         {
                             b1.Property<int>("QuoteId")
-                                .HasColumnType("int");
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("int")
+                                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                             b1.Property<string>("City")
                                 .IsRequired()
-                                .HasColumnType("varchar(100) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(100)")
                                 .HasMaxLength(100);
 
                             b1.Property<string>("Country")
                                 .IsRequired()
-                                .HasColumnType("varchar(90) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(90)")
                                 .HasMaxLength(90);
 
                             b1.Property<string>("RecipientName")
                                 .IsRequired()
-                                .HasColumnType("varchar(255) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(255)")
                                 .HasMaxLength(255);
 
                             b1.Property<string>("State")
-                                .HasColumnType("varchar(60) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(60)")
                                 .HasMaxLength(60);
 
                             b1.Property<string>("Street")
                                 .IsRequired()
-                                .HasColumnType("varchar(180) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(180)")
                                 .HasMaxLength(180);
 
                             b1.Property<string>("ZipCode")
                                 .IsRequired()
-                                .HasColumnType("varchar(18) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(18)")
                                 .HasMaxLength(18);
 
                             b1.HasKey("QuoteId");
@@ -880,25 +920,27 @@ namespace Nethereum.eShop.MySql.Catalog.Migrations
                     b.OwnsOne("Nethereum.eShop.ApplicationCore.Entities.CatalogItemExcerpt", "ItemOrdered", b1 =>
                         {
                             b1.Property<int>("QuoteItemId")
-                                .HasColumnType("int");
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("int")
+                                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                             b1.Property<int>("CatalogItemId")
                                 .HasColumnType("int");
 
                             b1.Property<string>("Gtin")
-                                .HasColumnType("varchar(14) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(14)")
                                 .HasMaxLength(14);
 
                             b1.Property<int?>("GtinRegistryId")
                                 .HasColumnType("int");
 
                             b1.Property<string>("PictureUri")
-                                .HasColumnType("varchar(512) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(512)")
                                 .HasMaxLength(512);
 
                             b1.Property<string>("ProductName")
                                 .IsRequired()
-                                .HasColumnType("varchar(50) CHARACTER SET utf8mb4")
+                                .HasColumnType("nvarchar(50)")
                                 .HasMaxLength(50);
 
                             b1.HasKey("QuoteItemId");

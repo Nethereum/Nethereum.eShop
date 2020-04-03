@@ -682,3 +682,54 @@ DELIMITER ;
 CALL MigrationsScript();
 DROP PROCEDURE MigrationsScript;
 
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20200403114515_CreateSettingsTable') THEN
+
+    CREATE TABLE `Settings` (
+        `Id` int NOT NULL AUTO_INCREMENT,
+        `Key` varchar(100) CHARACTER SET utf8mb4 NULL,
+        `Value` longtext CHARACTER SET utf8mb4 NULL,
+        CONSTRAINT `PK_Settings` PRIMARY KEY (`Id`)
+    );
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20200403114515_CreateSettingsTable') THEN
+
+    CREATE INDEX `IX_Settings_Key` ON `Settings` (`Key`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20200403114515_CreateSettingsTable') THEN
+
+    INSERT INTO `__EFMigrationsHistory` (`MigrationId`, `ProductVersion`)
+    VALUES ('20200403114515_CreateSettingsTable', '3.1.2');
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+

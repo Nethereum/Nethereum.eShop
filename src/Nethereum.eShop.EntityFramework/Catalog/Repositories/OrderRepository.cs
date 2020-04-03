@@ -19,48 +19,5 @@ namespace Nethereum.eShop.EntityFramework.Catalog.Repositories
                 .Include($"{nameof(Order.OrderItems)}.{nameof(OrderItem.ItemOrdered)}")
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
-
-        /*
-        public Buyer Add(Buyer buyer)
-        {
-            if (buyer.IsTransient())
-            {
-                return _context.Buyers
-                    .Add(buyer)
-                    .Entity;
-            }
-            else
-            {
-                return buyer;
-            }           
-        }
-
-        public Buyer Update(Buyer buyer)
-        {
-            return _context.Buyers
-                    .Update(buyer)
-                    .Entity;
-        }
-
-        public async Task<Buyer> FindAsync(string identity)
-        {
-            var buyer = await _context.Buyers
-                .Include(b => b.PaymentMethods)
-                .Where(b => b.IdentityGuid == identity)
-                .SingleOrDefaultAsync();
-
-            return buyer;
-        }
-
-        public async Task<Buyer> FindByIdAsync(string id)
-        {
-            var buyer = await _context.Buyers
-                .Include(b => b.PaymentMethods)
-                .Where(b => b.Id == int.Parse(id))
-                .SingleOrDefaultAsync();
-
-            return buyer;
-        }
-         */
     }
 }

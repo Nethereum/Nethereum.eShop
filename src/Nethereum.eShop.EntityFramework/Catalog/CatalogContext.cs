@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Nethereum.eShop.ApplicationCore.Entities;
 using Nethereum.eShop.ApplicationCore.Entities.BasketAggregate;
 using Nethereum.eShop.ApplicationCore.Entities.BuyerAggregate;
+using Nethereum.eShop.ApplicationCore.Entities.ConfigurationAggregate;
 using Nethereum.eShop.ApplicationCore.Entities.OrderAggregate;
 using Nethereum.eShop.ApplicationCore.Entities.QuoteAggregate;
 using Nethereum.eShop.ApplicationCore.Interfaces;
@@ -36,6 +37,8 @@ namespace Nethereum.eShop.EntityFramework.Catalog
         public DbSet<QuoteItem> QuoteItems { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
+
+        public DbSet<Setting> Settings { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

@@ -36,6 +36,9 @@ namespace Nethereum.eShop.Web
                     var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
                     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
                     await AppIdentityDbContextSeed.SeedAsync(userManager, roleManager);
+
+                    var contractDeploymentService = services.GetRequiredService<IContractDeploymentService>();
+                    await contractDeploymentService.EnsureDeployedAsync(loggerFactory);
                 }
                 catch (Exception ex)
                 {

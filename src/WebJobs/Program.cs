@@ -7,7 +7,6 @@ using Nethereum.BlockchainProcessing.ProgressRepositories;
 using Nethereum.eShop.ApplicationCore.Interfaces;
 using Nethereum.eShop.ApplicationCore.Services;
 using Nethereum.eShop.DbFactory;
-using Nethereum.eShop.WebJobs.Configuration;
 using Nethereum.eShop.WebJobs.Jobs;
 
 namespace Nethereum.eShop.WebJobs
@@ -17,16 +16,12 @@ namespace Nethereum.eShop.WebJobs
         static void Main(string[] args)
         {
             IConfiguration config = null;
-            EshopConfiguration eShopConfig = null;
             var hostBuilder = Host.CreateDefaultBuilder(args);
 
             hostBuilder.ConfigureServices(services =>
             {
                 // TODO: Configure MediatR properly - this is just a place holder
                 services.AddMediatR(typeof(Program));
-
-                // config
-                services.AddSingleton(eShopConfig);
 
                 // db
                 var dbBootstrapper = EShopDbBootstrapper.CreateDbBootstrapper(config);
@@ -55,7 +50,7 @@ namespace Nethereum.eShop.WebJobs
                 //}
 
                 //IBlockProgressRepository progressRepo = new BlockProgressRepository(blockchainDbContextFactory);
-                services.AddSingleton<IBlockProgressRepository, JsonFileBlockProgressRepository>();
+                services.AddScoped<IBlockProgressRepository, JsonFileBlockProgressRepository>();
 
                 // jobs
                 services.AddScoped<IProcessPuchaseOrderEventLogs, ProcessPurchaseOrderEventLogs>();
@@ -75,7 +70,6 @@ namespace Nethereum.eShop.WebJobs
                     c.AddUserSecrets(typeof(Program).Assembly);
 
                 config = c.Build();
-                eShopConfig = config.GetSection("EshopConfiguration").Get<EshopConfiguration>();
             });
 
             hostBuilder.ConfigureLogging((context, b) =>

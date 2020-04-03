@@ -98,6 +98,8 @@ namespace Nethereum.eShop.Web
 
             dbBootstrapper.AddSeeders(services, Configuration);
 
+            services.AddScoped<IContractDeploymentService, ContractDeploymentService>();
+
             var rulesEngineSettings = Configuration.Get<RulesEngineSettings>();
 
             services.AddSingleton<IRulesEngineInitializer>(new RulesEngineInitializer(rulesEngineSettings));

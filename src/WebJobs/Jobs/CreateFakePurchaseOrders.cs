@@ -1,11 +1,12 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Nethereum.Commerce.Contracts;
 using Nethereum.Commerce.Contracts.BuyerWallet;
 using Nethereum.Commerce.Contracts.Purchasing.ContractDefinition;
 using Nethereum.Contracts;
+using Nethereum.eShop.ApplicationCore.Entities.ConfigurationAggregate;
 using Nethereum.eShop.ApplicationCore.Entities.QuoteAggregate;
 using Nethereum.eShop.ApplicationCore.Interfaces;
-using Nethereum.eShop.WebJobs.Configuration;
 using Nethereum.Web3.Accounts;
 using System;
 using System.Collections.Generic;
@@ -19,18 +20,22 @@ namespace Nethereum.eShop.WebJobs.Jobs
 {
     public class CreateFakePurchaseOrders : ICreateFakePurchaseOrders
     {
-        private readonly EshopConfiguration _config;
+        private readonly IConfiguration _configuration;
+        private readonly ISettingRepository _settingRepository;
         private readonly IQuoteRepository _quoteRepository;
 
-        public CreateFakePurchaseOrders(EshopConfiguration config, IQuoteRepository quoteRepository)
+        public CreateFakePurchaseOrders(IConfiguration configuration, ISettingRepository settingRepository, IQuoteRepository quoteRepository)
         {
-            this._config = config;
+            _configuration = configuration;
+            _settingRepository = settingRepository;
             this._quoteRepository = quoteRepository;
         }
 
         public async Task ExecuteAsync(ILogger logger)
         {
-            if (!_config.CreateFakePurchaseOrders) return;
+            var dbBasedConfig = await _settingRepository.GetEShopConfigurationSettingsAsync().ConfigureAwait(false);
+
+            if (!dbBasedConfig.CreateFakePurchaseOrdersJob.Enabled) return;
 
             var pendingQuotes = await _quoteRepository.GetQuotesRequiringPurchaseOrderAsync();
 
@@ -38,19 +43,22 @@ namespace Nethereum.eShop.WebJobs.Jobs
 
             if (!pendingQuotes.Any()) return;
 
-            var account = new Account(_config.AccountPrivateKey);
-            var web3 = new Web3.Web3(account);
-            var walletBuyerService = new BuyerWalletService(web3, _config.BuyerWalletAddress);
+            var url = _configuration["EthereumRpcUrl"];
+            var privateKey = _configuration["AccountPrivateKey"];
+
+            var web3 = new Web3.Web3(new Account(privateKey), url);
+
+            var walletBuyerService = new BuyerWalletService(web3, dbBasedConfig.BuyerWalletAddress);
 
             foreach (var quote in pendingQuotes)
             {
-                await CreatePoForQuote(web3, logger, walletBuyerService, quote);
+                await CreatePoForQuote(dbBasedConfig, web3, logger, walletBuyerService, quote);
             }
         }
 
-        private async Task CreatePoForQuote(Web3.Web3 web3, ILogger logger, BuyerWalletService walletBuyerService, Quote quote)
+        private async Task CreatePoForQuote(EShopConfigurationSettings dbBasedConfig, Web3.Web3 web3, ILogger logger, BuyerWalletService walletBuyerService, Quote quote)
         {
-            var existing = await walletBuyerService.GetPoByEshopIdAndQuoteQueryAsync(_config.EShopId, quote.Id);
+            var existing = await walletBuyerService.GetPoByEshopIdAndQuoteQueryAsync(dbBasedConfig.EShop.Id, quote.Id);
             if (existing?.Po?.PoNumber > 0)
             {
                 quote.PoNumber = (long)existing.Po.PoNumber;
@@ -60,7 +68,7 @@ namespace Nethereum.eShop.WebJobs.Jobs
                 return;
             }
 
-            var po = CreateDummyPoForPurchasingCreate(web3, quote).ToBuyerPo();
+            var po = CreateDummyPoForPurchasingCreate(dbBasedConfig, web3, quote).ToBuyerPo();
             var signature = po.GetSignatureBytes(web3);
             var poArgs = new Nethereum.Commerce.Contracts.BuyerWallet.ContractDefinition.CreatePurchaseOrderFunction { Po = po, Signature = signature };
             var receipt = await walletBuyerService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poArgs);
@@ -82,16 +90,16 @@ namespace Nethereum.eShop.WebJobs.Jobs
             }
         }
 
-        public Po CreateDummyPoForPurchasingCreate(Web3.Web3 web3, Quote quote)
+        public Po CreateDummyPoForPurchasingCreate(EShopConfigurationSettings dbBasedConfig, Web3.Web3 web3, Quote quote)
         {
             return CreatePoForPurchasingContracts(
                 buyerUserAddress: web3.TransactionManager.Account.Address.ToLowerInvariant(),
                 buyerReceiverAddress: web3.TransactionManager.Account.Address.ToLowerInvariant(),
-                buyerWalletAddress: _config.BuyerWalletAddress.ToLowerInvariant(),
-                eShopId: _config.EShopId,
-                sellerId: _config.SellerId,
-                currencySymbol: _config.CurrencySymbol,
-                currencyAddress: _config.CurrencyAddress.ToLowerInvariant(),
+                buyerWalletAddress: dbBasedConfig.BuyerWalletAddress.ToLowerInvariant(),
+                eShopId: dbBasedConfig.EShop.Id,
+                sellerId: dbBasedConfig.Seller.Id,
+                currencySymbol: dbBasedConfig.CurrencySymbol,
+                currencyAddress: dbBasedConfig.CurrencyAddress.ToLowerInvariant(),
                 quote: quote,
                 isLargeValue: false);
         }
@@ -129,7 +137,8 @@ namespace Nethereum.eShop.WebJobs.Jobs
                     Quantity = quoteItem.Quantity,
                     Unit = "EA",
                     QuantitySymbol = "NA",
-                    QuantityAddress = _config.QuantityAddress.ToLowerInvariant(),
+                    // TODO: remove or replace Quantity Address
+                    QuantityAddress = "0x40ed4f49ec2c7bdcce8631b1a7b54ed5d4aa9610".ToLowerInvariant(),
                     CurrencyValue = quoteItem.CurrencyValue == null ? 0 : BigInteger.Parse(quoteItem.CurrencyValue),
                     // Status assigned by contract
                     // GoodsIssuedDate assigned by contract

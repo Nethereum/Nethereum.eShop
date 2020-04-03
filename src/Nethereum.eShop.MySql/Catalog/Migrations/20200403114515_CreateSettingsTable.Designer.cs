@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Nethereum.eShop.MySql.Catalog;
 
 namespace Nethereum.eShop.MySql.Catalog.Migrations
 {
     [DbContext(typeof(MySqlCatalogContext))]
-    partial class MySqlCatalogContextModelSnapshot : ModelSnapshot
+    [Migration("20200403114515_CreateSettingsTable")]
+    partial class CreateSettingsTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
