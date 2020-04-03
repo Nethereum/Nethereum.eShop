@@ -59,9 +59,9 @@ interface IPoTypes
     {
         uint poNumber;                     // contract managed, PO header key, leave blank at PO creation time
         
-        address buyerUserAddress;          // buyer UI managed, buyer EoA address represents user identity and "owner" of the PO ("user address")
+        address buyerUserAddress;          // buyer UI managed, buyer EoA address represents user identity and "owner" of the PO ("user address"). Not used in events.
         address buyerReceiverAddress;      // buyer UI managed, buyer EoA address will receive product ownership tokens at end ("logistics address")
-        address buyerWalletAddress;        // buyer UI managed, buyer wallet contract address, used to locate wallet contract whose functions are called by buyer UI, handles tokens ("finance address")
+        address buyerWalletAddress;        // buyer UI managed, buyer wallet contract address, used in events, used to locate wallet contract whose functions are called by buyer UI, handles tokens ("finance address")
         
         bytes32 eShopId;                   // buyer UI managed, uniquely identifies a shop (GLOBAL)
         uint quoteId;                      // buyer UI managed, a quote signed by eShop, eShopId+quoteId uniquely identifies a single poNumber

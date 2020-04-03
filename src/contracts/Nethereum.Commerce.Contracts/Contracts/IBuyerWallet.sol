@@ -5,6 +5,10 @@ import "./IPoTypes.sol";
 
 interface IBuyerWallet
 {
+    // Events
+    // Emitted when quote was successfully converted to PO. (Then use fn getPoByEshopIdAndQuote to get latest view of PO)
+    event QuoteConvertedToPoLog(bytes32 indexed eShopId, uint indexed quoteId, bytes32 indexed sellerId);
+    
     // Contract setup
     function configure(string calldata nameOfBusinessPartnerStorage) external;
     

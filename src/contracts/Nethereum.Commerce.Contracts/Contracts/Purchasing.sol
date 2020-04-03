@@ -2,6 +2,7 @@ pragma solidity ^0.6.1;
 pragma experimental ABIEncoderV2;
 
 import "./IPurchasing.sol";
+import "./ISellerAdmin.sol";
 import "./IPoTypes.sol";
 import "./IErc20.sol";
 import "./IPoStorage.sol";
@@ -66,7 +67,7 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
         return poStorage.getPo(poNumber);
     }
     
-    function getPoByQuote(uint quoteId) override external view returns (IPoTypes.Po memory po)
+    function getPoByQuote(uint quoteId) override public view returns (IPoTypes.Po memory po)
     {
         uint poNumber = poStorage.getPoNumberByEshopIdAndQuote(eShopId, quoteId);
         return poStorage.getPo(poNumber);
@@ -82,11 +83,10 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
         //-------------------------------------------------------------------------
         // Ensure buyer chose a valid eshop
         require(po.eShopId.length > 0, "eShopId must be specified");
-        require(po.eShopId == eShopId, "eShopId is not correct for this contract");  // must be "our" eShop
         IPoTypes.Eshop memory eShop = bpStorage.getEshop(po.eShopId);
-        require(eShop.eShopId.length > 0, "eShop has no master data");
         require(eShop.purchasingContractAddress != address(0), "eShop has no purchasing address");
         require(eShop.quoteSignerCount > 0, "No quote signers found for eShop");
+        require(po.eShopId == eShopId, "eShopId is not correct for this contract");  // must be "our" eShop
         require(eShop.isActive == true, "eShop is inactive");
         
         // Ensure buyer chose a valid seller
@@ -110,6 +110,10 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
         }
         require(isSignerFound == true, "Signature for quote does not match any expected signatures");
         require(po.quoteExpiryDate >= now, "Quote expiry date has passed");
+        
+        // Quote should not already have been used
+        IPoTypes.Po memory poExisting = getPoByQuote(po.quoteId);
+        require(poExisting.poNumber == 0, "Quote already in use");
         
         //-------------------------------------------------------------------------
         // Add fields that contract owns
@@ -150,6 +154,10 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
         // Record the new PO as it was stored
         IPoTypes.Po memory poAsStored = poStorage.getPo(po.poNumber);
         emit PurchaseOrderCreatedLog(poAsStored.buyerWalletAddress, poAsStored.sellerId, poAsStored.poNumber, poAsStored);
+        
+        // Tell seller a new PO has arrive
+        ISellerAdmin sellerAdminContract = ISellerAdmin(seller.adminContractAddress);
+        sellerAdminContract.emitEventForNewPo(poAsStored);
     }
     
     function getFeeBasisPoints() override external pure returns (uint)
@@ -347,5 +355,4 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
     {
         return keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", hash));
     }
-
 }

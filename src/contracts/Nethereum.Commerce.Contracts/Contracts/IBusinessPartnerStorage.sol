@@ -5,6 +5,13 @@ import "./IPoTypes.sol";
 
 interface IBusinessPartnerStorage
 {
+    // Events
+    event EshopCreatedLog(address indexed upsertAddress, bytes32 indexed eShopId, IPoTypes.Eshop eShop);
+    event EshopChangedLog(address indexed upsertAddress, bytes32 indexed eShopId, IPoTypes.Eshop eShop);
+    event SellerCreatedLog(address indexed upsertAddress, bytes32 indexed sellerId, IPoTypes.Seller seller);
+    event SellerChangedLog(address indexed upsertAddress, bytes32 indexed sellerId, IPoTypes.Seller seller); 
+   
+    // Setup
     function configure(string calldata nameOfEternalStorage) external;
 
     // Maintain eShop information

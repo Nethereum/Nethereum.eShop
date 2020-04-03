@@ -17,22 +17,30 @@ contract SellerAdmin is ISellerAdmin, Ownable, Bindable, StringConvertible
     IBusinessPartnerStorage public bpStorage;
     bytes32 public sellerId;
 
-    constructor (address contractAddressOfRegistry) public
+    constructor (address contractAddressOfRegistry, string memory sellerIdString) public
     {
         addressRegistry = IAddressRegistry(contractAddressOfRegistry);
+        sellerId = stringToBytes32(sellerIdString);
     }
     
     // Contract setup
-    function configure(string calldata sellerIdString, string calldata nameOfBusinessPartnerStorage) onlyOwner() override external
+    function configure(string calldata nameOfBusinessPartnerStorage) onlyOwner() override external
     {
-        sellerId = stringToBytes32(sellerIdString);
-        
         // Lookup address registry to find the global repo for business partners
         bpStorage = IBusinessPartnerStorage(addressRegistry.getAddressString(nameOfBusinessPartnerStorage));
         require(address(bpStorage) != address(0), "Could not find Business Partner Storage contract address in registry");
     }
     
     // Purchasing
+    /// @notice This function can only be called by the eShop (Purchasing.sol) for the given PO 
+    function emitEventForNewPo(IPoTypes.Po calldata po) override external
+    {
+        // Don't trust the PO being passed, use the eShopId to lookup the Purchasing.sol address
+        IPoTypes.Eshop memory eShop = getAndValidateEshop(po.eShopId);
+        require(eShop.purchasingContractAddress == msg.sender, "Function can only be called by eShop");
+        emit QuoteConvertedToPoLog(po.eShopId, po.quoteId, po.buyerWalletAddress);
+    }
+    
     function getPo(string calldata eShopIdString, uint poNumber) override external view returns (IPoTypes.Po memory po)
     {
         // Get and validate eShop
@@ -115,7 +123,6 @@ contract SellerAdmin is ISellerAdmin, Ownable, Bindable, StringConvertible
     function getAndValidateEshop(bytes32 eShopId) private view returns (IPoTypes.Eshop memory validShop)
     {
         IPoTypes.Eshop memory eShop = bpStorage.getEshop(eShopId);
-        require(eShop.eShopId.length > 0, "eShop has no master data");
         require(eShop.purchasingContractAddress != address(0), "eShop has no purchasing address");
         require(eShop.quoteSignerCount > 0, "No quote signers found for eShop");
         return eShop;
