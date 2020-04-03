@@ -31,16 +31,16 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             actualEternalStorageAddressHeldAgainstPoStorage.Should().Be(expectedEternalStorageAddress);
 
             // ...the funding contract should be configured to point to the business partner storage contract.
-            var actualBusinessPartnerStorageAddressHeldAgainstFunding = await _contracts.Deployment.FundingServiceLocal.BusinessPartnerStorageQueryAsync();
+            var actualBusinessPartnerStorageAddressHeldAgainstFunding = await _contracts.Deployment.FundingServiceLocal.BpStorageGlobalQueryAsync();
             var expectedBusinessPartnerAddress = _contracts.Deployment.BusinessPartnerStorageServiceGlobal.ContractHandler.ContractAddress;
             actualBusinessPartnerStorageAddressHeldAgainstFunding.Should().Be(expectedBusinessPartnerAddress);
 
             // ... the buyer wallet should be configured to point to the business partner storage contract.
-            var actualBusinessPartnerStorageAddressHeldAgainstBuyerWallet = await _contracts.Deployment.BuyerWalletService.BpStorageQueryAsync();
+            var actualBusinessPartnerStorageAddressHeldAgainstBuyerWallet = await _contracts.Deployment.BuyerWalletService.BpStorageGlobalQueryAsync();
             actualBusinessPartnerStorageAddressHeldAgainstBuyerWallet.Should().Be(expectedBusinessPartnerAddress);
 
             // ... the seller admin should be configured to point to the business partner storage contract.
-            var actualBusinessPartnerStorageAddressHeldAgainstSellerAdmin = await _contracts.Deployment.SellerAdminService.BpStorageQueryAsync();
+            var actualBusinessPartnerStorageAddressHeldAgainstSellerAdmin = await _contracts.Deployment.SellerAdminService.BpStorageGlobalQueryAsync();
             actualBusinessPartnerStorageAddressHeldAgainstSellerAdmin.Should().Be(expectedBusinessPartnerAddress);
 
             // ... the seller admin should be configured to have a seller id.
