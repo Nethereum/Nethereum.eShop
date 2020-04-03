@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <UserSecretsId>80b8bc7f-cc13-45f4-967c-6c2b164a22e3</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Ardalis.GuardClauses" Version="1.4.1" />
+    <PackageReference Include="Dapper" Version="2.0.30" />
+    <PackageReference Include="MediatR" Version="8.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.1" />
+    <PackageReference Include="System.Security.Claims" Version="4.3.0" />
+    <PackageReference Include="Ardalis.EFCore.Extensions" Version="1.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.2" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\contracts\Nethereum.Commerce.Contracts\Nethereum.Commerce.Contracts.csproj" />
+    <ProjectReference Include="..\Nethereum.eShop\Nethereum.eShop.csproj" />
+  </ItemGroup>  
+  
+</Project>

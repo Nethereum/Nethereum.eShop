@@ -22,6 +22,8 @@ using Nethereum.Web3;
 using System;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using System.IO;
+using Newtonsoft.Json;
 
 namespace Nethereum.Commerce.Contracts.Deployment
 {
@@ -151,6 +153,7 @@ namespace Nethereum.Commerce.Contracts.Deployment
 
             LogSeparator();
         }
+
 
         private async Task DeployAndConfigureEShopAsync()
         {

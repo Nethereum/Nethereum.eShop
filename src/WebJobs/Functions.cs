@@ -33,7 +33,7 @@ namespace Nethereum.eShop.WebJobs
         // the hack below works locally using the same app instance
         // but will most likely fail on Azure
         // where a new instance of the app will probably be instantiated on each interval
-        static bool _processing = false;
+        private static bool _processing = false;
 
         // [Singleton]
         public async Task ProcessBlockchainEvents([TimerTrigger("00:00:05")] TimerInfo timer, ILogger logger)

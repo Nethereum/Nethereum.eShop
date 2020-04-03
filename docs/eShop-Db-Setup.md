@@ -2,7 +2,7 @@
 
 ## Configuration
 
-Connection strings are loaded from configuration in the following order.  Each source will potentially overwrite settings in previous sources.
+Connection strings and settings are loaded from configuration in the following order.  Each source will potentially overwrite settings in previous sources.
 
 * appsettings.json
 * appsettings.{environment}.json
@@ -12,61 +12,98 @@ Connection strings are loaded from configuration in the following order.  Each s
 
 For access keys and connection strings, user secrets is preferred for the development environment.  It ensures they are excluded from source control and are able to differ from one developer to another.
 
+## Supported DB's
+
+* SqlServer (tested against 15.0.2000.5 (2019), SQL Server Developer Edition running locally)
+* Sqlite
+* InMemory
+
 ## Initial Db Setup
 
-### Prerequisites
-* Access to a SQL Server (tested against 15.0.2000.5 (2019), SQL Server Developer Edition running locally)
-* A Connection string which allows a Database to be created on server
-    * In a windows environment the current windows user would typically be setup as as sysadmin on the SQL Server and the connection strings would use Integrated Security to map the windows user to SQL Server.  This avoids setting a password in the connection string.  The initial setup involves the migration creating a database so the connection must be for a user with create db access.
-* Install the most recent dotnet-ef tool (necessary to create and run migrations)
-```
-dotnet tool install --global dotnet-ef --version 3.1.1
-```
+### Options
+
+* Automatic migration at Startup.
+    * During startup of the main "Web" app migrations will be applied to create and update the database.
+    * This can be enabled with the following settings in appsettings.json
+        * "CatalogApplyMigrationsOnStartup": true,
+        * "IdentityApplyMigrationsOnStartup": true,
+    * *Warning* For SQL Server this will may require a user with necessary permissions to create a DB.
+* Manually applying SQL Scripts
+    * You need to create the DB First (e.g. ``` create database EShop ```) then apply the appropriate scripts below to create the schema.
+        * src\Nethereum.eShop.SqlServer\Catalog\Migrations\Scripts
+        * src\Nethereum.eShop.SqlServer\Identity\Migrations\Scripts
+        * src\Nethereum.eShop.Sqlite\Catalog\Migrations\Scripts
+        * src\Nethereum.eShop.Sqlite\Identity\Migrations\Scripts
 
 ### DB Connections
-* CatalogConnection - the main DB containing products, quotes, orders etc
+
+Database providers are dictated by the ``` CatalogDbProvider ``` and `` AppIdentityDbProvider` ``` settings.  
+
+Supported values are:
+* InMemory
+* SqlServer
+* Sqlite
+* MySql
+
+``` json
+  "ConnectionStrings": {
+    "CatalogConnection_SqlServer": "Server=localhost;Integrated Security=true;Initial Catalog=eShop;",
+    "IdentityConnection_SqlServer": "Server=localhost;Integrated Security=true;Initial Catalog=eShop;",
+    "CatalogConnection_Sqlite": "Data Source=C:/temp/eshop_catalog.db",
+    "IdentityConnection_Sqlite": "Data Source=C:/temp/eshop_app_identity.db",
+    "CatalogConnection_MySql": "server=localhost;database=eShop;user=eShop;password=oDEcHyOmr1ujVIWLBtQp;Allow User Variables=True",
+    "IdentityConnection_MySql": "server=localhost;database=eShop;user=eShop;password=oDEcHyOmr1ujVIWLBtQp;Allow User Variables=True",    
+    "BlockchainProcessingProgressDb": "Server=localhost\\sqldev;Integrated Security=true;Initial Catalog=eShopWebJobs;"
+  },
+  "CatalogDbProvider": "SqlServer",
+  "AppIdentityDbProvider": "SqlServer",
+  "CatalogApplyMigrationsOnStartup": true,
+  "IdentityApplyMigrationsOnStartup": true
+```
+
+* CatalogConnection_{DbProvider} - the main DB containing products, quotes, orders etc
     * This connection is used by both the Web and WebJob projects
-* IdentityConnection - authentication DB
+* IdentityConnection_{DbProvider} - authentication DB (web login)
     * Only used by the Web project at present
 * BlockchainProcessingProgressDb - stores event log processing progress (last processed block number etc)
     * Only used by the WebJobs project
 
-### Steps
+Connection strings names are suffixed with the provider name (e.g. CatalogConnection_SqlServer) to allow easy switching between providers.  The developer can multiple  connection strings in settings and swap over using only the "CatalogDbProvider" and "AppIdentityDbProvider" settings.
 
-* Set up user-secrets
+### User Secrets
 
-    * Main Web Project: 
-        * Right Click the "Web" project and select "Manage User-Secrets", add the settings below and amend as necessary.
-        * By default the Web project runs with an in-memory database.  To use a real database, the "use-in-memory-db" setting must be set to false.
-        ``` json
-        {
-        "use-in-memory-db": false,
-        "ConnectionStrings": {
-            "CatalogConnection": "Server=<YourServer>;Integrated Security=true;Initial Catalog=eShop;",
-            "IdentityConnection": "Server=<YourServer>;Integrated Security=true;Initial Catalog=eShop;"
-        }
-        }
-        ```
-    * Web Jobs Project: 
-        * Right Click the "Web" project and select "Manage User-Secrets", add the settings below and amend as necessary.
-        ``` json
-        {
-        "AzureWebJobsStorage": "DefaultEndpointsProtocol=https;AccountName=<AccountName>;AccountKey=<AccountKey>;EndpointSuffix=core.windows.net",
-        "ConnectionStrings": {
-            "CatalogConnection": "Server=<YourServer>;Integrated Security=true;Initial Catalog=eShop;",
-            "IdentityConnection": "Server=<YourServer>;Integrated Security=true;Initial Catalog=eShop;",
-            "BlockchainProcessingProgressDb": "Server=<YourServer>;Integrated Security=true;Initial Catalog=eShopWebJobs;"
-        }
-        }
-        ```
-* Ensure the Web Project builds! (essential for running the initial migration)
-* Ensure the SQL Server is running
-* Ensure the database you require HAS NOT already been created
-* Run a script to create the DB
-    * In a command prompt - navigate to the root of the "Web" Project
-    * Run ApplyDbMigrations.bat
-        * This will create the DB and the necessary tables for the Catalog and Identity
-        * The "BlockchainProcessingProgressDb" referenced by the WebJobs project is setup differently, it is setup at run-time and created if it does not exist
-    * Run the Web project to ensure it works as expected
+The "Web" and "WebJobs" project share the same User Secrets Id.  This is because they are expected to share the same persistence stores.  To set or change user secrets, right click the project and select "manage user-secrets".
 
+### Adding Migrations and DB Creation Scripts
+
+When schema changes have been made, migrations should be created so that DB's can be created or updated to the most recent schema.
+
+The solution is setup so that migrations for multiple DB providers can be managed from one place which ensures they are in sync.  Note: creating or adding a migration does not update the database, it simply creates code or scripts which can be run later.
+
+Migrations are created using the "dotnet-ef" tool with a specific start up project ('Nethereum.eShop.Migrations').  The migration process requires a start up project and it is not practical to use the main "Web" or "WebApp" projects as these are only configured for one Db provider at any one time.  The goal here is to create migrations for each DB provider at once.
+
+* Installing dotnet-ef tool (you may need to update to .Net Core 3.1.2 first)
+```
+dotnet tool install --global dotnet-ef --version 3.1.2
+```
+
+#### Adding a migration
+
+Batch files which create a named migration for Catalog and Identity for all supported Db Providers.
+
+```
+AddCatalogMigration.bat <NameOfMigration>
+AddIdentityMigration.bat <NameOfMigration>
+```
+
+Creates a new migration in each DB provider project.  
+
+#### Creating Db Scripts
+
+Generates a complete DB creation script for each supported Db Provider for both the Catalog connection and Identity connection.  This script can be run manually against the chosen database. 
+
+```
+ScriptCatalogDb.bat
+ScriptIdentityDb.bat
+```
 

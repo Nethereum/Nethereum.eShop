@@ -7,6 +7,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
+using Nethereum.eShop.ApplicationCore.Interfaces;
+using Microsoft.Extensions.Configuration;
 
 namespace Nethereum.eShop.Web
 {
@@ -20,16 +22,23 @@ namespace Nethereum.eShop.Web
             using (var scope = host.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
+
                 var loggerFactory = services.GetRequiredService<ILoggerFactory>();
+                var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
                 try
                 {
-                    var catalogContext = services.GetRequiredService<CatalogContext>();
+                    await services.GetRequiredService<IEShopDbBootstrapper>().EnsureCreatedAsync(services, configuration);
+                    await services.GetRequiredService<IEShopIdentityDbBootstrapper>().EnsureCreatedAsync(services, configuration);
+
                     var catalogContextSeeder = services.GetRequiredService<ICatalogContextSeeder>();
-                    await catalogContextSeeder.SeedAsync(catalogContext, loggerFactory);
+                    await catalogContextSeeder.SeedAsync(loggerFactory);
 
                     var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
                     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
                     await AppIdentityDbContextSeed.SeedAsync(userManager, roleManager);
+
+                    var contractDeploymentService = services.GetRequiredService<IContractDeploymentService>();
+                    await contractDeploymentService.EnsureDeployedAsync(loggerFactory);
                 }
                 catch (Exception ex)
                 {

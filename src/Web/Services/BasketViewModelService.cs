@@ -1,23 +1,20 @@
-﻿using Nethereum.eShop.ApplicationCore.Entities;
-using Nethereum.eShop.ApplicationCore.Entities.BasketAggregate;
+﻿using Nethereum.eShop.ApplicationCore.Entities.BasketAggregate;
 using Nethereum.eShop.ApplicationCore.Interfaces;
-using Nethereum.eShop.ApplicationCore.Specifications;
 using Nethereum.eShop.Web.Interfaces;
 using Nethereum.eShop.Web.Pages.Basket;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Nethereum.eShop.Web.Services
 {
     public class BasketViewModelService : IBasketViewModelService
     {
-        private readonly IAsyncRepository<Basket> _basketRepository;
+        private readonly IBasketRepository _basketRepository;
         private readonly IUriComposer _uriComposer;
-        private readonly IAsyncRepository<CatalogItem> _itemRepository;
+        private readonly ICatalogItemRepository _itemRepository;
 
-        public BasketViewModelService(IAsyncRepository<Basket> basketRepository,
-            IAsyncRepository<CatalogItem> itemRepository,
+        public BasketViewModelService(IBasketRepository basketRepository,
+            ICatalogItemRepository itemRepository,
             IUriComposer uriComposer)
         {
             _basketRepository = basketRepository;
@@ -27,8 +24,7 @@ namespace Nethereum.eShop.Web.Services
 
         public async Task<BasketViewModel> GetOrCreateBasketForUser(string userName)
         {
-            var basketSpec = new BasketWithItemsSpecification(userName);
-            var basket = (await _basketRepository.ListAsync(basketSpec)).FirstOrDefault();
+            var basket = await _basketRepository.GetByBuyerIdWithItemsAsync(userName);
 
             if (basket == null)
             {
@@ -50,7 +46,8 @@ namespace Nethereum.eShop.Web.Services
         {
             // TODO: populate from buyer entity
             var basket = new Basket() { BuyerId = userId, BuyerAddress = string.Empty };
-            await _basketRepository.AddAsync(basket);
+            _basketRepository.Add(basket);
+            await _basketRepository.UnitOfWork.SaveEntitiesAsync();
 
             return new BasketViewModel()
             {

@@ -18,16 +18,9 @@ namespace Nethereum.eShop.ApplicationCore.Entities.OrderAggregate
 
         public string BuyerId { get; set; }
 
-        /// <summary>
-        /// The Buyer Address
-        /// </summary>
-        public string BuyerAddress { get; set; }
-
         public string CurrencyAddress { get; set; }
 
         public string CurrencySymbol { get; set; }
-
-        public string ApproverAddress { get; set; }
 
         /// <summary>
         /// The Purhase Order Number
@@ -79,17 +72,17 @@ namespace Nethereum.eShop.ApplicationCore.Entities.OrderAggregate
             // required by EF
         }
 
-        public Order(string buyerId, string buyerAddress, PostalAddress billTo, PostalAddress shipTo, List<OrderItem> items)
+        public Order(string buyerId, string buyerWalletAddress, PostalAddress billTo, PostalAddress shipTo, List<OrderItem> items)
         {
             Guard.Against.NullOrEmpty(buyerId, nameof(buyerId));
-            Guard.Against.NullOrEmpty(buyerAddress, nameof(buyerAddress));
+            Guard.Against.NullOrEmpty(buyerWalletAddress, nameof(buyerWalletAddress));
             // TODO: Reinforce null address guards
             // Guard.Against.Null(billTo, nameof(billTo));
             // Guard.Against.Null(shipTo, nameof(shipTo));
             Guard.Against.Null(items, nameof(items));
 
             BuyerId = buyerId;
-            BuyerAddress = buyerAddress;
+            BuyerWalletAddress = buyerWalletAddress;
             ShipTo = shipTo;
             _orderItems = items;
         }
@@ -102,6 +95,11 @@ namespace Nethereum.eShop.ApplicationCore.Entities.OrderAggregate
                 total += item.UnitPrice * item.Quantity;
             }
             return total;
+        }
+
+        public int ItemCount()
+        {
+            return _orderItems == null ? 0 : _orderItems.Count;
         }
     }
 }

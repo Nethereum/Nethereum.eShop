@@ -13,21 +13,21 @@ namespace Nethereum.eShop.ApplicationCore.Services
 {
     public class QuoteService : IQuoteService
     {
-        private readonly IAsyncRepository<Quote> _quoteRepository;
-        private readonly IAsyncRepository<Basket> _basketRepository;
-        private readonly IAsyncRepository<CatalogItem> _itemRepository;
+        private readonly IBasketRepository _basketRepository;
+        private readonly ICatalogItemRepository _itemRepository;
+        private readonly IQuoteRepository _quoteRepository;
         private readonly IRulesEngineService _rulesEngineService;
 
         public QuoteService(
-            IAsyncRepository<Basket> basketRepository,
-            IAsyncRepository<CatalogItem> itemRepository,
-            IAsyncRepository<Quote> orderRepository,
+            IBasketRepository basketRepository,
+            ICatalogItemRepository itemRepository,
+            IQuoteRepository quoteRepository,
             IRulesEngineService rulesEngineService)
         {
-            _quoteRepository = orderRepository;
-            _basketRepository = basketRepository;
-            _itemRepository = itemRepository;
-            _rulesEngineService = rulesEngineService;
+            _basketRepository = basketRepository ?? throw new ArgumentNullException(nameof(basketRepository));
+            _itemRepository = itemRepository ?? throw new ArgumentNullException(nameof(itemRepository));
+            _quoteRepository = quoteRepository ?? throw new ArgumentNullException(nameof(quoteRepository));
+            _rulesEngineService = rulesEngineService ?? throw new ArgumentNullException(nameof(rulesEngineService));
         }
 
         public async Task CreateQuoteAsync(int basketId)
@@ -40,7 +40,7 @@ namespace Nethereum.eShop.ApplicationCore.Services
             // Create purchase order
             // reserve stock?
 
-            var basket = await _basketRepository.GetByIdAsync(basketId);
+            var basket = await _basketRepository.GetByIdWithItemsAsync(basketId).ConfigureAwait(false);
             Guard.Against.NullBasket(basketId, basket);
 
             var quoteItems = await MapAsync(basket);
@@ -64,12 +64,14 @@ namespace Nethereum.eShop.ApplicationCore.Services
                     // NOTE: Should there be any indication of minor issues to the user?
                 }
             }
-            catch (RuleTreeException ruleTreeEx)
+            catch (RuleTreeException)
             {
                 // NOTE: Should we redirect the user to an error page?
             }
 
-            await _quoteRepository.AddAsync(quote);
+            _quoteRepository.Add(quote);
+
+            await _quoteRepository.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
         }
 
         private async Task<List<RuleTreeReport>> ExecuteRules(Quote targetQuote)
@@ -122,7 +124,7 @@ namespace Nethereum.eShop.ApplicationCore.Services
             var items = new List<QuoteItem>();
             foreach (var item in basket.Items)
             {
-                var catalogItem = await _itemRepository.GetByIdAsync(item.CatalogItemId);
+                var catalogItem = await _itemRepository.GetByIdAsync(item.CatalogItemId).ConfigureAwait(false);
 
                 var itemOrdered = new CatalogItemExcerpt(
                     catalogItem.Id, catalogItem.Gtin, catalogItem.GtinRegistryId, catalogItem.Name, catalogItem.PictureUri);

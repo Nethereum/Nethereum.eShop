@@ -19,8 +19,7 @@ namespace Nethereum.eShop.Web.Features.QuoteDetails
 
         public async Task<QuoteViewModel> Handle(GetQuoteDetails request, CancellationToken cancellationToken)
         {
-            var customerQuotes = await _quoteRepository.ListAsync(new CustomerQuotesWithItemsSpecification(request.UserName));
-            var quote = customerQuotes.FirstOrDefault(o => o.Id == request.QuoteId);
+            var quote = await _quoteRepository.GetByIdWithItemsAsync(request.QuoteId);
 
             if (quote == null)
             {

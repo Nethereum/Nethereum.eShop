@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Nethereum.eShop.Web.Features.MyOrders
 {
-    public class GetMyOrders : IRequest<IEnumerable<OrderViewModel>>
+    public class GetMyOrders : IRequest<IEnumerable<OrderExcerptViewModel>>
     {
         public string UserName { get; set; }
 

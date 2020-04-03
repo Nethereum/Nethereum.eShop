@@ -1,0 +1,3 @@
+dotnet ef migrations add %1 --project ..\Nethereum.eShop.SqlServer --context Nethereum.eShop.SqlServer.Identity.SqlServerAppIdentityDbContext --output-dir ..\Nethereum.eShop.SqlServer\Identity\Migrations
+dotnet ef migrations add %1 --project ..\Nethereum.eShop.Sqlite --context Nethereum.eShop.Sqlite.Identity.SqliteAppIdentityDbContext --output-dir ..\Nethereum.eShop.Sqlite\Identity\Migrations
+dotnet ef migrations add %1 --project ..\Nethereum.eShop.MySql --context Nethereum.eShop.MySql.Identity.MySqlAppIdentityDbContext --output-dir ..\Nethereum.eShop.MySql\Identity\Migrations

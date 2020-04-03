@@ -8,9 +8,9 @@ namespace Nethereum.eShop.Web.Services
 {
     public class CatalogItemViewModelService : ICatalogItemViewModelService
     {
-        private readonly IAsyncRepository<CatalogItem> _catalogItemRepository;
+        private readonly ICatalogItemRepository _catalogItemRepository;
 
-        public CatalogItemViewModelService(IAsyncRepository<CatalogItem> catalogItemRepository)
+        public CatalogItemViewModelService(ICatalogItemRepository catalogItemRepository)
         {
             _catalogItemRepository = catalogItemRepository;
         }
@@ -25,7 +25,7 @@ namespace Nethereum.eShop.Web.Services
             updatedCatalogItem.Name = viewModel.Name;
             updatedCatalogItem.Price = viewModel.Price;
 
-            await _catalogItemRepository.UpdateAsync(updatedCatalogItem);
+            await _catalogItemRepository.UnitOfWork.SaveEntitiesAsync();
         }
     }
 }

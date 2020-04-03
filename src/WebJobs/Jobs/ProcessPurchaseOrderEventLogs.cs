@@ -1,4 +1,5 @@
 ﻿using Common.Logging;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Nethereum.BlockchainProcessing;
 using Nethereum.BlockchainProcessing.LogProcessing;
@@ -6,10 +7,8 @@ using Nethereum.BlockchainProcessing.Orchestrator;
 using Nethereum.BlockchainProcessing.Processor;
 using Nethereum.BlockchainProcessing.ProgressRepositories;
 using Nethereum.Commerce.Contracts.Purchasing.ContractDefinition;
-using Nethereum.Commerce.Contracts.WalletBuyer;
 using Nethereum.eShop.ApplicationCore.Exceptions;
 using Nethereum.eShop.ApplicationCore.Interfaces;
-using Nethereum.eShop.WebJobs.Configuration;
 using Nethereum.Microsoft.Logging.Utils;
 using Nethereum.RPC.Eth.Blocks;
 using Nethereum.RPC.Eth.DTOs;
@@ -21,26 +20,29 @@ namespace Nethereum.eShop.WebJobs.Jobs
 {
     public class ProcessPurchaseOrderEventLogs : IProcessPuchaseOrderEventLogs
     {
-        private readonly EshopConfiguration _eshopConfiguration;
-        private readonly PurchaseOrderEventLogProcessingConfiguration _config;
+        private readonly IConfiguration _configuration;
+        private readonly ISettingRepository _settingRepository;
         private readonly IOrderService _orderService;
         private readonly IBlockProgressRepository BlockProgressRepository = null;
 
         public ProcessPurchaseOrderEventLogs(
-            EshopConfiguration eshopConfiguration, 
+            IConfiguration configuration,
+            ISettingRepository settingRepository, 
             IOrderService orderService,
             IBlockProgressRepository blockProgressRepository
             )
         {
-            _eshopConfiguration = eshopConfiguration;
+            _configuration = configuration;
+            _settingRepository = settingRepository;
             _orderService = orderService;
-            _config = eshopConfiguration.PurchaseOrderEventLogConfiguration;
             BlockProgressRepository = blockProgressRepository;
         }
 
         public async Task ExecuteAsync(ILogger logger)
         {
-            if (!_config.Enabled)
+            var dbConfigSettings = await _settingRepository.GetEShopConfigurationSettingsAsync();
+
+            if (!dbConfigSettings.ProcessPurchaseOrderEvents.Enabled)
             {
                 logger.LogInformation($"{nameof(ProcessPurchaseOrderEventLogs)} is not enabled - see app settings");
                 return;
@@ -48,11 +50,10 @@ namespace Nethereum.eShop.WebJobs.Jobs
 
             const int RequestRetryWeight = 0; // see below for retry algorithm
 
-            var web3 = new Web3.Web3(_eshopConfiguration.EthereumRpcUrl);
-            var walletBuyerService = new WalletBuyerService(web3, _eshopConfiguration.BuyerWalletAddress);
-            var purchasingContractAddress = await walletBuyerService.PurchasingQueryAsync();
+            var url = _configuration["EthereumRpcUrl"];
 
-            var filter = new NewFilterInput { Address = new[] { purchasingContractAddress } };
+            var web3 = new Web3.Web3(url);
+            var filter = new NewFilterInput { Address = new[] { dbConfigSettings.PurchasingContractAddress } };
 
             ILog log = logger.ToILog();
 
@@ -66,7 +67,7 @@ namespace Nethereum.eShop.WebJobs.Jobs
                 ethApi: web3.Eth,
                 logProcessors: logProcessorHandlers,
                 filterInput: filter,
-                defaultNumberOfBlocksPerRequest: (int)_config.NumberOfBlocksPerBatch,
+                defaultNumberOfBlocksPerRequest: dbConfigSettings.ProcessPurchaseOrderEvents.NumberOfBlocksPerBatch,
                 retryWeight: RequestRetryWeight);
 
             IWaitStrategy waitForBlockConfirmationsStrategy = new WaitStrategy();
@@ -75,18 +76,18 @@ namespace Nethereum.eShop.WebJobs.Jobs
                 new LastConfirmedBlockNumberService(
                     web3.Eth.Blocks.GetBlockNumber,
                     waitForBlockConfirmationsStrategy,
-                    _config.MinimumBlockConfirmations,
+                    (uint)dbConfigSettings.ProcessPurchaseOrderEvents.MinimumBlockConfirmations,
                     log);
 
             var processor = new BlockchainProcessor(
                 orchestrator, BlockProgressRepository, lastConfirmedBlockNumberService);
 
-            var cancellationToken = new CancellationTokenSource(_config.TimeoutMs);
+            var cancellationToken = new CancellationTokenSource(dbConfigSettings.ProcessPurchaseOrderEvents.TimeoutMs);
 
             var currentBlockOnChain = await web3.Eth.Blocks.GetBlockNumber.SendRequestAsync();
-            var blockToProcessTo = currentBlockOnChain.Value - _config.MinimumBlockConfirmations;
+            var blockToProcessTo = currentBlockOnChain.Value - dbConfigSettings.ProcessPurchaseOrderEvents.MinimumBlockConfirmations;
             var lastBlockProcessed = await BlockProgressRepository.GetLastBlockNumberProcessedAsync();
-            var minStartingBlock = _config.GetMinimumStartingBlock();
+            var minStartingBlock = dbConfigSettings.ProcessPurchaseOrderEvents.MinimumStartingBlock;
 
             logger.LogInformation(
                 $"Processing logs. To Block: {blockToProcessTo},  Last Block Processed: {lastBlockProcessed ?? 0}, Min Block: {minStartingBlock}");

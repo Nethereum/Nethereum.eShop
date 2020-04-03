@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Nethereum.eShop.ApplicationCore.Entities;
 using Nethereum.eShop.ApplicationCore.Interfaces;
-using Nethereum.eShop.ApplicationCore.Specifications;
+using Nethereum.eShop.ApplicationCore.Queries.Catalog;
 using Nethereum.eShop.Web.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -18,20 +18,20 @@ namespace Nethereum.eShop.Web.Services
     public class CatalogViewModelService : ICatalogViewModelService
     {
         private readonly ILogger<CatalogViewModelService> _logger;
-        private readonly ICatalogItemRepository _itemRepository;
+        private readonly ICatalogQueries _catalogQueries;
         private readonly IAsyncRepository<CatalogBrand> _brandRepository;
         private readonly IAsyncRepository<CatalogType> _typeRepository;
         private readonly IUriComposer _uriComposer;
 
         public CatalogViewModelService(
             ILoggerFactory loggerFactory,
-            ICatalogItemRepository itemRepository,
+            ICatalogQueries catalogQueries,
             IAsyncRepository<CatalogBrand> brandRepository,
             IAsyncRepository<CatalogType> typeRepository,
             IUriComposer uriComposer)
         {
             _logger = loggerFactory.CreateLogger<CatalogViewModelService>();
-            _itemRepository = itemRepository;
+            _catalogQueries = catalogQueries;
             _brandRepository = brandRepository;
             _typeRepository = typeRepository;
             _uriComposer = uriComposer;
@@ -41,15 +41,17 @@ namespace Nethereum.eShop.Web.Services
         {
             _logger.LogInformation("GetCatalogItems called.");
 
-            var filterSpecification = new CatalogFilterSpecification(brandId, typeId, searchText);
-            var filterPaginatedSpecification =
-                new CatalogFilterPaginatedSpecification(itemsPage * pageIndex, itemsPage, brandId, typeId, searchText);
-
             // the implementation below using ForEach and Count. We need a List.
-            var itemsOnPage = await _itemRepository.ListAsync(filterPaginatedSpecification);
-            var totalItems = await _itemRepository.CountAsync(filterSpecification);
+            var itemsOnPage = await _catalogQueries.GetCatalogItemsAsync(new GetCatalogItemsSpecification
+            {
+                BrandId = brandId,
+                TypeId = typeId,
+                Fetch = itemsPage,
+                SearchText = searchText,
+                Offset = (pageIndex * itemsPage)
+            });
 
-            foreach (var itemOnPage in itemsOnPage)
+            foreach (var itemOnPage in itemsOnPage.Data)
             {
                 itemOnPage.PictureUri = _uriComposer.ComposePicUri(itemOnPage.PictureUri);
             }
@@ -58,13 +60,13 @@ namespace Nethereum.eShop.Web.Services
 
             var vm = new CatalogIndexViewModel()
             {
-                CatalogItems = itemsOnPage.Select(i => new CatalogItemViewModel()
+                CatalogItems = itemsOnPage.Data.Select(i => new CatalogItemViewModel()
                 {
                     Id = i.Id,
                     Name = i.Name,
                     PictureUri = i.PictureUri,
                     Price = i.Price,
-                    Brand = brands.FirstOrDefault(b => b.Id == i.CatalogBrandId)?.Brand
+                    Brand = i.Brand
                 }),
                 Brands = await GetBrands(),
                 Types = await GetTypes(),
@@ -73,9 +75,9 @@ namespace Nethereum.eShop.Web.Services
                 PaginationInfo = new PaginationInfoViewModel()
                 {
                     ActualPage = pageIndex,
-                    ItemsPerPage = itemsOnPage.Count,
-                    TotalItems = totalItems,
-                    TotalPages = int.Parse(Math.Ceiling(((decimal)totalItems / itemsPage)).ToString())
+                    ItemsPerPage = itemsOnPage.Data.Count(),
+                    TotalItems = itemsOnPage.TotalCount,
+                    TotalPages = int.Parse(Math.Ceiling(((decimal)itemsOnPage.TotalCount / itemsPage)).ToString())
                 }
             };
 

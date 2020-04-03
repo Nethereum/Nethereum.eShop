@@ -1,20 +1,51 @@
 ﻿using Nethereum.BlockchainProcessing.ProgressRepositories;
-using System;
-using System.Collections.Generic;
+using Nethereum.eShop.ApplicationCore.Interfaces;
 using System.IO;
-using System.Text;
+using System.Numerics;
 using System.Threading.Tasks;
 
 namespace Nethereum.eShop.WebJobs
 {
-    public class JsonFileBlockProgressRepository: JsonBlockProgressRepository
+    public class JsonFileBlockProgressRepository : IBlockProgressRepository
     {
-        public JsonFileBlockProgressRepository(string jsonFile):base(
-                    () => Task.FromResult(File.Exists(jsonFile)),
-                    async (json) => await File.WriteAllTextAsync(jsonFile, json),
-                    async () => await File.ReadAllTextAsync(jsonFile))
-        {
+        private readonly ISettingRepository _settingRepository;
+        private IBlockProgressRepository _innerRepo;
 
+        public JsonFileBlockProgressRepository(ISettingRepository settingRepository)
+        {
+            _settingRepository = settingRepository;
+        }
+
+        public async Task<BigInteger?> GetLastBlockNumberProcessedAsync()
+        {
+            await InitRepo();
+            return await _innerRepo.GetLastBlockNumberProcessedAsync().ConfigureAwait(false);
+        }
+        public async Task UpsertProgressAsync(BigInteger blockNumber)
+        {
+            await InitRepo();
+            await _innerRepo.UpsertProgressAsync(blockNumber).ConfigureAwait(false);
+        }
+
+        private async Task InitRepo()
+        {
+            if (_innerRepo == null)
+            {
+                var config = await _settingRepository.GetEShopConfigurationSettingsAsync().ConfigureAwait(false);
+                _innerRepo = new PrivateJsonFileBlockProgressRepository(config.ProcessPurchaseOrderEvents.BlockProgressJsonFile);
+            }
+        }
+
+        public class PrivateJsonFileBlockProgressRepository : JsonBlockProgressRepository
+        {
+            public PrivateJsonFileBlockProgressRepository(string jsonFile) : base(
+                () => Task.FromResult(File.Exists(jsonFile)),
+                        async (json) => await File.WriteAllTextAsync(jsonFile, json),
+                        async () => await File.ReadAllTextAsync(jsonFile))
+            {
+
+            }
         }
     }
+
 }

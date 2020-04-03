@@ -11,8 +11,14 @@ namespace Nethereum.eShop.ApplicationCore.Entities.RulesEngine
             Owner             = null;
         }
 
-        public RuleTreeSeed(string psRuleTreeId, string psOriginUrl, string psOwner)
+        public RuleTreeSeed(int id)
         {
+            Id = id;
+        }
+
+        public RuleTreeSeed(int id, string psRuleTreeId, string psOriginUrl, string psOwner)
+        {
+            Id = id;
             RuleTreeId        = psRuleTreeId;
             RuleTreeOriginUrl = psOriginUrl;
             Owner             = psOwner;

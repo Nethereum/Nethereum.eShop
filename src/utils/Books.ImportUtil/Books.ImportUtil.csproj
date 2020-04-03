@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Nethereum.eShop.EntityFramework\Nethereum.eShop.EntityFramework.csproj" />
     <ProjectReference Include="..\..\Nethereum.eShop\Nethereum.eShop.csproj" />
   </ItemGroup>
 

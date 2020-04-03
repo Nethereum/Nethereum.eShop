@@ -1,19 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Nethereum.BlockchainProcessing.BlockStorage.Entities;
 using Nethereum.BlockchainProcessing.ProgressRepositories;
-using Nethereum.BlockchainStore.EFCore;
-using Nethereum.BlockchainStore.EFCore.Repositories;
-using Nethereum.BlockchainStore.EFCore.SqlServer;
 using Nethereum.eShop.ApplicationCore.Interfaces;
 using Nethereum.eShop.ApplicationCore.Services;
-using Nethereum.eShop.Infrastructure.Data;
-using Nethereum.eShop.WebJobs.Configuration;
+using Nethereum.eShop.DbFactory;
 using Nethereum.eShop.WebJobs.Jobs;
-using System;
 
 namespace Nethereum.eShop.WebJobs
 {
@@ -21,41 +15,46 @@ namespace Nethereum.eShop.WebJobs
     {
         static void Main(string[] args)
         {
-            IConfigurationRoot config = null;
-            EshopConfiguration eShopConfig = null;
+            IConfiguration config = null;
             var hostBuilder = Host.CreateDefaultBuilder(args);
 
-            hostBuilder.ConfigureServices(c =>
+            hostBuilder.ConfigureServices(services =>
             {
-                c.AddDbContext<CatalogContext>((serviceProvider, options) =>
-                    options.UseSqlServer(config.GetConnectionString("CatalogConnection")));
+                // TODO: Configure MediatR properly - this is just a place holder
+                services.AddMediatR(typeof(Program));
 
-                // config
-                c.AddSingleton(eShopConfig);
+                // db
+                var dbBootstrapper = EShopDbBootstrapper.CreateDbBootstrapper(config);
+                dbBootstrapper.AddDbContext(services, config);
+
+                //repositories
+                dbBootstrapper.AddRepositories(services, config);
 
                 // supporting services
-                c.AddScoped(typeof(IAsyncRepository<>), typeof(EfRepository<>));
-                c.AddScoped<IQuoteRepository, QuoteRepository>();
-                c.AddScoped<IOrderRepository, OrderRepository>();
-                c.AddScoped<IOrderService, OrderService>();
+                services.AddScoped<IOrderService, OrderService>();
+
+                // TODO: There's a bug in the BlockProgressRepo
+                // It's using string ordering instead of numeric ordering to get the last block processed
+                // so 997 is considered higher than 2061
+                // this has been fixed but is awaiting a PR merge and nuget release (probably 3.7.2)
 
                 // blockchain event log progress db
-                var progressDbConnectionString = config.GetConnectionString("BlockchainProcessingProgressDb");
-                IBlockchainDbContextFactory blockchainDbContextFactory =
-                    new SqlServerCoreBlockchainDbContextFactory(
-                        progressDbConnectionString, DbSchemaNames.dbo);
+                //var progressDbConnectionString = config.GetConnectionString("BlockchainProcessingProgressDb");
+                //IBlockchainDbContextFactory blockchainDbContextFactory =
+                //    new SqlServerCoreBlockchainDbContextFactory(
+                //        progressDbConnectionString, DbSchemaNames.dbo);
 
-                using (var progressContext = blockchainDbContextFactory.CreateContext())
-                {
-                    progressContext.Database.EnsureCreated();
-                }
+                //using (var progressContext = blockchainDbContextFactory.CreateContext())
+                //{
+                //    progressContext.Database.EnsureCreated();
+                //}
 
-                IBlockProgressRepository progressRepo = new BlockProgressRepository(blockchainDbContextFactory);
-                c.AddSingleton(progressRepo);
+                //IBlockProgressRepository progressRepo = new BlockProgressRepository(blockchainDbContextFactory);
+                services.AddScoped<IBlockProgressRepository, JsonFileBlockProgressRepository>();
 
                 // jobs
-                c.AddScoped<IProcessPuchaseOrderEventLogs, ProcessPurchaseOrderEventLogs>();
-                c.AddScoped<ICreateFakePurchaseOrders, CreateFakePurchaseOrders>();
+                services.AddScoped<IProcessPuchaseOrderEventLogs, ProcessPurchaseOrderEventLogs>();
+                services.AddScoped<ICreateFakePurchaseOrders, CreateFakePurchaseOrders>();
             });
 
             hostBuilder.ConfigureWebJobs(b =>
@@ -71,7 +70,6 @@ namespace Nethereum.eShop.WebJobs
                     c.AddUserSecrets(typeof(Program).Assembly);
 
                 config = c.Build();
-                eShopConfig = config.GetSection("EshopConfiguration").Get<EshopConfiguration>();
             });
 
             hostBuilder.ConfigureLogging((context, b) =>
@@ -87,5 +85,6 @@ namespace Nethereum.eShop.WebJobs
                 }
             }
         }
+
     }
 }
