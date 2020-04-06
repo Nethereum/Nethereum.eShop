@@ -36,10 +36,9 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var signature = poAsRequested.ToBuyerPo().GetSignatureBytes(_contracts.Web3);
 
             // Request creation of new PO using preexisting Purchasing contract, but with tx executed by the non-authorised ("secondary") user
-            await Task.Delay(1);
             var ps = new PurchasingService(_contracts.Web3SecondaryUser, _contracts.Deployment.PurchasingServiceLocal.ContractHandler.ContractAddress);
             Func<Task> act = async () => await ps.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
-            act.Should().Throw<SmartContractRevertException>().WithMessage(AUTH_EXCEPTION_ONLY_REGISTERED);
+            await act.Should().ThrowAsync<SmartContractRevertException>().WithMessage(AUTH_EXCEPTION_ONLY_REGISTERED);
         }
 
         private async Task<Purchasing.Po> CreatePurchasingPoAsync(uint quoteId, string eShopId)

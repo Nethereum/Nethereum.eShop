@@ -78,7 +78,6 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         [Fact]
         public async void ShouldStoreRetrieveAndChangeEshop()
         {
-            await Task.Delay(1);
             // Create an eShop to store
             var eShopExpected = new Eshop()
             {
@@ -130,7 +129,6 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         [Fact]
         public async void ShouldFailToCreateEshopWhenMissingPurchasingAddress()
         {
-            await Task.Delay(1);
             // Create an eShop to store, but miss out required field PurchasingContractAddress            
             var eShopExpected = new Eshop()
             {
@@ -149,13 +147,12 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 
             // Try to store eShop, it should fail
             Func<Task> act = async () => await _contracts.Deployment.BusinessPartnerStorageServiceGlobal.SetEshopRequestAndWaitForReceiptAsync(eShopExpected);
-            act.Should().Throw<SmartContractRevertException>().WithMessage(BP_EXCEPTION_ESHOP_MISSING_PURCH_CONTRACT);
+            await act.Should().ThrowAsync<SmartContractRevertException>().WithMessage(BP_EXCEPTION_ESHOP_MISSING_PURCH_CONTRACT);
         }
 
         [Fact]
         public async void ShouldFailToCreateEshopWhenMissingSigners()
         {
-            await Task.Delay(1);
             // Create an eShop to store, but miss out all quote signers            
             var eShopExpected = new Eshop()
             {
@@ -170,13 +167,12 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 
             // Try to store eShop, it should fail
             Func<Task> act = async () => await _contracts.Deployment.BusinessPartnerStorageServiceGlobal.SetEshopRequestAndWaitForReceiptAsync(eShopExpected);
-            act.Should().Throw<SmartContractRevertException>().WithMessage(BP_EXCEPTION_ESHOP_MISSING_SIGNERS);
+            await act.Should().ThrowAsync<SmartContractRevertException>().WithMessage(BP_EXCEPTION_ESHOP_MISSING_SIGNERS);
         }
 
         [Fact]
         public async void ShouldFailToCreateSellerWhenMissingAdminAddress()
         {
-            await Task.Delay(1);
             // Create a Seller to store, but miss out required field adminContractAddress            
             var sellerExpected = new Seller()
             {
@@ -189,7 +185,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 
             // Try to store Seller, it should fail
             Func<Task> act = async () => await _contracts.Deployment.BusinessPartnerStorageServiceGlobal.SetSellerRequestAndWaitForReceiptAsync(sellerExpected);
-            act.Should().Throw<SmartContractRevertException>().WithMessage(BP_EXCEPTION_SELLER_MISSING_CONTRACT);
+            await act.Should().ThrowAsync<SmartContractRevertException>().WithMessage(BP_EXCEPTION_SELLER_MISSING_CONTRACT);
         }
     }
 }

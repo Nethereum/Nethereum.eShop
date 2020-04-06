@@ -94,7 +94,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                 ContractDeployment.CONTRACT_NAME_BUSINESS_PARTNER_STORAGE_GLOBAL,
                 ContractDeployment.CONTRACT_NAME_PO_STORAGE_LOCAL,
                 ContractDeployment.CONTRACT_NAME_FUNDING_LOCAL);
-            act.Should().Throw<SmartContractRevertException>().WithMessage(PO_EXCEPTION_CHECK_ESHOP_MASTER_DATA); 
+            await act.Should().ThrowAsync<SmartContractRevertException>().WithMessage(PO_EXCEPTION_CHECK_ESHOP_MASTER_DATA); 
         }
     }
 }

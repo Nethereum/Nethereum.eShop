@@ -52,7 +52,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var wss = new SellerAdminService(_contracts.Web3SecondaryUser, _contracts.Deployment.SellerAdminService.ContractHandler.ContractAddress);
             Func<Task> act = async () => await wss.SetPoItemAcceptedRequestAndWaitForReceiptAsync(
                 poAsRequested.EShopId, poNumberAsBuilt, 1, "SalesOrder1", "Item1");
-            act.Should().Throw<SmartContractRevertException>().WithMessage(AUTH_EXCEPTION_ONLY_OWNER);
+            await act.Should().ThrowAsync<SmartContractRevertException>().WithMessage(AUTH_EXCEPTION_ONLY_OWNER);
         }
 
         [Fact]
@@ -70,7 +70,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 
             // Direct call of the SellerAdmin.sol function EmitEventForNewPoRequest should fail, since the caller is not an eShop
             Func<Task> act = async () => await _contracts.Deployment.SellerAdminService.EmitEventForNewPoRequestAndWaitForReceiptAsync(poAsRequested.ToSellerPo());
-            act.Should().Throw<SmartContractRevertException>().WithMessage(ESHOP_EXCEPTION_FUNCTION_ONLY_CALLABLE_BY_ESHOP);
+            await act.Should().ThrowAsync<SmartContractRevertException>().WithMessage(ESHOP_EXCEPTION_FUNCTION_ONLY_CALLABLE_BY_ESHOP);
         }
 
         private async Task<Buyer.Po> CreateBuyerPoAsync(uint quoteId)

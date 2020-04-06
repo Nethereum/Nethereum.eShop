@@ -187,7 +187,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var signature = poAsRequested.GetSignatureBytes(_contracts.Web3);
             // DONT send any funds, so BuyerWallet has insufficient funds and creation should fail
             Func<Task> act = async () => await _contracts.Deployment.BuyerWalletService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
-            act.Should().Throw<SmartContractRevertException>(); // exception thrown by token, so can't know what actual message will be                        
+            await act.Should().ThrowAsync<SmartContractRevertException>(); // exception thrown by token, so can't know what actual message will be                        
         }
 
         [Fact]
@@ -201,7 +201,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 
             // Attempt to create PO, it should fail
             Func<Task> act = async () => await _contracts.Deployment.BuyerWalletService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
-            act.Should().Throw<SmartContractRevertException>().WithMessage(QUOTE_EXCEPTION_EXPIRY_PASSED);
+            await act.Should().ThrowAsync<SmartContractRevertException>().WithMessage(QUOTE_EXCEPTION_EXPIRY_PASSED);
         }
 
         [Fact]
@@ -215,7 +215,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 
             // Attempt to create PO, it should fail
             Func<Task> act = async () => await _contracts.Deployment.BuyerWalletService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
-            act.Should().Throw<SmartContractRevertException>().WithMessage(PO_EXCEPTION_ESHOP_NO_PURCH_ADD);
+            await act.Should().ThrowAsync<SmartContractRevertException>().WithMessage(PO_EXCEPTION_ESHOP_NO_PURCH_ADD);
         }
 
         [Fact]
@@ -235,7 +235,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 
             // Attempt to create PO, it should fail
             Func<Task> act = async () => await _contracts.Deployment.BuyerWalletService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
-            act.Should().Throw<SmartContractRevertException>().WithMessage(PO_EXCEPTION_ESHOP_INACTIVE);
+            await act.Should().ThrowAsync<SmartContractRevertException>().WithMessage(PO_EXCEPTION_ESHOP_INACTIVE);
 
             // Make eShop active again, else we will mess up other tests
             eShop.IsActive = true;
@@ -251,7 +251,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 
             // Attempt to create PO, it should fail
             act = async () => await _contracts.Deployment.BuyerWalletService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
-            act.Should().Throw<SmartContractRevertException>().WithMessage(PO_EXCEPTION_SELLER_INACTIVE);
+            await act.Should().ThrowAsync<SmartContractRevertException>().WithMessage(PO_EXCEPTION_SELLER_INACTIVE);
 
             // Make seller active again, else we mess up other tests
             seller.IsActive = true;
@@ -271,7 +271,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var signature = poAsRequested.GetSignatureBytes(_contracts.Web3SecondaryUser);
             await PrepSendFundsToBuyerWalletForPo(_contracts.Web3, poAsRequested);
             Func<Task> act = async () => await _contracts.Deployment.BuyerWalletService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
-            act.Should().Throw<SmartContractRevertException>().WithMessage(QUOTE_EXCEPTION_WRONG_SIG);
+            await act.Should().ThrowAsync<SmartContractRevertException>().WithMessage(QUOTE_EXCEPTION_WRONG_SIG);
         }
 
         [Fact]
@@ -287,7 +287,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             // Attempt to create PO using the same quote again, it should fail
             await PrepSendFundsToBuyerWalletForPo(_contracts.Web3, poAsRequested);
             Func<Task> act = async () => await _contracts.Deployment.BuyerWalletService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
-            act.Should().Throw<SmartContractRevertException>().WithMessage(QUOTE_EXCEPTION_QUOTE_IN_USE);
+            await act.Should().ThrowAsync<SmartContractRevertException>().WithMessage(QUOTE_EXCEPTION_QUOTE_IN_USE);
         }
 
         [Fact]

@@ -113,7 +113,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             sellerExpected.SellerDescription = "New description";
             var bpss = new BusinessPartnerStorageService(_contracts.Web3SecondaryUser, _contracts.Deployment.BusinessPartnerStorageServiceGlobal.ContractHandler.ContractAddress);
             Func<Task> act = async () => await bpss.SetSellerRequestAndWaitForReceiptAsync(sellerExpected);
-            act.Should().Throw<SmartContractRevertException>().WithMessage(AUTH_EXCEPTION_ONLY_CREATEDBY);
+            await act.Should().ThrowAsync<SmartContractRevertException>().WithMessage(AUTH_EXCEPTION_ONLY_CREATEDBY);
         }
 
         [Fact]
@@ -143,7 +143,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             eShopExpected.EShopDescription = "New description";
             var bpss = new BusinessPartnerStorageService(_contracts.Web3SecondaryUser, _contracts.Deployment.BusinessPartnerStorageServiceGlobal.ContractHandler.ContractAddress);
             Func<Task> act = async () => await bpss.SetEshopRequestAndWaitForReceiptAsync(eShopExpected);
-            act.Should().Throw<SmartContractRevertException>().WithMessage(AUTH_EXCEPTION_ONLY_CREATEDBY);
+            await act.Should().ThrowAsync<SmartContractRevertException>().WithMessage(AUTH_EXCEPTION_ONLY_CREATEDBY);
         }
     }
 }

@@ -44,7 +44,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var eShopId = await _contracts.Deployment.PurchasingServiceLocal.EShopIdQueryAsync();
             Func<Task> act = async () => await _contracts.Deployment.SellerAdminService.SetPoItemAcceptedRequestAndWaitForReceiptAsync(
                 eShopId.ConvertToString(), 12345, 1, SALES_ORDER_NUMBER, SALES_ORDER_ITEM);
-            act.Should().Throw<SmartContractRevertException>().WithMessage(PO_EXCEPTION_NOT_EXIST);
+            await act.Should().ThrowAsync<SmartContractRevertException>().WithMessage(PO_EXCEPTION_NOT_EXIST);
         }
 
         [Theory]
@@ -67,7 +67,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             // This PO exists, but items specified shouldn't exist
             Func<Task> act = async () => await _contracts.Deployment.SellerAdminService.SetPoItemAcceptedRequestAndWaitForReceiptAsync(
                 poAsRequested.EShopId, poNumberAsBuilt, poItemNumber, SALES_ORDER_NUMBER, SALES_ORDER_ITEM);
-            act.Should().Throw<SmartContractRevertException>().WithMessage(PO_ITEM_EXCEPTION_NOT_EXIST);
+            await act.Should().ThrowAsync<SmartContractRevertException>().WithMessage(PO_ITEM_EXCEPTION_NOT_EXIST);
         }
 
         /// <summary>
@@ -108,7 +108,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var wbs = new BuyerWalletService(_contracts.Web3SecondaryUser, _contracts.Deployment.BuyerWalletService.ContractHandler.ContractAddress);
             Func<Task> act = async () => await wbs.SetPoItemGoodsReceivedRequestAndWaitForReceiptAsync(
                 poAsRequested.EShopId, poNumberAsBuilt, PO_ITEM_NUMBER);
-            act.Should().Throw<SmartContractRevertException>().WithMessage(GOODS_RECEIPT_EXCEPTION_NOT_PO_OWNER);
+            await act.Should().ThrowAsync<SmartContractRevertException>().WithMessage(GOODS_RECEIPT_EXCEPTION_NOT_PO_OWNER);
         }
 
         /// <summary>
@@ -147,7 +147,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             // Setting Goods Received by Seller should fail, seller can only set GR after 30 days
             Func<Task> act = async () => await _contracts.Deployment.SellerAdminService.SetPoItemGoodsReceivedRequestAndWaitForReceiptAsync(
                 poAsRequested.EShopId, poNumberAsBuilt, PO_ITEM_NUMBER);
-            act.Should().Throw<SmartContractRevertException>().WithMessage(GOODS_RECEIPT_EXCEPTION_INSUFFICIENT_DAYS);
+            await act.Should().ThrowAsync<SmartContractRevertException>().WithMessage(GOODS_RECEIPT_EXCEPTION_INSUFFICIENT_DAYS);
         }
 
         [Fact]

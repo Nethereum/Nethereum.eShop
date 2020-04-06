@@ -291,7 +291,7 @@ namespace Nethereum.Commerce.Contracts.Deployment
             Log($"{contractName} address is: {PoStorageServiceLocal.ContractHandler.ContractAddress}");
             Log($"{contractName} owner is  : {poStorageOwner}");
 
-            // Deploy Wallet Buyer
+            // Deploy Buyer Wallet
             Log();
             contractName = CONTRACT_NAME_BUYER_WALLET;
             Log($"Deploying {contractName}...");
@@ -302,7 +302,7 @@ namespace Nethereum.Commerce.Contracts.Deployment
             Log($"{contractName} address is: {BuyerWalletService.ContractHandler.ContractAddress}");
             Log($"{contractName} owner is  : {buyerWalletOwner}");
 
-            // Deploy Wallet Seller
+            // Deploy Seller Admin
             Log();
             contractName = CONTRACT_NAME_SELLER_ADMIN;
             Log($"Deploying {contractName}...");
