@@ -71,7 +71,6 @@ namespace Nethereum.Commerce.Contracts.Deployment
 
         private Web3.Web3 _web3;
         private ILogger _logger;
-        private readonly bool _isToConnectToExistingDeployment;
 
         /// <summary>
         /// Deploy a new set of eShop contracts
@@ -94,23 +93,6 @@ namespace Nethereum.Commerce.Contracts.Deployment
 
             ContractNewDeploymentConfig = cdc;
             _logger = logger;
-            _isToConnectToExistingDeployment = false;
-        }
-
-        /// <summary>
-        /// Connect to an existing set of eShop contracts
-        /// </summary>        
-        public ContractDeployment(IWeb3 web3, ContractConnectExistingConfig contractConnectExistingConfig, ILogger logger = null)
-        {
-            // TODO this needs updated to check new fields
-            Guard.Against.Null(web3, nameof(web3));
-            Guard.Against.NullOrWhiteSpace(contractConnectExistingConfig.BuyerWalletAddress, nameof(contractConnectExistingConfig.BuyerWalletAddress));
-            Guard.Against.NullOrWhiteSpace(contractConnectExistingConfig.SellerAdminAddress, nameof(contractConnectExistingConfig.SellerAdminAddress));
-            // eg Guard.Against.NullOrWhiteSpace(cdc.Eshop.PurchasingContractAddress, nameof(cdc.Eshop.PurchasingContractAddress));
-            _web3 = (Web3.Web3)web3; // code-genned classes require web3, not an iweb3
-            ContractConnectExistingConfig = contractConnectExistingConfig;
-            _logger = logger;
-            _isToConnectToExistingDeployment = true;
         }
 
         /// <summary>
@@ -126,27 +108,20 @@ namespace Nethereum.Commerce.Contracts.Deployment
             var ethBalanceStartInWei = await _web3.Eth.GetBalance.SendRequestAsync(
                 _web3.TransactionManager.Account.Address).ConfigureAwait(false);
 
-            if (_isToConnectToExistingDeployment)
-            {
-                // Connect to an existing deployment
-                await ConnectToAnExistingDeploymentAsync().ConfigureAwait(false);
-            }
-            else
-            {
-                // Make a whole new deployment
-                await DeployAndConfigureGlobalStorageAsync().ConfigureAwait(false);
-                await DeployAndConfigureEShopAsync().ConfigureAwait(false);
-                await AddGlobalStorageMasterDataAsync().ConfigureAwait(false);
+            // New deployment
+            await DeployAndConfigureGlobalStorageAsync().ConfigureAwait(false);
+            await DeployEShopAsync().ConfigureAwait(false);
+            await AddGlobalStorageMasterDataAsync().ConfigureAwait(false);
+            await ConfigureEShopAsync().ConfigureAwait(false);
 
-                // With mocks if needed
-                if (ContractNewDeploymentConfig.AlsoDeployMockContracts)
-                {
-                    await DeployMockContractsAsync().ConfigureAwait(false);
-                }
+            // With mocks if needed
+            if (ContractNewDeploymentConfig.AlsoDeployMockContracts)
+            {
+                await DeployMockContractsAsync().ConfigureAwait(false);
             }
-            LogSeparator();
 
             // End meaurements
+            LogHeader("Metrics");
             var txCountEnd = await _web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(
                 _web3.TransactionManager.Account.Address).ConfigureAwait(false);
             var txCountOverall = txCountEnd.Value - txCountStart.Value;
@@ -157,11 +132,9 @@ namespace Nethereum.Commerce.Contracts.Deployment
             var ethCostOverallInWei = ethBalanceStartInWei.Value - ethBalanceEndInWei.Value;
             var ethCostOverall = Web3.Web3.Convert.FromWei(ethCostOverallInWei);
             Log($"Cost for deployment: {ethCostOverall} ETH");
-
             stopwatch.Stop();
             Log($"Duration for deployment: {stopwatch.ElapsedMilliseconds.ToString("N0")} ms");
-
-            LogSeparator();
+            LogHeader("Complete");
         }
 
         private async Task AddGlobalStorageMasterDataAsync()
@@ -170,8 +143,8 @@ namespace Nethereum.Commerce.Contracts.Deployment
             // Add some Business Partner master data
             //-----------------------------------------------------------------------------------
             // Need at least one eShop and one Seller to be a useful deployment
-            Log();
-            Log($"Adding eShop master data...");
+            LogHeader("Add Global Master Data (eShops, Sellers)");
+            Log($"Add eShop master data...");
             var txReceipt = await BusinessPartnerStorageServiceGlobal.SetEshopRequestAndWaitForReceiptAsync(
                 new Eshop()
                 {
@@ -204,7 +177,7 @@ namespace Nethereum.Commerce.Contracts.Deployment
             // Contract deployments global
             //-----------------------------------------------------------------------------------
             // Deploy Global Address Registry
-            Log();
+            LogHeader("Deploy Global Storage");
             var contractName = CONTRACT_NAME_ADDRESS_REGISTRY_GLOBAL;
             Log($"Deploying {contractName}...");
             var addressRegDeploymentGlobal = new AddressRegistryDeployment();
@@ -281,269 +254,258 @@ namespace Nethereum.Commerce.Contracts.Deployment
             Log($"Tx status: {txReceipt.Status.Value}");
         }
 
-        private async Task DeployAndConfigureEShopAsync()
+        private async Task DeployEShopAsync()
         {
-            try
+            LogHeader($"Deploying eShopId: {ContractNewDeploymentConfig.Eshop.EShopId}, Description: {ContractNewDeploymentConfig.Eshop.EShopDescription}");
+            //-----------------------------------------------------------------------------------
+            // Contract deployments
+            //-----------------------------------------------------------------------------------
+            // Deploy Address Registry
+            var contractName = CONTRACT_NAME_ADDRESS_REGISTRY_LOCAL;
+            Log($"Deploying {contractName}...");
+            var addressRegDeployment = new AddressRegistryDeployment();
+            AddressRegistryServiceLocal = await AddressRegistryService.DeployContractAndGetServiceAsync(
+                _web3, addressRegDeployment).ConfigureAwait(false);
+            var addressRegOwner = await AddressRegistryServiceLocal.OwnerQueryAsync().ConfigureAwait(false);
+            Log($"{contractName} address is: {AddressRegistryServiceLocal.ContractHandler.ContractAddress}");
+            Log($"{contractName} owner is  : {addressRegOwner}");
+
+            // Deploy Eternal Storage
+            Log();
+            contractName = CONTRACT_NAME_ETERNAL_STORAGE_LOCAL;
+            Log($"Deploying {contractName}...");
+            var eternalStorageDeployment = new EternalStorageDeployment();
+            EternalStorageServiceLocal = await EternalStorageService.DeployContractAndGetServiceAsync(
+                _web3, eternalStorageDeployment).ConfigureAwait(false);
+            var eternalStorageOwner = await EternalStorageServiceLocal.OwnerQueryAsync().ConfigureAwait(false);
+            Log($"{contractName} address is: {EternalStorageServiceLocal.ContractHandler.ContractAddress}");
+            Log($"{contractName} owner is  : {eternalStorageOwner}");
+
+            // Deploy PO Storage
+            Log();
+            contractName = CONTRACT_NAME_PO_STORAGE_LOCAL;
+            Log($"Deploying {contractName}...");
+            var poStorageDeployment = new PoStorageDeployment() { ContractAddressOfRegistry = AddressRegistryServiceLocal.ContractHandler.ContractAddress };
+            PoStorageServiceLocal = await PoStorageService.DeployContractAndGetServiceAsync(
+                _web3, poStorageDeployment).ConfigureAwait(false);
+            var poStorageOwner = await PoStorageServiceLocal.OwnerQueryAsync().ConfigureAwait(false);
+            Log($"{contractName} address is: {PoStorageServiceLocal.ContractHandler.ContractAddress}");
+            Log($"{contractName} owner is  : {poStorageOwner}");
+
+            // Deploy Wallet Buyer
+            Log();
+            contractName = CONTRACT_NAME_BUYER_WALLET;
+            Log($"Deploying {contractName}...");
+            var buyerWalletDeployment = new BuyerWalletDeployment() { ContractAddressOfRegistryGlobal = AddressRegistryServiceGlobal.ContractHandler.ContractAddress };
+            BuyerWalletService = await BuyerWalletService.DeployContractAndGetServiceAsync(
+                _web3, buyerWalletDeployment).ConfigureAwait(false);
+            var buyerWalletOwner = await BuyerWalletService.OwnerQueryAsync().ConfigureAwait(false);
+            Log($"{contractName} address is: {BuyerWalletService.ContractHandler.ContractAddress}");
+            Log($"{contractName} owner is  : {buyerWalletOwner}");
+
+            // Deploy Wallet Seller
+            Log();
+            contractName = CONTRACT_NAME_SELLER_ADMIN;
+            Log($"Deploying {contractName}...");
+            var sellerAdminDeployment = new SellerAdminDeployment()
             {
-                Log($"Deploying eShop: {ContractNewDeploymentConfig.Eshop.EShopId} {ContractNewDeploymentConfig.Eshop.EShopDescription}...");
+                ContractAddressOfRegistryGlobal = AddressRegistryServiceGlobal.ContractHandler.ContractAddress,
+                SellerIdString = ContractNewDeploymentConfig.Seller.SellerId,
+            };
+            SellerAdminService = await SellerAdminService.DeployContractAndGetServiceAsync(
+                _web3, sellerAdminDeployment).ConfigureAwait(false);
+            var sellerAdminOwner = await SellerAdminService.OwnerQueryAsync().ConfigureAwait(false);
+            Log($"{contractName} address is: {SellerAdminService.ContractHandler.ContractAddress}");
+            Log($"{contractName} owner is  : {sellerAdminOwner}");
 
-                //-----------------------------------------------------------------------------------
-                // Contract deployments
-                //-----------------------------------------------------------------------------------
-                #region contract deployments
-                // Deploy Address Registry
-                Log();
-                var contractName = CONTRACT_NAME_ADDRESS_REGISTRY_LOCAL;
-                Log($"Deploying {contractName}...");
-                var addressRegDeployment = new AddressRegistryDeployment();
-                AddressRegistryServiceLocal = await AddressRegistryService.DeployContractAndGetServiceAsync(
-                    _web3, addressRegDeployment).ConfigureAwait(false);
-                var addressRegOwner = await AddressRegistryServiceLocal.OwnerQueryAsync().ConfigureAwait(false);
-                Log($"{contractName} address is: {AddressRegistryServiceLocal.ContractHandler.ContractAddress}");
-                Log($"{contractName} owner is  : {addressRegOwner}");
-
-                // Deploy Eternal Storage
-                Log();
-                contractName = CONTRACT_NAME_ETERNAL_STORAGE_LOCAL;
-                Log($"Deploying {contractName}...");
-                var eternalStorageDeployment = new EternalStorageDeployment();
-                EternalStorageServiceLocal = await EternalStorageService.DeployContractAndGetServiceAsync(
-                    _web3, eternalStorageDeployment).ConfigureAwait(false);
-                var eternalStorageOwner = await EternalStorageServiceLocal.OwnerQueryAsync().ConfigureAwait(false);
-                Log($"{contractName} address is: {EternalStorageServiceLocal.ContractHandler.ContractAddress}");
-                Log($"{contractName} owner is  : {eternalStorageOwner}");
-
-                // Deploy PO Storage
-                Log();
-                contractName = CONTRACT_NAME_PO_STORAGE_LOCAL;
-                Log($"Deploying {contractName}...");
-                var poStorageDeployment = new PoStorageDeployment() { ContractAddressOfRegistry = AddressRegistryServiceLocal.ContractHandler.ContractAddress };
-                PoStorageServiceLocal = await PoStorageService.DeployContractAndGetServiceAsync(
-                    _web3, poStorageDeployment).ConfigureAwait(false);
-                var poStorageOwner = await PoStorageServiceLocal.OwnerQueryAsync().ConfigureAwait(false);
-                Log($"{contractName} address is: {PoStorageServiceLocal.ContractHandler.ContractAddress}");
-                Log($"{contractName} owner is  : {poStorageOwner}");
-
-                // Deploy Wallet Buyer
-                Log();
-                contractName = CONTRACT_NAME_BUYER_WALLET;
-                Log($"Deploying {contractName}...");
-                var buyerWalletDeployment = new BuyerWalletDeployment() { ContractAddressOfRegistryGlobal = AddressRegistryServiceGlobal.ContractHandler.ContractAddress };
-                BuyerWalletService = await BuyerWalletService.DeployContractAndGetServiceAsync(
-                    _web3, buyerWalletDeployment).ConfigureAwait(false);
-                var buyerWalletOwner = await BuyerWalletService.OwnerQueryAsync().ConfigureAwait(false);
-                Log($"{contractName} address is: {BuyerWalletService.ContractHandler.ContractAddress}");
-                Log($"{contractName} owner is  : {buyerWalletOwner}");
-
-                // Deploy Wallet Seller
-                Log();
-                contractName = CONTRACT_NAME_SELLER_ADMIN;
-                Log($"Deploying {contractName}...");
-                var sellerAdminDeployment = new SellerAdminDeployment()
-                {
-                    ContractAddressOfRegistryGlobal = AddressRegistryServiceGlobal.ContractHandler.ContractAddress,
-                    SellerIdString = ContractNewDeploymentConfig.Seller.SellerId,
-                };
-                SellerAdminService = await SellerAdminService.DeployContractAndGetServiceAsync(
-                    _web3, sellerAdminDeployment).ConfigureAwait(false);
-                var sellerAdminOwner = await SellerAdminService.OwnerQueryAsync().ConfigureAwait(false);
-                Log($"{contractName} address is: {SellerAdminService.ContractHandler.ContractAddress}");
-                Log($"{contractName} owner is  : {sellerAdminOwner}");
-
-                // Deploy Purchasing
-                Log();
-                contractName = CONTRACT_NAME_PURCHASING_LOCAL;
-                Log($"Deploying {contractName}...");
-                var purchasingDeployment = new PurchasingDeployment()
-                {
-                    ContractAddressOfRegistryGlobal = AddressRegistryServiceGlobal.ContractHandler.ContractAddress,
-                    ContractAddressOfRegistryLocal = AddressRegistryServiceLocal.ContractHandler.ContractAddress,
-                    EShopIdString = ContractNewDeploymentConfig.Eshop.EShopId
-                };
-                PurchasingServiceLocal = await PurchasingService.DeployContractAndGetServiceAsync(
-                    _web3, purchasingDeployment).ConfigureAwait(false);
-                var purchasingOwner = await PurchasingServiceLocal.OwnerQueryAsync().ConfigureAwait(false);
-                Log($"{contractName} address is: {PurchasingServiceLocal.ContractHandler.ContractAddress}");
-                Log($"{contractName} owner is  : {purchasingOwner}");
-
-                // Deploy Funding
-                Log();
-                contractName = CONTRACT_NAME_FUNDING_LOCAL;
-                Log($"Deploying {contractName}...");
-                var fundingDeployment = new FundingDeployment()
-                {
-                    ContractAddressOfRegistryGlobal = AddressRegistryServiceGlobal.ContractHandler.ContractAddress,
-                    ContractAddressOfRegistryLocal = AddressRegistryServiceLocal.ContractHandler.ContractAddress,
-                };
-                FundingServiceLocal = await FundingService.DeployContractAndGetServiceAsync(
-                    _web3, fundingDeployment).ConfigureAwait(false);
-                var fundingOwner = await FundingServiceLocal.OwnerQueryAsync().ConfigureAwait(false);
-                Log($"{contractName} address is: {FundingServiceLocal.ContractHandler.ContractAddress}");
-                Log($"{contractName} owner is  : {fundingOwner}");
-
-                #endregion
-
-                //-----------------------------------------------------------------------------------
-                // Configure Local Address Registry
-                //-----------------------------------------------------------------------------------
-                #region configure address registry
-                Log();
-                Log($"Configuring Local Address Registry...");
-
-                // Add address entry for eternal storage
-                contractName = CONTRACT_NAME_ETERNAL_STORAGE_LOCAL;
-                Log($"Configuring Local Address Registry, adding {contractName}...");
-                var txReceipt = await AddressRegistryServiceLocal.RegisterAddressStringRequestAndWaitForReceiptAsync(
-                    contractName, EternalStorageServiceLocal.ContractHandler.ContractAddress).ConfigureAwait(false);
-                Log($"Tx status: {txReceipt.Status.Value}");
-
-                // Add address entry for PO storage
-                contractName = CONTRACT_NAME_PO_STORAGE_LOCAL;
-                Log($"Configuring Local Address Registry, adding {contractName}...");
-                txReceipt = await AddressRegistryServiceLocal.RegisterAddressStringRequestAndWaitForReceiptAsync(
-                    contractName, PoStorageServiceLocal.ContractHandler.ContractAddress).ConfigureAwait(false);
-                Log($"Tx status: {txReceipt.Status.Value}");
-
-                // Add address entry for Purchasing
-                contractName = CONTRACT_NAME_PURCHASING_LOCAL;
-                Log($"Configuring Local Address Registry, adding {contractName}...");
-                txReceipt = await AddressRegistryServiceLocal.RegisterAddressStringRequestAndWaitForReceiptAsync(
-                    contractName, PurchasingServiceLocal.ContractHandler.ContractAddress).ConfigureAwait(false);
-                Log($"Tx status: {txReceipt.Status.Value}");
-
-                // Add address entry for Funding
-                contractName = CONTRACT_NAME_FUNDING_LOCAL;
-                Log($"Configuring Local Address Registry, adding {contractName}...");
-                txReceipt = await AddressRegistryServiceLocal.RegisterAddressStringRequestAndWaitForReceiptAsync(
-                    contractName, FundingServiceLocal.ContractHandler.ContractAddress).ConfigureAwait(false);
-                Log($"Tx status: {txReceipt.Status.Value}");
-
-                // Authorisations. Nothing needed.
-                #endregion
-
-                //-----------------------------------------------------------------------------------
-                // Configure Local Eternal Storage
-                //-----------------------------------------------------------------------------------
-                // Authorisations. Bind all contracts that will use eternal storage
-                Log();
-                Log($"Authorisations for Local Eternal Storage...");
-                contractName = CONTRACT_NAME_PO_STORAGE_LOCAL;
-                Log($"Configuring Local Eternal Storage, binding {contractName}...");
-                txReceipt = await EternalStorageServiceLocal.BindAddressRequestAndWaitForReceiptAsync(
-                    PoStorageServiceLocal.ContractHandler.ContractAddress).ConfigureAwait(false);
-                Log($"Tx status: {txReceipt.Status.Value}");
-
-                //-----------------------------------------------------------------------------------
-                // Configure Local PO Storage
-                //-----------------------------------------------------------------------------------
-                Log();
-                Log($"Configuring Local PO Storage...");
-                txReceipt = await PoStorageServiceLocal.ConfigureRequestAndWaitForReceiptAsync(
-                    CONTRACT_NAME_ETERNAL_STORAGE_LOCAL).ConfigureAwait(false);
-                Log($"Tx status: {txReceipt.Status.Value}");
-
-                // Authorisations. Bind all contracts that will use Local PO storage
-                // Bind Purchasing to Local PO Storage
-                Log($"Authorisations for Local PO Storage...");
-                contractName = CONTRACT_NAME_PURCHASING_LOCAL;
-                Log($"Configuring PO Storage, binding {contractName}...");
-                txReceipt = await PoStorageServiceLocal.BindAddressRequestAndWaitForReceiptAsync(
-                    PurchasingServiceLocal.ContractHandler.ContractAddress).ConfigureAwait(false);
-                Log($"Tx status: {txReceipt.Status.Value}");
-
-                //-----------------------------------------------------------------------------------
-                // Configure Seller Admin
-                //-----------------------------------------------------------------------------------
-                Log();
-                Log($"Configuring Seller Admin...");
-                txReceipt = await SellerAdminService.ConfigureRequestAndWaitForReceiptAsync(
-                    CONTRACT_NAME_BUSINESS_PARTNER_STORAGE_GLOBAL).ConfigureAwait(false);
-                Log($"Tx status: {txReceipt.Status.Value}");
-
-                //-----------------------------------------------------------------------------------
-                // Configure Buyer Wallet
-                //-----------------------------------------------------------------------------------
-                Log();
-                Log($"Configuring Buyer Wallet...");
-                txReceipt = await BuyerWalletService.ConfigureRequestAndWaitForReceiptAsync(
-                    CONTRACT_NAME_BUSINESS_PARTNER_STORAGE_GLOBAL).ConfigureAwait(false);
-                Log($"Tx status: {txReceipt.Status.Value}");
-
-                //-----------------------------------------------------------------------------------
-                // Configure Purchasing
-                //-----------------------------------------------------------------------------------
-                Log();
-                Log($"Configuring Purchasing...");
-                txReceipt = await PurchasingServiceLocal.ConfigureRequestAndWaitForReceiptAsync(
-                    CONTRACT_NAME_BUSINESS_PARTNER_STORAGE_GLOBAL,
-                    CONTRACT_NAME_PO_STORAGE_LOCAL,
-                    CONTRACT_NAME_FUNDING_LOCAL)
-                    .ConfigureAwait(false);
-                Log($"Tx status: {txReceipt.Status.Value}");
-
-                // Authorisations. Bind all contracts that will use Purchasing                
-                Log($"Authorisations for Purchasing...");
-                // Bind BuyerWallet to Purchasing
-                contractName = CONTRACT_NAME_BUYER_WALLET;
-                Log($"Configuring Purchasing, binding {contractName}...");
-                txReceipt = await PurchasingServiceLocal.BindAddressRequestAndWaitForReceiptAsync(
-                    BuyerWalletService.ContractHandler.ContractAddress).ConfigureAwait(false);
-                Log($"Tx status: {txReceipt.Status.Value}");
-                // Bind SellerAdmin to Purchasing
-                contractName = CONTRACT_NAME_SELLER_ADMIN;
-                Log($"Configuring Purchasing, binding {contractName}...");
-                txReceipt = await PurchasingServiceLocal.BindAddressRequestAndWaitForReceiptAsync(
-                    SellerAdminService.ContractHandler.ContractAddress).ConfigureAwait(false);
-                Log($"Tx status: {txReceipt.Status.Value}");
-                // Bind Funding to Purchasing
-                contractName = CONTRACT_NAME_FUNDING_LOCAL;
-                Log($"Configuring Purchasing, binding {contractName}...");
-                txReceipt = await PurchasingServiceLocal.BindAddressRequestAndWaitForReceiptAsync(
-                    FundingServiceLocal.ContractHandler.ContractAddress).ConfigureAwait(false);
-                Log($"Tx status: {txReceipt.Status.Value}");
-
-                //-----------------------------------------------------------------------------------
-                // Configure Funding
-                //-----------------------------------------------------------------------------------
-                Log();
-                Log($"Configuring Funding...");
-                txReceipt = await FundingServiceLocal.ConfigureRequestAndWaitForReceiptAsync(
-                    CONTRACT_NAME_BUSINESS_PARTNER_STORAGE_GLOBAL,
-                    CONTRACT_NAME_PO_STORAGE_LOCAL)
-                    .ConfigureAwait(false);
-                Log($"Tx status: {txReceipt.Status.Value}");
-
-                // Authorisations. Bind all contracts that will use Funding                
-                Log($"Authorisations for Funding...");
-                // Bind BuyerWallet to Funding
-                contractName = CONTRACT_NAME_BUYER_WALLET;
-                Log($"Configuring Funding, binding {contractName}...");
-                txReceipt = await FundingServiceLocal.BindAddressRequestAndWaitForReceiptAsync(
-                    BuyerWalletService.ContractHandler.ContractAddress).ConfigureAwait(false);
-                Log($"Tx status: {txReceipt.Status.Value}");
-                // Bind Purchasing to Funding
-                contractName = CONTRACT_NAME_PURCHASING_LOCAL;
-                Log($"Configuring Funding, binding {contractName}...");
-                txReceipt = await FundingServiceLocal.BindAddressRequestAndWaitForReceiptAsync(
-                    PurchasingServiceLocal.ContractHandler.ContractAddress).ConfigureAwait(false);
-                Log($"Tx status: {txReceipt.Status.Value}");
-            }
-            catch (Exception ex)
+            // Deploy Purchasing
+            Log();
+            contractName = CONTRACT_NAME_PURCHASING_LOCAL;
+            Log($"Deploying {contractName}...");
+            var purchasingDeployment = new PurchasingDeployment()
             {
-                Log($"Exception thrown: {ex.Message}");
-            }
-            finally
+                ContractAddressOfRegistryGlobal = AddressRegistryServiceGlobal.ContractHandler.ContractAddress,
+                ContractAddressOfRegistryLocal = AddressRegistryServiceLocal.ContractHandler.ContractAddress,
+                EShopIdString = ContractNewDeploymentConfig.Eshop.EShopId
+            };
+            PurchasingServiceLocal = await PurchasingService.DeployContractAndGetServiceAsync(
+                _web3, purchasingDeployment).ConfigureAwait(false);
+            var purchasingOwner = await PurchasingServiceLocal.OwnerQueryAsync().ConfigureAwait(false);
+            Log($"{contractName} address is: {PurchasingServiceLocal.ContractHandler.ContractAddress}");
+            Log($"{contractName} owner is  : {purchasingOwner}");
+
+            // Deploy Funding
+            Log();
+            contractName = CONTRACT_NAME_FUNDING_LOCAL;
+            Log($"Deploying {contractName}...");
+            var fundingDeployment = new FundingDeployment()
             {
-                Log($"Deploy and configure complete.");
-            }
+                ContractAddressOfRegistryGlobal = AddressRegistryServiceGlobal.ContractHandler.ContractAddress,
+                ContractAddressOfRegistryLocal = AddressRegistryServiceLocal.ContractHandler.ContractAddress,
+            };
+            FundingServiceLocal = await FundingService.DeployContractAndGetServiceAsync(
+                _web3, fundingDeployment).ConfigureAwait(false);
+            var fundingOwner = await FundingServiceLocal.OwnerQueryAsync().ConfigureAwait(false);
+            Log($"{contractName} address is: {FundingServiceLocal.ContractHandler.ContractAddress}");
+            Log($"{contractName} owner is  : {fundingOwner}");
+            Log($"Deploy complete.");
+        }
+
+        private async Task ConfigureEShopAsync()
+        {
+            LogHeader($"Configuring eShopId: {ContractNewDeploymentConfig.Eshop.EShopId}, Description: {ContractNewDeploymentConfig.Eshop.EShopDescription}");
+
+            //-----------------------------------------------------------------------------------
+            // Configure Local Address Registry
+            //-----------------------------------------------------------------------------------
+            #region configure address registry
+            Log($"Configuring Local Address Registry...");
+
+            // Add address entry for eternal storage
+            var contractName = CONTRACT_NAME_ETERNAL_STORAGE_LOCAL;
+            Log($"Configuring Local Address Registry, adding {contractName}...");
+            var txReceipt = await AddressRegistryServiceLocal.RegisterAddressStringRequestAndWaitForReceiptAsync(
+                contractName, EternalStorageServiceLocal.ContractHandler.ContractAddress).ConfigureAwait(false);
+            Log($"Tx status: {txReceipt.Status.Value}");
+
+            // Add address entry for PO storage
+            contractName = CONTRACT_NAME_PO_STORAGE_LOCAL;
+            Log($"Configuring Local Address Registry, adding {contractName}...");
+            txReceipt = await AddressRegistryServiceLocal.RegisterAddressStringRequestAndWaitForReceiptAsync(
+                contractName, PoStorageServiceLocal.ContractHandler.ContractAddress).ConfigureAwait(false);
+            Log($"Tx status: {txReceipt.Status.Value}");
+
+            // Add address entry for Purchasing
+            contractName = CONTRACT_NAME_PURCHASING_LOCAL;
+            Log($"Configuring Local Address Registry, adding {contractName}...");
+            txReceipt = await AddressRegistryServiceLocal.RegisterAddressStringRequestAndWaitForReceiptAsync(
+                contractName, PurchasingServiceLocal.ContractHandler.ContractAddress).ConfigureAwait(false);
+            Log($"Tx status: {txReceipt.Status.Value}");
+
+            // Add address entry for Funding
+            contractName = CONTRACT_NAME_FUNDING_LOCAL;
+            Log($"Configuring Local Address Registry, adding {contractName}...");
+            txReceipt = await AddressRegistryServiceLocal.RegisterAddressStringRequestAndWaitForReceiptAsync(
+                contractName, FundingServiceLocal.ContractHandler.ContractAddress).ConfigureAwait(false);
+            Log($"Tx status: {txReceipt.Status.Value}");
+
+            // Authorisations. Nothing needed.
+            #endregion
+
+            //-----------------------------------------------------------------------------------
+            // Configure Local Eternal Storage
+            //-----------------------------------------------------------------------------------
+            // Authorisations. Bind all contracts that will use eternal storage
+            Log();
+            Log($"Authorisations for Local Eternal Storage...");
+            contractName = CONTRACT_NAME_PO_STORAGE_LOCAL;
+            Log($"Configuring Local Eternal Storage, binding {contractName}...");
+            txReceipt = await EternalStorageServiceLocal.BindAddressRequestAndWaitForReceiptAsync(
+                PoStorageServiceLocal.ContractHandler.ContractAddress).ConfigureAwait(false);
+            Log($"Tx status: {txReceipt.Status.Value}");
+
+            //-----------------------------------------------------------------------------------
+            // Configure Local PO Storage
+            //-----------------------------------------------------------------------------------
+            Log();
+            Log($"Configuring Local PO Storage...");
+            txReceipt = await PoStorageServiceLocal.ConfigureRequestAndWaitForReceiptAsync(
+                CONTRACT_NAME_ETERNAL_STORAGE_LOCAL).ConfigureAwait(false);
+            Log($"Tx status: {txReceipt.Status.Value}");
+
+            // Authorisations. Bind all contracts that will use Local PO storage
+            // Bind Purchasing to Local PO Storage
+            Log($"Authorisations for Local PO Storage...");
+            contractName = CONTRACT_NAME_PURCHASING_LOCAL;
+            Log($"Configuring PO Storage, binding {contractName}...");
+            txReceipt = await PoStorageServiceLocal.BindAddressRequestAndWaitForReceiptAsync(
+                PurchasingServiceLocal.ContractHandler.ContractAddress).ConfigureAwait(false);
+            Log($"Tx status: {txReceipt.Status.Value}");
+
+            //-----------------------------------------------------------------------------------
+            // Configure Seller Admin
+            //-----------------------------------------------------------------------------------
+            Log();
+            Log($"Configuring Seller Admin...");
+            txReceipt = await SellerAdminService.ConfigureRequestAndWaitForReceiptAsync(
+                CONTRACT_NAME_BUSINESS_PARTNER_STORAGE_GLOBAL).ConfigureAwait(false);
+            Log($"Tx status: {txReceipt.Status.Value}");
+
+            //-----------------------------------------------------------------------------------
+            // Configure Buyer Wallet
+            //-----------------------------------------------------------------------------------
+            Log();
+            Log($"Configuring Buyer Wallet...");
+            txReceipt = await BuyerWalletService.ConfigureRequestAndWaitForReceiptAsync(
+                CONTRACT_NAME_BUSINESS_PARTNER_STORAGE_GLOBAL).ConfigureAwait(false);
+            Log($"Tx status: {txReceipt.Status.Value}");
+
+            //-----------------------------------------------------------------------------------
+            // Configure Purchasing
+            //-----------------------------------------------------------------------------------
+            Log();
+            Log($"Configuring Purchasing...");
+            txReceipt = await PurchasingServiceLocal.ConfigureRequestAndWaitForReceiptAsync(
+                CONTRACT_NAME_BUSINESS_PARTNER_STORAGE_GLOBAL,
+                CONTRACT_NAME_PO_STORAGE_LOCAL,
+                CONTRACT_NAME_FUNDING_LOCAL)
+                .ConfigureAwait(false);
+            Log($"Tx status: {txReceipt.Status.Value}");
+
+            // Authorisations. Bind all contracts that will use Purchasing                
+            Log($"Authorisations for Purchasing...");
+            // Bind BuyerWallet to Purchasing
+            contractName = CONTRACT_NAME_BUYER_WALLET;
+            Log($"Configuring Purchasing, binding {contractName}...");
+            txReceipt = await PurchasingServiceLocal.BindAddressRequestAndWaitForReceiptAsync(
+                BuyerWalletService.ContractHandler.ContractAddress).ConfigureAwait(false);
+            Log($"Tx status: {txReceipt.Status.Value}");
+            // Bind SellerAdmin to Purchasing
+            contractName = CONTRACT_NAME_SELLER_ADMIN;
+            Log($"Configuring Purchasing, binding {contractName}...");
+            txReceipt = await PurchasingServiceLocal.BindAddressRequestAndWaitForReceiptAsync(
+                SellerAdminService.ContractHandler.ContractAddress).ConfigureAwait(false);
+            Log($"Tx status: {txReceipt.Status.Value}");
+            // Bind Funding to Purchasing
+            contractName = CONTRACT_NAME_FUNDING_LOCAL;
+            Log($"Configuring Purchasing, binding {contractName}...");
+            txReceipt = await PurchasingServiceLocal.BindAddressRequestAndWaitForReceiptAsync(
+                FundingServiceLocal.ContractHandler.ContractAddress).ConfigureAwait(false);
+            Log($"Tx status: {txReceipt.Status.Value}");
+
+            //-----------------------------------------------------------------------------------
+            // Configure Funding
+            //-----------------------------------------------------------------------------------
+            Log();
+            Log($"Configuring Funding...");
+            txReceipt = await FundingServiceLocal.ConfigureRequestAndWaitForReceiptAsync(
+                CONTRACT_NAME_BUSINESS_PARTNER_STORAGE_GLOBAL,
+                CONTRACT_NAME_PO_STORAGE_LOCAL)
+                .ConfigureAwait(false);
+            Log($"Tx status: {txReceipt.Status.Value}");
+
+            // Authorisations. Bind all contracts that will use Funding                
+            Log($"Authorisations for Funding...");
+            // Bind BuyerWallet to Funding
+            contractName = CONTRACT_NAME_BUYER_WALLET;
+            Log($"Configuring Funding, binding {contractName}...");
+            txReceipt = await FundingServiceLocal.BindAddressRequestAndWaitForReceiptAsync(
+                BuyerWalletService.ContractHandler.ContractAddress).ConfigureAwait(false);
+            Log($"Tx status: {txReceipt.Status.Value}");
+            // Bind Purchasing to Funding
+            contractName = CONTRACT_NAME_PURCHASING_LOCAL;
+            Log($"Configuring Funding, binding {contractName}...");
+            txReceipt = await FundingServiceLocal.BindAddressRequestAndWaitForReceiptAsync(
+                PurchasingServiceLocal.ContractHandler.ContractAddress).ConfigureAwait(false);
+            Log($"Tx status: {txReceipt.Status.Value}");
+            Log($"Configure complete.");
         }
 
         private async Task DeployMockContractsAsync()
         {
-            LogSeparator();
+            LogHeader("Deploy MockDai");
             var contractName = "MockDai";
             Log($"Deploying {contractName}...");
-
             try
             {
                 var mockDaiDeployment = new MockDaiDeployment();
@@ -563,16 +525,10 @@ namespace Nethereum.Commerce.Contracts.Deployment
             }
         }
 
-        private async Task ConnectToAnExistingDeploymentAsync()
-        {
-            await Task.Delay(1);
-            throw new NotImplementedException();
-        }
-
-        private void LogSeparator()
+        private void LogHeader(string s)
         {
             Log();
-            Log("----------------------------------------------------------------");
+            Log($"--------------  {s}  --------------");
             Log();
         }
 
