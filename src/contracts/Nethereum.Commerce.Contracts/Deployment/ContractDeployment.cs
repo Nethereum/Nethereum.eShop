@@ -53,8 +53,7 @@ namespace Nethereum.Commerce.Contracts.Deployment
 
         // Configuration
         public readonly ContractNewDeploymentConfig ContractNewDeploymentConfig;
-        public readonly ContractConnectExistingConfig ContractConnectExistingConfig;
-
+       
         // Contract names used in logs and internally by eg address registry
         public const string CONTRACT_NAME_ADDRESS_REGISTRY_GLOBAL = "AddressRegistryGlobal";
         public const string CONTRACT_NAME_ETERNAL_STORAGE_GLOBAL = "EternalStorageGlobal";

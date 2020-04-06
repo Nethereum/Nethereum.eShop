@@ -61,6 +61,12 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         public const string GOODS_RECEIPT_EXCEPTION_INSUFFICIENT_DAYS = "*Seller cannot set goods received: insufficient days passed*";
 
         /// <summary>
+        /// Revert message when an attempt is made to configure a Purchasing.sol contract for an eShop 
+        /// that points to a Purchasing.sol different address.
+        /// </summary>
+        public const string PO_EXCEPTION_CHECK_ESHOP_MASTER_DATA = "*eShop master data points to wrong Purchasing address*";
+
+        /// <summary>
         /// Revert message when an attempt is made to create a PO but the seller is inactive
         /// </summary>
         public const string PO_EXCEPTION_SELLER_INACTIVE = "*Seller is inactive*";

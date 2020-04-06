@@ -1,9 +1,16 @@
 using FluentAssertions;
+using Nethereum.ABI.FunctionEncoding;
 using Nethereum.Commerce.ContractDeployments.IntegrationTests.Config;
 using Nethereum.Commerce.Contracts;
+using Nethereum.Commerce.Contracts.Deployment;
+using Nethereum.Commerce.Contracts.Purchasing;
+using Nethereum.Commerce.Contracts.Purchasing.ContractDefinition;
+using System;
 using System.Numerics;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
+using static Nethereum.Commerce.ContractDeployments.IntegrationTests.PoTestHelpers;
 
 namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 {
@@ -66,6 +73,28 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             dec.Should().BeGreaterThan(0);
             var totalSupplyFactored = totalSupply / BigInteger.Pow(10, dec);
             _output.WriteLine($"MockDai Total Supply = {totalSupplyFactored.ToString("N0")}");
+        }
+
+        [Fact]
+        public async void ShouldNotAllowDuplicateEshopDeployment()
+        {
+            // Prevent a second Purchasing.sol contract being deployed that is trying to 
+            // use an existing eShop that is already pointing at another Purchasing.sol.
+            // This is checked for when Purchasing.sol is configured.
+            var purchasingDeployment = new PurchasingDeployment()
+            {
+                ContractAddressOfRegistryGlobal = _contracts.Deployment.AddressRegistryServiceGlobal.ContractHandler.ContractAddress,
+                ContractAddressOfRegistryLocal = _contracts.Deployment.AddressRegistryServiceLocal.ContractHandler.ContractAddress,
+                EShopIdString = _contracts.Deployment.ContractNewDeploymentConfig.Eshop.EShopId
+            };
+            var psl = await PurchasingService.DeployContractAndGetServiceAsync(
+               _contracts.Web3, purchasingDeployment).ConfigureAwait(false);
+
+            Func<Task> act = async () => await psl.ConfigureRequestAndWaitForReceiptAsync(
+                ContractDeployment.CONTRACT_NAME_BUSINESS_PARTNER_STORAGE_GLOBAL,
+                ContractDeployment.CONTRACT_NAME_PO_STORAGE_LOCAL,
+                ContractDeployment.CONTRACT_NAME_FUNDING_LOCAL);
+            act.Should().Throw<SmartContractRevertException>().WithMessage(PO_EXCEPTION_CHECK_ESHOP_MASTER_DATA); 
         }
     }
 }
