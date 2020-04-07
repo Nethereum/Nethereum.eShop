@@ -1,86 +1,85 @@
-//using FluentAssertions;
-//using Nethereum.ABI.FunctionEncoding;
-//using Nethereum.Commerce.ContractDeployments.IntegrationTests.Config;
-//using Nethereum.Commerce.Contracts;
-//using Nethereum.Commerce.Contracts.Deployment;
-//using Nethereum.Commerce.Contracts.Purchasing;
-//using Nethereum.Commerce.Contracts.Purchasing.ContractDefinition;
-//using System;
-//using System.Numerics;
-//using System.Threading.Tasks;
-//using Xunit;
-//using Xunit.Abstractions;
-//using static Nethereum.Commerce.ContractDeployments.IntegrationTests.PoTestHelpers;
+using FluentAssertions;
+using Nethereum.Commerce.ContractDeployments.IntegrationTests.Config;
+using Nethereum.Commerce.Contracts.Deployment;
+using System;
+using System.Threading.Tasks;
+using Xunit;
+using Xunit.Abstractions;
+using Nethereum.Commerce.Contracts;
 
-//namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
-//{
-//    [Collection("Contract Deployment Collection v2")]
-//    public class BuyerDeploymentTests
-//    {
-//        private readonly ITestOutputHelper _output;
-//        private readonly ContractDeploymentsFixturev2 _contracts;
-//        private readonly TestOutputHelperLogger _xunitlogger;
+namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
+{
+    [Collection("Contract Deployment Collection v2")]
+    public class BuyerDeploymentTests
+    {
+        private readonly ITestOutputHelper _output;
+        private readonly ContractDeploymentsFixturev2 _contracts;
+        private readonly TestOutputHelperLogger _xunitlogger;
 
-//        public BuyerDeploymentTests(ContractDeploymentsFixturev2 fixture, ITestOutputHelper output)
-//        {
-//            // ContractDeploymentsFixture performed a complete deployment.
-//            // See Output window -> Tests for deployment logs.
-//            _contracts = fixture;
-//            _output = output;
-//            _xunitlogger = new TestOutputHelperLogger(_output);
-//        }
+        public BuyerDeploymentTests(ContractDeploymentsFixturev2 fixture, ITestOutputHelper output)
+        {
+            // ContractDeploymentsFixture performed a complete deployment.
+            // See Output window -> Tests for deployment logs.
+            _contracts = fixture;
+            _output = output;
+            _xunitlogger = new TestOutputHelperLogger(_output);
+        }
 
-//        [Fact(Skip = "paused for now")]
-//        public async void ShouldDeployNewContract()
-//        {
-//            BuyerDeployment buyerDeployment = new BuyerDeployment(
-//                _contracts.Web3,
-//                "",
-//                "",
-//                _xunitlogger);
-//            Func<Task> act = async () => await buyerDeployment.InitializeAsync();
-//            await act.Should().NotThrowAsync();
+        [Fact]
+        public async void ShouldDeployNewContract()
+        {
+            var buyerDeployment = BuyerDeployment.CreateFromNewDeployment(
+                 _contracts.Web3,
+                 _contracts.BusinessPartnersDeployment.BusinessPartnerStorageService.ContractHandler.ContractAddress,
+                 _xunitlogger);
+            Func<Task> act = async () => await buyerDeployment.InitializeAsync();
+            await act.Should().NotThrowAsync();
 
-//            // above should not throw
+            // If buyer deployed ok then its global business partner storage address should have a value
+            var bpStorageAddress = await buyerDeployment.BuyerWalletService.BusinessPartnerStorageGlobalQueryAsync().ConfigureAwait(false);
+            bpStorageAddress.Should().NotBeNullOrEmpty();
+            bpStorageAddress.IsZeroAddress().Should().BeFalse();
+        }
 
-//            //// If all contracts deployed and configured ok, then...
-//            //// ...the PO storage contract should be configured to point to the eternal storage contract.
-//            //var actualEternalStorageAddressHeldAgainstPoStorage = await _contracts.Deployment.PoStorageServiceLocal.EternalStorageQueryAsync();
-//            //var expectedEternalStorageAddress = _contracts.Deployment.EternalStorageServiceLocal.ContractHandler.ContractAddress;
-//            //actualEternalStorageAddressHeldAgainstPoStorage.Should().Be(expectedEternalStorageAddress);
+        [Fact]
+        public async void ShouldConnectExistingContract()
+        {
+            // Deploy a buyer wallet
+            var buyerDeployment = BuyerDeployment.CreateFromNewDeployment(
+                 _contracts.Web3,
+                 _contracts.BusinessPartnersDeployment.BusinessPartnerStorageService.ContractHandler.ContractAddress,
+                 _xunitlogger);
+            Func<Task> act = async () => await buyerDeployment.InitializeAsync();
+            await act.Should().NotThrowAsync();
 
-//            //// ...the funding contract should be configured to point to the business partner storage contract.
-//            //var actualBusinessPartnerStorageAddressHeldAgainstFunding = await _contracts.Deployment.FundingServiceLocal.BpStorageGlobalQueryAsync();
-//            //var expectedBusinessPartnerAddress = _contracts.Deployment.BusinessPartnerStorageServiceGlobal.ContractHandler.ContractAddress;
-//            //actualBusinessPartnerStorageAddressHeldAgainstFunding.Should().Be(expectedBusinessPartnerAddress);
-//        }
+            // Try to deploy an additional buyer wallet, by connecting to it
+            var buyerDeployment2 = BuyerDeployment.CreateFromConnectExistingContract(// CreateFromNewDeployment(
+                _contracts.Web3,
+                "above address", // no buyer contract deployed here
+                _xunitlogger);
+            Func<Task> act = async () => await buyerDeployment.InitializeAsync();
+            await act.Should().ThrowAsync<ContractDeploymentException>().W
+            //BuyerDeployment buyerDeployment = new BuyerDeployment(
+            //    _contracts.Web3,
+            //    "",
+            //    _xunitlogger);
+            //Func<Task> act = async () => await buyerDeployment.InitializeAsync();
+            //await act.Should().NotThrowAsync();
 
-//        [Fact(Skip = "paused for now")]
-//        public async void ShouldConnectExistingContract()
-//        {
-//            // Deploy a buyer wallet
+            // above should not throw
 
-//            // Get its address
+        }
 
-//            // try to connect to it
-
-//            BuyerDeployment buyerDeployment = new BuyerDeployment(
-//                _contracts.Web3,
-//                "",
-//                _xunitlogger);
-//            Func<Task> act = async () => await buyerDeployment.InitializeAsync();
-//            await act.Should().NotThrowAsync();
-
-//            // above should not throw
-
-//        }
-
-//        [Fact (Skip = "paused for now")]
-//        public async void ShouldFailToConnectNonExistingContract()
-//        {
-//            // give a rubbish address
-//            // init should fail
-//        }
-
-//    }
-//}
+        [Fact]
+        public async void ShouldFailToConnectNonExistingContract()
+        {
+            // Give a rubbish address for the existing buyer wallet deployment
+            var buyerDeployment = BuyerDeployment.CreateFromConnectExistingContract(
+                 _contracts.Web3,
+                 "0x32A555F2328e85E489f9a5f03669DC820CE7EBe9", // no buyer contract deployed here
+                 _xunitlogger);
+            Func<Task> act = async () => await buyerDeployment.InitializeAsync();
+            await act.Should().ThrowAsync<ContractDeploymentException>().WithMessage("*Failed to set up*");
+        }
+    }
+}

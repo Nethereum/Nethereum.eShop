@@ -183,19 +183,19 @@ namespace Nethereum.Commerce.Contracts.Deployment
             Log($"{contractName} address is: {EternalStorageServiceGlobal.ContractHandler.ContractAddress}");
             Log($"{contractName} owner is  : {eternalStorageOwner}");
 
-            // Deploy Global Business Partner Storage
-            Log();
-            contractName = CONTRACT_NAME_BUSINESS_PARTNER_STORAGE_GLOBAL;
-            Log($"Deploying {contractName}...");
-            var bpStorageDeploymentGlobal = new BusinessPartnerStorageDeployment()
-            {
-                EternalStorageAddress = EternalStorageServiceGlobal.ContractHandler.ContractAddress
-            };
-            BusinessPartnerStorageServiceGlobal = await BusinessPartnerStorageService.DeployContractAndGetServiceAsync(
-                _web3, bpStorageDeploymentGlobal).ConfigureAwait(false);
-            var bpStorageOwner = await BusinessPartnerStorageServiceGlobal.OwnerQueryAsync().ConfigureAwait(false);
-            Log($"{contractName} address is: {BusinessPartnerStorageServiceGlobal.ContractHandler.ContractAddress}");
-            Log($"{contractName} owner is  : {bpStorageOwner}");
+            //// Deploy Global Business Partner Storage
+            //Log();
+            //contractName = CONTRACT_NAME_BUSINESS_PARTNER_STORAGE_GLOBAL;
+            //Log($"Deploying {contractName}...");
+            //var bpStorageDeploymentGlobal = new BusinessPartnersDeployment()
+            //{
+            //    EternalStorageAddress = EternalStorageServiceGlobal.ContractHandler.ContractAddress
+            //};
+            //BusinessPartnerStorageServiceGlobal = await BusinessPartnerStorageService.DeployContractAndGetServiceAsync(
+            //    _web3, bpStorageDeploymentGlobal).ConfigureAwait(false);
+            //var bpStorageOwner = await BusinessPartnerStorageServiceGlobal.OwnerQueryAsync().ConfigureAwait(false);
+            //Log($"{contractName} address is: {BusinessPartnerStorageServiceGlobal.ContractHandler.ContractAddress}");
+            //Log($"{contractName} owner is  : {bpStorageOwner}");
 
             //-----------------------------------------------------------------------------------
             // Configure Global Business Partner Storage

@@ -39,6 +39,14 @@ namespace Nethereum.Commerce.Contracts
             _mapper = new Mapper(config);
         }
 
+        public static bool IsZeroAddress(this string s)
+        {
+            if (s == "0x0000000000000000000000000000000000000000")
+                return true;
+            else
+                return false;
+        }
+
         public static byte[] ConvertToBytes32(this string s)
         {
             if (s == null) return null;
@@ -84,7 +92,7 @@ namespace Nethereum.Commerce.Contracts
             var hashEncoded = new ABIEncode().GetSha3ABIEncoded(new ABIValue(new TupleType(), po));
             var signature = new EthereumMessageSigner().Sign(hashEncoded, privateKeyHex);
             return signature;
-        }        
+        }
 
         // PoStorage <=> Buyer        
         public static Storage.Po ToStoragePo(this Buyer.Po po) { return _mapper.Map<Storage.Po>(po); }

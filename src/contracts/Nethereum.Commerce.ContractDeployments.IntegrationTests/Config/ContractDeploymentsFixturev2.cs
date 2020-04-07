@@ -24,20 +24,22 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
         /// </summary>
         public Web3.Web3 Web3SecondaryUser { get; internal set; }
 
+        /// <summary>
+        /// Global Business Partner Storage containing eShops and Sellers
+        /// </summary>
+        public BusinessPartnersDeployment BusinessPartnersDeployment { get; internal set; }
+
         private readonly IMessageSink _diagnosticMessageSink;
 
         public ContractDeploymentsFixturev2(IMessageSink diagnosticMessageSink)
         {
             _diagnosticMessageSink = diagnosticMessageSink;
             var appConfig = ConfigurationUtils.Build(Array.Empty<string>(), "UserSecret");
-          
+
             // Web3
             var web3Config = appConfig.GetSection("Web3Config").Get<Web3Config>();
             var privateKey = web3Config.TransactionCreatorPrivateKey;
             Web3 = new Web3.Web3(new Account(privateKey), web3Config.BlockchainUrl);
-
-            // New deployment
-            
 
             // Secondary users
             var secondaryUserConfig = appConfig.GetSection("SecondaryUsers").Get<SecondaryUserConfig>();
@@ -46,14 +48,19 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
 
         public async Task InitializeAsync()
         {
-            
+            // Deploy global business partner storage and give it some master data to
+            // be shared across all tests
+            BusinessPartnersDeployment = new BusinessPartnersDeployment(Web3, new DiagnosticMessageSinkLogger(_diagnosticMessageSink));
+            await BusinessPartnersDeployment.InitializeAsync().ConfigureAwait(false);
+
+
 
             // Transfer Ether from main web3 primary user to secondary users, so secondary users can post tx
             LogSeparator();
             Log("Transferring Ether to secondary users...");
             var txEtherTransfer = await Web3.Eth.GetEtherTransferService()
                 .TransferEtherAndWaitForReceiptAsync(Web3SecondaryUser.TransactionManager.Account.Address, 1.00m);
-            Log($"Transfer tx status: {txEtherTransfer.Status.Value}");            
+            Log($"Transfer tx status: {txEtherTransfer.Status.Value}");
             LogSeparator();
         }
 
