@@ -67,17 +67,6 @@ namespace Nethereum.Commerce.Contracts.Purchasing
             return ContractHandler.QueryAsync<BoundAddressesFunction, bool>(boundAddressesFunction, blockParameter);
         }
 
-        public Task<string> AddressRegistryGlobalQueryAsync(AddressRegistryGlobalFunction addressRegistryGlobalFunction, BlockParameter blockParameter = null)
-        {
-            return ContractHandler.QueryAsync<AddressRegistryGlobalFunction, string>(addressRegistryGlobalFunction, blockParameter);
-        }
-
-        
-        public Task<string> AddressRegistryGlobalQueryAsync(BlockParameter blockParameter = null)
-        {
-            return ContractHandler.QueryAsync<AddressRegistryGlobalFunction, string>(null, blockParameter);
-        }
-
         public Task<string> AddressRegistryLocalQueryAsync(AddressRegistryLocalFunction addressRegistryLocalFunction, BlockParameter blockParameter = null)
         {
             return ContractHandler.QueryAsync<AddressRegistryLocalFunction, string>(addressRegistryLocalFunction, blockParameter);
@@ -115,15 +104,15 @@ namespace Nethereum.Commerce.Contracts.Purchasing
              return ContractHandler.SendRequestAndWaitForReceiptAsync(bindAddressFunction, cancellationToken);
         }
 
-        public Task<string> BpStorageGlobalQueryAsync(BpStorageGlobalFunction bpStorageGlobalFunction, BlockParameter blockParameter = null)
+        public Task<string> BusinessPartnerStorageGlobalQueryAsync(BusinessPartnerStorageGlobalFunction businessPartnerStorageGlobalFunction, BlockParameter blockParameter = null)
         {
-            return ContractHandler.QueryAsync<BpStorageGlobalFunction, string>(bpStorageGlobalFunction, blockParameter);
+            return ContractHandler.QueryAsync<BusinessPartnerStorageGlobalFunction, string>(businessPartnerStorageGlobalFunction, blockParameter);
         }
 
         
-        public Task<string> BpStorageGlobalQueryAsync(BlockParameter blockParameter = null)
+        public Task<string> BusinessPartnerStorageGlobalQueryAsync(BlockParameter blockParameter = null)
         {
-            return ContractHandler.QueryAsync<BpStorageGlobalFunction, string>(null, blockParameter);
+            return ContractHandler.QueryAsync<BusinessPartnerStorageGlobalFunction, string>(null, blockParameter);
         }
 
         public Task<string> Bytes32ToStringQueryAsync(Bytes32ToStringFunction bytes32ToStringFunction, BlockParameter blockParameter = null)
@@ -179,20 +168,20 @@ namespace Nethereum.Commerce.Contracts.Purchasing
              return ContractHandler.SendRequestAndWaitForReceiptAsync(configureFunction, cancellationToken);
         }
 
-        public Task<string> ConfigureRequestAsync(string nameOfBusinessPartnerStorageGlobal, string nameOfPoStorageLocal, string nameOfFundingLocal)
+        public Task<string> ConfigureRequestAsync(string businessPartnerStorageAddressGlobal, string nameOfPoStorageLocal, string nameOfFundingLocal)
         {
             var configureFunction = new ConfigureFunction();
-                configureFunction.NameOfBusinessPartnerStorageGlobal = nameOfBusinessPartnerStorageGlobal;
+                configureFunction.BusinessPartnerStorageAddressGlobal = businessPartnerStorageAddressGlobal;
                 configureFunction.NameOfPoStorageLocal = nameOfPoStorageLocal;
                 configureFunction.NameOfFundingLocal = nameOfFundingLocal;
             
              return ContractHandler.SendRequestAsync(configureFunction);
         }
 
-        public Task<TransactionReceipt> ConfigureRequestAndWaitForReceiptAsync(string nameOfBusinessPartnerStorageGlobal, string nameOfPoStorageLocal, string nameOfFundingLocal, CancellationTokenSource cancellationToken = null)
+        public Task<TransactionReceipt> ConfigureRequestAndWaitForReceiptAsync(string businessPartnerStorageAddressGlobal, string nameOfPoStorageLocal, string nameOfFundingLocal, CancellationTokenSource cancellationToken = null)
         {
             var configureFunction = new ConfigureFunction();
-                configureFunction.NameOfBusinessPartnerStorageGlobal = nameOfBusinessPartnerStorageGlobal;
+                configureFunction.BusinessPartnerStorageAddressGlobal = businessPartnerStorageAddressGlobal;
                 configureFunction.NameOfPoStorageLocal = nameOfPoStorageLocal;
                 configureFunction.NameOfFundingLocal = nameOfFundingLocal;
             

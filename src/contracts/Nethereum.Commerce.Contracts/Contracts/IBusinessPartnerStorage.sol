@@ -12,7 +12,7 @@ interface IBusinessPartnerStorage
     event SellerChangedLog(address indexed upsertAddress, bytes32 indexed sellerId, IPoTypes.Seller seller); 
    
     // Setup
-    function configure(string calldata nameOfEternalStorage) external;
+    function reconfigure(address eternalStorageAddress) external;
 
     // Maintain eShop information
     function getEshop(bytes32 eShopId) external view returns (IPoTypes.Eshop memory eShop);

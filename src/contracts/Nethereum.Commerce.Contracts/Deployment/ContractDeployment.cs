@@ -33,7 +33,6 @@ namespace Nethereum.Commerce.Contracts.Deployment
     {
         // Deployed contract services
         // Global
-        public AddressRegistryService AddressRegistryServiceGlobal { get; internal set; }
         public EternalStorageService EternalStorageServiceGlobal { get; internal set; }
         public BusinessPartnerStorageService BusinessPartnerStorageServiceGlobal { get; internal set; }
 
@@ -54,11 +53,9 @@ namespace Nethereum.Commerce.Contracts.Deployment
         // Configuration
         public readonly ContractNewDeploymentConfig ContractNewDeploymentConfig;
        
-        // Contract names used in logs and internally by eg address registry
-        public const string CONTRACT_NAME_ADDRESS_REGISTRY_GLOBAL = "AddressRegistryGlobal";
+        // Contract names used in logs, plus local names used internally by eg address registry
         public const string CONTRACT_NAME_ETERNAL_STORAGE_GLOBAL = "EternalStorageGlobal";
         public const string CONTRACT_NAME_BUSINESS_PARTNER_STORAGE_GLOBAL = "BusinessPartnerStorageGlobal";
-
         public const string CONTRACT_NAME_ADDRESS_REGISTRY_LOCAL = "AddressRegistryLocal";
         public const string CONTRACT_NAME_ETERNAL_STORAGE_LOCAL = "EternalStorageLocal";
         public const string CONTRACT_NAME_PO_STORAGE_LOCAL = "PoStorageLocal";
@@ -175,20 +172,9 @@ namespace Nethereum.Commerce.Contracts.Deployment
             //-----------------------------------------------------------------------------------
             // Contract deployments global
             //-----------------------------------------------------------------------------------
-            // Deploy Global Address Registry
-            LogHeader("Deploy Global Storage");
-            var contractName = CONTRACT_NAME_ADDRESS_REGISTRY_GLOBAL;
-            Log($"Deploying {contractName}...");
-            var addressRegDeploymentGlobal = new AddressRegistryDeployment();
-            AddressRegistryServiceGlobal = await AddressRegistryService.DeployContractAndGetServiceAsync(
-                _web3, addressRegDeploymentGlobal).ConfigureAwait(false);
-            var addressRegOwner = await AddressRegistryServiceGlobal.OwnerQueryAsync().ConfigureAwait(false);
-            Log($"{contractName} address is: {AddressRegistryServiceGlobal.ContractHandler.ContractAddress}");
-            Log($"{contractName} owner is  : {addressRegOwner}");
-
             // Deploy Global Eternal Storage
             Log();
-            contractName = CONTRACT_NAME_ETERNAL_STORAGE_GLOBAL;
+            var contractName = CONTRACT_NAME_ETERNAL_STORAGE_GLOBAL;
             Log($"Deploying {contractName}...");
             var eternalStorageDeploymentGlobal = new EternalStorageDeployment();
             EternalStorageServiceGlobal = await EternalStorageService.DeployContractAndGetServiceAsync(
@@ -203,7 +189,7 @@ namespace Nethereum.Commerce.Contracts.Deployment
             Log($"Deploying {contractName}...");
             var bpStorageDeploymentGlobal = new BusinessPartnerStorageDeployment()
             {
-                ContractAddressOfRegistry = AddressRegistryServiceGlobal.ContractHandler.ContractAddress
+                EternalStorageAddress = EternalStorageServiceGlobal.ContractHandler.ContractAddress
             };
             BusinessPartnerStorageServiceGlobal = await BusinessPartnerStorageService.DeployContractAndGetServiceAsync(
                 _web3, bpStorageDeploymentGlobal).ConfigureAwait(false);
@@ -212,35 +198,10 @@ namespace Nethereum.Commerce.Contracts.Deployment
             Log($"{contractName} owner is  : {bpStorageOwner}");
 
             //-----------------------------------------------------------------------------------
-            // Configure Global Address Registry
-            //-----------------------------------------------------------------------------------
-            // Add address entry for eternal storage
-            Log();
-            contractName = CONTRACT_NAME_ETERNAL_STORAGE_GLOBAL;
-            Log($"Configuring Global Address Registry, adding {contractName}...");
-            var txReceipt = await AddressRegistryServiceGlobal.RegisterAddressStringRequestAndWaitForReceiptAsync(
-                contractName, EternalStorageServiceGlobal.ContractHandler.ContractAddress).ConfigureAwait(false);
-            Log($"Tx status: {txReceipt.Status.Value}");
-
-            // Add address registry entry for global BP storage 
-            Log();
-            contractName = CONTRACT_NAME_BUSINESS_PARTNER_STORAGE_GLOBAL;
-            Log($"Configuring Global Address Registry, adding {contractName}...");
-            txReceipt = await AddressRegistryServiceGlobal.RegisterAddressStringRequestAndWaitForReceiptAsync(
-                contractName, BusinessPartnerStorageServiceGlobal.ContractHandler.ContractAddress).ConfigureAwait(false);
-            Log($"Tx status: {txReceipt.Status.Value}");
-
-            //-----------------------------------------------------------------------------------
             // Configure Global Business Partner Storage
             //-----------------------------------------------------------------------------------
-            Log();
-            Log($"Configuring Global Business Partner Storage...");
-            txReceipt = await BusinessPartnerStorageServiceGlobal.ConfigureRequestAndWaitForReceiptAsync(
-                CONTRACT_NAME_ETERNAL_STORAGE_GLOBAL).ConfigureAwait(false);
-            Log($"Tx status: {txReceipt.Status.Value}");
-
             // Authorisations.
-            // Bind all contracts that will use BP storage here - currently none other than owner                
+            // Bind all contracts that will maintain records in BP storage here - currently none other than owner                
 
             // Configure Global Eternal Storage
             // Authorisations. Bind all contracts that will use global eternal storage
@@ -248,7 +209,7 @@ namespace Nethereum.Commerce.Contracts.Deployment
             Log($"Authorisations for Global Eternal Storage...");
             contractName = CONTRACT_NAME_BUSINESS_PARTNER_STORAGE_GLOBAL;
             Log($"Configuring Global Eternal Storage, binding {contractName}...");
-            txReceipt = await EternalStorageServiceGlobal.BindAddressRequestAndWaitForReceiptAsync(
+            var txReceipt = await EternalStorageServiceGlobal.BindAddressRequestAndWaitForReceiptAsync(
                 BusinessPartnerStorageServiceGlobal.ContractHandler.ContractAddress).ConfigureAwait(false);
             Log($"Tx status: {txReceipt.Status.Value}");
         }
@@ -295,7 +256,7 @@ namespace Nethereum.Commerce.Contracts.Deployment
             Log();
             contractName = CONTRACT_NAME_BUYER_WALLET;
             Log($"Deploying {contractName}...");
-            var buyerWalletDeployment = new BuyerWalletDeployment() { ContractAddressOfRegistryGlobal = AddressRegistryServiceGlobal.ContractHandler.ContractAddress };
+            var buyerWalletDeployment = new BuyerWalletDeployment() { BusinessPartnerStorageAddressGlobal = BusinessPartnerStorageServiceGlobal.ContractHandler.ContractAddress };
             BuyerWalletService = await BuyerWalletService.DeployContractAndGetServiceAsync(
                 _web3, buyerWalletDeployment).ConfigureAwait(false);
             var buyerWalletOwner = await BuyerWalletService.OwnerQueryAsync().ConfigureAwait(false);
@@ -308,7 +269,7 @@ namespace Nethereum.Commerce.Contracts.Deployment
             Log($"Deploying {contractName}...");
             var sellerAdminDeployment = new SellerAdminDeployment()
             {
-                ContractAddressOfRegistryGlobal = AddressRegistryServiceGlobal.ContractHandler.ContractAddress,
+                BusinessPartnerStorageAddressGlobal = BusinessPartnerStorageServiceGlobal.ContractHandler.ContractAddress,
                 SellerIdString = ContractNewDeploymentConfig.Seller.SellerId,
             };
             SellerAdminService = await SellerAdminService.DeployContractAndGetServiceAsync(
@@ -323,8 +284,7 @@ namespace Nethereum.Commerce.Contracts.Deployment
             Log($"Deploying {contractName}...");
             var purchasingDeployment = new PurchasingDeployment()
             {
-                ContractAddressOfRegistryGlobal = AddressRegistryServiceGlobal.ContractHandler.ContractAddress,
-                ContractAddressOfRegistryLocal = AddressRegistryServiceLocal.ContractHandler.ContractAddress,
+                AddressRegistryLocalAddress = AddressRegistryServiceLocal.ContractHandler.ContractAddress,
                 EShopIdString = ContractNewDeploymentConfig.Eshop.EShopId
             };
             PurchasingServiceLocal = await PurchasingService.DeployContractAndGetServiceAsync(
@@ -338,9 +298,8 @@ namespace Nethereum.Commerce.Contracts.Deployment
             contractName = CONTRACT_NAME_FUNDING_LOCAL;
             Log($"Deploying {contractName}...");
             var fundingDeployment = new FundingDeployment()
-            {
-                ContractAddressOfRegistryGlobal = AddressRegistryServiceGlobal.ContractHandler.ContractAddress,
-                ContractAddressOfRegistryLocal = AddressRegistryServiceLocal.ContractHandler.ContractAddress,
+            {            
+                AddressRegistryLocalAddress = AddressRegistryServiceLocal.ContractHandler.ContractAddress,
             };
             FundingServiceLocal = await FundingService.DeployContractAndGetServiceAsync(
                 _web3, fundingDeployment).ConfigureAwait(false);
@@ -422,30 +381,12 @@ namespace Nethereum.Commerce.Contracts.Deployment
             Log($"Tx status: {txReceipt.Status.Value}");
 
             //-----------------------------------------------------------------------------------
-            // Configure Seller Admin
-            //-----------------------------------------------------------------------------------
-            Log();
-            Log($"Configuring Seller Admin...");
-            txReceipt = await SellerAdminService.ConfigureRequestAndWaitForReceiptAsync(
-                CONTRACT_NAME_BUSINESS_PARTNER_STORAGE_GLOBAL).ConfigureAwait(false);
-            Log($"Tx status: {txReceipt.Status.Value}");
-
-            //-----------------------------------------------------------------------------------
-            // Configure Buyer Wallet
-            //-----------------------------------------------------------------------------------
-            Log();
-            Log($"Configuring Buyer Wallet...");
-            txReceipt = await BuyerWalletService.ConfigureRequestAndWaitForReceiptAsync(
-                CONTRACT_NAME_BUSINESS_PARTNER_STORAGE_GLOBAL).ConfigureAwait(false);
-            Log($"Tx status: {txReceipt.Status.Value}");
-
-            //-----------------------------------------------------------------------------------
             // Configure Purchasing
             //-----------------------------------------------------------------------------------
             Log();
             Log($"Configuring Purchasing...");
             txReceipt = await PurchasingServiceLocal.ConfigureRequestAndWaitForReceiptAsync(
-                CONTRACT_NAME_BUSINESS_PARTNER_STORAGE_GLOBAL,
+                BusinessPartnerStorageServiceGlobal.ContractHandler.ContractAddress,
                 CONTRACT_NAME_PO_STORAGE_LOCAL,
                 CONTRACT_NAME_FUNDING_LOCAL)
                 .ConfigureAwait(false);
@@ -478,7 +419,7 @@ namespace Nethereum.Commerce.Contracts.Deployment
             Log();
             Log($"Configuring Funding...");
             txReceipt = await FundingServiceLocal.ConfigureRequestAndWaitForReceiptAsync(
-                CONTRACT_NAME_BUSINESS_PARTNER_STORAGE_GLOBAL,
+                BusinessPartnerStorageServiceGlobal.ContractHandler.ContractAddress,
                 CONTRACT_NAME_PO_STORAGE_LOCAL)
                 .ConfigureAwait(false);
             Log($"Tx status: {txReceipt.Status.Value}");

@@ -38,16 +38,16 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             actualEternalStorageAddressHeldAgainstPoStorage.Should().Be(expectedEternalStorageAddress);
 
             // ...the funding contract should be configured to point to the business partner storage contract.
-            var actualBusinessPartnerStorageAddressHeldAgainstFunding = await _contracts.Deployment.FundingServiceLocal.BpStorageGlobalQueryAsync();
+            var actualBusinessPartnerStorageAddressHeldAgainstFunding = await _contracts.Deployment.FundingServiceLocal.BusinessPartnerStorageGlobalQueryAsync();
             var expectedBusinessPartnerAddress = _contracts.Deployment.BusinessPartnerStorageServiceGlobal.ContractHandler.ContractAddress;
             actualBusinessPartnerStorageAddressHeldAgainstFunding.Should().Be(expectedBusinessPartnerAddress);
 
             // ... the buyer wallet should be configured to point to the business partner storage contract.
-            var actualBusinessPartnerStorageAddressHeldAgainstBuyerWallet = await _contracts.Deployment.BuyerWalletService.BpStorageGlobalQueryAsync();
+            var actualBusinessPartnerStorageAddressHeldAgainstBuyerWallet = await _contracts.Deployment.BuyerWalletService.BusinessPartnerStorageGlobalQueryAsync();
             actualBusinessPartnerStorageAddressHeldAgainstBuyerWallet.Should().Be(expectedBusinessPartnerAddress);
 
             // ... the seller admin should be configured to point to the business partner storage contract.
-            var actualBusinessPartnerStorageAddressHeldAgainstSellerAdmin = await _contracts.Deployment.SellerAdminService.BpStorageGlobalQueryAsync();
+            var actualBusinessPartnerStorageAddressHeldAgainstSellerAdmin = await _contracts.Deployment.SellerAdminService.BusinessPartnerStorageGlobalQueryAsync();
             actualBusinessPartnerStorageAddressHeldAgainstSellerAdmin.Should().Be(expectedBusinessPartnerAddress);
 
             // ... the seller admin should be configured to have a seller id.
@@ -78,20 +78,19 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         [Fact]
         public async void ShouldNotAllowDuplicateEshopDeployment()
         {
-            // Prevent a second Purchasing.sol contract being deployed that is trying to 
-            // use an existing eShop that is already pointing at another Purchasing.sol.
+            // Prevent a second Purchasing.sol contract being deployed that is trying to use an
+            // existing eShop master data record that is pointing at DIFFERENT Purchasing.sol.
             // This is checked for when Purchasing.sol is configured.
             var purchasingDeployment = new PurchasingDeployment()
             {
-                ContractAddressOfRegistryGlobal = _contracts.Deployment.AddressRegistryServiceGlobal.ContractHandler.ContractAddress,
-                ContractAddressOfRegistryLocal = _contracts.Deployment.AddressRegistryServiceLocal.ContractHandler.ContractAddress,
+                AddressRegistryLocalAddress  = _contracts.Deployment.AddressRegistryServiceLocal.ContractHandler.ContractAddress,
                 EShopIdString = _contracts.Deployment.ContractNewDeploymentConfig.Eshop.EShopId
             };
             var psl = await PurchasingService.DeployContractAndGetServiceAsync(
                _contracts.Web3, purchasingDeployment).ConfigureAwait(false);
 
             Func<Task> act = async () => await psl.ConfigureRequestAndWaitForReceiptAsync(
-                ContractDeployment.CONTRACT_NAME_BUSINESS_PARTNER_STORAGE_GLOBAL,
+                 _contracts.Deployment.BusinessPartnerStorageServiceGlobal.ContractHandler.ContractAddress,
                 ContractDeployment.CONTRACT_NAME_PO_STORAGE_LOCAL,
                 ContractDeployment.CONTRACT_NAME_FUNDING_LOCAL);
             await act.Should().ThrowAsync<SmartContractRevertException>().WithMessage(PO_EXCEPTION_CHECK_ESHOP_MASTER_DATA); 

@@ -30,7 +30,7 @@ interface IPurchasing
     // Functions
     //---------------------------------------------------------
     // Contract setup
-    function configure(string calldata nameOfBusinessPartnerStorageGlobal, string calldata nameOfPoStorageLocal, string calldata nameOfFundingLocal) external;
+    function configure(address businessPartnerStorageAddressGlobal, string calldata nameOfPoStorageLocal, string calldata nameOfFundingLocal) external;
     function getFunding() external view returns (IFunding);
     
     // Purchasing

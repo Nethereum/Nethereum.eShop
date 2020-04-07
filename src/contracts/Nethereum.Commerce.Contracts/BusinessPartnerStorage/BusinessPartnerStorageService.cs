@@ -42,17 +42,6 @@ namespace Nethereum.Commerce.Contracts.BusinessPartnerStorage
             ContractHandler = web3.Eth.GetContractHandler(contractAddress);
         }
 
-        public Task<string> AddressRegistryQueryAsync(AddressRegistryFunction addressRegistryFunction, BlockParameter blockParameter = null)
-        {
-            return ContractHandler.QueryAsync<AddressRegistryFunction, string>(addressRegistryFunction, blockParameter);
-        }
-
-        
-        public Task<string> AddressRegistryQueryAsync(BlockParameter blockParameter = null)
-        {
-            return ContractHandler.QueryAsync<AddressRegistryFunction, string>(null, blockParameter);
-        }
-
         public Task<string> Bytes32ToStringQueryAsync(Bytes32ToStringFunction bytes32ToStringFunction, BlockParameter blockParameter = null)
         {
             return ContractHandler.QueryAsync<Bytes32ToStringFunction, string>(bytes32ToStringFunction, blockParameter);
@@ -66,32 +55,6 @@ namespace Nethereum.Commerce.Contracts.BusinessPartnerStorage
                 bytes32ToStringFunction.TruncateToLength = truncateToLength;
             
             return ContractHandler.QueryAsync<Bytes32ToStringFunction, string>(bytes32ToStringFunction, blockParameter);
-        }
-
-        public Task<string> ConfigureRequestAsync(ConfigureFunction configureFunction)
-        {
-             return ContractHandler.SendRequestAsync(configureFunction);
-        }
-
-        public Task<TransactionReceipt> ConfigureRequestAndWaitForReceiptAsync(ConfigureFunction configureFunction, CancellationTokenSource cancellationToken = null)
-        {
-             return ContractHandler.SendRequestAndWaitForReceiptAsync(configureFunction, cancellationToken);
-        }
-
-        public Task<string> ConfigureRequestAsync(string nameOfEternalStorage)
-        {
-            var configureFunction = new ConfigureFunction();
-                configureFunction.NameOfEternalStorage = nameOfEternalStorage;
-            
-             return ContractHandler.SendRequestAsync(configureFunction);
-        }
-
-        public Task<TransactionReceipt> ConfigureRequestAndWaitForReceiptAsync(string nameOfEternalStorage, CancellationTokenSource cancellationToken = null)
-        {
-            var configureFunction = new ConfigureFunction();
-                configureFunction.NameOfEternalStorage = nameOfEternalStorage;
-            
-             return ContractHandler.SendRequestAndWaitForReceiptAsync(configureFunction, cancellationToken);
         }
 
         public Task<string> EternalStorageQueryAsync(EternalStorageFunction eternalStorageFunction, BlockParameter blockParameter = null)
@@ -151,6 +114,32 @@ namespace Nethereum.Commerce.Contracts.BusinessPartnerStorage
         public Task<string> OwnerQueryAsync(BlockParameter blockParameter = null)
         {
             return ContractHandler.QueryAsync<OwnerFunction, string>(null, blockParameter);
+        }
+
+        public Task<string> ReconfigureRequestAsync(ReconfigureFunction reconfigureFunction)
+        {
+             return ContractHandler.SendRequestAsync(reconfigureFunction);
+        }
+
+        public Task<TransactionReceipt> ReconfigureRequestAndWaitForReceiptAsync(ReconfigureFunction reconfigureFunction, CancellationTokenSource cancellationToken = null)
+        {
+             return ContractHandler.SendRequestAndWaitForReceiptAsync(reconfigureFunction, cancellationToken);
+        }
+
+        public Task<string> ReconfigureRequestAsync(string eternalStorageAddress)
+        {
+            var reconfigureFunction = new ReconfigureFunction();
+                reconfigureFunction.EternalStorageAddress = eternalStorageAddress;
+            
+             return ContractHandler.SendRequestAsync(reconfigureFunction);
+        }
+
+        public Task<TransactionReceipt> ReconfigureRequestAndWaitForReceiptAsync(string eternalStorageAddress, CancellationTokenSource cancellationToken = null)
+        {
+            var reconfigureFunction = new ReconfigureFunction();
+                reconfigureFunction.EternalStorageAddress = eternalStorageAddress;
+            
+             return ContractHandler.SendRequestAndWaitForReceiptAsync(reconfigureFunction, cancellationToken);
         }
 
         public Task<string> SetEshopRequestAsync(SetEshopFunction setEshopFunction)

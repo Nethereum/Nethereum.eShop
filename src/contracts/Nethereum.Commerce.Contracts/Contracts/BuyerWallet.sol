@@ -15,20 +15,16 @@ import "./StringConvertible.sol";
 contract BuyerWallet is IBuyerWallet, Ownable, Bindable, StringConvertible
 {
     // Global data
-    IAddressRegistry public addressRegistryGlobal;
-    IBusinessPartnerStorage public bpStorageGlobal;
+    IBusinessPartnerStorage public businessPartnerStorageGlobal;
     
-    constructor (address contractAddressOfRegistryGlobal) public
+    constructor (address businessPartnerStorageAddressGlobal) public
     {
-        addressRegistryGlobal = IAddressRegistry(contractAddressOfRegistryGlobal);
+        businessPartnerStorageGlobal = IBusinessPartnerStorage(businessPartnerStorageAddressGlobal);
     } 
     
-    // Contract setup
-    function configure(string calldata nameOfBusinessPartnerStorageGlobal) onlyOwner() override external
+    function reconfigure(address businessPartnerStorageAddressGlobal) onlyOwner() override external
     {
-        // Lookup address registry to find the global repo for business partners
-        bpStorageGlobal = IBusinessPartnerStorage(addressRegistryGlobal.getAddressString(nameOfBusinessPartnerStorageGlobal));
-        require(address(bpStorageGlobal) != address(0), "Could not find Business Partner Storage contract address in registry");
+         businessPartnerStorageGlobal = IBusinessPartnerStorage(businessPartnerStorageAddressGlobal);
     }
     
     // Purchasing
@@ -109,7 +105,7 @@ contract BuyerWallet is IBuyerWallet, Ownable, Bindable, StringConvertible
     
     function getAndValidateEshop(bytes32 eShopId) private view returns (IPoTypes.Eshop memory validShop)
     {
-        IPoTypes.Eshop memory eShop = bpStorageGlobal.getEshop(eShopId);
+        IPoTypes.Eshop memory eShop = businessPartnerStorageGlobal.getEshop(eShopId);
         require(eShop.purchasingContractAddress != address(0), "eShop has no purchasing address");
         require(eShop.quoteSignerCount > 0, "No quote signers found for eShop");
         return eShop;

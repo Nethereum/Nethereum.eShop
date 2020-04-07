@@ -11,7 +11,7 @@ interface ISellerAdmin
     event QuoteConvertedToPoLog(bytes32 indexed eShopId, uint indexed quoteId, address indexed buyerWalletAddress);
    
     // Contract setup
-    function configure(string calldata nameOfBusinessPartnerStorageGlobal) external;
+    function reconfigure(address businessPartnerStorageAddressGlobal) external;
     
     // Purchasing
     function emitEventForNewPo(IPoTypes.Po calldata po) external;

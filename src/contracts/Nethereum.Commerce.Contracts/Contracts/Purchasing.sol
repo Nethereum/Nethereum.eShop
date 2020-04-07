@@ -17,8 +17,7 @@ import "./StringConvertible.sol";
 contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
 {
     // Global data (shared with all eShops)
-    IAddressRegistry public addressRegistryGlobal;
-    IBusinessPartnerStorage public bpStorageGlobal;
+    IBusinessPartnerStorage public businessPartnerStorageGlobal;
 
     // Local data (owned by this eShop)
     bytes32 public eShopId;
@@ -31,22 +30,20 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
     uint constant private ESCROW_TIMEOUT_DAYS = 30;
      
     /// @notice Specify eShopId at point of contract creation, then it is fixed forever.
-    constructor (address contractAddressOfRegistryGlobal, address contractAddressOfRegistryLocal, string memory eShopIdString) public
+    constructor (address addressRegistryLocalAddress, string memory eShopIdString) public
     {
-        addressRegistryGlobal = IAddressRegistry(contractAddressOfRegistryGlobal);
-        addressRegistryLocal = IAddressRegistry(contractAddressOfRegistryLocal);
+        addressRegistryLocal = IAddressRegistry(addressRegistryLocalAddress);
         eShopId = stringToBytes32(eShopIdString);
     }
     
     // Contract setup
     function configure(
-        string calldata nameOfBusinessPartnerStorageGlobal,
+        address businessPartnerStorageAddressGlobal,
         string calldata nameOfPoStorageLocal, 
         string calldata nameOfFundingLocal) onlyOwner() override external
     {
         // Business Partner Storage contract
-        bpStorageGlobal = IBusinessPartnerStorage(addressRegistryGlobal.getAddressString(nameOfBusinessPartnerStorageGlobal));
-        require(address(bpStorageGlobal) != address(0), "Could not find Business Partner Storage contract address in registry");
+        businessPartnerStorageGlobal = IBusinessPartnerStorage(businessPartnerStorageAddressGlobal);
     
         // PO Storage contract
         poStorageLocal = IPoStorage(addressRegistryLocal.getAddressString(nameOfPoStorageLocal));
@@ -57,7 +54,7 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
         require(address(fundingLocal) != address(0), "Could not find Funding contract address in registry");
         
         // Check that the eShop master data purchasing contract points to this contract's address
-        IPoTypes.Eshop memory eShop = bpStorageGlobal.getEshop(eShopId);
+        IPoTypes.Eshop memory eShop = businessPartnerStorageGlobal.getEshop(eShopId);
         require(eShop.purchasingContractAddress == address(this), "eShop master data points to wrong Purchasing address");
     }
     
@@ -88,7 +85,7 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
         //-------------------------------------------------------------------------
         // Ensure buyer chose a valid eshop
         require(po.eShopId.length > 0, "eShopId must be specified");
-        IPoTypes.Eshop memory eShop = bpStorageGlobal.getEshop(po.eShopId);
+        IPoTypes.Eshop memory eShop = businessPartnerStorageGlobal.getEshop(po.eShopId);
         require(eShop.purchasingContractAddress != address(0), "eShop has no purchasing address");
         require(eShop.quoteSignerCount > 0, "No quote signers found for eShop");
         require(po.eShopId == eShopId, "eShopId is not correct for this contract");  // must be "our" eShop
@@ -96,7 +93,7 @@ contract Purchasing is IPurchasing, Ownable, Bindable, StringConvertible
         
         // Ensure buyer chose a valid seller
         require(po.sellerId.length > 0, "SellerId must be specified");
-        IPoTypes.Seller memory seller = bpStorageGlobal.getSeller(po.sellerId);
+        IPoTypes.Seller memory seller = businessPartnerStorageGlobal.getSeller(po.sellerId);
         require(seller.sellerId.length > 0, "Seller has no master data");
         require(seller.adminContractAddress != address(0), "Seller has no admin address");
         require(seller.isActive == true, "Seller is inactive");
