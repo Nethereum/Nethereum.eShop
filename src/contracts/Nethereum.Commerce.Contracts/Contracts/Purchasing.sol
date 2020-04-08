@@ -101,6 +101,7 @@ contract Purchasing is IPurchasing, Ownable, StringConvertible
         require(seller.sellerId.length > 0, "Seller has no master data");
         require(seller.adminContractAddress != address(0), "Seller has no admin contract address");
         require(seller.isActive == true, "Seller is inactive");
+        return seller;
     }
     
     //-------------------------------------------------------------------------
@@ -111,7 +112,7 @@ contract Purchasing is IPurchasing, Ownable, StringConvertible
     {
         // Record the create request, emitting po exactly as we received it
         emit PurchaseOrderCreateRequestLog(po.buyerWalletAddress, po.sellerId, 0, po);
-        
+                
         //-------------------------------------------------------------------------
         // Po Validation (before new fields added)
         //-------------------------------------------------------------------------
@@ -183,17 +184,17 @@ contract Purchasing is IPurchasing, Ownable, StringConvertible
         // Store Po details in eternal storage
         //-------------------------------------------------------------------------
         poStorageLocal.setPo(po);
-        
+                        
         //-------------------------------------------------------------------------
         // Funding. Here, the Funding contract attempts to pull in funds from buyer wallet
         //-------------------------------------------------------------------------
         fundingLocal.transferInFundsForPoFromBuyerWallet(po.poNumber);
-        
+                                
         // Record the new PO as it was stored
         IPoTypes.Po memory poAsStored = poStorageLocal.getPo(po.poNumber);
         emit PurchaseOrderCreatedLog(poAsStored.buyerWalletAddress, poAsStored.sellerId, poAsStored.poNumber, poAsStored);
         
-        // Tell seller a new PO has arrive
+        // Tell seller a new PO has arrived
         ISellerAdmin sellerAdminContract = ISellerAdmin(seller.adminContractAddress);
         sellerAdminContract.emitEventForNewPo(poAsStored);
     }

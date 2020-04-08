@@ -12,7 +12,7 @@ using static Nethereum.Commerce.ContractDeployments.IntegrationTests.PoTestHelpe
 
 namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 {
-    [Trait("BusinessPartnerStorage", "")]
+    [Trait("Global", "")]
     [Collection("Contract Deployment Collection")]
     public class BusinessPartnerAuthTests
     {

@@ -47,6 +47,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId: GetRandomInt());
             var signature = poAsRequested.GetSignatureBytes(_contracts.Web3);
             await PrepSendFundsToBuyerWalletForPo(_contracts.Web3, poAsRequested);
+            
             var txReceiptCreate = await _contracts.Deployment.BuyerWalletService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
             txReceiptCreate.Status.Value.Should().Be(1);
 
@@ -157,14 +158,14 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             logQuoteConvertedToPo.Event.EShopId.ConvertToString().Should().Be(poAsRequested.EShopId);
             logQuoteConvertedToPo.Event.QuoteId.Should().Be(poAsRequested.QuoteId);
             logQuoteConvertedToPo.Event.SellerId.ConvertToString().Should().Be(poAsRequested.SellerId);
-            
+
             // Check PO create events from Purchasing contract
             var logPoCreateRequest = txReceipt.DecodeAllEvents<PurchaseOrderCreateRequestLogEventDTO>().FirstOrDefault();
             logPoCreateRequest.Should().NotBeNull();  // <= PO as requested
             var logPoCreated = txReceipt.DecodeAllEvents<PurchaseOrderCreatedLogEventDTO>().FirstOrDefault();
             logPoCreated.Should().NotBeNull();        // <= PO as built
             var poNumberAsBuilt = logPoCreated.Event.Po.PoNumber;
-            
+
             // Retrieve the as-built PO 
             var poAsBuilt = (await _contracts.Deployment.BuyerWalletService.GetPoQueryAsync(
                 poAsRequested.EShopId, poNumberAsBuilt)).Po;

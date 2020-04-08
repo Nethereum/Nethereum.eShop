@@ -68,7 +68,7 @@ contract BuyerWallet is IBuyerWallet, Ownable, Bindable, StringConvertible
         // Depending on token implementation, this might return false if approval failed
         bool result = tokenContract.approve(address(funding), totalValue);
         require(result == true, "Token value could not be approved for spend.");
-
+        
         // Purchasing contract does the creation
         purchasing.createPurchaseOrder(po, signature);
         

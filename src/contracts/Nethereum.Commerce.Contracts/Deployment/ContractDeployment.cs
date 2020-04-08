@@ -165,6 +165,23 @@ namespace Nethereum.Commerce.Contracts.Deployment
                     CreatedByAddress = string.Empty  // filled by contract
                 }).ConfigureAwait(false);
             Log($"Tx status: {txReceipt.Status.Value}");
+
+            //-----------------------------------------------------------------------------------                                
+            // Configure SellerAdmin
+            //-----------------------------------------------------------------------------------
+            Log();
+            Log($"Configuring Seller Admin...");
+            txReceipt = await SellerAdminService.ConfigureRequestAndWaitForReceiptAsync(
+                BusinessPartnerStorageServiceGlobal.ContractHandler.ContractAddress).ConfigureAwait(false);
+            Log($"Tx status: {txReceipt.Status.Value}");
+
+            // Authorisations - SellerAdmin must register the eShop, adding the eShop purchasing contract to its whitelist
+            Log();
+            Log($"Authorisations for Seller Admin...");
+            Log($"Configuring Seller Admin, binding Purchasing...");
+            txReceipt = await SellerAdminService.BindAddressRequestAndWaitForReceiptAsync(
+                PurchasingServiceLocal.ContractHandler.ContractAddress).ConfigureAwait(false);
+            Log($"Tx status: {txReceipt.Status.Value}");
         }
 
         private async Task DeployAndConfigureGlobalStorageAsync()
@@ -183,19 +200,19 @@ namespace Nethereum.Commerce.Contracts.Deployment
             Log($"{contractName} address is: {EternalStorageServiceGlobal.ContractHandler.ContractAddress}");
             Log($"{contractName} owner is  : {eternalStorageOwner}");
 
-            //// Deploy Global Business Partner Storage
-            //Log();
-            //contractName = CONTRACT_NAME_BUSINESS_PARTNER_STORAGE_GLOBAL;
-            //Log($"Deploying {contractName}...");
-            //var bpStorageDeploymentGlobal = new BusinessPartnersDeployment()
-            //{
-            //    EternalStorageAddress = EternalStorageServiceGlobal.ContractHandler.ContractAddress
-            //};
-            //BusinessPartnerStorageServiceGlobal = await BusinessPartnerStorageService.DeployContractAndGetServiceAsync(
-            //    _web3, bpStorageDeploymentGlobal).ConfigureAwait(false);
-            //var bpStorageOwner = await BusinessPartnerStorageServiceGlobal.OwnerQueryAsync().ConfigureAwait(false);
-            //Log($"{contractName} address is: {BusinessPartnerStorageServiceGlobal.ContractHandler.ContractAddress}");
-            //Log($"{contractName} owner is  : {bpStorageOwner}");
+            // Deploy Global Business Partner Storage
+            Log();
+            contractName = CONTRACT_NAME_BUSINESS_PARTNER_STORAGE_GLOBAL;
+            Log($"Deploying {contractName}...");
+            var bpStorageDeploymentGlobal = new BusinessPartnerStorageDeployment()
+            {
+                EternalStorageAddress = EternalStorageServiceGlobal.ContractHandler.ContractAddress
+            };
+            BusinessPartnerStorageServiceGlobal = await BusinessPartnerStorageService.DeployContractAndGetServiceAsync(
+                _web3, bpStorageDeploymentGlobal).ConfigureAwait(false);
+            var bpStorageOwner = await BusinessPartnerStorageServiceGlobal.OwnerQueryAsync().ConfigureAwait(false);
+            Log($"{contractName} address is: {BusinessPartnerStorageServiceGlobal.ContractHandler.ContractAddress}");
+            Log($"{contractName} owner is  : {bpStorageOwner}");
 
             //-----------------------------------------------------------------------------------
             // Configure Global Business Partner Storage
@@ -269,8 +286,7 @@ namespace Nethereum.Commerce.Contracts.Deployment
             Log($"Deploying {contractName}...");
             var sellerAdminDeployment = new SellerAdminDeployment()
             {
-                BusinessPartnerStorageAddressGlobal = BusinessPartnerStorageServiceGlobal.ContractHandler.ContractAddress,
-                SellerIdString = ContractNewDeploymentConfig.Seller.SellerId,
+                 SellerIdString = ContractNewDeploymentConfig.Seller.SellerId,
             };
             SellerAdminService = await SellerAdminService.DeployContractAndGetServiceAsync(
                 _web3, sellerAdminDeployment).ConfigureAwait(false);
@@ -390,27 +406,6 @@ namespace Nethereum.Commerce.Contracts.Deployment
                 CONTRACT_NAME_PO_STORAGE_LOCAL,
                 CONTRACT_NAME_FUNDING_LOCAL)
                 .ConfigureAwait(false);
-            Log($"Tx status: {txReceipt.Status.Value}");
-
-            // Authorisations. Bind all contracts that will use Purchasing                
-            Log($"Authorisations for Purchasing...");
-            // Bind BuyerWallet to Purchasing
-            contractName = CONTRACT_NAME_BUYER_WALLET;
-            Log($"Configuring Purchasing, binding {contractName}...");
-            txReceipt = await PurchasingServiceLocal.BindAddressRequestAndWaitForReceiptAsync(
-                BuyerWalletService.ContractHandler.ContractAddress).ConfigureAwait(false);
-            Log($"Tx status: {txReceipt.Status.Value}");
-            // Bind SellerAdmin to Purchasing
-            contractName = CONTRACT_NAME_SELLER_ADMIN;
-            Log($"Configuring Purchasing, binding {contractName}...");
-            txReceipt = await PurchasingServiceLocal.BindAddressRequestAndWaitForReceiptAsync(
-                SellerAdminService.ContractHandler.ContractAddress).ConfigureAwait(false);
-            Log($"Tx status: {txReceipt.Status.Value}");
-            // Bind Funding to Purchasing
-            contractName = CONTRACT_NAME_FUNDING_LOCAL;
-            Log($"Configuring Purchasing, binding {contractName}...");
-            txReceipt = await PurchasingServiceLocal.BindAddressRequestAndWaitForReceiptAsync(
-                FundingServiceLocal.ContractHandler.ContractAddress).ConfigureAwait(false);
             Log($"Tx status: {txReceipt.Status.Value}");
 
             //-----------------------------------------------------------------------------------

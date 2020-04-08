@@ -20,7 +20,7 @@ using Nethereum.Commerce.Contracts.BuyerWallet;
 
 namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 {
-    [Trait("eShop", "")]
+    [Trait("Shop", "")]
     [Collection("Contract Deployment Collection")]
     public class FundingTests
     {

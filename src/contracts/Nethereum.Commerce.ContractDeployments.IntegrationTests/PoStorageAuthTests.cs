@@ -11,7 +11,7 @@ using static Nethereum.Commerce.ContractDeployments.IntegrationTests.PoTestHelpe
 
 namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 {
-    [Trait("eShop", "")]
+    [Trait("Shop", "")]
     [Collection("Contract Deployment Collection")]
     public class PoStorageAuthTests
     {

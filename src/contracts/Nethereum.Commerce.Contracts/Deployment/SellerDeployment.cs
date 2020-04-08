@@ -68,8 +68,7 @@ namespace Nethereum.Commerce.Contracts.Deployment
                 LogHeader($"Deploying {contractName}...");
                 var sellerAdminDeployment = new SellerAdminDeployment()
                 {
-                    //BusinessPartnerStorageAddressGlobal = _businessPartnerStorageAddressGlobal,
-                    //SellerIdString = _sellerIdDesired
+                    SellerIdString = _sellerIdDesired
                 };
                 SellerAdminService = await SellerAdminService.DeployContractAndGetServiceAsync(
                     _web3, sellerAdminDeployment).ConfigureAwait(false);
@@ -102,6 +101,16 @@ namespace Nethereum.Commerce.Contracts.Deployment
             if (string.IsNullOrWhiteSpace(SellerId))
             {
                 throw new ContractDeploymentException($"Failed to set up {contractName}. SellerId must have a value.");
+            }
+
+            if (_isNewDeployment)
+            {
+                // Configure SellerAdmin
+                Log();
+                Log($"Configuring Seller Admin...");
+                var txReceipt = await SellerAdminService.ConfigureRequestAndWaitForReceiptAsync(
+                    bpStorageAddress).ConfigureAwait(false);
+                Log($"Tx status: {txReceipt.Status.Value}");
             }
             Log("Done");
         }
