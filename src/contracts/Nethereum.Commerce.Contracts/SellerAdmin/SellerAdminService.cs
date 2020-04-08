@@ -119,6 +119,32 @@ namespace Nethereum.Commerce.Contracts.SellerAdmin
             return ContractHandler.QueryAsync<Bytes32ToStringFunction, string>(bytes32ToStringFunction, blockParameter);
         }
 
+        public Task<string> ConfigureRequestAsync(ConfigureFunction configureFunction)
+        {
+             return ContractHandler.SendRequestAsync(configureFunction);
+        }
+
+        public Task<TransactionReceipt> ConfigureRequestAndWaitForReceiptAsync(ConfigureFunction configureFunction, CancellationTokenSource cancellationToken = null)
+        {
+             return ContractHandler.SendRequestAndWaitForReceiptAsync(configureFunction, cancellationToken);
+        }
+
+        public Task<string> ConfigureRequestAsync(string businessPartnerStorageAddressGlobal)
+        {
+            var configureFunction = new ConfigureFunction();
+                configureFunction.BusinessPartnerStorageAddressGlobal = businessPartnerStorageAddressGlobal;
+            
+             return ContractHandler.SendRequestAsync(configureFunction);
+        }
+
+        public Task<TransactionReceipt> ConfigureRequestAndWaitForReceiptAsync(string businessPartnerStorageAddressGlobal, CancellationTokenSource cancellationToken = null)
+        {
+            var configureFunction = new ConfigureFunction();
+                configureFunction.BusinessPartnerStorageAddressGlobal = businessPartnerStorageAddressGlobal;
+            
+             return ContractHandler.SendRequestAndWaitForReceiptAsync(configureFunction, cancellationToken);
+        }
+
         public Task<string> EmitEventForNewPoRequestAsync(EmitEventForNewPoFunction emitEventForNewPoFunction)
         {
              return ContractHandler.SendRequestAsync(emitEventForNewPoFunction);
@@ -173,6 +199,17 @@ namespace Nethereum.Commerce.Contracts.SellerAdmin
             return ContractHandler.QueryDeserializingToObjectAsync<GetPoByEshopIdAndQuoteFunction, GetPoByEshopIdAndQuoteOutputDTO>(getPoByEshopIdAndQuoteFunction, blockParameter);
         }
 
+        public Task<bool> IsConfiguredQueryAsync(IsConfiguredFunction isConfiguredFunction, BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<IsConfiguredFunction, bool>(isConfiguredFunction, blockParameter);
+        }
+
+        
+        public Task<bool> IsConfiguredQueryAsync(BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<IsConfiguredFunction, bool>(null, blockParameter);
+        }
+
         public Task<bool> IsOwnerQueryAsync(IsOwnerFunction isOwnerFunction, BlockParameter blockParameter = null)
         {
             return ContractHandler.QueryAsync<IsOwnerFunction, bool>(isOwnerFunction, blockParameter);
@@ -193,32 +230,6 @@ namespace Nethereum.Commerce.Contracts.SellerAdmin
         public Task<string> OwnerQueryAsync(BlockParameter blockParameter = null)
         {
             return ContractHandler.QueryAsync<OwnerFunction, string>(null, blockParameter);
-        }
-
-        public Task<string> ReconfigureRequestAsync(ReconfigureFunction reconfigureFunction)
-        {
-             return ContractHandler.SendRequestAsync(reconfigureFunction);
-        }
-
-        public Task<TransactionReceipt> ReconfigureRequestAndWaitForReceiptAsync(ReconfigureFunction reconfigureFunction, CancellationTokenSource cancellationToken = null)
-        {
-             return ContractHandler.SendRequestAndWaitForReceiptAsync(reconfigureFunction, cancellationToken);
-        }
-
-        public Task<string> ReconfigureRequestAsync(string businessPartnerStorageAddressGlobal)
-        {
-            var reconfigureFunction = new ReconfigureFunction();
-                reconfigureFunction.BusinessPartnerStorageAddressGlobal = businessPartnerStorageAddressGlobal;
-            
-             return ContractHandler.SendRequestAsync(reconfigureFunction);
-        }
-
-        public Task<TransactionReceipt> ReconfigureRequestAndWaitForReceiptAsync(string businessPartnerStorageAddressGlobal, CancellationTokenSource cancellationToken = null)
-        {
-            var reconfigureFunction = new ReconfigureFunction();
-                reconfigureFunction.BusinessPartnerStorageAddressGlobal = businessPartnerStorageAddressGlobal;
-            
-             return ContractHandler.SendRequestAndWaitForReceiptAsync(reconfigureFunction, cancellationToken);
         }
 
         public Task<byte[]> SellerIdQueryAsync(SellerIdFunction sellerIdFunction, BlockParameter blockParameter = null)

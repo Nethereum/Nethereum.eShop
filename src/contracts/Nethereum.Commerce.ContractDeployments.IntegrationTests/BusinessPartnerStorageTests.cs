@@ -14,6 +14,7 @@ using static Nethereum.Commerce.Contracts.PurchasingExtensions;
 
 namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 {
+    [Trait("BusinessPartnerStorage", "")]
     [Collection("Contract Deployment Collection")]
     public class BusinessPartnerStorageTests
     {

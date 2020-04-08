@@ -13,6 +13,7 @@ using Storage = Nethereum.Commerce.Contracts.PoStorage.ContractDefinition;
 
 namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 {
+    [Trait("eShop", "")]
     [Collection("Contract Deployment Collection")]
     public class PurchasingAuthTests
     {

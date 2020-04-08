@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 namespace Nethereum.Commerce.Contracts.Deployment
 {
     /// <summary>
+    /// Deploys a new SellerAdmin.sol contract or connects to an existing one. Throws if contract is 
+    /// not setup correctly.
     /// Usage: call SellerDeployment.CreateFromNewDeployment() or .CreateFromConnectExistingContract() to
     /// create new deployment object, then call InitializeAsync() to set it up.
     /// </summary>
@@ -66,8 +68,8 @@ namespace Nethereum.Commerce.Contracts.Deployment
                 LogHeader($"Deploying {contractName}...");
                 var sellerAdminDeployment = new SellerAdminDeployment()
                 {
-                    BusinessPartnerStorageAddressGlobal = _businessPartnerStorageAddressGlobal,
-                    SellerIdString = _sellerIdDesired
+                    //BusinessPartnerStorageAddressGlobal = _businessPartnerStorageAddressGlobal,
+                    //SellerIdString = _sellerIdDesired
                 };
                 SellerAdminService = await SellerAdminService.DeployContractAndGetServiceAsync(
                     _web3, sellerAdminDeployment).ConfigureAwait(false);

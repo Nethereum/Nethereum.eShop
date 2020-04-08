@@ -18,6 +18,7 @@ using Storage = Nethereum.Commerce.Contracts.PoStorage.ContractDefinition;
 
 namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 {
+    [Trait("Seller", "")]
     [Collection("Contract Deployment Collection")]
     public class SellerAdminAuthTests
     {

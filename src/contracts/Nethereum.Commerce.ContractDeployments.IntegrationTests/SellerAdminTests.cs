@@ -18,6 +18,7 @@ using Seller = Nethereum.Commerce.Contracts.SellerAdmin.ContractDefinition;
 
 namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 {
+    [Trait("Seller", "")]
     [Collection("Contract Deployment Collection")]
     public class SellerAdminTests
     {

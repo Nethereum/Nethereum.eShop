@@ -13,6 +13,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
     /// contract is only called by the Purchasing.sol application layer
     /// and PO fields will be filled differently.
     /// </summary>
+    [Trait("eShop", "")]
     [Collection("Contract Deployment Collection")]
     public class PoStorageTests
     {

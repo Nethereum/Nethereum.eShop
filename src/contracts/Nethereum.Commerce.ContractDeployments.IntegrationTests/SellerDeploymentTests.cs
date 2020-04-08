@@ -9,15 +9,15 @@ using Nethereum.Commerce.Contracts;
 
 namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 {
-    [Trait("Buyer", "")]
+    [Trait("Seller", "")]
     [Collection("Contract Deployment Collection v2")]
-    public class BuyerDeploymentTests
+    public class SellerDeploymentTests
     {
         private readonly ITestOutputHelper _output;
         private readonly ContractDeploymentsFixturev2 _contracts;
         private readonly TestOutputHelperLogger _xunitlogger;
 
-        public BuyerDeploymentTests(ContractDeploymentsFixturev2 fixture, ITestOutputHelper output)
+        public SellerDeploymentTests(ContractDeploymentsFixturev2 fixture, ITestOutputHelper output)
         {
             // See Output window -> Tests for fixture deployment logs.
             _contracts = fixture;
@@ -28,15 +28,16 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         [Fact]
         public async void ShouldDeployNewContract()
         {
-            var buyerDeployment = BuyerDeployment.CreateFromNewDeployment(
+            var sellerDeployment = SellerDeployment.CreateFromNewDeployment(
                  _contracts.Web3,
                  _contracts.BusinessPartnersDeployment.BusinessPartnerStorageService.ContractHandler.ContractAddress,
+                 "ShopId",
                  _xunitlogger);
-            Func<Task> act = async () => await buyerDeployment.InitializeAsync();
+            Func<Task> act = async () => await sellerDeployment.InitializeAsync();
             await act.Should().NotThrowAsync();
 
             // If buyer deployed ok then its global business partner storage address should have a value
-            var bpStorageAddress = await buyerDeployment.BuyerWalletService.BusinessPartnerStorageGlobalQueryAsync().ConfigureAwait(false);
+            var bpStorageAddress = await sellerDeployment.SellerAdminService.BusinessPartnerStorageGlobalQueryAsync().ConfigureAwait(false);
             bpStorageAddress.Should().NotBeNullOrEmpty();
             bpStorageAddress.IsZeroAddress().Should().BeFalse();
         }

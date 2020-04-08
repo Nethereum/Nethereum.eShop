@@ -28,7 +28,7 @@ contract Funding is IFunding, Ownable, Bindable, StringConvertible
     }
 
     /// @notice Configure contract
-    function configure(address businessPartnerStorageAddressGlobal, string calldata nameOfPurchasingLocal) onlyOwner() override external
+    function configure(address businessPartnerStorageAddressGlobal, string calldata nameOfPurchasingLocal) override external onlyOwner
     {
         // Business partner storage
         businessPartnerStorageGlobal = IBusinessPartnerStorage(businessPartnerStorageAddressGlobal);
@@ -39,7 +39,7 @@ contract Funding is IFunding, Ownable, Bindable, StringConvertible
         require(address(purchasingContractAddressLocal) != address(0), "Could not find Purchasing address in registry");
     }
     
-    function transferInFundsForPoFromBuyerWallet(uint poNumber) onlyRegisteredCaller() override external
+    function transferInFundsForPoFromBuyerWallet(uint poNumber) override external onlyRegisteredCaller
     {
         // Get total PO value
         IPoTypes.Po memory po = purchasingLocal.getPo(poNumber);
@@ -55,7 +55,7 @@ contract Funding is IFunding, Ownable, Bindable, StringConvertible
         require(isTransferSuccessful == true, "Insufficient funds transferred for PO");
     }
     
-    function transferOutFundsForPoItemToBuyer(uint poNumber, uint8 poItemNumber) onlyRegisteredCaller() override external
+    function transferOutFundsForPoItemToBuyer(uint poNumber, uint8 poItemNumber) override external onlyRegisteredCaller
     {
         // Refund to the PO buyer wallet (not the PO buyer from the PO header, which represents the user)
         IPoTypes.Po memory po = purchasingLocal.getPo(poNumber);
@@ -69,7 +69,7 @@ contract Funding is IFunding, Ownable, Bindable, StringConvertible
         require(result == true, "Not enough funds transferred");
     }
     
-    function transferOutFundsForPoItemToSeller(uint poNumber, uint8 poItemNumber) onlyRegisteredCaller() override external
+    function transferOutFundsForPoItemToSeller(uint poNumber, uint8 poItemNumber) override external onlyRegisteredCaller
     {
         // Get the Po Item, the token and the Seller
         IPoTypes.Po memory po = purchasingLocal.getPo(poNumber);

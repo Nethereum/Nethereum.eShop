@@ -42,31 +42,6 @@ namespace Nethereum.Commerce.Contracts.Purchasing
             ContractHandler = web3.Eth.GetContractHandler(contractAddress);
         }
 
-        public Task<BigInteger> BoundAddressCountQueryAsync(BoundAddressCountFunction boundAddressCountFunction, BlockParameter blockParameter = null)
-        {
-            return ContractHandler.QueryAsync<BoundAddressCountFunction, BigInteger>(boundAddressCountFunction, blockParameter);
-        }
-
-        
-        public Task<BigInteger> BoundAddressCountQueryAsync(BlockParameter blockParameter = null)
-        {
-            return ContractHandler.QueryAsync<BoundAddressCountFunction, BigInteger>(null, blockParameter);
-        }
-
-        public Task<bool> BoundAddressesQueryAsync(BoundAddressesFunction boundAddressesFunction, BlockParameter blockParameter = null)
-        {
-            return ContractHandler.QueryAsync<BoundAddressesFunction, bool>(boundAddressesFunction, blockParameter);
-        }
-
-        
-        public Task<bool> BoundAddressesQueryAsync(string returnValue1, BlockParameter blockParameter = null)
-        {
-            var boundAddressesFunction = new BoundAddressesFunction();
-                boundAddressesFunction.ReturnValue1 = returnValue1;
-            
-            return ContractHandler.QueryAsync<BoundAddressesFunction, bool>(boundAddressesFunction, blockParameter);
-        }
-
         public Task<string> AddressRegistryLocalQueryAsync(AddressRegistryLocalFunction addressRegistryLocalFunction, BlockParameter blockParameter = null)
         {
             return ContractHandler.QueryAsync<AddressRegistryLocalFunction, string>(addressRegistryLocalFunction, blockParameter);
@@ -76,32 +51,6 @@ namespace Nethereum.Commerce.Contracts.Purchasing
         public Task<string> AddressRegistryLocalQueryAsync(BlockParameter blockParameter = null)
         {
             return ContractHandler.QueryAsync<AddressRegistryLocalFunction, string>(null, blockParameter);
-        }
-
-        public Task<string> BindAddressRequestAsync(BindAddressFunction bindAddressFunction)
-        {
-             return ContractHandler.SendRequestAsync(bindAddressFunction);
-        }
-
-        public Task<TransactionReceipt> BindAddressRequestAndWaitForReceiptAsync(BindAddressFunction bindAddressFunction, CancellationTokenSource cancellationToken = null)
-        {
-             return ContractHandler.SendRequestAndWaitForReceiptAsync(bindAddressFunction, cancellationToken);
-        }
-
-        public Task<string> BindAddressRequestAsync(string a)
-        {
-            var bindAddressFunction = new BindAddressFunction();
-                bindAddressFunction.A = a;
-            
-             return ContractHandler.SendRequestAsync(bindAddressFunction);
-        }
-
-        public Task<TransactionReceipt> BindAddressRequestAndWaitForReceiptAsync(string a, CancellationTokenSource cancellationToken = null)
-        {
-            var bindAddressFunction = new BindAddressFunction();
-                bindAddressFunction.A = a;
-            
-             return ContractHandler.SendRequestAndWaitForReceiptAsync(bindAddressFunction, cancellationToken);
         }
 
         public Task<string> BusinessPartnerStorageGlobalQueryAsync(BusinessPartnerStorageGlobalFunction businessPartnerStorageGlobalFunction, BlockParameter blockParameter = null)
@@ -310,6 +259,17 @@ namespace Nethereum.Commerce.Contracts.Purchasing
                 getSignerAddressFromPoAndSignatureFunction.Signature = signature;
             
             return ContractHandler.QueryAsync<GetSignerAddressFromPoAndSignatureFunction, string>(getSignerAddressFromPoAndSignatureFunction, blockParameter);
+        }
+
+        public Task<bool> IsConfiguredQueryAsync(IsConfiguredFunction isConfiguredFunction, BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<IsConfiguredFunction, bool>(isConfiguredFunction, blockParameter);
+        }
+
+        
+        public Task<bool> IsConfiguredQueryAsync(BlockParameter blockParameter = null)
+        {
+            return ContractHandler.QueryAsync<IsConfiguredFunction, bool>(null, blockParameter);
         }
 
         public Task<bool> IsOwnerQueryAsync(IsOwnerFunction isOwnerFunction, BlockParameter blockParameter = null)
@@ -583,32 +543,6 @@ namespace Nethereum.Commerce.Contracts.Purchasing
                 transferOwnershipFunction.NewOwner = newOwner;
             
              return ContractHandler.SendRequestAndWaitForReceiptAsync(transferOwnershipFunction, cancellationToken);
-        }
-
-        public Task<string> UnBindAddressRequestAsync(UnBindAddressFunction unBindAddressFunction)
-        {
-             return ContractHandler.SendRequestAsync(unBindAddressFunction);
-        }
-
-        public Task<TransactionReceipt> UnBindAddressRequestAndWaitForReceiptAsync(UnBindAddressFunction unBindAddressFunction, CancellationTokenSource cancellationToken = null)
-        {
-             return ContractHandler.SendRequestAndWaitForReceiptAsync(unBindAddressFunction, cancellationToken);
-        }
-
-        public Task<string> UnBindAddressRequestAsync(string a)
-        {
-            var unBindAddressFunction = new UnBindAddressFunction();
-                unBindAddressFunction.A = a;
-            
-             return ContractHandler.SendRequestAsync(unBindAddressFunction);
-        }
-
-        public Task<TransactionReceipt> UnBindAddressRequestAndWaitForReceiptAsync(string a, CancellationTokenSource cancellationToken = null)
-        {
-            var unBindAddressFunction = new UnBindAddressFunction();
-                unBindAddressFunction.A = a;
-            
-             return ContractHandler.SendRequestAndWaitForReceiptAsync(unBindAddressFunction, cancellationToken);
         }
     }
 }

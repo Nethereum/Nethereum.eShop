@@ -20,6 +20,7 @@ using System.Collections.Generic;
 
 namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 {
+    [Trait("Buyer", "")]
     [Collection("Contract Deployment Collection")]
     public class BuyerWalletTests
     {

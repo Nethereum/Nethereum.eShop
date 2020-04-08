@@ -22,7 +22,7 @@ contract BuyerWallet is IBuyerWallet, Ownable, Bindable, StringConvertible
         businessPartnerStorageGlobal = IBusinessPartnerStorage(businessPartnerStorageAddressGlobal);
     } 
     
-    function reconfigure(address businessPartnerStorageAddressGlobal) onlyOwner() override external
+    function reconfigure(address businessPartnerStorageAddressGlobal) override external onlyOwner
     {
          businessPartnerStorageGlobal = IBusinessPartnerStorage(businessPartnerStorageAddressGlobal);
     }
@@ -46,7 +46,8 @@ contract BuyerWallet is IBuyerWallet, Ownable, Bindable, StringConvertible
         return purchasing.getPoByQuote(quoteId);
     }
     
-    function createPurchaseOrder(IPoTypes.Po calldata po, bytes calldata signature) override external
+    function createPurchaseOrder(IPoTypes.Po calldata po, bytes calldata signature)
+        override external onlyRegisteredCaller
     {
         // Get correct contracts for Purchasing and Funding
         IPoTypes.Eshop memory eShop = getAndValidateEshop(po.eShopId);
@@ -75,7 +76,8 @@ contract BuyerWallet is IBuyerWallet, Ownable, Bindable, StringConvertible
         emit QuoteConvertedToPoLog(po.eShopId, po.quoteId, po.sellerId);
     }
     
-    function cancelPurchaseOrderItem(string calldata eShopIdString, uint poNumber, uint8 poItemNumber) override external
+    function cancelPurchaseOrderItem(string calldata eShopIdString, uint poNumber, uint8 poItemNumber)
+        override external onlyRegisteredCaller
     {
         // Get correct contract for Purchasing
         bytes32 eShopId = stringToBytes32(eShopIdString);
@@ -89,7 +91,8 @@ contract BuyerWallet is IBuyerWallet, Ownable, Bindable, StringConvertible
         revert("Not implemented yet");
     }
     
-    function setPoItemGoodsReceived(string calldata eShopIdString, uint poNumber, uint8 poItemNumber) override external
+    function setPoItemGoodsReceived(string calldata eShopIdString, uint poNumber, uint8 poItemNumber)
+        override external onlyRegisteredCaller
     {
         // Get correct contract for Purchasing
         bytes32 eShopId = stringToBytes32(eShopIdString);
