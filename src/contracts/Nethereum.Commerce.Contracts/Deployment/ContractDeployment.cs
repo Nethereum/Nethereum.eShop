@@ -116,7 +116,7 @@ namespace Nethereum.Commerce.Contracts.Deployment
                 await DeployMockContractsAsync().ConfigureAwait(false);
             }
 
-            // End meaurements
+            // End measurements
             LogHeader("Metrics");
             var txCountEnd = await _web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(
                 _web3.TransactionManager.Account.Address).ConfigureAwait(false);

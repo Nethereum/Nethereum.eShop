@@ -105,11 +105,21 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             txReceiptGI.Status.Value.Should().Be(1);
 
             // Setting Goods Received by an EoA that is not the buyer/PO owner should fail, only PO owner can do this    
-            // Use preexisting BuyerWallet contract, but with tx executed by the non-buyer ("secondary") user                        
+            // Use preexisting BuyerWallet contract, but with tx executed by the non-buyer ("secondary") user
+
+            // Before starting the secondary user must be whitelisted to use the BuyerWallet contract at all (and un-whitelisted afterwards)
+            // bind secondary user as a user of BuyerWallet
+            var txReceiptBind = await _contracts.Deployment.BuyerWalletService.BindAddressRequestAndWaitForReceiptAsync(_contracts.Web3SecondaryUser.TransactionManager.Account.Address);
+            txReceiptBind.Status.Value.Should().Be(1);
+
             var wbs = new BuyerWalletService(_contracts.Web3SecondaryUser, _contracts.Deployment.BuyerWalletService.ContractHandler.ContractAddress);
             Func<Task> act = async () => await wbs.SetPoItemGoodsReceivedRequestAndWaitForReceiptAsync(
                 poAsRequested.EShopId, poNumberAsBuilt, PO_ITEM_NUMBER);
             await act.Should().ThrowAsync<SmartContractRevertException>().WithMessage(GOODS_RECEIPT_EXCEPTION_NOT_PO_OWNER);
+
+            // unbind secondary user, so they can no longer use BuyerWallet
+            var txReceiptUnbind = await _contracts.Deployment.BuyerWalletService.UnBindAddressRequestAndWaitForReceiptAsync(_contracts.Web3SecondaryUser.TransactionManager.Account.Address);
+            txReceiptUnbind.Status.Value.Should().Be(1);
         }
 
         /// <summary>

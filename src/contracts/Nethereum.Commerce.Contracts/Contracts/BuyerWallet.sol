@@ -100,7 +100,7 @@ contract BuyerWallet is IBuyerWallet, Ownable, Bindable, StringConvertible
         IPurchasing purchasing = IPurchasing(eShop.purchasingContractAddress);
         
         // Only the PO owner (BuyerUserAddress) can mark a PO as goods received. If they don't, eventually PO will time out 
-        // and the eShop admin will be able to mark PO as goods received instead.
+        // and the Seller Admin will be able to mark PO as goods received instead.
         IPoTypes.Po memory po = purchasing.getPo(poNumber);
         require(msg.sender == po.buyerUserAddress, "Only PO owner (BuyerUserAddress) can say Goods Received");
         purchasing.setPoItemGoodsReceivedBuyer(poNumber, poItemNumber);

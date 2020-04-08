@@ -28,6 +28,11 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         public const string AUTH_EXCEPTION_ONLY_OWNER = "*Ownable: caller is not the owner*";
 
         /// <summary>
+        /// Revert message when function can only be called by a PO wallet buyer or Purchasing owner
+        /// </summary>
+        public const string AUTH_EXCEPTION_ONLY_BUYER_OR_PURCH_OWNER = "*Transaction must be sent from buyer wallet or Purchasing owner*";
+
+        /// <summary>
         /// Revert message for master data maintenance attempted by address that is not the creator
         /// </summary>
         public const string AUTH_EXCEPTION_ONLY_CREATEDBY = "*Only createdByAddress can change this record*";

@@ -22,8 +22,8 @@ contract SellerAdmin is ISellerAdmin, Ownable, Bindable, StringConvertible
     
     constructor (string memory sellerIdString) public
     {
-        sellerId = stringToBytes32(sellerIdString);
         isConfigured = false;
+        sellerId = stringToBytes32(sellerIdString);
     }
     
     modifier onlyConfigured
@@ -35,18 +35,24 @@ contract SellerAdmin is ISellerAdmin, Ownable, Bindable, StringConvertible
     function configure(address businessPartnerStorageAddressGlobal) override external onlyOwner
     {
         businessPartnerStorageGlobal = IBusinessPartnerStorage(businessPartnerStorageAddressGlobal);
-         
+        
         // Check master data is correct
+        IPoTypes.Seller memory seller = businessPartnerStorageGlobal.getSeller(sellerId);
+        require(seller.sellerId.length > 0, "Seller has no master data");
+        require(seller.adminContractAddress != address(0), "Seller has no admin contract address");
+        require(seller.isActive == true, "Seller is inactive");
         
         isConfigured = true;
     }
     
     // Purchasing
-    /// @notice This function can only be called by the eShop (Purchasing.sol) for the given PO, which means
-    /// @notice the SellerAdmin owner must have bound (whitelisted) the Purchasing.sol contract when they
-    /// @notice registered with the eShop.
+    /// @notice This function can only be called by the eShop (Purchasing.sol) for the given PO, which means:
+    ///   1) SellerAdmin owner must have bound (whitelisted) the Purchasing.sol contract when they registered with the eShop
+    ///   2) msg.sender must match the PO's eShop's purchasing contract address retrieved from global storage
     function emitEventForNewPo(IPoTypes.Po calldata po) override external onlyConfigured onlyRegisteredCaller
     {
+        IPoTypes.Eshop memory eShop = getAndValidateEshop(po.eShopId);
+        require(eShop.purchasingContractAddress == msg.sender, "Function can only be called by eShop");
         emit QuoteConvertedToPoLog(po.eShopId, po.quoteId, po.buyerWalletAddress);
     }
     

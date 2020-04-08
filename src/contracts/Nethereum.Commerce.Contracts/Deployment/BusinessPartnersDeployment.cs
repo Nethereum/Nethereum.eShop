@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 namespace Nethereum.Commerce.Contracts.Deployment
 {
     /// <summary>
+    /// Deploys a new BusinessPartnerStorage.sol contract along with its Eternal Storage, or connects to an existing one.
+    /// Throws if contract is not setup correctly.
     /// Usage: call BusinessPartnerStorageDeployment.CreateFromNewDeployment() or .CreateFromConnectExistingContract() to
     /// create new deployment object, then call InitializeAsync() to set it up.
     /// </summary>
@@ -66,6 +68,13 @@ namespace Nethereum.Commerce.Contracts.Deployment
                 };
                 BusinessPartnerStorageService = await BusinessPartnerStorageService.DeployContractAndGetServiceAsync(
                     _web3, businessPartnerStorageDeployment).ConfigureAwait(false);
+
+                // Bind business partner storage as a user of eternal storage
+                LogHeader($"Authorisations for Global Eternal Storage...");
+                Log($"Configuring Global Eternal Storage, binding {contractName}...");
+                var txReceipt = await eternalStorageService.BindAddressRequestAndWaitForReceiptAsync(
+                    BusinessPartnerStorageService.ContractHandler.ContractAddress).ConfigureAwait(false);
+                Log($"Tx status: {txReceipt.Status.Value}");
             }
             else
             {
