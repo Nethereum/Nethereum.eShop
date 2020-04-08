@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 using Nethereum.Commerce.Contracts;
+using Nethereum.Commerce.Contracts.BusinessPartnerStorage;
+using Nethereum.Commerce.Contracts.BusinessPartnerStorage.ContractDefinition;
 
 namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 {
@@ -28,18 +30,46 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         [Fact]
         public async void ShouldDeployNewContract()
         {
+            var expectedSellerId = "Alice";
+            var expectedSellerDescription = expectedSellerId + " Description";
             var sellerDeployment = SellerDeployment.CreateFromNewDeployment(
                  _contracts.Web3,
                  _contracts.BusinessPartnersDeployment.BusinessPartnerStorageService.ContractHandler.ContractAddress,
-                 "ShopId", "ShopId Description",
+                 expectedSellerId,
+                 expectedSellerDescription,
                  _xunitlogger);
             Func<Task> act = async () => await sellerDeployment.InitializeAsync();
             await act.Should().NotThrowAsync();
 
-            // If buyer deployed ok then its global business partner storage address should have a value
-            //var bpStorageAddress = await sellerDeployment.SellerAdminService.BusinessPartnerStorageGlobalQueryAsync().ConfigureAwait(false);
-            //bpStorageAddress.Should().NotBeNullOrEmpty();
-            //bpStorageAddress.IsZeroAddress().Should().BeFalse();
+            // If seller deployed ok then...
+            // ...its global business partner storage address should have a value
+            var bpStorageAddress = await sellerDeployment.SellerAdminService.BusinessPartnerStorageGlobalQueryAsync().ConfigureAwait(false);
+            bpStorageAddress.Should().NotBeNullOrEmpty();
+            bpStorageAddress.IsZeroAddress().Should().BeFalse();
+
+            // ...its sellerId should match expected
+            sellerDeployment.SellerId.Should().Be(expectedSellerId);
+
+            // ...there should be a global master data record for the seller
+            BusinessPartnerStorageService bpss = new BusinessPartnerStorageService(_contracts.Web3, bpStorageAddress);
+            Seller seller = null;
+            Func<Task> act2 = async () => seller = (await bpss.GetSellerQueryAsync(expectedSellerId)).Seller;
+            await act2.Should().NotThrowAsync();
+            seller.SellerId.Should().Be(expectedSellerId);
+            seller.SellerDescription.Should().Be(expectedSellerDescription);
+        }
+
+        [Fact]
+        public async void ShouldFailToDeployNewContractUsingBadBusinessPartnerAddress()
+        {
+            var expectedSellerId = "Alice";
+            var sellerDeployment = SellerDeployment.CreateFromNewDeployment(
+                 _contracts.Web3,
+                 "0x32A555F2328e85E489f9a5f03669DC820CE7EBe9",    // <- there is no global business partner storage here
+                 expectedSellerId, $"{expectedSellerId} Description",
+                 _xunitlogger);
+            Func<Task> act = async () => await sellerDeployment.InitializeAsync();
+            await act.Should().ThrowAsync<ContractDeploymentException>().WithMessage("*Could not create global business partner data for seller*");
         }
 
         [Fact]
