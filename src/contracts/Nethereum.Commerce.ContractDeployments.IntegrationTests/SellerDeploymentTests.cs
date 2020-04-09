@@ -1,13 +1,14 @@
 using FluentAssertions;
+using Nethereum.ABI.FunctionEncoding;
 using Nethereum.Commerce.ContractDeployments.IntegrationTests.Config;
+using Nethereum.Commerce.Contracts;
+using Nethereum.Commerce.Contracts.BusinessPartnerStorage;
+using Nethereum.Commerce.Contracts.BusinessPartnerStorage.ContractDefinition;
 using Nethereum.Commerce.Contracts.Deployment;
 using System;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
-using Nethereum.Commerce.Contracts;
-using Nethereum.Commerce.Contracts.BusinessPartnerStorage;
-using Nethereum.Commerce.Contracts.BusinessPartnerStorage.ContractDefinition;
 using static Nethereum.Commerce.ContractDeployments.IntegrationTests.PoTestHelpers;
 using static Nethereum.Commerce.Contracts.PurchasingExtensions;
 
@@ -84,7 +85,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                  expectedSellerId, $"{expectedSellerId} Description",
                  _xunitlogger);
             Func<Task> act2 = async () => await sellerDeployment2.InitializeAsync();
-            await act2.Should().ThrowAsync<ContractDeploymentException>().WithMessage("*Could not create global business partner data for seller*");
+            await act2.Should().ThrowAsync<SmartContractRevertException>().WithMessage("*Only createdByAddress can change this record*");
         }
 
         [Fact]
@@ -93,11 +94,23 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var expectedSellerId = "Alice" + GetRandomString();
             var sellerDeployment = SellerDeployment.CreateFromNewDeployment(
                  _contracts.Web3,
-                 "0x32A555F2328e85E489f9a5f03669DC820CE7EBe9",    // <- there is no global business partner storage here
+                 "0x32A555F2328e85E489f9a5f03669DC820CE7EBe9",    // there is no global business partner storage here
                  expectedSellerId, $"{expectedSellerId} Description",
                  _xunitlogger);
             Func<Task> act = async () => await sellerDeployment.InitializeAsync();
             await act.Should().ThrowAsync<ContractDeploymentException>().WithMessage("*Could not create global business partner data for seller*");
+        }
+
+        [Fact]
+        public void ShouldFailToDeployNewContractWhenMissingWeb3()
+        {
+            var expectedSellerId = "Alice" + GetRandomString();
+            Action act = () => SellerDeployment.CreateFromNewDeployment(
+                 null,
+                 _contracts.BusinessPartnersDeployment.BusinessPartnerStorageService.ContractHandler.ContractAddress,
+                 expectedSellerId, $"{expectedSellerId} Description",
+                 _xunitlogger);
+            act.Should().Throw<ContractDeploymentException>().WithMessage("*Failed to set up*");
         }
 
         [Fact]
@@ -127,7 +140,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         }
 
         [Fact]
-        public async void ShouldFailToConnectNonExistingSellerContract()
+        public async void ShouldFailToConnectExistingWhenBadSellerContract()
         {
             // Give a rubbish address for the existing seller wallet deployment
             var sellerDeployment = SellerDeployment.CreateFromConnectExistingContract(
@@ -136,6 +149,58 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                  _xunitlogger);
             Func<Task> act = async () => await sellerDeployment.InitializeAsync();
             await act.Should().ThrowAsync<ContractDeploymentException>().WithMessage("*Failed to set up*");
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        public void ShouldFailToConnectExistingWhenMissingSellerContractAddress(string sellerContractAddress)
+        {
+            // Give some missing addresses for the existing seller wallet deployment
+            Action act = () => SellerDeployment.CreateFromConnectExistingContract(
+                 _contracts.Web3,
+                 sellerContractAddress,
+                 _xunitlogger);
+            act.Should().Throw<ContractDeploymentException>().WithMessage("*Failed to set up*");
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        public void ShouldFailToDeployNewContractWhenMissingBusinessPartnerAddress(string businessPartnerContractAddress)
+        {
+            // Give some missing addresses for the global business partner contract address
+            var expectedSellerId = "Alice" + GetRandomString();
+            Action act = () => SellerDeployment.CreateFromNewDeployment(
+                 _contracts.Web3,
+                 businessPartnerContractAddress,
+                 expectedSellerId, $"{expectedSellerId} Description",
+                 _xunitlogger);
+            act.Should().Throw<ContractDeploymentException>().WithMessage("*Failed to set up*");
+        }
+
+        [Fact]
+        public async void ShouldFailToConnectExistingWhenMissingWeb3()
+        {
+            // Deploy a seller admin as normal
+            var expectedSellerId = "Alice" + GetRandomString();
+            var expectedSellerDescription = expectedSellerId + " Description";
+            var sellerDeployment1 = SellerDeployment.CreateFromNewDeployment(
+                 _contracts.Web3,
+                 _contracts.BusinessPartnersDeployment.BusinessPartnerStorageService.ContractHandler.ContractAddress,
+                 expectedSellerId,
+                 expectedSellerDescription,
+                 _xunitlogger);
+            Func<Task> act1 = async () => await sellerDeployment1.InitializeAsync();
+            await act1.Should().NotThrowAsync();
+
+            // Create an additional seller admin deployment by connecting to the existing first one, which
+            // will fail because no web3 supplied
+            Action act2 = () => SellerDeployment.CreateFromConnectExistingContract(
+                null,
+                sellerDeployment1.SellerAdminService.ContractHandler.ContractAddress,
+                _xunitlogger);
+            act2.Should().Throw<ContractDeploymentException>().WithMessage("*Failed to set up*");
         }
     }
 }

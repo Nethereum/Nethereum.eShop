@@ -11,8 +11,8 @@ using System.Threading.Tasks;
 namespace Nethereum.Commerce.Contracts.Deployment
 {
     /// <summary>
-    /// Deploys a new SellerAdmin.sol contract or connects to an existing one. Throws if contract is 
-    /// not setup correctly.
+    /// Deploys a new SellerAdmin.sol contract and creates its master data, or connects to an existing one.
+    /// Throws ContractDeploymentException or SmartContractRevertException if contract is not setup correctly.
     /// Usage: call SellerDeployment.CreateFromNewDeployment() or .CreateFromConnectExistingContract() to
     /// create new deployment object, then call InitializeAsync() to set it up.
     /// </summary>
@@ -51,6 +51,10 @@ namespace Nethereum.Commerce.Contracts.Deployment
             ILogger logger = null)
             : base(web3, logger)
         {
+            if (string.IsNullOrWhiteSpace(address) || address.IsZeroAddress())
+            {
+                throw new ContractDeploymentException($"Failed to set up {GetType().Name}. Address must be specified.");
+            }
             _sellerIdDesired = sellerId;
             _sellerDescriptionDesired = sellerDescription ?? sellerId;
             _isNewDeployment = isNewDeployment;
@@ -113,17 +117,7 @@ namespace Nethereum.Commerce.Contracts.Deployment
 
             // Check global business partner storage address and contract
             var bpStorageAddress = await SellerAdminService.BusinessPartnerStorageGlobalQueryAsync().ConfigureAwait(false);
-            if (string.IsNullOrWhiteSpace(bpStorageAddress) || bpStorageAddress.IsZeroAddress())
-            {
-                throw new ContractDeploymentException($"Failed to set up {contractName}. Global business partner storage address must have a value.");
-            }
-            // If business partner storage contract is valid, it will have an owner
-            var bpss2 = new BusinessPartnerStorageService(_web3, bpStorageAddress);
-            var businessPartnerStorageOwnerAddress = await bpss2.OwnerQueryAsync();
-            if (string.IsNullOrWhiteSpace(businessPartnerStorageOwnerAddress) || businessPartnerStorageOwnerAddress.IsZeroAddress())
-            {
-                throw new ContractDeploymentException($"Failed to set up {contractName}. Fault with global business partner storage contract.");
-            }
+            await ValidateBusinessPartnerStorageAddressAsync(bpStorageAddress).ConfigureAwait(false);
 
             // Check seller admin owner address
             var sellerAdminOwner = await SellerAdminService.OwnerQueryAsync().ConfigureAwait(false);

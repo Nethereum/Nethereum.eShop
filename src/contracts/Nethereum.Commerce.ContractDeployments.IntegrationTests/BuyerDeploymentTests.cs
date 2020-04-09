@@ -45,7 +45,6 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         [Fact]
         public void ShouldFailToDeployNewContractWhenMissingWeb3()
         {
-            // Give some rubbish addresses for the business partner storage contract
             Action act = () => BuyerDeployment.CreateFromNewDeployment(
                  null,
                  _contracts.BusinessPartnersDeployment.BusinessPartnerStorageService.ContractHandler.ContractAddress,
