@@ -68,7 +68,7 @@ namespace Nethereum.Commerce.Contracts.Deployment
 
         public async Task InitializeAsync()
         {
-            var contractName = "SellerAdmin";
+            var contractName = GetType().Name;
             if (_isNewDeployment)
             {
                 // Deploy
@@ -111,14 +111,21 @@ namespace Nethereum.Commerce.Contracts.Deployment
                 SellerAdminService = new SellerAdminService(_web3, _existingSellerContractAddress);
             }
 
-            // Check global business partner storage address
+            // Check global business partner storage address and contract
             var bpStorageAddress = await SellerAdminService.BusinessPartnerStorageGlobalQueryAsync().ConfigureAwait(false);
             if (string.IsNullOrWhiteSpace(bpStorageAddress) || bpStorageAddress.IsZeroAddress())
             {
                 throw new ContractDeploymentException($"Failed to set up {contractName}. Global business partner storage address must have a value.");
             }
+            // If business partner storage contract is valid, it will have an owner
+            var bpss2 = new BusinessPartnerStorageService(_web3, bpStorageAddress);
+            var businessPartnerStorageOwnerAddress = await bpss2.OwnerQueryAsync();
+            if (string.IsNullOrWhiteSpace(businessPartnerStorageOwnerAddress) || businessPartnerStorageOwnerAddress.IsZeroAddress())
+            {
+                throw new ContractDeploymentException($"Failed to set up {contractName}. Fault with global business partner storage contract.");
+            }
 
-            // Check owner address
+            // Check seller admin owner address
             var sellerAdminOwner = await SellerAdminService.OwnerQueryAsync().ConfigureAwait(false);
             if (string.IsNullOrWhiteSpace(sellerAdminOwner) || sellerAdminOwner.IsZeroAddress())
             {

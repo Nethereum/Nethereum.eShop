@@ -1,7 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
+using Nethereum.Commerce.Contracts.BusinessPartnerStorage;
 using Nethereum.Commerce.Contracts.BuyerWallet;
 using Nethereum.Commerce.Contracts.BuyerWallet.ContractDefinition;
 using Nethereum.Web3;
+using System;
 using System.Threading.Tasks;
 
 namespace Nethereum.Commerce.Contracts.Deployment
@@ -41,7 +43,11 @@ namespace Nethereum.Commerce.Contracts.Deployment
             bool isNewDeployment,
             ILogger logger = null)
             : base(web3, logger)
-        {
+        {         
+            if (string.IsNullOrWhiteSpace(address) || address.IsZeroAddress())
+            {
+                throw new ContractDeploymentException($"Failed to set up {GetType().Name}. Address must be specified.");
+            }
             _isNewDeployment = isNewDeployment;
             if (_isNewDeployment)
             {
@@ -57,7 +63,7 @@ namespace Nethereum.Commerce.Contracts.Deployment
 
         public async Task InitializeAsync()
         {
-            var contractName = "BuyerWallet";
+            var contractName = GetType().Name;
             if (_isNewDeployment)
             {
                 LogHeader($"Deploying {contractName}...");
@@ -74,22 +80,19 @@ namespace Nethereum.Commerce.Contracts.Deployment
                 BuyerWalletService = new BuyerWalletService(_web3, _existingBuyerContractAddress);
             }
 
-            // Check global business partner storage address
+            // Check global business partner storage address and contract
             var bpStorageAddress = await BuyerWalletService.BusinessPartnerStorageGlobalQueryAsync().ConfigureAwait(false);
-            if (string.IsNullOrWhiteSpace(bpStorageAddress) || bpStorageAddress.IsZeroAddress())
-            {
-                throw new ContractDeploymentException($"Failed to set up {contractName}. Global business partner storage address must have a value.");
-            }
+            await ValidateBusinessPartnerStorageAddressAsync(bpStorageAddress).ConfigureAwait(false);
 
-            // Check owner address
-            var buyerWalletOwner = await BuyerWalletService.OwnerQueryAsync(); //.ConfigureAwait(false);
-            if (string.IsNullOrWhiteSpace(buyerWalletOwner) || buyerWalletOwner.IsZeroAddress())
+            // Check buyer wallet owner address
+            var buyerWalletOwnerAddress = await BuyerWalletService.OwnerQueryAsync().ConfigureAwait(false);
+            if (string.IsNullOrWhiteSpace(buyerWalletOwnerAddress) || buyerWalletOwnerAddress.IsZeroAddress())
             {
                 throw new ContractDeploymentException($"Failed to set up {contractName}. Owner address must have a value.");
             }
             Log($"{contractName} address is: {BuyerWalletService.ContractHandler.ContractAddress}");
-            Log($"{contractName} owner is  : {buyerWalletOwner}");
-            Owner = buyerWalletOwner;
+            Log($"{contractName} owner is  : {buyerWalletOwnerAddress}");
+            Owner = buyerWalletOwnerAddress;
             Log("Done");
         }
     }

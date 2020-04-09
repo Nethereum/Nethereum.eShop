@@ -8,10 +8,13 @@ using Xunit.Abstractions;
 using Nethereum.Commerce.Contracts;
 using Nethereum.Commerce.Contracts.BusinessPartnerStorage;
 using Nethereum.Commerce.Contracts.BusinessPartnerStorage.ContractDefinition;
+using static Nethereum.Commerce.ContractDeployments.IntegrationTests.PoTestHelpers;
+using static Nethereum.Commerce.Contracts.PurchasingExtensions;
 
 namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 {
     [Trait("Seller", "")]
+    [Trait("Deployment", "")]
     [Collection("Contract Deployment Collection v2")]
     public class SellerDeploymentTests
     {
@@ -30,7 +33,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         [Fact]
         public async void ShouldDeployNewContract()
         {
-            var expectedSellerId = "Alice";
+            var expectedSellerId = "Alice" + GetRandomString();
             var expectedSellerDescription = expectedSellerId + " Description";
             var sellerDeployment = SellerDeployment.CreateFromNewDeployment(
                  _contracts.Web3,
@@ -60,9 +63,34 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         }
 
         [Fact]
+        public async void ShouldFailToDeployNewContractIfSellerAlreadyUsedByAnotherAddress()
+        {
+            // Create Seller deployment as normal, which should be fine
+            var expectedSellerId = "Alice" + GetRandomString();
+            var sellerDeployment1 = SellerDeployment.CreateFromNewDeployment(
+                 _contracts.Web3,
+                 _contracts.BusinessPartnersDeployment.BusinessPartnerStorageService.ContractHandler.ContractAddress,
+                 expectedSellerId, $"{expectedSellerId} Description",
+                 _xunitlogger);
+            Func<Task> act1 = async () => await sellerDeployment1.InitializeAsync();
+            await act1.Should().NotThrowAsync();
+
+            // Using the secondary user, try to deploy ANOTHER seller, using the same sellerId.
+            // This should fail, because the secondary user doesn't have permissions to overwrite 
+            // the sellerId in the master data 
+            var sellerDeployment2 = SellerDeployment.CreateFromNewDeployment(
+                 _contracts.Web3SecondaryUser,
+                 _contracts.BusinessPartnersDeployment.BusinessPartnerStorageService.ContractHandler.ContractAddress,
+                 expectedSellerId, $"{expectedSellerId} Description",
+                 _xunitlogger);
+            Func<Task> act2 = async () => await sellerDeployment2.InitializeAsync();
+            await act2.Should().ThrowAsync<ContractDeploymentException>().WithMessage("*Could not create global business partner data for seller*");
+        }
+
+        [Fact]
         public async void ShouldFailToDeployNewContractUsingBadBusinessPartnerAddress()
         {
-            var expectedSellerId = "Alice";
+            var expectedSellerId = "Alice" + GetRandomString();
             var sellerDeployment = SellerDeployment.CreateFromNewDeployment(
                  _contracts.Web3,
                  "0x32A555F2328e85E489f9a5f03669DC820CE7EBe9",    // <- there is no global business partner storage here
@@ -75,34 +103,38 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         [Fact]
         public async void ShouldConnectExistingContract()
         {
-            // Deploy a buyer wallet
-            var buyerDeployment = BuyerDeployment.CreateFromNewDeployment(
+            // Deploy a seller admin as normal
+            var expectedSellerId = "Alice" + GetRandomString();
+            var expectedSellerDescription = expectedSellerId + " Description";
+            var sellerDeployment1 = SellerDeployment.CreateFromNewDeployment(
                  _contracts.Web3,
                  _contracts.BusinessPartnersDeployment.BusinessPartnerStorageService.ContractHandler.ContractAddress,
+                 expectedSellerId,
+                 expectedSellerDescription,
                  _xunitlogger);
-            Func<Task> act = async () => await buyerDeployment.InitializeAsync();
-            await act.Should().NotThrowAsync();
+            Func<Task> act1 = async () => await sellerDeployment1.InitializeAsync();
+            await act1.Should().NotThrowAsync();
 
-            // Create an additional buyer wallet by connecting to the existing first one
-            var buyerDeployment2 = BuyerDeployment.CreateFromConnectExistingContract(
+            // Create an additional seller admin deployment by connecting to the existing first one
+            var sellerDeployment2 = SellerDeployment.CreateFromConnectExistingContract(
                 _contracts.Web3,
-                buyerDeployment.BuyerWalletService.ContractHandler.ContractAddress,
+                sellerDeployment1.SellerAdminService.ContractHandler.ContractAddress,
                 _xunitlogger);
-            Func<Task> act2 = async () => await buyerDeployment2.InitializeAsync();
+            Func<Task> act2 = async () => await sellerDeployment2.InitializeAsync();
             await act2.Should().NotThrowAsync();
 
-            buyerDeployment2.Owner.Should().Be(buyerDeployment.Owner);
+            sellerDeployment2.Owner.Should().Be(sellerDeployment1.Owner);
         }
 
         [Fact]
-        public async void ShouldFailToConnectNonExistingContract()
+        public async void ShouldFailToConnectNonExistingSellerContract()
         {
-            // Give a rubbish address for the existing buyer wallet deployment
-            var buyerDeployment = BuyerDeployment.CreateFromConnectExistingContract(
+            // Give a rubbish address for the existing seller wallet deployment
+            var sellerDeployment = SellerDeployment.CreateFromConnectExistingContract(
                  _contracts.Web3,
-                 "0x32A555F2328e85E489f9a5f03669DC820CE7EBe9", // no buyer contract deployed here
+                 "0x32A555F2328e85E489f9a5f03669DC820CE7EBe9", // no seller contract deployed here
                  _xunitlogger);
-            Func<Task> act = async () => await buyerDeployment.InitializeAsync();
+            Func<Task> act = async () => await sellerDeployment.InitializeAsync();
             await act.Should().ThrowAsync<ContractDeploymentException>().WithMessage("*Failed to set up*");
         }
     }
