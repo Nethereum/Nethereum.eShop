@@ -4,22 +4,19 @@ using Nethereum.Commerce.Contracts.BusinessPartnerStorage.ContractDefinition;
 using Nethereum.Commerce.Contracts.SellerAdmin;
 using Nethereum.Commerce.Contracts.SellerAdmin.ContractDefinition;
 using Nethereum.Contracts;
+using Nethereum.Util;
 using Nethereum.Web3;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace Nethereum.Commerce.Contracts.Deployment
 {
-    /// <summary>
-    /// Deploys a new SellerAdmin.sol contract and creates its master data, or connects to an existing one.
-    /// Throws ContractDeploymentException or SmartContractRevertException if contract is not setup correctly.
-    /// Usage: call SellerDeployment.CreateFromNewDeployment() or .CreateFromConnectExistingContract() to
-    /// create new deployment object, then call InitializeAsync() to set it up.
-    /// </summary>
-    public class SellerDeployment : ContractDeploymentBase
+    public class SellerDeployment : ContractDeploymentBase, ISellerDeployment
     {
         public SellerAdminService SellerAdminService { get; internal set; }
+        public BusinessPartnerStorageService BusinessPartnerStorageGlobalService { get; internal set; }
         public string SellerId { get; internal set; }
+        public string Owner { get; internal set; }
 
         private readonly string _businessPartnerStorageAddressGlobal;
         private readonly string _existingSellerContractAddress;
@@ -29,7 +26,7 @@ namespace Nethereum.Commerce.Contracts.Deployment
         /// <summary>
         /// Deploy and configure a new SellerAdmin.sol contract
         /// </summary>
-        public static SellerDeployment CreateFromNewDeployment(IWeb3 web3, string businessPartnerStorageAddressGlobal, string sellerId, string sellerDescription = null, ILogger logger = null)
+        public static ISellerDeployment CreateFromNewDeployment(IWeb3 web3, string businessPartnerStorageAddressGlobal, string sellerId, string sellerDescription = null, ILogger logger = null)
         {
             return new SellerDeployment(web3, businessPartnerStorageAddressGlobal, sellerId, sellerDescription, true, logger);
         }
@@ -37,7 +34,7 @@ namespace Nethereum.Commerce.Contracts.Deployment
         /// <summary>
         /// Connect to an existing SellerAdmin.sol contract
         /// </summary>
-        public static SellerDeployment CreateFromConnectExistingContract(IWeb3 web3, string existingBuyerContractAddress, ILogger logger = null)
+        public static ISellerDeployment CreateFromConnectExistingContract(IWeb3 web3, string existingBuyerContractAddress, ILogger logger = null)
         {
             return new SellerDeployment(web3, existingBuyerContractAddress, null, null, false, logger);
         }
@@ -51,9 +48,9 @@ namespace Nethereum.Commerce.Contracts.Deployment
             ILogger logger = null)
             : base(web3, logger)
         {
-            if (string.IsNullOrWhiteSpace(address) || address.IsZeroAddress())
+            if (!address.IsValidNonZeroAddress())
             {
-                throw new ContractDeploymentException($"Failed to set up {GetType().Name}. Address must be specified.");
+                throw new ContractDeploymentException($"Failed to set up {GetType().Name}. Address {address} is zero or not valid hex format.");
             }
             _sellerIdDesired = sellerId;
             _sellerDescriptionDesired = sellerDescription ?? sellerId;
@@ -73,6 +70,20 @@ namespace Nethereum.Commerce.Contracts.Deployment
         public async Task InitializeAsync()
         {
             var contractName = GetType().Name;
+
+            // Validate Global Business Partner Storage and get the service for it
+            string bpStorageAddress;
+            if (_isNewDeployment)
+            {
+                bpStorageAddress = _businessPartnerStorageAddressGlobal;
+            }
+            else
+            {
+                bpStorageAddress = await SellerAdminService.BusinessPartnerStorageGlobalQueryAsync().ConfigureAwait(false);
+            }
+            BusinessPartnerStorageGlobalService = await GetValidBusinessPartnerStorageServiceAsync(bpStorageAddress).ConfigureAwait(false);
+
+            // Do deployment or connect existing
             if (_isNewDeployment)
             {
                 // Deploy
@@ -86,7 +97,7 @@ namespace Nethereum.Commerce.Contracts.Deployment
 
                 // Create master data for sellerIdDesired
                 LogHeader($"Creating master data record in global business partner storage...");
-                var bpss = new BusinessPartnerStorageService(_web3, _businessPartnerStorageAddressGlobal);
+                BusinessPartnerStorageGlobalService = new BusinessPartnerStorageService(_web3, _businessPartnerStorageAddressGlobal);
                 var seller = new Seller()
                 {
                     SellerId = _sellerIdDesired,
@@ -95,7 +106,7 @@ namespace Nethereum.Commerce.Contracts.Deployment
                     IsActive = true,
                     CreatedByAddress = string.Empty // filled by contract
                 };
-                var txReceiptCreate = await bpss.SetSellerRequestAndWaitForReceiptAsync(seller);
+                var txReceiptCreate = await BusinessPartnerStorageGlobalService.SetSellerRequestAndWaitForReceiptAsync(seller);
                 var logSellerCreateEvent = txReceiptCreate.DecodeAllEvents<SellerCreatedLogEventDTO>().FirstOrDefault();
                 if (txReceiptCreate.Status.Value != 1 || logSellerCreateEvent == null)
                 {
@@ -114,16 +125,12 @@ namespace Nethereum.Commerce.Contracts.Deployment
                 LogHeader($"Connecting to existing {contractName}...");
                 SellerAdminService = new SellerAdminService(_web3, _existingSellerContractAddress);
             }
-
-            // Check global business partner storage address and contract
-            var bpStorageAddress = await SellerAdminService.BusinessPartnerStorageGlobalQueryAsync().ConfigureAwait(false);
-            await ValidateBusinessPartnerStorageAddressAsync(bpStorageAddress).ConfigureAwait(false);
-
+            
             // Check seller admin owner address
             var sellerAdminOwner = await SellerAdminService.OwnerQueryAsync().ConfigureAwait(false);
-            if (string.IsNullOrWhiteSpace(sellerAdminOwner) || sellerAdminOwner.IsZeroAddress())
+            if (!sellerAdminOwner.IsValidNonZeroAddress())
             {
-                throw new ContractDeploymentException($"Failed to set up {contractName}. Owner address must have a value.");
+                throw new ContractDeploymentException($"Failed to set up {contractName}. Owner address {sellerAdminOwner} is zero or not valid hex format.");
             }
             Log($"{contractName} address is: {SellerAdminService.ContractHandler.ContractAddress}");
             Log($"{contractName} owner is  : {sellerAdminOwner}");

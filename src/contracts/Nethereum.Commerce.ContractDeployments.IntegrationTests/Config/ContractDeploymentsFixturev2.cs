@@ -27,7 +27,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
         /// <summary>
         /// Global Business Partner Storage containing eShops and Sellers
         /// </summary>
-        public BusinessPartnersDeployment BusinessPartnersDeployment { get; internal set; }
+        public IBusinessPartnersDeployment BusinessPartnersDeployment { get; internal set; }
 
         private readonly IMessageSink _diagnosticMessageSink;
 
@@ -50,7 +50,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
         {
             // Deploy global business partner storage and give it some master data to
             // be shared across all tests
-            BusinessPartnersDeployment = new BusinessPartnersDeployment(Web3, new DiagnosticMessageSinkLogger(_diagnosticMessageSink));
+            BusinessPartnersDeployment = Contracts.Deployment.BusinessPartnersDeployment.CreateFromNewDeployment(Web3, new DiagnosticMessageSinkLogger(_diagnosticMessageSink));
             await BusinessPartnersDeployment.InitializeAsync().ConfigureAwait(false);
 
 

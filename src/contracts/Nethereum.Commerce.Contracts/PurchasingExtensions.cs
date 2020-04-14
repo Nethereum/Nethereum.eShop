@@ -4,6 +4,7 @@ using Nethereum.ABI.Decoders;
 using Nethereum.ABI.Encoders;
 using Nethereum.Hex.HexConvertors.Extensions;
 using Nethereum.Signer;
+using Nethereum.Util;
 using Nethereum.Web3;
 using Nethereum.Web3.Accounts;
 using System;
@@ -39,12 +40,14 @@ namespace Nethereum.Commerce.Contracts
             _mapper = new Mapper(config);
         }
 
-        public static bool IsZeroAddress(this string s)
+        public static bool IsZeroAddress(this string address)
         {
-            if (s == "0x0000000000000000000000000000000000000000")
-                return true;
-            else
-                return false;
+            return address == "0x0000000000000000000000000000000000000000";
+        }
+
+        public static bool IsValidNonZeroAddress(this string address)
+        {
+            return AddressUtil.Current.IsValidEthereumAddressHexFormat(address) && !address.IsZeroAddress();
         }
 
         public static byte[] ConvertToBytes32(this string s)

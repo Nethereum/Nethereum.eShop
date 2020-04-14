@@ -5,14 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Nethereum.Commerce.Contracts.BusinessPartnerStorage;
+using Nethereum.Util;
 using Nethereum.Web3;
 
 namespace Nethereum.Commerce.Contracts.Deployment
 {
     public class ContractDeploymentBase
     {
-        public string Owner { get; internal set; }
-
         protected bool _isNewDeployment;
         protected readonly Web3.Web3 _web3;
         protected readonly ILogger _logger;
@@ -33,21 +32,23 @@ namespace Nethereum.Commerce.Contracts.Deployment
         }
 
         /// <summary>
-        /// Check that the passed address is valid and points to a valid business partner storage contract. Throws if not.
+        /// Check that the passed address is valid and points to a valid business partner storage contract. 
+        /// Returns business partner storage service if valid, throws if not.
         /// </summary>
-        protected async Task ValidateBusinessPartnerStorageAddressAsync(string businessPartnerStorageContractAddress)
+        protected async Task<BusinessPartnerStorageService> GetValidBusinessPartnerStorageServiceAsync(string businessPartnerStorageContractAddress)
         {
-            if (string.IsNullOrWhiteSpace(businessPartnerStorageContractAddress) || businessPartnerStorageContractAddress.IsZeroAddress())
+            if (!businessPartnerStorageContractAddress.IsValidNonZeroAddress())
             {
-                throw new ContractDeploymentException($"Failed to set up {GetType().Name}. Global business partner storage address must have a value.");
+                throw new ContractDeploymentException($"Failed to set up {GetType().Name}. Global business partner storage address {businessPartnerStorageContractAddress} is zero or not in hex format.");
             }
             // If business partner storage contract is valid, it will have an owner
             var bpss = new BusinessPartnerStorageService(_web3, businessPartnerStorageContractAddress);
             var businessPartnerStorageOwnerAddress = await bpss.OwnerQueryAsync().ConfigureAwait(false);
-            if (string.IsNullOrWhiteSpace(businessPartnerStorageOwnerAddress) || businessPartnerStorageOwnerAddress.IsZeroAddress())
+            if (!businessPartnerStorageOwnerAddress.IsValidNonZeroAddress())
             {
                 throw new ContractDeploymentException($"Failed to set up {GetType().Name}. Fault with global business partner storage contract.");
             }
+            return bpss;
         }
 
         protected void LogHeader(string s)

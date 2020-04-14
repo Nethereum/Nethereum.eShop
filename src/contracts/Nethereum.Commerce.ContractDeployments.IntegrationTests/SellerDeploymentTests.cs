@@ -48,8 +48,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             // If seller deployed ok then...
             // ...its global business partner storage address should have a value
             var bpStorageAddress = await sellerDeployment.SellerAdminService.BusinessPartnerStorageGlobalQueryAsync().ConfigureAwait(false);
-            bpStorageAddress.Should().NotBeNullOrEmpty();
-            bpStorageAddress.IsZeroAddress().Should().BeFalse();
+            bpStorageAddress.IsValidNonZeroAddress().Should().BeTrue();
 
             // ...its sellerId should match expected
             sellerDeployment.SellerId.Should().Be(expectedSellerId);
@@ -154,6 +153,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         [Theory]
         [InlineData(null)]
         [InlineData("")]
+        [InlineData("a garbage address format")]
         public void ShouldFailToConnectExistingWhenMissingSellerContractAddress(string sellerContractAddress)
         {
             // Give some missing addresses for the existing seller wallet deployment
@@ -167,6 +167,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         [Theory]
         [InlineData(null)]
         [InlineData("")]
+        [InlineData("a garbage address format")]
         public void ShouldFailToDeployNewContractWhenMissingBusinessPartnerAddress(string businessPartnerContractAddress)
         {
             // Give some missing addresses for the global business partner contract address
