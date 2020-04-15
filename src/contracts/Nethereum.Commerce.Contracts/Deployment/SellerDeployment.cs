@@ -4,7 +4,6 @@ using Nethereum.Commerce.Contracts.BusinessPartnerStorage.ContractDefinition;
 using Nethereum.Commerce.Contracts.SellerAdmin;
 using Nethereum.Commerce.Contracts.SellerAdmin.ContractDefinition;
 using Nethereum.Contracts;
-using Nethereum.Util;
 using Nethereum.Web3;
 using System.Linq;
 using System.Threading.Tasks;

@@ -11,25 +11,23 @@ using Nethereum.Commerce.Contracts.PoStorage;
 using Nethereum.Commerce.Contracts.PoStorage.ContractDefinition;
 using Nethereum.Commerce.Contracts.Purchasing;
 using Nethereum.Commerce.Contracts.Purchasing.ContractDefinition;
-using Nethereum.Commerce.Contracts.SellerAdmin;
-using Nethereum.Commerce.Contracts.SellerAdmin.ContractDefinition;
-using Nethereum.Contracts;
 using Nethereum.Web3;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Nethereum.Commerce.Contracts.Deployment
 {
-    public class EshopDeployment : ContractDeploymentBase
+    public class EshopDeployment : ContractDeploymentBase, IEshopDeployment
     {
         public PurchasingService PurchasingService { get; internal set; }
         public BusinessPartnerStorageService BusinessPartnerStorageGlobalService { get; internal set; }
-        public AddressRegistryService AddressRegistryService { get; internal set; }
-        public EternalStorageService EternalStorageService { get; internal set; }
-        public PoStorageService PoStorageService { get; internal set; }
         public FundingService FundingService { get; internal set; }
+
+        // Services that probably do not need exposed
+        private AddressRegistryService AddressRegistryService { get; set; }
+        private PoStorageService PoStorageService { get; set; }
+        private EternalStorageService EternalStorageService { get; set; }
 
         public string EshopId { get; internal set; }
         public string Owner { get; internal set; }
@@ -50,7 +48,7 @@ namespace Nethereum.Commerce.Contracts.Deployment
         /// Deploy and configure a new Purchasing.sol contract, together with its Eternal Storage,
         /// PO storage and Funding contracts.
         /// </summary>
-        public static EshopDeployment CreateFromNewDeployment(IWeb3 web3, string businessPartnerStorageAddressGlobal,
+        public static IEshopDeployment CreateFromNewDeployment(IWeb3 web3, string businessPartnerStorageAddressGlobal,
             List<string> quoteSigners, string eshopId, string eshopDescription = null, ILogger logger = null)
         {
             return new EshopDeployment(web3, businessPartnerStorageAddressGlobal, eshopId, quoteSigners, eshopDescription, true, logger);
@@ -59,7 +57,7 @@ namespace Nethereum.Commerce.Contracts.Deployment
         /// <summary>
         /// Connect to an existing Purchasing.sol contract
         /// </summary>
-        public static EshopDeployment CreateFromConnectExistingContract(IWeb3 web3, string existingPurchasingContractAddress, ILogger logger = null)
+        public static IEshopDeployment CreateFromConnectExistingContract(IWeb3 web3, string existingPurchasingContractAddress, ILogger logger = null)
         {
             return new EshopDeployment(web3, existingPurchasingContractAddress, null, null, null, false, logger);
         }
