@@ -37,7 +37,6 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         {
             var expectedEshopId = "Charlie" + GetRandomString();
             var expectedEshopDescription = expectedEshopId + " Description";
-
             var eshopDeployment = EshopDeployment.CreateFromNewDeployment(
                  _contracts.Web3,
                  _contracts.BusinessPartnersDeployment.BusinessPartnerStorageService.ContractHandler.ContractAddress,
@@ -72,13 +71,31 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             eshop.EShopDescription.Should().Be(expectedEshopDescription);
         }
 
+        [Theory]
+        [InlineData(new object[] { new string[] { } })]
+        [InlineData(new object[] { new string[] { "", "" } })]
+        [InlineData(new object[] { new string[] { "0x32A555F2328e85E489f9a5f03669DC820CE7EBe9", "some garbage format" } })]
+        public void ShouldFailToDeployNewEshopIfQuoteSignersMissing(string[] quoteSigners)
+        {
+            // Deploy an Eshop which should throw as quote signers are not valid
+            var expectedEshopId = "Charlie" + GetRandomString();
+            var expectedEshopDescription = expectedEshopId + " Description";
+            Action act = () => EshopDeployment.CreateFromNewDeployment(
+                 _contracts.Web3,
+                 _contracts.BusinessPartnersDeployment.BusinessPartnerStorageService.ContractHandler.ContractAddress,
+                 quoteSigners: new List<string>(quoteSigners),
+                 expectedEshopId,
+                 expectedEshopDescription,
+                 _xunitlogger);
+            act.Should().Throw<ContractDeploymentException>().WithMessage("*Failed to set up EshopDeployment*");
+        }
+
         [Fact]
         public async void ShouldFailToDeployNewEshopIfEshopIdAlreadyUsedByAnotherAddress()
         {
             // Create Eshop deployment as normal, which should be fine
             var expectedEshopId = "Charlie" + GetRandomString();
             var expectedEshopDescription = expectedEshopId + " Description";
-
             var eshopDeployment = EshopDeployment.CreateFromNewDeployment(
                  _contracts.Web3,
                  _contracts.BusinessPartnersDeployment.BusinessPartnerStorageService.ContractHandler.ContractAddress,
@@ -111,30 +128,68 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             await act2.Should().ThrowAsync<SmartContractRevertException>().WithMessage("*Only createdByAddress can change this record*");
         }
 
-        //[Fact]
-        //public async void ShouldFailToDeployNewContractUsingBadBusinessPartnerAddress()
-        //{
-        //    var expectedSellerId = "Alice" + GetRandomString();
-        //    var sellerDeployment = SellerDeployment.CreateFromNewDeployment(
-        //         _contracts.Web3,
-        //         "0x32A555F2328e85E489f9a5f03669DC820CE7EBe9",    // there is no global business partner storage here
-        //         expectedSellerId, $"{expectedSellerId} Description",
-        //         _xunitlogger);
-        //    Func<Task> act = async () => await sellerDeployment.InitializeAsync();
-        //    await act.Should().ThrowAsync<ContractDeploymentException>().WithMessage("*Could not create global business partner data for seller*");
-        //}
+        [Fact]
+        public async void ShouldFailToDeployNewEshopUsingBadBusinessPartnerAddress()
+        {
+            // Deploy an Eshop which should throw as global business partner storage address is not valid
+            var expectedEshopId = "Charlie" + GetRandomString();
+            var expectedEshopDescription = expectedEshopId + " Description";
+            var eshopDeployment = EshopDeployment.CreateFromNewDeployment(
+                 _contracts.Web3,
+                 "0x32A555F2328e85E489f9a5f03669DC820CE7EBe9",    // there is no global business partner storage here
+                 quoteSigners: new List<string>()
+                 {
+                     "0x32A555F2328e85E489f9a5f03669DC820CE7EBe9",
+                     "0x94618601FE6cb8912b274E5a00453949A57f8C1e"
+                 },
+                 expectedEshopId,
+                 expectedEshopDescription,
+                 _xunitlogger);
+            Func<Task> act = async () => await eshopDeployment.InitializeAsync();
+            await act.Should().ThrowAsync<ContractDeploymentException>().WithMessage("*Fault with global business partner storage contract*");
+        }
 
-        //[Fact]
-        //public void ShouldFailToDeployNewContractWhenMissingWeb3()
-        //{
-        //    var expectedSellerId = "Alice" + GetRandomString();
-        //    Action act = () => SellerDeployment.CreateFromNewDeployment(
-        //         null,
-        //         _contracts.BusinessPartnersDeployment.BusinessPartnerStorageService.ContractHandler.ContractAddress,
-        //         expectedSellerId, $"{expectedSellerId} Description",
-        //         _xunitlogger);
-        //    act.Should().Throw<ContractDeploymentException>().WithMessage("*Failed to set up*");
-        //}
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData("a garbage address format")]
+        public void ShouldFailToDeployNewEshopWhenMissingBusinessPartnerAddress(string businessPartnerContractAddress)
+        {
+            // Give some missing addresses for the global business partner contract address
+            var expectedEshopId = "Charlie" + GetRandomString();
+            var expectedEshopDescription = expectedEshopId + " Description";
+            Action act = () => EshopDeployment.CreateFromNewDeployment(
+                 _contracts.Web3,
+                 businessPartnerContractAddress,
+                 quoteSigners: new List<string>()
+                 {
+                     "0x32A555F2328e85E489f9a5f03669DC820CE7EBe9",
+                     "0x94618601FE6cb8912b274E5a00453949A57f8C1e"
+                 },
+                 expectedEshopId,
+                 expectedEshopDescription,
+                 _xunitlogger);
+            act.Should().Throw<ContractDeploymentException>().WithMessage("*Failed to set up*");
+        }
+
+        [Fact]
+        public void ShouldFailToDeployNewEshopWhenMissingWeb3()
+        {
+            var expectedEshopId = "Charlie" + GetRandomString();
+            var expectedEshopDescription = expectedEshopId + " Description";
+            Action act = () => EshopDeployment.CreateFromNewDeployment(
+                 null,
+                 _contracts.BusinessPartnersDeployment.BusinessPartnerStorageService.ContractHandler.ContractAddress,
+                 quoteSigners: new List<string>()
+                 {
+                     "0x32A555F2328e85E489f9a5f03669DC820CE7EBe9",
+                     "0x94618601FE6cb8912b274E5a00453949A57f8C1e"
+                 },
+                 expectedEshopId,
+                 expectedEshopDescription,
+                 _xunitlogger);
+            act.Should().Throw<ContractDeploymentException>().WithMessage("*Failed to set up*");
+        }
 
         [Fact]
         public async void ShouldConnectExistingEshop()
@@ -142,7 +197,6 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             // Deploy an Eshop as normal
             var expectedEshopId = "Charlie" + GetRandomString();
             var expectedEshopDescription = expectedEshopId + " Description";
-
             var eshopDeployment = EshopDeployment.CreateFromNewDeployment(
                  _contracts.Web3,
                  _contracts.BusinessPartnersDeployment.BusinessPartnerStorageService.ContractHandler.ContractAddress,
@@ -168,70 +222,59 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             eshopDeployment2.Owner.Should().Be(eshopDeployment.Owner);
         }
 
-        //[Fact]
-        //public async void ShouldFailToConnectExistingWhenBadSellerContract()
-        //{
-        //    // Give a rubbish address for the existing seller wallet deployment
-        //    var sellerDeployment = SellerDeployment.CreateFromConnectExistingContract(
-        //         _contracts.Web3,
-        //         "0x32A555F2328e85E489f9a5f03669DC820CE7EBe9", // no seller contract deployed here
-        //         _xunitlogger);
-        //    Func<Task> act = async () => await sellerDeployment.InitializeAsync();
-        //    await act.Should().ThrowAsync<ContractDeploymentException>().WithMessage("*Failed to set up*");
-        //}
+        [Fact]
+        public async void ShouldFailToConnectExistingWhenBadPurchasingContract()
+        {
+            // Give a rubbish address for the existing eshop deployment purchasing contract
+            var eshopDeployment = EshopDeployment.CreateFromConnectExistingContract(
+                 _contracts.Web3,
+                 "0x32A555F2328e85E489f9a5f03669DC820CE7EBe9", // no purchasing contract deployed here
+                 _xunitlogger);
+            Func<Task> act = async () => await eshopDeployment.InitializeAsync();
+            await act.Should().ThrowAsync<ContractDeploymentException>().WithMessage("*Failed to set up*");
+        }
 
-        //[Theory]
-        //[InlineData(null)]
-        //[InlineData("")]
-        //[InlineData("a garbage address format")]
-        //public void ShouldFailToConnectExistingWhenMissingSellerContractAddress(string sellerContractAddress)
-        //{
-        //    // Give some missing addresses for the existing seller wallet deployment
-        //    Action act = () => SellerDeployment.CreateFromConnectExistingContract(
-        //         _contracts.Web3,
-        //         sellerContractAddress,
-        //         _xunitlogger);
-        //    act.Should().Throw<ContractDeploymentException>().WithMessage("*Failed to set up*");
-        //}
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData("a garbage address format")]
+        public void ShouldFailToConnectExistingWhenMissingPurchasingContractAddress(string purchasingContractAddress)
+        {
+            // Give some missing addresses for the existing purchasing contract deployment
+            Action act = () => EshopDeployment.CreateFromConnectExistingContract(
+                           _contracts.Web3,
+                           purchasingContractAddress,
+                           _xunitlogger);
+            act.Should().Throw<ContractDeploymentException>().WithMessage("*Failed to set up*");
+        }
 
-        //[Theory]
-        //[InlineData(null)]
-        //[InlineData("")]
-        //[InlineData("a garbage address format")]
-        //public void ShouldFailToDeployNewContractWhenMissingBusinessPartnerAddress(string businessPartnerContractAddress)
-        //{
-        //    // Give some missing addresses for the global business partner contract address
-        //    var expectedSellerId = "Alice" + GetRandomString();
-        //    Action act = () => SellerDeployment.CreateFromNewDeployment(
-        //         _contracts.Web3,
-        //         businessPartnerContractAddress,
-        //         expectedSellerId, $"{expectedSellerId} Description",
-        //         _xunitlogger);
-        //    act.Should().Throw<ContractDeploymentException>().WithMessage("*Failed to set up*");
-        //}
+        [Fact]
+        public async void ShouldFailToConnectExistingWhenMissingWeb3()
+        {
+            // Deploy an Eshop as normal
+            var expectedEshopId = "Charlie" + GetRandomString();
+            var expectedEshopDescription = expectedEshopId + " Description";
+            var eshopDeployment = EshopDeployment.CreateFromNewDeployment(
+                 _contracts.Web3,
+                 _contracts.BusinessPartnersDeployment.BusinessPartnerStorageService.ContractHandler.ContractAddress,
+                 quoteSigners: new List<string>()
+                 {
+                     "0x32A555F2328e85E489f9a5f03669DC820CE7EBe9",
+                     "0x94618601FE6cb8912b274E5a00453949A57f8C1e"
+                 },
+                 expectedEshopId,
+                 expectedEshopDescription,
+                 _xunitlogger);
+            Func<Task> act = async () => await eshopDeployment.InitializeAsync();
+            await act.Should().NotThrowAsync();
 
-        //[Fact]
-        //public async void ShouldFailToConnectExistingWhenMissingWeb3()
-        //{
-        //    // Deploy a seller admin as normal
-        //    var expectedSellerId = "Alice" + GetRandomString();
-        //    var expectedSellerDescription = expectedSellerId + " Description";
-        //    var sellerDeployment1 = SellerDeployment.CreateFromNewDeployment(
-        //         _contracts.Web3,
-        //         _contracts.BusinessPartnersDeployment.BusinessPartnerStorageService.ContractHandler.ContractAddress,
-        //         expectedSellerId,
-        //         expectedSellerDescription,
-        //         _xunitlogger);
-        //    Func<Task> act1 = async () => await sellerDeployment1.InitializeAsync();
-        //    await act1.Should().NotThrowAsync();
-
-        //    // Create an additional seller admin deployment by connecting to the existing first one, which
-        //    // will fail because no web3 supplied
-        //    Action act2 = () => SellerDeployment.CreateFromConnectExistingContract(
-        //        null,
-        //        sellerDeployment1.SellerAdminService.ContractHandler.ContractAddress,
-        //        _xunitlogger);
-        //    act2.Should().Throw<ContractDeploymentException>().WithMessage("*Failed to set up*");
-        //}
+            // Create an additional eshop deployment by connecting to the existing first one, which
+            // will fail because no web3 supplied
+            Action act2 = () => EshopDeployment.CreateFromConnectExistingContract(
+                null,
+                eshopDeployment.PurchasingService.ContractHandler.ContractAddress,
+                _xunitlogger);
+            act2.Should().Throw<ContractDeploymentException>().WithMessage("*Failed to set up*");
+        }
     }
 }
