@@ -36,9 +36,13 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             Func<Task> act = async () => await buyerDeployment.InitializeAsync();
             await act.Should().NotThrowAsync();
 
-            // If buyer deployed ok then its global business partner storage address should have a value
+            // If buyer deployed ok then...
+            // ...its global business partner storage address should have a value
             var bpStorageAddress = await buyerDeployment.BuyerWalletService.BusinessPartnerStorageGlobalQueryAsync().ConfigureAwait(false);
             bpStorageAddress.IsValidNonZeroAddress().Should().BeTrue();
+            
+            // ...its global business partner service should be setup
+            buyerDeployment.BusinessPartnerStorageGlobalService.Should().NotBeNull();
         }
 
         [Fact]

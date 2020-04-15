@@ -39,7 +39,7 @@ contract Funding is IFunding, Ownable, Bindable, StringConvertible
         require(address(purchasingContractAddressLocal) != address(0), "Could not find Purchasing address in registry");
     }
     
-    function transferInFundsForPoFromBuyerWallet(uint poNumber) override external onlyRegisteredCaller
+    function transferInFundsForPoFromBuyerWallet(uint poNumber) override external
     {
         // Get total PO value
         IPoTypes.Po memory po = purchasingLocal.getPo(poNumber);

@@ -69,11 +69,13 @@ namespace Nethereum.Commerce.Contracts.Deployment
             }
             else
             {
+                LogHeader($"Connecting to existing {contractName}...");
+                BuyerWalletService = new BuyerWalletService(_web3, _existingBuyerContractAddress);
                 bpStorageAddress = await BuyerWalletService.BusinessPartnerStorageGlobalQueryAsync().ConfigureAwait(false);
             }
             BusinessPartnerStorageGlobalService = await GetValidBusinessPartnerStorageServiceAsync(bpStorageAddress).ConfigureAwait(false);
 
-            // Do deployment or connect existing
+            // Do new deployment
             if (_isNewDeployment)
             {
                 LogHeader($"Deploying {contractName}...");
@@ -83,11 +85,6 @@ namespace Nethereum.Commerce.Contracts.Deployment
                 };
                 BuyerWalletService = await BuyerWalletService.DeployContractAndGetServiceAsync(
                     _web3, buyerWalletDeployment).ConfigureAwait(false);
-            }
-            else
-            {
-                LogHeader($"Connecting to existing {contractName}...");
-                BuyerWalletService = new BuyerWalletService(_web3, _existingBuyerContractAddress);
             }
 
             // Check buyer wallet owner address

@@ -79,11 +79,13 @@ namespace Nethereum.Commerce.Contracts.Deployment
             }
             else
             {
+                LogHeader($"Connecting to existing {contractName}...");
+                SellerAdminService = new SellerAdminService(_web3, _existingSellerContractAddress);
                 bpStorageAddress = await SellerAdminService.BusinessPartnerStorageGlobalQueryAsync().ConfigureAwait(false);
             }
             BusinessPartnerStorageGlobalService = await GetValidBusinessPartnerStorageServiceAsync(bpStorageAddress).ConfigureAwait(false);
 
-            // Do deployment or connect existing
+            // Do new deployment
             if (_isNewDeployment)
             {
                 // Deploy
@@ -119,11 +121,6 @@ namespace Nethereum.Commerce.Contracts.Deployment
                 var txReceipt = await SellerAdminService.ConfigureRequestAndWaitForReceiptAsync(
                     _businessPartnerStorageAddressGlobal).ConfigureAwait(false);
                 Log($"Tx status: {txReceipt.Status.Value}");
-            }
-            else
-            {
-                LogHeader($"Connecting to existing {contractName}...");
-                SellerAdminService = new SellerAdminService(_web3, _existingSellerContractAddress);
             }
             
             // Check seller admin owner address
