@@ -206,5 +206,25 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
                 _xunitlogger);
             act2.Should().Throw<ContractDeploymentException>().WithMessage("*Failed to set up*");
         }
+
+        [Fact]
+        public async void ShouldFailToRegisterEshopWhenBadEshopId()
+        {
+            // Deploy seller as normal
+            var expectedSellerId = "Alice" + GetRandomString();
+            var expectedSellerDescription = expectedSellerId + " Description";
+            var sellerDeployment = SellerDeployment.CreateFromNewDeployment(
+                 _contracts.Web3,
+                 _contracts.BusinessPartnersDeployment.BusinessPartnerStorageService.ContractHandler.ContractAddress,
+                 expectedSellerId,
+                 expectedSellerDescription,
+                 _xunitlogger);
+            Func<Task> act = async () => await sellerDeployment.InitializeAsync();
+            await act.Should().NotThrowAsync();
+
+            // Attempt to register a garbage eshopId, registration should fail
+            Func<Task> act2 = async () => await sellerDeployment.RegisterEshopAsync("nonsense");
+            await act2.Should().ThrowAsync<ContractDeploymentException>(); //.WithMessage("*Failed to set up*");
+        }
     }
 }

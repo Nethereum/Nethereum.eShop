@@ -140,5 +140,28 @@ namespace Nethereum.Commerce.Contracts.Deployment
             }
             Log("Done");
         }
+
+        public async Task RegisterEshopAsync(string eshopId)
+        {
+            // Authorisations. SellerAdmin whitelists the Eshop, allowing it to call the Seller function to
+            // emit an event saying a new PO has arrived. Without this, a Seller would have to listen to ALL
+            // events from every Eshop they sell in.
+            Log();
+            Log($"Authorisations for Seller Admin...");
+            Log($"Configuring Seller Admin, binding Purchasing...");
+            // Get the Eshop's Purchasing.sol address
+            if (BusinessPartnerStorageGlobalService == null)
+            {
+                throw new ContractDeploymentException("BusinessPartnerStorageGlobalService is not setup");
+            }
+            var eshop = (await BusinessPartnerStorageGlobalService.GetEshopQueryAsync(eshopId)).EShop;
+            if (!eshop.PurchasingContractAddress.IsValidNonZeroAddress())
+            {
+                throw new ContractDeploymentException($"Eshopid {eshopId} does not have valid address in business partner storage");
+            }
+            var txReceipt = await SellerAdminService.BindAddressRequestAndWaitForReceiptAsync(
+                eshop.PurchasingContractAddress).ConfigureAwait(false);
+            Log($"Tx status: {txReceipt.Status.Value}");
+        }
     }
 }

@@ -18,5 +18,11 @@ namespace Nethereum.Commerce.Contracts.Deployment
         string Owner { get; }
 
         Task InitializeAsync();
+        
+        /// <summary>
+        /// Register an Eshop with the Seller. This whitelists the Eshop and allows it to 
+        /// call the Seller functions to emit events when a new PO arrives.
+        /// </summary>
+        Task RegisterEshopAsync(string eshopId);
     }
 }
