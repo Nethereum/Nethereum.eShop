@@ -9,7 +9,7 @@ using Xunit.Sdk;
 
 namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
 {
-    public class ContractDeploymentsFixturev2 : IAsyncLifetime
+    public class GlobalBusinessPartnersFixture : IAsyncLifetime
     {
         /// <summary>
         /// Web3 representing the "primary user", that is the user with ether
@@ -29,9 +29,14 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
         /// </summary>
         public IBusinessPartnersDeployment BusinessPartnersDeployment { get; internal set; }
 
+        /// <summary>
+        /// Global Business Partner Storage contract address
+        /// </summary>
+        public string BusinessPartnersContractAddress { get; internal set;}
+
         private readonly IMessageSink _diagnosticMessageSink;
 
-        public ContractDeploymentsFixturev2(IMessageSink diagnosticMessageSink)
+        public GlobalBusinessPartnersFixture(IMessageSink diagnosticMessageSink)
         {
             _diagnosticMessageSink = diagnosticMessageSink;
             var appConfig = ConfigurationUtils.Build(Array.Empty<string>(), "UserSecret");
@@ -52,8 +57,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
             // be shared across all tests
             BusinessPartnersDeployment = Contracts.Deployment.BusinessPartnersDeployment.CreateFromNewDeployment(Web3, new DiagnosticMessageSinkLogger(_diagnosticMessageSink));
             await BusinessPartnersDeployment.InitializeAsync().ConfigureAwait(false);
-
-
+            BusinessPartnersContractAddress = BusinessPartnersDeployment.BusinessPartnerStorageService.ContractHandler.ContractAddress;
 
             // Transfer Ether from main web3 primary user to secondary users, so secondary users can post tx
             LogSeparator();

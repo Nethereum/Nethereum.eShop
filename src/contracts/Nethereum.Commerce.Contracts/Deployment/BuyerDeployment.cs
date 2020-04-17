@@ -20,9 +20,9 @@ namespace Nethereum.Commerce.Contracts.Deployment
         /// <summary>
         /// Deploy a new BuyerWallet.sol contract
         /// </summary>
-        public static IBuyerDeployment CreateFromNewDeployment(IWeb3 web3, string businessPartnerStorageAddressGlobal, ILogger logger = null)
+        public static IBuyerDeployment CreateFromNewDeployment(IWeb3 web3, BuyerDeploymentConfig buyerDeploymentConfig, ILogger logger = null)
         {
-            return new BuyerDeployment(web3, businessPartnerStorageAddressGlobal, true, logger);
+            return new BuyerDeployment(web3, buyerDeploymentConfig.BusinessPartnerStorageGlobalAddress, true, logger);
         }
 
         /// <summary>

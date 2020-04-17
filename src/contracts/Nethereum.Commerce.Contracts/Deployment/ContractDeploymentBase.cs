@@ -35,7 +35,7 @@ namespace Nethereum.Commerce.Contracts.Deployment
         /// Check that the passed address is valid and points to a valid business partner storage contract. 
         /// Returns business partner storage service if valid, throws if not.
         /// </summary>
-        protected async Task<BusinessPartnerStorageService> GetValidBusinessPartnerStorageServiceAsync(string businessPartnerStorageContractAddress)
+        protected virtual async Task<BusinessPartnerStorageService> GetValidBusinessPartnerStorageServiceAsync(string businessPartnerStorageContractAddress)
         {
             if (!businessPartnerStorageContractAddress.IsValidNonZeroAddress())
             {
@@ -51,16 +51,16 @@ namespace Nethereum.Commerce.Contracts.Deployment
             return bpss;
         }
 
-        protected void LogHeader(string s)
+        protected virtual void LogHeader(string s)
         {
             Log();
             Log($"--------------  {s}  --------------");
             Log();
         }
 
-        protected void Log() => Log(string.Empty);
+        protected virtual void Log() => Log(string.Empty);
 
-        protected void Log(string message)
+        protected virtual void Log(string message)
         {
             if (_logger != null)
             {

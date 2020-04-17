@@ -17,14 +17,14 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 {
     [Trait("Shop", "")]
     [Trait("Deployment", "")]
-    [Collection("Contract Deployment Collection v2")]
+    [Collection("GlobalBusinessPartnersFixture")]
     public class EshopDeploymentTests
     {
         private readonly ITestOutputHelper _output;
-        private readonly ContractDeploymentsFixturev2 _contracts;
+        private readonly GlobalBusinessPartnersFixture _contracts;
         private readonly TestOutputHelperLogger _xunitlogger;
 
-        public EshopDeploymentTests(ContractDeploymentsFixturev2 fixture, ITestOutputHelper output)
+        public EshopDeploymentTests(GlobalBusinessPartnersFixture fixture, ITestOutputHelper output)
         {
             // See Output window -> Tests for fixture deployment logs.
             _contracts = fixture;
@@ -39,14 +39,13 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var expectedEshopDescription = expectedEshopId + " Description";
             var eshopDeployment = EshopDeployment.CreateFromNewDeployment(
                  _contracts.Web3,
-                 _contracts.BusinessPartnersDeployment.BusinessPartnerStorageService.ContractHandler.ContractAddress,
-                 quoteSigners: new List<string>()
+                 new EshopDeploymentConfig()
                  {
-                     "0x32A555F2328e85E489f9a5f03669DC820CE7EBe9",
-                     "0x94618601FE6cb8912b274E5a00453949A57f8C1e"
+                     BusinessPartnerStorageGlobalAddress = _contracts.BusinessPartnersDeployment.BusinessPartnerStorageService.ContractHandler.ContractAddress,
+                     QuoteSigners = new List<string>() { "0x32A555F2328e85E489f9a5f03669DC820CE7EBe9", "0x94618601FE6cb8912b274E5a00453949A57f8C1e" },
+                     EshopId = expectedEshopId,
+                     EshopDescription = expectedEshopDescription
                  },
-                 expectedEshopId,
-                 expectedEshopDescription,
                  _xunitlogger);
             Func<Task> act = async () => await eshopDeployment.InitializeAsync();
             await act.Should().NotThrowAsync();
@@ -82,10 +81,13 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var expectedEshopDescription = expectedEshopId + " Description";
             Action act = () => EshopDeployment.CreateFromNewDeployment(
                  _contracts.Web3,
-                 _contracts.BusinessPartnersDeployment.BusinessPartnerStorageService.ContractHandler.ContractAddress,
-                 quoteSigners: new List<string>(quoteSigners),
-                 expectedEshopId,
-                 expectedEshopDescription,
+                 new EshopDeploymentConfig()
+                 {
+                     BusinessPartnerStorageGlobalAddress = _contracts.BusinessPartnersDeployment.BusinessPartnerStorageService.ContractHandler.ContractAddress,
+                     QuoteSigners = new List<string>(quoteSigners),
+                     EshopId = expectedEshopId,
+                     EshopDescription = expectedEshopDescription
+                 },
                  _xunitlogger);
             act.Should().Throw<ContractDeploymentException>().WithMessage("*Failed to set up EshopDeployment*");
         }
@@ -98,14 +100,13 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var expectedEshopDescription = expectedEshopId + " Description";
             var eshopDeployment = EshopDeployment.CreateFromNewDeployment(
                  _contracts.Web3,
-                 _contracts.BusinessPartnersDeployment.BusinessPartnerStorageService.ContractHandler.ContractAddress,
-                 quoteSigners: new List<string>()
+                 new EshopDeploymentConfig()
                  {
-                     "0x32A555F2328e85E489f9a5f03669DC820CE7EBe9",
-                     "0x94618601FE6cb8912b274E5a00453949A57f8C1e"
+                     BusinessPartnerStorageGlobalAddress = _contracts.BusinessPartnersDeployment.BusinessPartnerStorageService.ContractHandler.ContractAddress,
+                     QuoteSigners = new List<string>() { "0x32A555F2328e85E489f9a5f03669DC820CE7EBe9", "0x94618601FE6cb8912b274E5a00453949A57f8C1e" },
+                     EshopId = expectedEshopId,
+                     EshopDescription = expectedEshopDescription
                  },
-                 expectedEshopId,
-                 expectedEshopDescription,
                  _xunitlogger);
             Func<Task> act = async () => await eshopDeployment.InitializeAsync();
             await act.Should().NotThrowAsync();
@@ -115,14 +116,13 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             // the EshopId in the master data 
             var eshopDeployment2 = EshopDeployment.CreateFromNewDeployment(
                  _contracts.Web3SecondaryUser,
-                 _contracts.BusinessPartnersDeployment.BusinessPartnerStorageService.ContractHandler.ContractAddress,
-                 quoteSigners: new List<string>()
+                 new EshopDeploymentConfig()
                  {
-                     "0x32A555F2328e85E489f9a5f03669DC820CE7EBe9",
-                     "0x94618601FE6cb8912b274E5a00453949A57f8C1e"
+                     BusinessPartnerStorageGlobalAddress = _contracts.BusinessPartnersDeployment.BusinessPartnerStorageService.ContractHandler.ContractAddress,
+                     QuoteSigners = new List<string>() { "0x32A555F2328e85E489f9a5f03669DC820CE7EBe9", "0x94618601FE6cb8912b274E5a00453949A57f8C1e" },
+                     EshopId = expectedEshopId,
+                     EshopDescription = expectedEshopDescription
                  },
-                 expectedEshopId,
-                 expectedEshopDescription,
                  _xunitlogger);
             Func<Task> act2 = async () => await eshopDeployment2.InitializeAsync();
             await act2.Should().ThrowAsync<SmartContractRevertException>().WithMessage("*Only createdByAddress can change this record*");
@@ -136,14 +136,13 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var expectedEshopDescription = expectedEshopId + " Description";
             var eshopDeployment = EshopDeployment.CreateFromNewDeployment(
                  _contracts.Web3,
-                 "0x32A555F2328e85E489f9a5f03669DC820CE7EBe9",    // there is no global business partner storage here
-                 quoteSigners: new List<string>()
+                 new EshopDeploymentConfig()
                  {
-                     "0x32A555F2328e85E489f9a5f03669DC820CE7EBe9",
-                     "0x94618601FE6cb8912b274E5a00453949A57f8C1e"
+                     BusinessPartnerStorageGlobalAddress = "0x32A555F2328e85E489f9a5f03669DC820CE7EBe9",  // there is no global business partner storage here
+                     QuoteSigners = new List<string>() { "0x32A555F2328e85E489f9a5f03669DC820CE7EBe9", "0x94618601FE6cb8912b274E5a00453949A57f8C1e" },
+                     EshopId = expectedEshopId,
+                     EshopDescription = expectedEshopDescription
                  },
-                 expectedEshopId,
-                 expectedEshopDescription,
                  _xunitlogger);
             Func<Task> act = async () => await eshopDeployment.InitializeAsync();
             await act.Should().ThrowAsync<ContractDeploymentException>().WithMessage("*Fault with global business partner storage contract*");
@@ -160,14 +159,13 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var expectedEshopDescription = expectedEshopId + " Description";
             Action act = () => EshopDeployment.CreateFromNewDeployment(
                  _contracts.Web3,
-                 businessPartnerContractAddress,
-                 quoteSigners: new List<string>()
+                 new EshopDeploymentConfig()
                  {
-                     "0x32A555F2328e85E489f9a5f03669DC820CE7EBe9",
-                     "0x94618601FE6cb8912b274E5a00453949A57f8C1e"
+                     BusinessPartnerStorageGlobalAddress = businessPartnerContractAddress,
+                     QuoteSigners = new List<string>() { "0x32A555F2328e85E489f9a5f03669DC820CE7EBe9", "0x94618601FE6cb8912b274E5a00453949A57f8C1e" },
+                     EshopId = expectedEshopId,
+                     EshopDescription = expectedEshopDescription
                  },
-                 expectedEshopId,
-                 expectedEshopDescription,
                  _xunitlogger);
             act.Should().Throw<ContractDeploymentException>().WithMessage("*Failed to set up*");
         }
@@ -179,14 +177,13 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var expectedEshopDescription = expectedEshopId + " Description";
             Action act = () => EshopDeployment.CreateFromNewDeployment(
                  null,
-                 _contracts.BusinessPartnersDeployment.BusinessPartnerStorageService.ContractHandler.ContractAddress,
-                 quoteSigners: new List<string>()
+                 new EshopDeploymentConfig()
                  {
-                     "0x32A555F2328e85E489f9a5f03669DC820CE7EBe9",
-                     "0x94618601FE6cb8912b274E5a00453949A57f8C1e"
+                     BusinessPartnerStorageGlobalAddress = _contracts.BusinessPartnersDeployment.BusinessPartnerStorageService.ContractHandler.ContractAddress,
+                     QuoteSigners = new List<string>() { "0x32A555F2328e85E489f9a5f03669DC820CE7EBe9", "0x94618601FE6cb8912b274E5a00453949A57f8C1e" },
+                     EshopId = expectedEshopId,
+                     EshopDescription = expectedEshopDescription
                  },
-                 expectedEshopId,
-                 expectedEshopDescription,
                  _xunitlogger);
             act.Should().Throw<ContractDeploymentException>().WithMessage("*Failed to set up*");
         }
@@ -199,14 +196,13 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var expectedEshopDescription = expectedEshopId + " Description";
             var eshopDeployment = EshopDeployment.CreateFromNewDeployment(
                  _contracts.Web3,
-                 _contracts.BusinessPartnersDeployment.BusinessPartnerStorageService.ContractHandler.ContractAddress,
-                 quoteSigners: new List<string>()
+                 new EshopDeploymentConfig()
                  {
-                     "0x32A555F2328e85E489f9a5f03669DC820CE7EBe9",
-                     "0x94618601FE6cb8912b274E5a00453949A57f8C1e"
+                     BusinessPartnerStorageGlobalAddress = _contracts.BusinessPartnersDeployment.BusinessPartnerStorageService.ContractHandler.ContractAddress,
+                     QuoteSigners = new List<string>() { "0x32A555F2328e85E489f9a5f03669DC820CE7EBe9", "0x94618601FE6cb8912b274E5a00453949A57f8C1e" },
+                     EshopId = expectedEshopId,
+                     EshopDescription = expectedEshopDescription
                  },
-                 expectedEshopId,
-                 expectedEshopDescription,
                  _xunitlogger);
             Func<Task> act = async () => await eshopDeployment.InitializeAsync();
             await act.Should().NotThrowAsync();
@@ -256,14 +252,13 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var expectedEshopDescription = expectedEshopId + " Description";
             var eshopDeployment = EshopDeployment.CreateFromNewDeployment(
                  _contracts.Web3,
-                 _contracts.BusinessPartnersDeployment.BusinessPartnerStorageService.ContractHandler.ContractAddress,
-                 quoteSigners: new List<string>()
+                 new EshopDeploymentConfig()
                  {
-                     "0x32A555F2328e85E489f9a5f03669DC820CE7EBe9",
-                     "0x94618601FE6cb8912b274E5a00453949A57f8C1e"
+                     BusinessPartnerStorageGlobalAddress = _contracts.BusinessPartnersDeployment.BusinessPartnerStorageService.ContractHandler.ContractAddress,
+                     QuoteSigners = new List<string>() { "0x32A555F2328e85E489f9a5f03669DC820CE7EBe9", "0x94618601FE6cb8912b274E5a00453949A57f8C1e" },
+                     EshopId = expectedEshopId,
+                     EshopDescription = expectedEshopDescription
                  },
-                 expectedEshopId,
-                 expectedEshopDescription,
                  _xunitlogger);
             Func<Task> act = async () => await eshopDeployment.InitializeAsync();
             await act.Should().NotThrowAsync();

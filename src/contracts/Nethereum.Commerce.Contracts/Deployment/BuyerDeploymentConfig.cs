@@ -5,6 +5,6 @@
     /// </summary>
     public class BuyerDeploymentConfig
     {
-        string BusinessPartnerStorageGlobalAddress { get; set; }
+        public string BusinessPartnerStorageGlobalAddress { get; set; }
     }
 }

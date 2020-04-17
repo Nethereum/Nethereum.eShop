@@ -25,9 +25,15 @@ namespace Nethereum.Commerce.Contracts.Deployment
         /// <summary>
         /// Deploy and configure a new SellerAdmin.sol contract
         /// </summary>
-        public static ISellerDeployment CreateFromNewDeployment(IWeb3 web3, string businessPartnerStorageAddressGlobal, string sellerId, string sellerDescription = null, ILogger logger = null)
+        public static ISellerDeployment CreateFromNewDeployment(IWeb3 web3, SellerDeploymentConfig sellerDeploymentConfig, ILogger logger = null)
         {
-            return new SellerDeployment(web3, businessPartnerStorageAddressGlobal, sellerId, sellerDescription, true, logger);
+            return new SellerDeployment(
+                web3,
+                sellerDeploymentConfig.BusinessPartnerStorageGlobalAddress,
+                sellerDeploymentConfig.SellerId,
+                sellerDeploymentConfig.SellerDescription,
+                true,
+                logger);
         }
 
         /// <summary>

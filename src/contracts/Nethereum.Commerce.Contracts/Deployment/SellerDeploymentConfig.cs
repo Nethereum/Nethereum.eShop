@@ -5,8 +5,8 @@
     /// </summary>
     public class SellerDeploymentConfig
     {
-        string BusinessPartnerStorageGlobalAddress { get; set; }
-        string SellerId { get; set; }
-        string SellerDescription { get; set; }
+        public string BusinessPartnerStorageGlobalAddress { get; set; }
+        public string SellerId { get; set; }
+        public string SellerDescription { get; set; }
     }
 }

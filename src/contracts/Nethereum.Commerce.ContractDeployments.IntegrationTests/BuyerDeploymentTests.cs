@@ -11,17 +11,17 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 {
     [Trait("Buyer", "")]
     [Trait("Deployment", "")]
-    [Collection("Contract Deployment Collection v2")]
+    [Collection("GlobalBusinessPartnersFixture")]
     public class BuyerDeploymentTests
     {
         private readonly ITestOutputHelper _output;
-        private readonly ContractDeploymentsFixturev2 _contracts;
+        private readonly GlobalBusinessPartnersFixture _fixtureContracts;
         private readonly TestOutputHelperLogger _xunitlogger;
 
-        public BuyerDeploymentTests(ContractDeploymentsFixturev2 fixture, ITestOutputHelper output)
+        public BuyerDeploymentTests(GlobalBusinessPartnersFixture fixture, ITestOutputHelper output)
         {
             // See Output window -> Tests for fixture deployment logs.
-            _contracts = fixture;
+            _fixtureContracts = fixture;
             _output = output;
             _xunitlogger = new TestOutputHelperLogger(_output);
         }
@@ -30,8 +30,8 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         public async void ShouldDeployNewContract()
         {
             var buyerDeployment = BuyerDeployment.CreateFromNewDeployment(
-                 _contracts.Web3,
-                 _contracts.BusinessPartnersDeployment.BusinessPartnerStorageService.ContractHandler.ContractAddress,
+                 _fixtureContracts.Web3,
+                 new BuyerDeploymentConfig() { BusinessPartnerStorageGlobalAddress = _fixtureContracts.BusinessPartnersContractAddress },
                  _xunitlogger);
             Func<Task> act = async () => await buyerDeployment.InitializeAsync();
             await act.Should().NotThrowAsync();
@@ -50,7 +50,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         {
             Action act = () => BuyerDeployment.CreateFromNewDeployment(
                  null,
-                 _contracts.BusinessPartnersDeployment.BusinessPartnerStorageService.ContractHandler.ContractAddress,
+                 new BuyerDeploymentConfig() { BusinessPartnerStorageGlobalAddress = _fixtureContracts.BusinessPartnersContractAddress },
                  _xunitlogger);
             act.Should().Throw<ContractDeploymentException>().WithMessage("*Failed to set up*");
         }
@@ -63,8 +63,8 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         {
             // Give some missing addresses for the existing buyer wallet deployment
             Action act = () => BuyerDeployment.CreateFromNewDeployment(
-                 _contracts.Web3,
-                 businessPartnerContractAddress,
+                 _fixtureContracts.Web3,
+                 new BuyerDeploymentConfig() { BusinessPartnerStorageGlobalAddress = businessPartnerContractAddress },
                  _xunitlogger);
             act.Should().Throw<ContractDeploymentException>().WithMessage("*Failed to set up*");
         }
@@ -74,8 +74,8 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         {
             // Give a technically valid addess, but not an address for a valid business partner storage contract
             var buyerDeployment1 = BuyerDeployment.CreateFromNewDeployment(
-                 _contracts.Web3,
-                 "0x32A555F2328e85E489f9a5f03669DC820CE7EBe9", // no business partner storage contract deployed here
+                 _fixtureContracts.Web3,
+                 new BuyerDeploymentConfig() { BusinessPartnerStorageGlobalAddress = "0x32A555F2328e85E489f9a5f03669DC820CE7EBe9" }, // no business partner storage contract deployed here
                  _xunitlogger);
             Func<Task> act1 = async () => await buyerDeployment1.InitializeAsync();
             await act1.Should().ThrowAsync<ContractDeploymentException>().WithMessage("*Failed to set up*");
@@ -86,15 +86,15 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         {
             // Deploy a buyer wallet
             var buyerDeployment1 = BuyerDeployment.CreateFromNewDeployment(
-                 _contracts.Web3,
-                 _contracts.BusinessPartnersDeployment.BusinessPartnerStorageService.ContractHandler.ContractAddress,
+                 _fixtureContracts.Web3,
+                 new BuyerDeploymentConfig() { BusinessPartnerStorageGlobalAddress = _fixtureContracts.BusinessPartnersContractAddress },
                  _xunitlogger);
             Func<Task> act = async () => await buyerDeployment1.InitializeAsync();
             await act.Should().NotThrowAsync();
 
             // Create an additional buyer wallet deployment by connecting to the existing first one
             var buyerDeployment2 = BuyerDeployment.CreateFromConnectExistingContract(
-                _contracts.Web3,
+                _fixtureContracts.Web3,
                 buyerDeployment1.BuyerWalletService.ContractHandler.ContractAddress,
                 _xunitlogger);
             Func<Task> act2 = async () => await buyerDeployment2.InitializeAsync();
@@ -111,7 +111,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         {
             // Give some missing addresses for the existing buyer wallet deployment
             Action act = () => BuyerDeployment.CreateFromConnectExistingContract(
-                 _contracts.Web3,
+                 _fixtureContracts.Web3,
                  buyerContractAddress,
                  _xunitlogger);
             act.Should().Throw<ContractDeploymentException>().WithMessage("*Failed to set up*");
@@ -122,7 +122,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         {
             // Give a technically valid addess, but not an address for an existing buyer wallet deployment
             var buyerDeployment = BuyerDeployment.CreateFromConnectExistingContract(
-                 _contracts.Web3,
+                 _fixtureContracts.Web3,
                  "0x32A555F2328e85E489f9a5f03669DC820CE7EBe9", // no buyer contract deployed here
                  _xunitlogger);
             Func<Task> act = async () => await buyerDeployment.InitializeAsync();
@@ -134,8 +134,8 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         {
             // Deploy a buyer wallet as normal
             var buyerDeployment1 = BuyerDeployment.CreateFromNewDeployment(
-                 _contracts.Web3,
-                 _contracts.BusinessPartnersDeployment.BusinessPartnerStorageService.ContractHandler.ContractAddress,
+                 _fixtureContracts.Web3,
+                 new BuyerDeploymentConfig() { BusinessPartnerStorageGlobalAddress = _fixtureContracts.BusinessPartnersContractAddress },
                  _xunitlogger);
             Func<Task> act1 = async () => await buyerDeployment1.InitializeAsync();
             await act1.Should().NotThrowAsync();

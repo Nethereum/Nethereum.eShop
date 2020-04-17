@@ -23,14 +23,13 @@ namespace Nethereum.Commerce.Contracts.Deployment
         public PurchasingService PurchasingService { get; internal set; }
         public BusinessPartnerStorageService BusinessPartnerStorageGlobalService { get; internal set; }
         public FundingService FundingService { get; internal set; }
+        public string EshopId { get; internal set; }
+        public string Owner { get; internal set; }
 
         // Services that probably do not need exposed
         private AddressRegistryService AddressRegistryService { get; set; }
         private PoStorageService PoStorageService { get; set; }
         private EternalStorageService EternalStorageService { get; set; }
-
-        public string EshopId { get; internal set; }
-        public string Owner { get; internal set; }
 
         private const string CONTRACT_NAME_ADDRESS_REGISTRY_LOCAL = "AddressRegistryLocal";
         private const string CONTRACT_NAME_ETERNAL_STORAGE_LOCAL = "EternalStorageLocal";
@@ -48,10 +47,16 @@ namespace Nethereum.Commerce.Contracts.Deployment
         /// Deploy and configure a new Purchasing.sol contract, together with its Eternal Storage,
         /// PO storage and Funding contracts.
         /// </summary>
-        public static IEshopDeployment CreateFromNewDeployment(IWeb3 web3, string businessPartnerStorageAddressGlobal,
-            List<string> quoteSigners, string eshopId, string eshopDescription = null, ILogger logger = null)
+        public static IEshopDeployment CreateFromNewDeployment(IWeb3 web3, EshopDeploymentConfig eshopDeploymentConfig, ILogger logger = null)
         {
-            return new EshopDeployment(web3, businessPartnerStorageAddressGlobal, eshopId, quoteSigners, eshopDescription, true, logger);
+            return new EshopDeployment(
+                web3,
+                eshopDeploymentConfig.BusinessPartnerStorageGlobalAddress,
+                eshopDeploymentConfig.EshopId,
+                eshopDeploymentConfig.QuoteSigners,
+                eshopDeploymentConfig.EshopDescription,
+                true,
+                logger);
         }
 
         /// <summary>
