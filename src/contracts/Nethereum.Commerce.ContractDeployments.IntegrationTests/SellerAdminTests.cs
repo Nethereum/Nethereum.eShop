@@ -19,20 +19,20 @@ using Seller = Nethereum.Commerce.Contracts.SellerAdmin.ContractDefinition;
 namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 {
     [Trait("Seller", "")]
-    [Collection("Contract Deployment Collection")]
+    [Collection("CompleteSampleDeploymentFixture")]
     public class SellerAdminTests
     {
         private readonly ITestOutputHelper _output;
-        private readonly ContractDeploymentsFixture _contracts;
+        private readonly CompleteSampleDeploymentFixture _contracts;
 
         private const byte PO_ITEM_NUMBER = 1;
         private const byte PO_ITEM_INDEX = PO_ITEM_NUMBER - 1;
         private const string SALES_ORDER_NUMBER = "SalesOrder01";
         private const string SALES_ORDER_ITEM = "10";
 
-        public SellerAdminTests(ContractDeploymentsFixture fixture, ITestOutputHelper output)
+        public SellerAdminTests(CompleteSampleDeploymentFixture fixture, ITestOutputHelper output)
         {
-            // ContractDeploymentsFixture performed a complete deployment.
+            // CompleteSampleDeploymentFixture performed a complete deployment.
             // See Output window -> Tests for deployment logs.
             _contracts = fixture;
             _output = output;
@@ -42,8 +42,8 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         public async void ShouldFailToSetStatusOnNonExistentPo()
         {
             // PO 12345 shouldn't exist
-            var eShopId = await _contracts.Deployment.PurchasingServiceLocal.EShopIdQueryAsync();
-            Func<Task> act = async () => await _contracts.Deployment.SellerAdminService.SetPoItemAcceptedRequestAndWaitForReceiptAsync(
+            var eShopId = await _contracts.Deployment.Eshop.PurchasingService.EShopIdQueryAsync();
+            Func<Task> act = async () => await _contracts.Deployment.Seller.SellerAdminService.SetPoItemAcceptedRequestAndWaitForReceiptAsync(
                 eShopId.ConvertToString(), 12345, 1, SALES_ORDER_NUMBER, SALES_ORDER_ITEM);
             await act.Should().ThrowAsync<SmartContractRevertException>().WithMessage(PO_EXCEPTION_NOT_EXIST);
         }
@@ -57,7 +57,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId: GetRandomInt());
             var signature = poAsRequested.GetSignatureBytes(_contracts.Web3);
             await PrepSendFundsToBuyerWalletForPo(_contracts.Web3, poAsRequested);
-            var txReceiptCreate = await _contracts.Deployment.BuyerWalletService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
+            var txReceiptCreate = await _contracts.Deployment.Buyer.BuyerWalletService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
             txReceiptCreate.Status.Value.Should().Be(1);
 
             // Get the PO number that was assigned
@@ -66,7 +66,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var poNumberAsBuilt = logPoCreated.Event.Po.PoNumber;
 
             // This PO exists, but items specified shouldn't exist
-            Func<Task> act = async () => await _contracts.Deployment.SellerAdminService.SetPoItemAcceptedRequestAndWaitForReceiptAsync(
+            Func<Task> act = async () => await _contracts.Deployment.Seller.SellerAdminService.SetPoItemAcceptedRequestAndWaitForReceiptAsync(
                 poAsRequested.EShopId, poNumberAsBuilt, poItemNumber, SALES_ORDER_NUMBER, SALES_ORDER_ITEM);
             await act.Should().ThrowAsync<SmartContractRevertException>().WithMessage(PO_ITEM_EXCEPTION_NOT_EXIST);
         }
@@ -81,7 +81,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId: GetRandomInt());
             var signature = poAsRequested.GetSignatureBytes(_contracts.Web3);
             await PrepSendFundsToBuyerWalletForPo(_contracts.Web3, poAsRequested);
-            var txReceiptCreate = await _contracts.Deployment.BuyerWalletService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
+            var txReceiptCreate = await _contracts.Deployment.Buyer.BuyerWalletService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
             txReceiptCreate.Status.Value.Should().Be(1);
 
             // Get the PO number that was assigned
@@ -90,17 +90,17 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var poNumberAsBuilt = logPoCreated.Event.Po.PoNumber;
 
             // Mark PO item as Accepted
-            var txReceiptAccept = await _contracts.Deployment.SellerAdminService.SetPoItemAcceptedRequestAndWaitForReceiptAsync(
+            var txReceiptAccept = await _contracts.Deployment.Seller.SellerAdminService.SetPoItemAcceptedRequestAndWaitForReceiptAsync(
                 poAsRequested.EShopId, poNumberAsBuilt, PO_ITEM_NUMBER, SALES_ORDER_NUMBER, SALES_ORDER_ITEM);
             txReceiptAccept.Status.Value.Should().Be(1);
 
             // Mark PO item as Ready for Goods Issue            
-            var txReceiptReadyForGI = await _contracts.Deployment.SellerAdminService.SetPoItemReadyForGoodsIssueRequestAndWaitForReceiptAsync(
+            var txReceiptReadyForGI = await _contracts.Deployment.Seller.SellerAdminService.SetPoItemReadyForGoodsIssueRequestAndWaitForReceiptAsync(
                 poAsRequested.EShopId, poNumberAsBuilt, PO_ITEM_NUMBER);
             txReceiptReadyForGI.Status.Value.Should().Be(1);
 
             // Mark PO item as Goods Issued            
-            var txReceiptGI = await _contracts.Deployment.SellerAdminService.SetPoItemGoodsIssuedRequestAndWaitForReceiptAsync(
+            var txReceiptGI = await _contracts.Deployment.Seller.SellerAdminService.SetPoItemGoodsIssuedRequestAndWaitForReceiptAsync(
                 poAsRequested.EShopId, poNumberAsBuilt, PO_ITEM_NUMBER);
             txReceiptGI.Status.Value.Should().Be(1);
 
@@ -109,16 +109,16 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 
             // Before starting the secondary user must be whitelisted to use the BuyerWallet contract at all (and un-whitelisted afterwards)
             // bind secondary user as a user of BuyerWallet
-            var txReceiptBind = await _contracts.Deployment.BuyerWalletService.BindAddressRequestAndWaitForReceiptAsync(_contracts.Web3SecondaryUser.TransactionManager.Account.Address);
+            var txReceiptBind = await _contracts.Deployment.Buyer.BuyerWalletService.BindAddressRequestAndWaitForReceiptAsync(_contracts.Web3SecondaryUser.TransactionManager.Account.Address);
             txReceiptBind.Status.Value.Should().Be(1);
 
-            var wbs = new BuyerWalletService(_contracts.Web3SecondaryUser, _contracts.Deployment.BuyerWalletService.ContractHandler.ContractAddress);
+            var wbs = new BuyerWalletService(_contracts.Web3SecondaryUser, _contracts.Deployment.Buyer.BuyerWalletService.ContractHandler.ContractAddress);
             Func<Task> act = async () => await wbs.SetPoItemGoodsReceivedRequestAndWaitForReceiptAsync(
                 poAsRequested.EShopId, poNumberAsBuilt, PO_ITEM_NUMBER);
             await act.Should().ThrowAsync<SmartContractRevertException>().WithMessage(GOODS_RECEIPT_EXCEPTION_NOT_PO_OWNER);
 
             // unbind secondary user, so they can no longer use BuyerWallet
-            var txReceiptUnbind = await _contracts.Deployment.BuyerWalletService.UnBindAddressRequestAndWaitForReceiptAsync(_contracts.Web3SecondaryUser.TransactionManager.Account.Address);
+            var txReceiptUnbind = await _contracts.Deployment.Buyer.BuyerWalletService.UnBindAddressRequestAndWaitForReceiptAsync(_contracts.Web3SecondaryUser.TransactionManager.Account.Address);
             txReceiptUnbind.Status.Value.Should().Be(1);
         }
 
@@ -132,7 +132,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId: GetRandomInt());
             var signature = poAsRequested.GetSignatureBytes(_contracts.Web3);
             await PrepSendFundsToBuyerWalletForPo(_contracts.Web3, poAsRequested);
-            var txReceiptCreate = await _contracts.Deployment.BuyerWalletService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
+            var txReceiptCreate = await _contracts.Deployment.Buyer.BuyerWalletService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
             txReceiptCreate.Status.Value.Should().Be(1);
 
             // Get the PO number that was assigned
@@ -141,22 +141,22 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var poNumberAsBuilt = logPoCreated.Event.Po.PoNumber;
 
             // Mark PO item as Accepted
-            var txReceiptAccept = await _contracts.Deployment.SellerAdminService.SetPoItemAcceptedRequestAndWaitForReceiptAsync(
+            var txReceiptAccept = await _contracts.Deployment.Seller.SellerAdminService.SetPoItemAcceptedRequestAndWaitForReceiptAsync(
                 poAsRequested.EShopId, poNumberAsBuilt, PO_ITEM_NUMBER, SALES_ORDER_NUMBER, SALES_ORDER_ITEM);
             txReceiptAccept.Status.Value.Should().Be(1);
 
             // Mark PO item as Ready for Goods Issue            
-            var txReceiptReadyForGI = await _contracts.Deployment.SellerAdminService.SetPoItemReadyForGoodsIssueRequestAndWaitForReceiptAsync(
+            var txReceiptReadyForGI = await _contracts.Deployment.Seller.SellerAdminService.SetPoItemReadyForGoodsIssueRequestAndWaitForReceiptAsync(
                 poAsRequested.EShopId, poNumberAsBuilt, PO_ITEM_NUMBER);
             txReceiptReadyForGI.Status.Value.Should().Be(1);
 
             // Mark PO item as Goods Issued            
-            var txReceiptGI = await _contracts.Deployment.SellerAdminService.SetPoItemGoodsIssuedRequestAndWaitForReceiptAsync(
+            var txReceiptGI = await _contracts.Deployment.Seller.SellerAdminService.SetPoItemGoodsIssuedRequestAndWaitForReceiptAsync(
                 poAsRequested.EShopId, poNumberAsBuilt, PO_ITEM_NUMBER);
             txReceiptGI.Status.Value.Should().Be(1);
 
             // Setting Goods Received by Seller should fail, seller can only set GR after 30 days
-            Func<Task> act = async () => await _contracts.Deployment.SellerAdminService.SetPoItemGoodsReceivedRequestAndWaitForReceiptAsync(
+            Func<Task> act = async () => await _contracts.Deployment.Seller.SellerAdminService.SetPoItemGoodsReceivedRequestAndWaitForReceiptAsync(
                 poAsRequested.EShopId, poNumberAsBuilt, PO_ITEM_NUMBER);
             await act.Should().ThrowAsync<SmartContractRevertException>().WithMessage(GOODS_RECEIPT_EXCEPTION_INSUFFICIENT_DAYS);
         }
@@ -168,7 +168,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId: GetRandomInt());
             var signature = poAsRequested.GetSignatureBytes(_contracts.Web3);
             await PrepSendFundsToBuyerWalletForPo(_contracts.Web3, poAsRequested);
-            var txReceiptCreate = await _contracts.Deployment.BuyerWalletService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
+            var txReceiptCreate = await _contracts.Deployment.Buyer.BuyerWalletService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
             txReceiptCreate.Status.Value.Should().Be(1);
 
             // Get the PO number that was assigned
@@ -197,7 +197,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId);
             var signature = poAsRequested.GetSignatureBytes(_contracts.Web3);
             await PrepSendFundsToBuyerWalletForPo(_contracts.Web3, poAsRequested);
-            var txReceiptCreate = await _contracts.Deployment.BuyerWalletService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
+            var txReceiptCreate = await _contracts.Deployment.Buyer.BuyerWalletService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
             txReceiptCreate.Status.Value.Should().Be(1);
 
             // Get the PO number that was assigned
@@ -206,7 +206,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var poNumberAsBuilt = logPoCreated.Event.Po.PoNumber;
 
             // Retrieve PO as-built using Seller and Quote, and check
-            var poAsBuilt = (await _contracts.Deployment.SellerAdminService.GetPoByEshopIdAndQuoteQueryAsync(poAsRequested.EShopId, quoteId)).Po;
+            var poAsBuilt = (await _contracts.Deployment.Seller.SellerAdminService.GetPoByEshopIdAndQuoteQueryAsync(poAsRequested.EShopId, quoteId)).Po;
             CheckCreatedPoFieldsMatch(poAsRequested.ToStoragePo(), poAsBuilt.ToStoragePo(), poNumberAsBuilt);
         }
 
@@ -217,7 +217,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId: GetRandomInt());
             var signature = poAsRequested.GetSignatureBytes(_contracts.Web3);
             await PrepSendFundsToBuyerWalletForPo(_contracts.Web3, poAsRequested);
-            var txReceiptCreate = await _contracts.Deployment.BuyerWalletService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
+            var txReceiptCreate = await _contracts.Deployment.Buyer.BuyerWalletService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
             txReceiptCreate.Status.Value.Should().Be(1);
 
             // Get the PO number that was assigned
@@ -237,7 +237,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId: GetRandomInt());
             var signature = poAsRequested.GetSignatureBytes(_contracts.Web3);
             await PrepSendFundsToBuyerWalletForPo(_contracts.Web3, poAsRequested);
-            var txReceiptCreate = await _contracts.Deployment.BuyerWalletService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
+            var txReceiptCreate = await _contracts.Deployment.Buyer.BuyerWalletService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
             txReceiptCreate.Status.Value.Should().Be(1);
 
             // Get the PO number that was assigned
@@ -247,7 +247,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             await GetPoFromSellerContractAndDisplayAsync(poAsRequested.EShopId, poNumberAsBuilt);
 
             // Mark PO item as Accepted
-            var txReceiptAccept = await _contracts.Deployment.SellerAdminService.SetPoItemAcceptedRequestAndWaitForReceiptAsync(
+            var txReceiptAccept = await _contracts.Deployment.Seller.SellerAdminService.SetPoItemAcceptedRequestAndWaitForReceiptAsync(
                 poAsRequested.EShopId, poNumberAsBuilt, PO_ITEM_NUMBER, SALES_ORDER_NUMBER, SALES_ORDER_ITEM);
             txReceiptAccept.Status.Value.Should().Be(1);
 
@@ -270,7 +270,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId: GetRandomInt());
             var signature = poAsRequested.GetSignatureBytes(_contracts.Web3);
             await PrepSendFundsToBuyerWalletForPo(_contracts.Web3, poAsRequested);
-            var txReceiptCreate = await _contracts.Deployment.BuyerWalletService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
+            var txReceiptCreate = await _contracts.Deployment.Buyer.BuyerWalletService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
             txReceiptCreate.Status.Value.Should().Be(1);
 
             // Get the PO number that was assigned
@@ -279,7 +279,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var poNumberAsBuilt = logPoCreated.Event.Po.PoNumber;
 
             // Mark PO item as Rejected            
-            var txReceiptAccept = await _contracts.Deployment.SellerAdminService.SetPoItemRejectedRequestAndWaitForReceiptAsync(
+            var txReceiptAccept = await _contracts.Deployment.Seller.SellerAdminService.SetPoItemRejectedRequestAndWaitForReceiptAsync(
                 poAsRequested.EShopId, poNumberAsBuilt, PO_ITEM_NUMBER);
             txReceiptAccept.Status.Value.Should().Be(1);
 
@@ -300,7 +300,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId: GetRandomInt());
             var signature = poAsRequested.GetSignatureBytes(_contracts.Web3);
             await PrepSendFundsToBuyerWalletForPo(_contracts.Web3, poAsRequested);
-            var txReceiptCreate = await _contracts.Deployment.BuyerWalletService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
+            var txReceiptCreate = await _contracts.Deployment.Buyer.BuyerWalletService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
             txReceiptCreate.Status.Value.Should().Be(1);
 
             // Get the PO number that was assigned
@@ -309,12 +309,12 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var poNumberAsBuilt = logPoCreated.Event.Po.PoNumber;
 
             // Mark PO item as Accepted
-            var txReceiptAccept = await _contracts.Deployment.SellerAdminService.SetPoItemAcceptedRequestAndWaitForReceiptAsync(
+            var txReceiptAccept = await _contracts.Deployment.Seller.SellerAdminService.SetPoItemAcceptedRequestAndWaitForReceiptAsync(
                 poAsRequested.EShopId, poNumberAsBuilt, PO_ITEM_NUMBER, SALES_ORDER_NUMBER, SALES_ORDER_ITEM);
             txReceiptAccept.Status.Value.Should().Be(1);
 
             // Mark PO item as Ready for Goods Issue            
-            var txReceiptReadyForGI = await _contracts.Deployment.SellerAdminService.SetPoItemReadyForGoodsIssueRequestAndWaitForReceiptAsync(
+            var txReceiptReadyForGI = await _contracts.Deployment.Seller.SellerAdminService.SetPoItemReadyForGoodsIssueRequestAndWaitForReceiptAsync(
                 poAsRequested.EShopId, poNumberAsBuilt, PO_ITEM_NUMBER);
             txReceiptReadyForGI.Status.Value.Should().Be(1);
 
@@ -335,7 +335,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId: GetRandomInt());
             await PrepSendFundsToBuyerWalletForPo(_contracts.Web3, poAsRequested);
             var signature = poAsRequested.GetSignatureBytes(_contracts.Web3);
-            var txReceiptCreate = await _contracts.Deployment.BuyerWalletService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
+            var txReceiptCreate = await _contracts.Deployment.Buyer.BuyerWalletService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
             txReceiptCreate.Status.Value.Should().Be(1);
 
             // Get the PO number that was assigned
@@ -344,17 +344,17 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var poNumberAsBuilt = logPoCreated.Event.Po.PoNumber;
 
             // Mark PO item as Accepted
-            var txReceiptAccept = await _contracts.Deployment.SellerAdminService.SetPoItemAcceptedRequestAndWaitForReceiptAsync(
+            var txReceiptAccept = await _contracts.Deployment.Seller.SellerAdminService.SetPoItemAcceptedRequestAndWaitForReceiptAsync(
                 poAsRequested.EShopId, poNumberAsBuilt, PO_ITEM_NUMBER, SALES_ORDER_NUMBER, SALES_ORDER_ITEM);
             txReceiptAccept.Status.Value.Should().Be(1);
 
             // Mark PO item as Ready for Goods Issue            
-            var txReceiptReadyForGI = await _contracts.Deployment.SellerAdminService.SetPoItemReadyForGoodsIssueRequestAndWaitForReceiptAsync(
+            var txReceiptReadyForGI = await _contracts.Deployment.Seller.SellerAdminService.SetPoItemReadyForGoodsIssueRequestAndWaitForReceiptAsync(
                 poAsRequested.EShopId, poNumberAsBuilt, PO_ITEM_NUMBER);
             txReceiptReadyForGI.Status.Value.Should().Be(1);
 
             // Mark PO item as Goods Issued            
-            var txReceiptGI = await _contracts.Deployment.SellerAdminService.SetPoItemGoodsIssuedRequestAndWaitForReceiptAsync(
+            var txReceiptGI = await _contracts.Deployment.Seller.SellerAdminService.SetPoItemGoodsIssuedRequestAndWaitForReceiptAsync(
                 poAsRequested.EShopId, poNumberAsBuilt, PO_ITEM_NUMBER);
             txReceiptGI.Status.Value.Should().Be(1);
 
@@ -379,7 +379,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId: GetRandomInt());
             var signature = poAsRequested.GetSignatureBytes(_contracts.Web3);
             await PrepSendFundsToBuyerWalletForPo(_contracts.Web3, poAsRequested);
-            var txReceiptCreate = await _contracts.Deployment.BuyerWalletService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
+            var txReceiptCreate = await _contracts.Deployment.Buyer.BuyerWalletService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
             txReceiptCreate.Status.Value.Should().Be(1);
 
             // Get the PO number that was assigned
@@ -388,22 +388,22 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var poNumberAsBuilt = logPoCreated.Event.Po.PoNumber;
 
             // Mark PO item as Accepted
-            var txReceiptAccept = await _contracts.Deployment.SellerAdminService.SetPoItemAcceptedRequestAndWaitForReceiptAsync(
+            var txReceiptAccept = await _contracts.Deployment.Seller.SellerAdminService.SetPoItemAcceptedRequestAndWaitForReceiptAsync(
                 poAsRequested.EShopId, poNumberAsBuilt, PO_ITEM_NUMBER, SALES_ORDER_NUMBER, SALES_ORDER_ITEM);
             txReceiptAccept.Status.Value.Should().Be(1);
 
             // Mark PO item as Ready for Goods Issue            
-            var txReceiptReadyForGI = await _contracts.Deployment.SellerAdminService.SetPoItemReadyForGoodsIssueRequestAndWaitForReceiptAsync(
+            var txReceiptReadyForGI = await _contracts.Deployment.Seller.SellerAdminService.SetPoItemReadyForGoodsIssueRequestAndWaitForReceiptAsync(
                 poAsRequested.EShopId, poNumberAsBuilt, PO_ITEM_NUMBER);
             txReceiptReadyForGI.Status.Value.Should().Be(1);
 
             // Mark PO item as Goods Issued            
-            var txReceiptGI = await _contracts.Deployment.SellerAdminService.SetPoItemGoodsIssuedRequestAndWaitForReceiptAsync(
+            var txReceiptGI = await _contracts.Deployment.Seller.SellerAdminService.SetPoItemGoodsIssuedRequestAndWaitForReceiptAsync(
                 poAsRequested.EShopId, poNumberAsBuilt, PO_ITEM_NUMBER);
             txReceiptGI.Status.Value.Should().Be(1);
 
             // Mark PO item as Goods Received by the Buyer (so we don't have to wait 30 days)
-            var txReceiptGR = await _contracts.Deployment.BuyerWalletService.SetPoItemGoodsReceivedRequestAndWaitForReceiptAsync(
+            var txReceiptGR = await _contracts.Deployment.Buyer.BuyerWalletService.SetPoItemGoodsReceivedRequestAndWaitForReceiptAsync(
                  poAsRequested.EShopId, poNumberAsBuilt, PO_ITEM_NUMBER);
             txReceiptGR.Status.Value.Should().Be(1);
 
@@ -427,7 +427,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             Buyer.Po poAsRequested = await CreateBuyerPoAsync(quoteId: GetRandomInt());
             var signature = poAsRequested.GetSignatureBytes(_contracts.Web3);
             await PrepSendFundsToBuyerWalletForPo(_contracts.Web3, poAsRequested);
-            var txReceiptCreate = await _contracts.Deployment.BuyerWalletService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
+            var txReceiptCreate = await _contracts.Deployment.Buyer.BuyerWalletService.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
             txReceiptCreate.Status.Value.Should().Be(1);
 
             // Get the PO number that was assigned
@@ -436,27 +436,27 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             var poNumberAsBuilt = logPoCreated.Event.Po.PoNumber;
 
             // Mark PO item as Accepted
-            var txReceiptAccept = await _contracts.Deployment.SellerAdminService.SetPoItemAcceptedRequestAndWaitForReceiptAsync(
+            var txReceiptAccept = await _contracts.Deployment.Seller.SellerAdminService.SetPoItemAcceptedRequestAndWaitForReceiptAsync(
                 poAsRequested.EShopId, poNumberAsBuilt, PO_ITEM_NUMBER, SALES_ORDER_NUMBER, SALES_ORDER_ITEM);
             txReceiptAccept.Status.Value.Should().Be(1);
 
             // Mark PO item as Ready for Goods Issue            
-            var txReceiptReadyForGI = await _contracts.Deployment.SellerAdminService.SetPoItemReadyForGoodsIssueRequestAndWaitForReceiptAsync(
+            var txReceiptReadyForGI = await _contracts.Deployment.Seller.SellerAdminService.SetPoItemReadyForGoodsIssueRequestAndWaitForReceiptAsync(
                 poAsRequested.EShopId, poNumberAsBuilt, PO_ITEM_NUMBER);
             txReceiptReadyForGI.Status.Value.Should().Be(1);
 
             // Mark PO item as Goods Issued            
-            var txReceiptGI = await _contracts.Deployment.SellerAdminService.SetPoItemGoodsIssuedRequestAndWaitForReceiptAsync(
+            var txReceiptGI = await _contracts.Deployment.Seller.SellerAdminService.SetPoItemGoodsIssuedRequestAndWaitForReceiptAsync(
                 poAsRequested.EShopId, poNumberAsBuilt, PO_ITEM_NUMBER);
             txReceiptGI.Status.Value.Should().Be(1);
 
             // Mark PO item as Goods Received by the Buyer (so we don't have to wait 30 days)
-            var txReceiptGR = await _contracts.Deployment.BuyerWalletService.SetPoItemGoodsReceivedRequestAndWaitForReceiptAsync(
+            var txReceiptGR = await _contracts.Deployment.Buyer.BuyerWalletService.SetPoItemGoodsReceivedRequestAndWaitForReceiptAsync(
                 poAsRequested.EShopId, poNumberAsBuilt, PO_ITEM_NUMBER);
             txReceiptGR.Status.Value.Should().Be(1);
 
             // Mark PO item as Complete
-            var txReceiptCompleted = await _contracts.Deployment.SellerAdminService.SetPoItemCompletedRequestAndWaitForReceiptAsync(
+            var txReceiptCompleted = await _contracts.Deployment.Seller.SellerAdminService.SetPoItemCompletedRequestAndWaitForReceiptAsync(
                 poAsRequested.EShopId, poNumberAsBuilt, PO_ITEM_NUMBER);
             txReceiptCompleted.Status.Value.Should().Be(1);
 
@@ -481,9 +481,9 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             return CreatePoForPurchasingContracts(
                 buyerUserAddress: _contracts.Web3.TransactionManager.Account.Address.ToLowerInvariant(),
                 buyerReceiverAddress: _contracts.Web3.TransactionManager.Account.Address.ToLowerInvariant(),
-                buyerWalletAddress: _contracts.Deployment.BuyerWalletService.ContractHandler.ContractAddress.ToLowerInvariant(),
-                eShopId: _contracts.Deployment.ContractNewDeploymentConfig.Eshop.EShopId,
-                sellerId: _contracts.Deployment.ContractNewDeploymentConfig.Seller.SellerId,
+                buyerWalletAddress: _contracts.Deployment.Buyer.BuyerWalletService.ContractHandler.ContractAddress.ToLowerInvariant(),
+                eShopId: _contracts.Deployment.Eshop.EshopId,
+                sellerId: _contracts.Deployment.Seller.SellerId,
                 currencySymbol: await _contracts.Deployment.MockDaiService.SymbolQueryAsync(),
                 currencyAddress: _contracts.Deployment.MockDaiService.ContractHandler.ContractAddress.ToLowerInvariant(),
                 quoteId).ToBuyerPo();
@@ -491,7 +491,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 
         private async Task<Seller.Po> GetPoFromSellerContractAndDisplayAsync(string eShopId, BigInteger poNumber, string title = "PO")
         {
-            var po = (await _contracts.Deployment.SellerAdminService.GetPoQueryAsync(eShopId, poNumber)).Po;
+            var po = (await _contracts.Deployment.Seller.SellerAdminService.GetPoQueryAsync(eShopId, poNumber)).Po;
             DisplaySeparator(_output, title);
             DisplayPoHeader(_output, po.ToStoragePo());
             for (int i = 0; i < po.PoItems.Count; i++)
