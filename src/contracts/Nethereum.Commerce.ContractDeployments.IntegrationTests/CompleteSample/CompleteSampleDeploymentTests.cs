@@ -35,7 +35,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.CompleteSample
             // Perform complete sample deployment: a shop, two buyers, two sellers and some mock dai
             var csdc = new CompleteSampleDeploymentConfig()
             {
-                EshopDeploymentConfig = new EshopDeploymentCompleteSampleConfig()
+                Eshop = new EshopDeploymentCompleteSampleConfig()
                 {
                     EshopId = "Satoshi" + GetRandomString(),
                     EshopDescription = "Description",
@@ -46,13 +46,13 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.CompleteSample
                     }
                 },
 
-                SellerDeploymentConfig = new SellerDeploymentCompleteSampleConfig()
+                Seller = new SellerDeploymentCompleteSampleConfig()
                 {
                     SellerId = "Charlie" + GetRandomString(),
                     SellerDescription = "Description"
                 },
 
-                SellerDeploymentConfig02 = new SellerDeploymentCompleteSampleConfig()
+                Seller02 = new SellerDeploymentCompleteSampleConfig()
                 {
                     SellerId = "David" + GetRandomString(),
                     SellerDescription = "Description"

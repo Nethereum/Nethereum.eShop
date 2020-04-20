@@ -12,12 +12,12 @@ namespace Nethereum.Commerce.Contracts.Deployment.CompleteSample
     /// </summary>
     public class CompleteSampleDeployment : ContractDeploymentBase
     {
-        public IEshopDeployment EshopDeployment { get; internal set; }
-        public IBuyerDeployment BuyerDeployment { get; internal set; }
-        public IBuyerDeployment BuyerDeployment02 { get; internal set; }
-        public ISellerDeployment SellerDeployment { get; internal set; }
-        public ISellerDeployment SellerDeployment02 { get; internal set; }
-        public IBusinessPartnersDeployment BusinessPartnersDeployment { get; internal set; }
+        public IEshopDeployment Eshop { get; internal set; }
+        public IBuyerDeployment Buyer { get; internal set; }
+        public IBuyerDeployment Buyer02 { get; internal set; }
+        public ISellerDeployment Seller { get; internal set; }
+        public ISellerDeployment Seller02 { get; internal set; }
+        public IBusinessPartnersDeployment BusinessPartners { get; internal set; }
         public MockDaiService MockDaiService { get; internal set; }
 
         private CompleteSampleDeploymentConfig _config;
@@ -47,65 +47,80 @@ namespace Nethereum.Commerce.Contracts.Deployment.CompleteSample
         public async Task InitializeAsync()
         {
             // Global business partners storage
-            BusinessPartnersDeployment = Deployment.BusinessPartnersDeployment.CreateFromNewDeployment(_web3, _logger);
-            await BusinessPartnersDeployment.InitializeAsync().ConfigureAwait(false);
+            BusinessPartners = Deployment.BusinessPartnersDeployment.CreateFromNewDeployment(_web3, _logger);
+            await BusinessPartners.InitializeAsync().ConfigureAwait(false);
 
             // The shop
-            EshopDeployment = Deployment.EshopDeployment.CreateFromNewDeployment(
+            Eshop = Deployment.EshopDeployment.CreateFromNewDeployment(
                 _web3,
                 new EshopDeploymentConfig()
                 {
-                    BusinessPartnerStorageGlobalAddress = BusinessPartnersDeployment.BusinessPartnerStorageService.ContractHandler.ContractAddress,
-                    EshopId = _config.EshopDeploymentConfig.EshopId,
-                    EshopDescription = _config.EshopDeploymentConfig.EshopDescription,
-                    QuoteSigners = _config.EshopDeploymentConfig.QuoteSigners
+                    BusinessPartnerStorageGlobalAddress = BusinessPartners.BusinessPartnerStorageService.ContractHandler.ContractAddress,
+                    EshopId = _config.Eshop.EshopId,
+                    EshopDescription = _config.Eshop.EshopDescription,
+                    QuoteSigners = _config.Eshop.QuoteSigners
                 },
                 _logger);
-            await EshopDeployment.InitializeAsync().ConfigureAwait(false);
+            await Eshop.InitializeAsync().ConfigureAwait(false);
 
             // Buyer 1
-            BuyerDeployment = Deployment.BuyerDeployment.CreateFromNewDeployment(
+            Buyer = Deployment.BuyerDeployment.CreateFromNewDeployment(
                 _web3,
                 new BuyerDeploymentConfig()
                 {
-                    BusinessPartnerStorageGlobalAddress = BusinessPartnersDeployment.BusinessPartnerStorageService.ContractHandler.ContractAddress,
+                    BusinessPartnerStorageGlobalAddress = BusinessPartners.BusinessPartnerStorageService.ContractHandler.ContractAddress,
                 },
                 _logger);
-            await BuyerDeployment.InitializeAsync().ConfigureAwait(false);
+            await Buyer.InitializeAsync().ConfigureAwait(false);
 
             // Buyer 2
-            BuyerDeployment02 = Deployment.BuyerDeployment.CreateFromNewDeployment(
+            Buyer02 = Deployment.BuyerDeployment.CreateFromNewDeployment(
                 _web3,
                 new BuyerDeploymentConfig()
                 {
-                    BusinessPartnerStorageGlobalAddress = BusinessPartnersDeployment.BusinessPartnerStorageService.ContractHandler.ContractAddress,
+                    BusinessPartnerStorageGlobalAddress = BusinessPartners.BusinessPartnerStorageService.ContractHandler.ContractAddress,
                 },
                 _logger);
-            await BuyerDeployment02.InitializeAsync().ConfigureAwait(false);
+            await Buyer02.InitializeAsync().ConfigureAwait(false);
 
             // Seller 1
-            SellerDeployment = Deployment.SellerDeployment.CreateFromNewDeployment(
+            Seller = Deployment.SellerDeployment.CreateFromNewDeployment(
                 _web3,
                 new SellerDeploymentConfig()
                 {
-                    BusinessPartnerStorageGlobalAddress = BusinessPartnersDeployment.BusinessPartnerStorageService.ContractHandler.ContractAddress,
-                    SellerId = _config.SellerDeploymentConfig.SellerId,
-                    SellerDescription = _config.SellerDeploymentConfig.SellerDescription,
+                    BusinessPartnerStorageGlobalAddress = BusinessPartners.BusinessPartnerStorageService.ContractHandler.ContractAddress,
+                    SellerId = _config.Seller.SellerId,
+                    SellerDescription = _config.Seller.SellerDescription,
                 },
                 _logger);
-            await SellerDeployment.InitializeAsync().ConfigureAwait(false);
+            await Seller.InitializeAsync().ConfigureAwait(false);
 
             // Seller 2
-            SellerDeployment02 = Deployment.SellerDeployment.CreateFromNewDeployment(
+            Seller02 = Deployment.SellerDeployment.CreateFromNewDeployment(
                 _web3,
                  new SellerDeploymentConfig()
                  {
-                     BusinessPartnerStorageGlobalAddress = BusinessPartnersDeployment.BusinessPartnerStorageService.ContractHandler.ContractAddress,
-                     SellerId = _config.SellerDeploymentConfig02.SellerId,
-                     SellerDescription = _config.SellerDeploymentConfig02.SellerDescription,
+                     BusinessPartnerStorageGlobalAddress = BusinessPartners.BusinessPartnerStorageService.ContractHandler.ContractAddress,
+                     SellerId = _config.Seller02.SellerId,
+                     SellerDescription = _config.Seller02.SellerDescription,
                  },
                 _logger);
-            await SellerDeployment02.InitializeAsync().ConfigureAwait(false);
+            await Seller02.InitializeAsync().ConfigureAwait(false);
+
+            // Configure sellers as sellers for the shop (Sellers must whitelist shop as 
+            // being allowed to send them events)
+
+            // Authorisations - SellerAdmin must register the eShop, adding the eShop purchasing contract to its whitelist
+            Log();
+            Log($"Configuring Seller Admin, binding Purchasing...");
+            var txReceipt = await Seller.SellerAdminService.BindAddressRequestAndWaitForReceiptAsync(
+                Eshop.PurchasingService.ContractHandler.ContractAddress).ConfigureAwait(false);
+            Log($"Tx status: {txReceipt.Status.Value}");
+
+            Log($"Configuring Seller Admin 02, binding Purchasing...");
+            txReceipt = await Seller02.SellerAdminService.BindAddressRequestAndWaitForReceiptAsync(
+                Eshop.PurchasingService.ContractHandler.ContractAddress).ConfigureAwait(false);
+            Log($"Tx status: {txReceipt.Status.Value}");
 
             // Some DAI
             var mockDaiDeployment = new MockDaiDeployment();

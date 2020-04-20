@@ -29,7 +29,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
         /// A new complete sample Eshop deployment along with a new global business partner
         /// storage, two buyers, two sellers and a mock DAI token.
         /// </summary>
-        public CompleteSampleDeployment CompleteDeployment { get; internal set; }
+        public CompleteSampleDeployment Deployment { get; internal set; }
 
         public CompleteSampleDeploymentConfig CompleteSampleDeploymentConfig { get; internal set; }
 
@@ -56,11 +56,11 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
         public async Task InitializeAsync()
         {
             // Deploy complete sample
-            var completeSampleDeployment = CompleteSampleDeployment.CreateFromNewDeployment(
+            Deployment = CompleteSampleDeployment.CreateFromNewDeployment(
                  Web3,
                  CompleteSampleDeploymentConfig,
                  new DiagnosticMessageSinkLogger(_diagnosticMessageSink));
-            await completeSampleDeployment.InitializeAsync();
+            await Deployment.InitializeAsync();
             
             // Transfer Ether from main web3 primary user to secondary users, so secondary users can post tx
             LogSeparator();

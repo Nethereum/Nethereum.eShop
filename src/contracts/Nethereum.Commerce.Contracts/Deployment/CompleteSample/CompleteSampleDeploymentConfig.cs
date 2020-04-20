@@ -5,8 +5,8 @@
     /// </summary>
     public class CompleteSampleDeploymentConfig
     {
-        public EshopDeploymentCompleteSampleConfig EshopDeploymentConfig { get; set; }
-        public SellerDeploymentCompleteSampleConfig SellerDeploymentConfig { get; set; }
-        public SellerDeploymentCompleteSampleConfig SellerDeploymentConfig02 { get; set; }
+        public EshopDeploymentCompleteSampleConfig Eshop { get; set; }
+        public SellerDeploymentCompleteSampleConfig Seller { get; set; }
+        public SellerDeploymentCompleteSampleConfig Seller02 { get; set; }
     }
 }
