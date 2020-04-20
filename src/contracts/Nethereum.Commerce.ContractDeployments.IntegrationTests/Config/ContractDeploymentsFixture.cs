@@ -48,7 +48,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
             Deployment = new ContractDeployment(Web3, contractDeploymentConfig, new DiagnosticMessageSinkLogger(_diagnosticMessageSink));
 
             // Secondary users
-            var secondaryUserConfig = appConfig.GetSection("SecondaryUsers").Get<SecondaryUserConfig>();
+            var secondaryUserConfig = appConfig.GetSection("Web3SecondaryConfig").Get<Web3SecondaryConfig>();
             Web3SecondaryUser = new Web3.Web3(new Account(secondaryUserConfig.UserPrivateKey), web3Config.BlockchainUrl);
         }
 

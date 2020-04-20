@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Nethereum.Commerce.Contracts.Deployment;
+using Nethereum.Commerce.Contracts.Deployment.CompleteSample;
 using Nethereum.Web3.Accounts;
 using System;
 using System.Threading.Tasks;
@@ -9,7 +10,7 @@ using Xunit.Sdk;
 
 namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
 {
-    public class GlobalBusinessPartnersFixture : IAsyncLifetime
+    public class CompleteSampleDeploymentFixture : IAsyncLifetime
     {
         /// <summary>
         /// Web3 representing the "primary user", that is the user with ether
@@ -25,18 +26,16 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
         public Web3.Web3 Web3SecondaryUser { get; internal set; }
 
         /// <summary>
-        /// Global Business Partner Storage containing eShops and Sellers
+        /// A new complete sample Eshop deployment along with a new global business partner
+        /// storage, two buyers, two sellers and a mock DAI token.
         /// </summary>
-        public IBusinessPartnersDeployment BusinessPartnersDeployment { get; internal set; }
+        public CompleteSampleDeployment CompleteDeployment { get; internal set; }
 
-        /// <summary>
-        /// Global Business Partner Storage contract address
-        /// </summary>
-        public string BusinessPartnersContractAddress { get; internal set;}
+        public CompleteSampleDeploymentConfig CompleteSampleDeploymentConfig { get; internal set; }
 
         private readonly IMessageSink _diagnosticMessageSink;
 
-        public GlobalBusinessPartnersFixture(IMessageSink diagnosticMessageSink)
+        public CompleteSampleDeploymentFixture(IMessageSink diagnosticMessageSink)
         {
             _diagnosticMessageSink = diagnosticMessageSink;
             var appConfig = ConfigurationUtils.Build(Array.Empty<string>(), "UserSecret");
@@ -49,16 +48,20 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
             // Secondary users
             var secondaryUserConfig = appConfig.GetSection("Web3SecondaryConfig").Get<Web3SecondaryConfig>();
             Web3SecondaryUser = new Web3.Web3(new Account(secondaryUserConfig.UserPrivateKey), web3Config.BlockchainUrl);
+
+            // Complete deploment
+            CompleteSampleDeploymentConfig = appConfig.GetSection("CompleteSampleDeploymentConfig").Get<CompleteSampleDeploymentConfig>();
         }
 
         public async Task InitializeAsync()
         {
-            // Deploy global business partner storage and give it some master data to
-            // be shared across all tests
-            BusinessPartnersDeployment = Contracts.Deployment.BusinessPartnersDeployment.CreateFromNewDeployment(Web3, new DiagnosticMessageSinkLogger(_diagnosticMessageSink));
-            await BusinessPartnersDeployment.InitializeAsync().ConfigureAwait(false);
-            BusinessPartnersContractAddress = BusinessPartnersDeployment.BusinessPartnerStorageService.ContractHandler.ContractAddress;
-
+            // Deploy complete sample
+            var completeSampleDeployment = CompleteSampleDeployment.CreateFromNewDeployment(
+                 Web3,
+                 CompleteSampleDeploymentConfig,
+                 new DiagnosticMessageSinkLogger(_diagnosticMessageSink));
+            await completeSampleDeployment.InitializeAsync();
+            
             // Transfer Ether from main web3 primary user to secondary users, so secondary users can post tx
             LogSeparator();
             Log("Transferring Ether to secondary users...");
