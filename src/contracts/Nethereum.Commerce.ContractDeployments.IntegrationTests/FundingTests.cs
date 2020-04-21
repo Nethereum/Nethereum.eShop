@@ -20,6 +20,7 @@ using Nethereum.Commerce.Contracts.BuyerWallet;
 
 namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 {
+    [Trait("Shop", "")]
     [Collection("Contract Deployment Collection")]
     public class FundingTests
     {
@@ -69,7 +70,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             _output.WriteLine($"Wallet Buyer balance after receiving funding from Web3 account: {await buyerWalletBalance.PrettifyAsync(sts)}");
 
             // Balance of Funding, before PO raised   
-            var fundingBalanceBefore = await sts.BalanceOfQueryAsync(_contracts.Deployment.FundingService.ContractHandler.ContractAddress);
+            var fundingBalanceBefore = await sts.BalanceOfQueryAsync(_contracts.Deployment.FundingServiceLocal.ContractHandler.ContractAddress);
             _output.WriteLine($"Funding balance before PO: {await fundingBalanceBefore.PrettifyAsync(sts)}");
 
             //----------------------------------------------------------
@@ -89,7 +90,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             _output.WriteLine($"Wallet Buyer balance after PO: {await buyerWalletBalance.PrettifyAsync(sts)}");
 
             // Balance of Funding, after PO raised   
-            var fundingBalanceAfter = await sts.BalanceOfQueryAsync(_contracts.Deployment.FundingService.ContractHandler.ContractAddress);
+            var fundingBalanceAfter = await sts.BalanceOfQueryAsync(_contracts.Deployment.FundingServiceLocal.ContractHandler.ContractAddress);
             _output.WriteLine($"Funding balance after PO: {await fundingBalanceAfter.PrettifyAsync(sts)}");
 
             // Check
@@ -213,7 +214,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             _output.WriteLine($"SellerAdmin balance after completion: {await sellerAdminBalanceAfter.PrettifyAsync(sts)}");
 
             // Checks must include fees
-            var feeBasisPoints = await _contracts.Deployment.PurchasingService.GetFeeBasisPointsQueryAsync();
+            var feeBasisPoints = await _contracts.Deployment.PurchasingServiceLocal.GetFeeBasisPointsQueryAsync();
             var fee = poItemValue * feeBasisPoints / 10000;
             var diff = sellerAdminBalanceAfter - sellerAdminBalanceBefore;
             diff.Should().Be(poItemValue - fee, "SellerAdmin contract address should increase by PO item value minus fee");

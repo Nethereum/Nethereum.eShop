@@ -13,35 +13,51 @@ import "./StringConvertible.sol";
 /// @title SellerAdmin
 contract SellerAdmin is ISellerAdmin, Ownable, Bindable, StringConvertible
 {
-    IAddressRegistry public addressRegistry;
-    IBusinessPartnerStorage public bpStorage;
+    // Global data (shared by all eShops)
+    IBusinessPartnerStorage public businessPartnerStorageGlobal;
+    
+    // Local data (for this Seller)
     bytes32 public sellerId;
-
-    constructor (address contractAddressOfRegistry, string memory sellerIdString) public
+    bool public isConfigured;
+    
+    constructor (string memory sellerIdString) public
     {
-        addressRegistry = IAddressRegistry(contractAddressOfRegistry);
+        isConfigured = false;
         sellerId = stringToBytes32(sellerIdString);
     }
     
-    // Contract setup
-    function configure(string calldata nameOfBusinessPartnerStorage) onlyOwner() override external
+    modifier onlyConfigured
     {
-        // Lookup address registry to find the global repo for business partners
-        bpStorage = IBusinessPartnerStorage(addressRegistry.getAddressString(nameOfBusinessPartnerStorage));
-        require(address(bpStorage) != address(0), "Could not find Business Partner Storage contract address in registry");
+        require(isConfigured == true, "Contract needs configured first");
+        _;
+    }
+    
+    function configure(address businessPartnerStorageAddressGlobal) override external onlyOwner
+    {
+        businessPartnerStorageGlobal = IBusinessPartnerStorage(businessPartnerStorageAddressGlobal);
+        
+        // Check master data is correct
+        IPoTypes.Seller memory seller = businessPartnerStorageGlobal.getSeller(sellerId);
+        require(seller.sellerId.length > 0, "Seller has no master data");
+        require(seller.adminContractAddress != address(0), "Seller has no admin contract address");
+        require(seller.isActive == true, "Seller is inactive");
+        
+        isConfigured = true;
     }
     
     // Purchasing
-    /// @notice This function can only be called by the eShop (Purchasing.sol) for the given PO 
-    function emitEventForNewPo(IPoTypes.Po calldata po) override external
+    /// @notice This function can only be called by the eShop (Purchasing.sol) for the given PO, which means:
+    ///   1) SellerAdmin owner must have bound (whitelisted) the Purchasing.sol contract when they registered with the eShop
+    ///   2) msg.sender must match the PO's eShop's purchasing contract address retrieved from global storage
+    function emitEventForNewPo(IPoTypes.Po calldata po) override external onlyConfigured onlyRegisteredCaller
     {
-        // Don't trust the PO being passed, use the eShopId to lookup the Purchasing.sol address
         IPoTypes.Eshop memory eShop = getAndValidateEshop(po.eShopId);
         require(eShop.purchasingContractAddress == msg.sender, "Function can only be called by eShop");
         emit QuoteConvertedToPoLog(po.eShopId, po.quoteId, po.buyerWalletAddress);
     }
     
-    function getPo(string calldata eShopIdString, uint poNumber) override external view returns (IPoTypes.Po memory po)
+    function getPo(string calldata eShopIdString, uint poNumber)
+        override external view onlyConfigured returns (IPoTypes.Po memory po)
     {
         // Get and validate eShop
         bytes32 eShopId = stringToBytes32(eShopIdString);
@@ -50,7 +66,8 @@ contract SellerAdmin is ISellerAdmin, Ownable, Bindable, StringConvertible
         return purchasing.getPo(poNumber);
     }
     
-    function getPoByEshopIdAndQuote(string calldata eShopIdString, uint quoteId) override external view returns (IPoTypes.Po memory po)
+    function getPoByEshopIdAndQuote(string calldata eShopIdString, uint quoteId) 
+        override external view onlyConfigured returns (IPoTypes.Po memory po)
     {
         // Get and validate eShop
         bytes32 eShopId = stringToBytes32(eShopIdString);
@@ -60,7 +77,8 @@ contract SellerAdmin is ISellerAdmin, Ownable, Bindable, StringConvertible
         return purchasing.getPoByQuote(quoteId);
     }
     
-    function setPoItemAccepted(string calldata eShopIdString, uint poNumber, uint8 poItemNumber, bytes32 soNumber, bytes32 soItemNumber) onlyOwner() override external
+    function setPoItemAccepted(string calldata eShopIdString, uint poNumber, uint8 poItemNumber, bytes32 soNumber, bytes32 soItemNumber)
+        override external onlyConfigured onlyRegisteredCaller
     {   
         // Get and validate eShop
         bytes32 eShopId = stringToBytes32(eShopIdString);
@@ -70,7 +88,8 @@ contract SellerAdmin is ISellerAdmin, Ownable, Bindable, StringConvertible
         purchasing.setPoItemAccepted(poNumber, poItemNumber, soNumber, soItemNumber);
     }
     
-    function setPoItemRejected(string calldata eShopIdString, uint poNumber, uint8 poItemNumber) onlyOwner() override external
+    function setPoItemRejected(string calldata eShopIdString, uint poNumber, uint8 poItemNumber) 
+        override external onlyConfigured onlyRegisteredCaller
     {
         // Get and validate eShop
         bytes32 eShopId = stringToBytes32(eShopIdString);
@@ -80,7 +99,8 @@ contract SellerAdmin is ISellerAdmin, Ownable, Bindable, StringConvertible
         purchasing.setPoItemRejected(poNumber, poItemNumber);
     }
     
-    function setPoItemReadyForGoodsIssue(string calldata eShopIdString, uint poNumber, uint8 poItemNumber) onlyOwner() override external
+    function setPoItemReadyForGoodsIssue(string calldata eShopIdString, uint poNumber, uint8 poItemNumber)
+        override external onlyConfigured onlyRegisteredCaller
     {
         // Get and validate eShop
         bytes32 eShopId = stringToBytes32(eShopIdString);
@@ -90,7 +110,8 @@ contract SellerAdmin is ISellerAdmin, Ownable, Bindable, StringConvertible
         purchasing.setPoItemReadyForGoodsIssue(poNumber, poItemNumber);
     }
     
-    function setPoItemGoodsIssued(string calldata eShopIdString, uint poNumber, uint8 poItemNumber) onlyOwner() override external
+    function setPoItemGoodsIssued(string calldata eShopIdString, uint poNumber, uint8 poItemNumber)
+        override external onlyConfigured onlyRegisteredCaller
     {
         // Get and validate eShop
         bytes32 eShopId = stringToBytes32(eShopIdString);
@@ -100,7 +121,8 @@ contract SellerAdmin is ISellerAdmin, Ownable, Bindable, StringConvertible
         purchasing.setPoItemGoodsIssued(poNumber, poItemNumber);
     }
     
-    function setPoItemGoodsReceived(string calldata eShopIdString, uint poNumber, uint8 poItemNumber) onlyOwner() override external
+    function setPoItemGoodsReceived(string calldata eShopIdString, uint poNumber, uint8 poItemNumber)
+        override external onlyConfigured onlyRegisteredCaller
     {
         // Get and validate eShop
         bytes32 eShopId = stringToBytes32(eShopIdString);
@@ -110,7 +132,8 @@ contract SellerAdmin is ISellerAdmin, Ownable, Bindable, StringConvertible
         purchasing.setPoItemGoodsReceivedSeller(poNumber, poItemNumber);
     }
     
-    function setPoItemCompleted(string calldata eShopIdString, uint poNumber, uint8 poItemNumber) onlyOwner() override external
+    function setPoItemCompleted(string calldata eShopIdString, uint poNumber, uint8 poItemNumber)
+        override external onlyConfigured onlyRegisteredCaller
     {
         // Get and validate eShop
         bytes32 eShopId = stringToBytes32(eShopIdString);
@@ -122,7 +145,7 @@ contract SellerAdmin is ISellerAdmin, Ownable, Bindable, StringConvertible
     
     function getAndValidateEshop(bytes32 eShopId) private view returns (IPoTypes.Eshop memory validShop)
     {
-        IPoTypes.Eshop memory eShop = bpStorage.getEshop(eShopId);
+        IPoTypes.Eshop memory eShop = businessPartnerStorageGlobal.getEshop(eShopId);
         require(eShop.purchasingContractAddress != address(0), "eShop has no purchasing address");
         require(eShop.quoteSignerCount > 0, "No quote signers found for eShop");
         return eShop;

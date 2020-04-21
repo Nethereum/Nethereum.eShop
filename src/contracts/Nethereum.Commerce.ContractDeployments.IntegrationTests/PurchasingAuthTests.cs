@@ -13,6 +13,7 @@ using Storage = Nethereum.Commerce.Contracts.PoStorage.ContractDefinition;
 
 namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 {
+    [Trait("Shop", "")]
     [Collection("Contract Deployment Collection")]
     public class PurchasingAuthTests
     {
@@ -28,18 +29,17 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         }
 
         [Fact]
-        public async void ShouldNotBeAbleToCreatePoWhenNotRegisteredCaller()
+        public async void ShouldNotBeAbleToCreatePoDirectlyUsingNonWalletBuyerAddress()
         {
-            // Try to create a PO sent by a non-authorised user, it should fail            
+            // Try to create a PO directly against the Purchasing contract, it should fail if the POs buyerWalletAddress does not match msg.sender           
             // Prepare a new PO            
             Purchasing.Po poAsRequested = await CreatePurchasingPoAsync(quoteId: GetRandomInt(), eShopId: GetRandomString());
             var signature = poAsRequested.ToBuyerPo().GetSignatureBytes(_contracts.Web3);
 
-            // Request creation of new PO using preexisting Purchasing contract, but with tx executed by the non-authorised ("secondary") user
-            await Task.Delay(1);
-            var ps = new PurchasingService(_contracts.Web3SecondaryUser, _contracts.Deployment.PurchasingService.ContractHandler.ContractAddress);
+            //  Tx executed by the secondary user who 1) isn't the POs buyerWalletAddress and 2) doesn't own the Purchasing contract 
+            var ps = new PurchasingService(_contracts.Web3SecondaryUser, _contracts.Deployment.PurchasingServiceLocal.ContractHandler.ContractAddress);
             Func<Task> act = async () => await ps.CreatePurchaseOrderRequestAndWaitForReceiptAsync(poAsRequested, signature);
-            act.Should().Throw<SmartContractRevertException>().WithMessage(AUTH_EXCEPTION_ONLY_REGISTERED);
+            await act.Should().ThrowAsync<SmartContractRevertException>().WithMessage(AUTH_EXCEPTION_ONLY_BUYER_OR_PURCH_OWNER);
         }
 
         private async Task<Purchasing.Po> CreatePurchasingPoAsync(uint quoteId, string eShopId)

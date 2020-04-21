@@ -14,20 +14,17 @@ import "./StringConvertible.sol";
 /// @title BuyerWallet
 contract BuyerWallet is IBuyerWallet, Ownable, Bindable, StringConvertible
 {
-    IAddressRegistry public addressRegistry;
-    IBusinessPartnerStorage public bpStorage;
+    // Global data
+    IBusinessPartnerStorage public businessPartnerStorageGlobal;
     
-    constructor (address contractAddressOfRegistry) public
+    constructor (address businessPartnerStorageAddressGlobal) public
     {
-        addressRegistry = IAddressRegistry(contractAddressOfRegistry);
+        businessPartnerStorageGlobal = IBusinessPartnerStorage(businessPartnerStorageAddressGlobal);
     } 
     
-    // Contract setup
-    function configure(string calldata nameOfBusinessPartnerStorage) onlyOwner() override external
+    function reconfigure(address businessPartnerStorageAddressGlobal) override external onlyOwner
     {
-        // Lookup address registry to find the global repo for business partners
-        bpStorage = IBusinessPartnerStorage(addressRegistry.getAddressString(nameOfBusinessPartnerStorage));
-        require(address(bpStorage) != address(0), "Could not find Business Partner Storage contract address in registry");
+         businessPartnerStorageGlobal = IBusinessPartnerStorage(businessPartnerStorageAddressGlobal);
     }
     
     // Purchasing
@@ -49,7 +46,8 @@ contract BuyerWallet is IBuyerWallet, Ownable, Bindable, StringConvertible
         return purchasing.getPoByQuote(quoteId);
     }
     
-    function createPurchaseOrder(IPoTypes.Po calldata po, bytes calldata signature) override external
+    function createPurchaseOrder(IPoTypes.Po calldata po, bytes calldata signature)
+        override external onlyRegisteredCaller
     {
         // Get correct contracts for Purchasing and Funding
         IPoTypes.Eshop memory eShop = getAndValidateEshop(po.eShopId);
@@ -70,7 +68,7 @@ contract BuyerWallet is IBuyerWallet, Ownable, Bindable, StringConvertible
         // Depending on token implementation, this might return false if approval failed
         bool result = tokenContract.approve(address(funding), totalValue);
         require(result == true, "Token value could not be approved for spend.");
-
+        
         // Purchasing contract does the creation
         purchasing.createPurchaseOrder(po, signature);
         
@@ -78,7 +76,8 @@ contract BuyerWallet is IBuyerWallet, Ownable, Bindable, StringConvertible
         emit QuoteConvertedToPoLog(po.eShopId, po.quoteId, po.sellerId);
     }
     
-    function cancelPurchaseOrderItem(string calldata eShopIdString, uint poNumber, uint8 poItemNumber) override external
+    function cancelPurchaseOrderItem(string calldata eShopIdString, uint poNumber, uint8 poItemNumber)
+        override external onlyRegisteredCaller
     {
         // Get correct contract for Purchasing
         bytes32 eShopId = stringToBytes32(eShopIdString);
@@ -92,7 +91,8 @@ contract BuyerWallet is IBuyerWallet, Ownable, Bindable, StringConvertible
         revert("Not implemented yet");
     }
     
-    function setPoItemGoodsReceived(string calldata eShopIdString, uint poNumber, uint8 poItemNumber) override external
+    function setPoItemGoodsReceived(string calldata eShopIdString, uint poNumber, uint8 poItemNumber)
+        override external onlyRegisteredCaller
     {
         // Get correct contract for Purchasing
         bytes32 eShopId = stringToBytes32(eShopIdString);
@@ -100,7 +100,7 @@ contract BuyerWallet is IBuyerWallet, Ownable, Bindable, StringConvertible
         IPurchasing purchasing = IPurchasing(eShop.purchasingContractAddress);
         
         // Only the PO owner (BuyerUserAddress) can mark a PO as goods received. If they don't, eventually PO will time out 
-        // and the eShop admin will be able to mark PO as goods received instead.
+        // and the Seller Admin will be able to mark PO as goods received instead.
         IPoTypes.Po memory po = purchasing.getPo(poNumber);
         require(msg.sender == po.buyerUserAddress, "Only PO owner (BuyerUserAddress) can say Goods Received");
         purchasing.setPoItemGoodsReceivedBuyer(poNumber, poItemNumber);
@@ -108,7 +108,7 @@ contract BuyerWallet is IBuyerWallet, Ownable, Bindable, StringConvertible
     
     function getAndValidateEshop(bytes32 eShopId) private view returns (IPoTypes.Eshop memory validShop)
     {
-        IPoTypes.Eshop memory eShop = bpStorage.getEshop(eShopId);
+        IPoTypes.Eshop memory eShop = businessPartnerStorageGlobal.getEshop(eShopId);
         require(eShop.purchasingContractAddress != address(0), "eShop has no purchasing address");
         require(eShop.quoteSignerCount > 0, "No quote signers found for eShop");
         return eShop;

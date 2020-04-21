@@ -14,6 +14,7 @@ using static Nethereum.Commerce.Contracts.PurchasingExtensions;
 
 namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 {
+    [Trait("Global", "")]
     [Collection("Contract Deployment Collection")]
     public class BusinessPartnerStorageTests
     {
@@ -44,7 +45,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             };
 
             // Store Seller
-            var txReceiptCreate = await _contracts.Deployment.BusinessPartnerStorageService.SetSellerRequestAndWaitForReceiptAsync(sellerExpected);
+            var txReceiptCreate = await _contracts.Deployment.BusinessPartnerStorageServiceGlobal.SetSellerRequestAndWaitForReceiptAsync(sellerExpected);
             txReceiptCreate.Status.Value.Should().Be(1);
 
             // Check Seller create events
@@ -53,14 +54,14 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             logSellerCreateEvent.Event.SellerId.ConvertToString().Should().Be(sellerExpected.SellerId);
 
             // Retrieve Seller
-            var sellerActual = (await _contracts.Deployment.BusinessPartnerStorageService.GetSellerQueryAsync(sellerExpected.SellerId)).Seller;
+            var sellerActual = (await _contracts.Deployment.BusinessPartnerStorageServiceGlobal.GetSellerQueryAsync(sellerExpected.SellerId)).Seller;
 
             // They should be the same
             CheckEverySellerFieldMatches(sellerExpected, sellerActual, createdByAddress: _contracts.Web3.TransactionManager.Account.Address);
 
             // Change Seller
             sellerExpected.SellerDescription = "New description";
-            var txReceiptChange = await _contracts.Deployment.BusinessPartnerStorageService.SetSellerRequestAndWaitForReceiptAsync(sellerExpected);
+            var txReceiptChange = await _contracts.Deployment.BusinessPartnerStorageServiceGlobal.SetSellerRequestAndWaitForReceiptAsync(sellerExpected);
             txReceiptChange.Status.Value.Should().Be(1);
 
             // Check Seller change events
@@ -69,7 +70,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             logSellerChangeEvent.Event.SellerId.ConvertToString().Should().BeEquivalentTo(sellerExpected.SellerId);
 
             // Retrieve the updated Seller
-            var sellerActualPostChange = (await _contracts.Deployment.BusinessPartnerStorageService.GetSellerQueryAsync(sellerExpected.SellerId)).Seller;
+            var sellerActualPostChange = (await _contracts.Deployment.BusinessPartnerStorageServiceGlobal.GetSellerQueryAsync(sellerExpected.SellerId)).Seller;
 
             // Check seller values match
             CheckEverySellerFieldMatches(sellerExpected, sellerActualPostChange, createdByAddress: _contracts.Web3.TransactionManager.Account.Address);
@@ -78,7 +79,6 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         [Fact]
         public async void ShouldStoreRetrieveAndChangeEshop()
         {
-            await Task.Delay(1);
             // Create an eShop to store
             var eShopExpected = new Eshop()
             {
@@ -96,7 +96,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             };
 
             // Store eShop
-            var txReceiptCreate = await _contracts.Deployment.BusinessPartnerStorageService.SetEshopRequestAndWaitForReceiptAsync(eShopExpected);
+            var txReceiptCreate = await _contracts.Deployment.BusinessPartnerStorageServiceGlobal.SetEshopRequestAndWaitForReceiptAsync(eShopExpected);
             txReceiptCreate.Status.Value.Should().Be(1);
 
             // Check eShop create events
@@ -105,14 +105,14 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             logEshopCreateEvent.Event.EShopId.ConvertToString().Should().Be(eShopExpected.EShopId);
 
             // Retrieve eShop
-            var eShopActual = (await _contracts.Deployment.BusinessPartnerStorageService.GetEshopQueryAsync(eShopExpected.EShopId)).EShop;
+            var eShopActual = (await _contracts.Deployment.BusinessPartnerStorageServiceGlobal.GetEshopQueryAsync(eShopExpected.EShopId)).EShop;
 
             // They should be the same
             CheckEveryEshopFieldMatches(eShopExpected, eShopActual, createdByAddress: _contracts.Web3.TransactionManager.Account.Address);
 
             // Change eShop
             eShopExpected.EShopDescription = "New description";
-            var txReceiptChange = await _contracts.Deployment.BusinessPartnerStorageService.SetEshopRequestAndWaitForReceiptAsync(eShopExpected);
+            var txReceiptChange = await _contracts.Deployment.BusinessPartnerStorageServiceGlobal.SetEshopRequestAndWaitForReceiptAsync(eShopExpected);
             txReceiptChange.Status.Value.Should().Be(1);
 
             // Check eShop change events
@@ -121,7 +121,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             logEshopChangeEvent.Event.EShopId.ConvertToString().Should().BeEquivalentTo(eShopExpected.EShopId);
 
             // Retrieve the updated eShop
-            var eShopActualPostChange = (await _contracts.Deployment.BusinessPartnerStorageService.GetEshopQueryAsync(eShopExpected.EShopId)).EShop;
+            var eShopActualPostChange = (await _contracts.Deployment.BusinessPartnerStorageServiceGlobal.GetEshopQueryAsync(eShopExpected.EShopId)).EShop;
 
             // Check eshop values match
             CheckEveryEshopFieldMatches(eShopExpected, eShopActualPostChange, createdByAddress: _contracts.Web3.TransactionManager.Account.Address);
@@ -130,7 +130,6 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         [Fact]
         public async void ShouldFailToCreateEshopWhenMissingPurchasingAddress()
         {
-            await Task.Delay(1);
             // Create an eShop to store, but miss out required field PurchasingContractAddress            
             var eShopExpected = new Eshop()
             {
@@ -148,14 +147,13 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             };
 
             // Try to store eShop, it should fail
-            Func<Task> act = async () => await _contracts.Deployment.BusinessPartnerStorageService.SetEshopRequestAndWaitForReceiptAsync(eShopExpected);
-            act.Should().Throw<SmartContractRevertException>().WithMessage(BP_EXCEPTION_ESHOP_MISSING_PURCH_CONTRACT);
+            Func<Task> act = async () => await _contracts.Deployment.BusinessPartnerStorageServiceGlobal.SetEshopRequestAndWaitForReceiptAsync(eShopExpected);
+            await act.Should().ThrowAsync<SmartContractRevertException>().WithMessage(BP_EXCEPTION_ESHOP_MISSING_PURCH_CONTRACT);
         }
 
         [Fact]
         public async void ShouldFailToCreateEshopWhenMissingSigners()
         {
-            await Task.Delay(1);
             // Create an eShop to store, but miss out all quote signers            
             var eShopExpected = new Eshop()
             {
@@ -169,14 +167,13 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             };
 
             // Try to store eShop, it should fail
-            Func<Task> act = async () => await _contracts.Deployment.BusinessPartnerStorageService.SetEshopRequestAndWaitForReceiptAsync(eShopExpected);
-            act.Should().Throw<SmartContractRevertException>().WithMessage(BP_EXCEPTION_ESHOP_MISSING_SIGNERS);
+            Func<Task> act = async () => await _contracts.Deployment.BusinessPartnerStorageServiceGlobal.SetEshopRequestAndWaitForReceiptAsync(eShopExpected);
+            await act.Should().ThrowAsync<SmartContractRevertException>().WithMessage(BP_EXCEPTION_ESHOP_MISSING_SIGNERS);
         }
 
         [Fact]
         public async void ShouldFailToCreateSellerWhenMissingAdminAddress()
         {
-            await Task.Delay(1);
             // Create a Seller to store, but miss out required field adminContractAddress            
             var sellerExpected = new Seller()
             {
@@ -188,8 +185,8 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             };
 
             // Try to store Seller, it should fail
-            Func<Task> act = async () => await _contracts.Deployment.BusinessPartnerStorageService.SetSellerRequestAndWaitForReceiptAsync(sellerExpected);
-            act.Should().Throw<SmartContractRevertException>().WithMessage(BP_EXCEPTION_SELLER_MISSING_CONTRACT);
+            Func<Task> act = async () => await _contracts.Deployment.BusinessPartnerStorageServiceGlobal.SetSellerRequestAndWaitForReceiptAsync(sellerExpected);
+            await act.Should().ThrowAsync<SmartContractRevertException>().WithMessage(BP_EXCEPTION_SELLER_MISSING_CONTRACT);
         }
     }
 }

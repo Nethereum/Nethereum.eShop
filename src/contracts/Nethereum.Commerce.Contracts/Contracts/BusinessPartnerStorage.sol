@@ -10,7 +10,7 @@ import "./StringConvertible.sol";
 contract BusinessPartnerStorage is IBusinessPartnerStorage, Ownable, StringConvertible
 {
     // Client is hashed into every key to avoid collisions with other contracts using the same eternal storage
-    string constant private CLIENT = "GlobalBpStorage"; 
+    string constant private CLIENT = "BpStorage"; 
     
     // eShop
     string constant private DATA_ESHOP = "eShop";
@@ -31,20 +31,15 @@ contract BusinessPartnerStorage is IBusinessPartnerStorage, Ownable, StringConve
     string constant private ADMIN_CONTRACT_ADDRESS = "adminContractAddress";
     
     IEternalStorage public eternalStorage;
-    IAddressRegistry public addressRegistry;
 
-    constructor (address contractAddressOfRegistry) public
+    constructor (address eternalStorageAddress) public
     {
-        addressRegistry = IAddressRegistry(contractAddressOfRegistry);
+        eternalStorage = IEternalStorage(eternalStorageAddress);
     }
 
-    /// Configure contract
-    /// @param nameOfEternalStorage key of the entry in the address registry that holds the eternal storage contract address
-    function configure(string memory nameOfEternalStorage) onlyOwner() override public
+    function reconfigure(address eternalStorageAddress) onlyOwner() override public
     {
-        // Eternal storage
-        eternalStorage = IEternalStorage(addressRegistry.getAddressString(nameOfEternalStorage));
-        require(address(eternalStorage) != address(0), "Could not find EternalStorage address in registry");
+        eternalStorage = IEternalStorage(eternalStorageAddress);
     }
     
     function getEshop(bytes32 eShopId) override public view returns (IPoTypes.Eshop memory eShop)

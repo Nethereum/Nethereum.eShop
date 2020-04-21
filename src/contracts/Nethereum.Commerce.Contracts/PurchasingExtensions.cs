@@ -4,6 +4,7 @@ using Nethereum.ABI.Decoders;
 using Nethereum.ABI.Encoders;
 using Nethereum.Hex.HexConvertors.Extensions;
 using Nethereum.Signer;
+using Nethereum.Util;
 using Nethereum.Web3;
 using Nethereum.Web3.Accounts;
 using System;
@@ -37,6 +38,16 @@ namespace Nethereum.Commerce.Contracts
                 cfg.AddProfile<PurchasingProfile>();
             });
             _mapper = new Mapper(config);
+        }
+
+        public static bool IsZeroAddress(this string address)
+        {
+            return address == "0x0000000000000000000000000000000000000000";
+        }
+
+        public static bool IsValidNonZeroAddress(this string address)
+        {
+            return AddressUtil.Current.IsValidEthereumAddressHexFormat(address) && !address.IsZeroAddress();
         }
 
         public static byte[] ConvertToBytes32(this string s)
@@ -84,7 +95,7 @@ namespace Nethereum.Commerce.Contracts
             var hashEncoded = new ABIEncode().GetSha3ABIEncoded(new ABIValue(new TupleType(), po));
             var signature = new EthereumMessageSigner().Sign(hashEncoded, privateKeyHex);
             return signature;
-        }        
+        }
 
         // PoStorage <=> Buyer        
         public static Storage.Po ToStoragePo(this Buyer.Po po) { return _mapper.Map<Storage.Po>(po); }

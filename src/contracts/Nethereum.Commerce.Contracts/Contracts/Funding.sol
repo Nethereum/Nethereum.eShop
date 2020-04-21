@@ -14,33 +14,35 @@ import "./StringConvertible.sol";
 /// @title Funding main contract
 contract Funding is IFunding, Ownable, Bindable, StringConvertible
 {
-    IAddressRegistry public addressRegistry;
-    IBusinessPartnerStorage public businessPartnerStorage;
-    IPurchasing public purchasing;
-    address public purchasingContractAddress;
+    // Global data (shared with all eShops)
+    IBusinessPartnerStorage public businessPartnerStorageGlobal;
+    
+    // Local data (for this eShop)
+    IAddressRegistry public addressRegistryLocal;
+    IPurchasing public purchasingLocal;
+    address public purchasingContractAddressLocal;
 
-    constructor (address contractAddressOfRegistry) public 
+    constructor (address addressRegistryLocalAddress) public 
     {
-        addressRegistry = IAddressRegistry(contractAddressOfRegistry);
+        addressRegistryLocal = IAddressRegistry(addressRegistryLocalAddress);
     }
 
     /// @notice Configure contract
-    function configure(string calldata nameOfPurchasing, string calldata nameOfBusinessPartnerStorage) onlyOwner() override external
+    function configure(address businessPartnerStorageAddressGlobal, string calldata nameOfPurchasingLocal) override external onlyOwner
     {
         // Business partner storage
-        businessPartnerStorage = IBusinessPartnerStorage(addressRegistry.getAddressString(nameOfBusinessPartnerStorage));
-        require(address(businessPartnerStorage) != address(0), "Could not find BusinessPartnerStorage address in registry");
+        businessPartnerStorageGlobal = IBusinessPartnerStorage(businessPartnerStorageAddressGlobal);
 
         // Address of the PO Main contract
-        purchasingContractAddress = addressRegistry.getAddressString(nameOfPurchasing);
-        purchasing = IPurchasing(purchasingContractAddress);
-        require(address(purchasingContractAddress) != address(0), "Could not find Purchasing address in registry");
+        purchasingContractAddressLocal = addressRegistryLocal.getAddressString(nameOfPurchasingLocal);
+        purchasingLocal = IPurchasing(purchasingContractAddressLocal);
+        require(address(purchasingContractAddressLocal) != address(0), "Could not find Purchasing address in registry");
     }
     
-    function transferInFundsForPoFromBuyerWallet(uint poNumber) onlyRegisteredCaller() override external
+    function transferInFundsForPoFromBuyerWallet(uint poNumber) override external
     {
         // Get total PO value
-        IPoTypes.Po memory po = purchasing.getPo(poNumber);
+        IPoTypes.Po memory po = purchasingLocal.getPo(poNumber);
         uint totalPoValue = 0;
         for (uint i = 0; i < po.poItemCount; i++)
         {
@@ -53,10 +55,10 @@ contract Funding is IFunding, Ownable, Bindable, StringConvertible
         require(isTransferSuccessful == true, "Insufficient funds transferred for PO");
     }
     
-    function transferOutFundsForPoItemToBuyer(uint poNumber, uint8 poItemNumber) onlyRegisteredCaller() override external
+    function transferOutFundsForPoItemToBuyer(uint poNumber, uint8 poItemNumber) override external onlyRegisteredCaller
     {
         // Refund to the PO buyer wallet (not the PO buyer from the PO header, which represents the user)
-        IPoTypes.Po memory po = purchasing.getPo(poNumber);
+        IPoTypes.Po memory po = purchasingLocal.getPo(poNumber);
         uint poItemIndex = poItemNumber - 1;
         uint poItemValue = po.poItems[poItemIndex].currencyValue;
         IErc20 token = IErc20(po.currencyAddress);
@@ -67,15 +69,15 @@ contract Funding is IFunding, Ownable, Bindable, StringConvertible
         require(result == true, "Not enough funds transferred");
     }
     
-    function transferOutFundsForPoItemToSeller(uint poNumber, uint8 poItemNumber) onlyRegisteredCaller() override external
+    function transferOutFundsForPoItemToSeller(uint poNumber, uint8 poItemNumber) override external onlyRegisteredCaller
     {
         // Get the Po Item, the token and the Seller
-        IPoTypes.Po memory po = purchasing.getPo(poNumber);
+        IPoTypes.Po memory po = purchasingLocal.getPo(poNumber);
         uint poItemIndex = poItemNumber - 1;
         uint poItemValue = po.poItems[poItemIndex].currencyValue;
         uint poItemValueFee = po.poItems[poItemIndex].currencyValueFee;
         IErc20 token = IErc20(po.currencyAddress);
-        IPoTypes.Seller memory seller = businessPartnerStorage.getSeller(po.sellerId);
+        IPoTypes.Seller memory seller = businessPartnerStorageGlobal.getSeller(po.sellerId);
         require(seller.adminContractAddress != address(0), "Seller has no admin contract address");
         
         // Transfer escrow payment to seller
@@ -90,7 +92,7 @@ contract Funding is IFunding, Ownable, Bindable, StringConvertible
         // Transfer fee to shop
         if (poItemValueFee > 0)
         {
-            IPoTypes.Eshop memory eShop = businessPartnerStorage.getEshop(po.eShopId);
+            IPoTypes.Eshop memory eShop = businessPartnerStorageGlobal.getEshop(po.eShopId);
             require(eShop.purchasingContractAddress != address(0), "eShop has no contract address");
             bool resultFee = token.transfer(eShop.purchasingContractAddress, poItemValueFee);
             require(resultFee == true, "Not enough funds transferred for fee");

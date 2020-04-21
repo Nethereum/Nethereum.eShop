@@ -1,4 +1,4 @@
-﻿namespace Nethereum.Commerce.ContractDeployments.IntegrationTests.Config
+﻿namespace Nethereum.Commerce.Contracts.Deployment
 {
     /// <summary>
     /// Config for Web3 object

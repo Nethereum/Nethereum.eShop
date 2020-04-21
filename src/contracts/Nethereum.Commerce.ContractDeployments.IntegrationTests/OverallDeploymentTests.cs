@@ -1,12 +1,20 @@
 using FluentAssertions;
+using Nethereum.ABI.FunctionEncoding;
 using Nethereum.Commerce.ContractDeployments.IntegrationTests.Config;
 using Nethereum.Commerce.Contracts;
+using Nethereum.Commerce.Contracts.Deployment;
+using Nethereum.Commerce.Contracts.Purchasing;
+using Nethereum.Commerce.Contracts.Purchasing.ContractDefinition;
+using System;
 using System.Numerics;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
+using static Nethereum.Commerce.ContractDeployments.IntegrationTests.PoTestHelpers;
 
 namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 {
+    [Trait("Global", "")]
     [Collection("Contract Deployment Collection")]
     public class OverallDeploymentTests
     {
@@ -26,21 +34,21 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
         {
             // If all contracts deployed and configured ok, then...
             // ...the PO storage contract should be configured to point to the eternal storage contract.
-            var actualEternalStorageAddressHeldAgainstPoStorage = await _contracts.Deployment.PoStorageService.EternalStorageQueryAsync();
-            var expectedEternalStorageAddress = _contracts.Deployment.EternalStorageService.ContractHandler.ContractAddress;
+            var actualEternalStorageAddressHeldAgainstPoStorage = await _contracts.Deployment.PoStorageServiceLocal.EternalStorageQueryAsync();
+            var expectedEternalStorageAddress = _contracts.Deployment.EternalStorageServiceLocal.ContractHandler.ContractAddress;
             actualEternalStorageAddressHeldAgainstPoStorage.Should().Be(expectedEternalStorageAddress);
 
             // ...the funding contract should be configured to point to the business partner storage contract.
-            var actualBusinessPartnerStorageAddressHeldAgainstFunding = await _contracts.Deployment.FundingService.BusinessPartnerStorageQueryAsync();
-            var expectedBusinessPartnerAddress = _contracts.Deployment.BusinessPartnerStorageService.ContractHandler.ContractAddress;
+            var actualBusinessPartnerStorageAddressHeldAgainstFunding = await _contracts.Deployment.FundingServiceLocal.BusinessPartnerStorageGlobalQueryAsync();
+            var expectedBusinessPartnerAddress = _contracts.Deployment.BusinessPartnerStorageServiceGlobal.ContractHandler.ContractAddress;
             actualBusinessPartnerStorageAddressHeldAgainstFunding.Should().Be(expectedBusinessPartnerAddress);
 
             // ... the buyer wallet should be configured to point to the business partner storage contract.
-            var actualBusinessPartnerStorageAddressHeldAgainstBuyerWallet = await _contracts.Deployment.BuyerWalletService.BpStorageQueryAsync();
+            var actualBusinessPartnerStorageAddressHeldAgainstBuyerWallet = await _contracts.Deployment.BuyerWalletService.BusinessPartnerStorageGlobalQueryAsync();
             actualBusinessPartnerStorageAddressHeldAgainstBuyerWallet.Should().Be(expectedBusinessPartnerAddress);
 
             // ... the seller admin should be configured to point to the business partner storage contract.
-            var actualBusinessPartnerStorageAddressHeldAgainstSellerAdmin = await _contracts.Deployment.SellerAdminService.BpStorageQueryAsync();
+            var actualBusinessPartnerStorageAddressHeldAgainstSellerAdmin = await _contracts.Deployment.SellerAdminService.BusinessPartnerStorageGlobalQueryAsync();
             actualBusinessPartnerStorageAddressHeldAgainstSellerAdmin.Should().Be(expectedBusinessPartnerAddress);
 
             // ... the seller admin should be configured to have a seller id.
@@ -50,7 +58,7 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
 
             // ... and that seller id should have a master data entry in business partner storage.            
             var actualSellerIdBytes = actualSellerIdString.ConvertToBytes32();
-            var actualSellerIdRecordFromBusinessPartnerStorage = (await _contracts.Deployment.BusinessPartnerStorageService.GetSellerQueryAsync(actualSellerIdBytes)).Seller;
+            var actualSellerIdRecordFromBusinessPartnerStorage = (await _contracts.Deployment.BusinessPartnerStorageServiceGlobal.GetSellerQueryAsync(actualSellerIdBytes)).Seller;
             actualSellerIdRecordFromBusinessPartnerStorage.IsActive.Should().Be(true);
             actualSellerIdRecordFromBusinessPartnerStorage.SellerDescription.Should().Be(
                 _contracts.Deployment.ContractNewDeploymentConfig.Seller.SellerDescription);
@@ -66,6 +74,27 @@ namespace Nethereum.Commerce.ContractDeployments.IntegrationTests
             dec.Should().BeGreaterThan(0);
             var totalSupplyFactored = totalSupply / BigInteger.Pow(10, dec);
             _output.WriteLine($"MockDai Total Supply = {totalSupplyFactored.ToString("N0")}");
+        }
+
+        [Fact]
+        public async void ShouldNotAllowDuplicateEshopDeployment()
+        {
+            // Prevent a second Purchasing.sol contract being deployed that is trying to use an
+            // existing eShop master data record that is pointing at DIFFERENT Purchasing.sol.
+            // This is checked for when Purchasing.sol is configured.
+            var purchasingDeployment = new PurchasingDeployment()
+            {
+                AddressRegistryLocalAddress  = _contracts.Deployment.AddressRegistryServiceLocal.ContractHandler.ContractAddress,
+                EShopIdString = _contracts.Deployment.ContractNewDeploymentConfig.Eshop.EShopId
+            };
+            var psl = await PurchasingService.DeployContractAndGetServiceAsync(
+               _contracts.Web3, purchasingDeployment).ConfigureAwait(false);
+
+            Func<Task> act = async () => await psl.ConfigureRequestAndWaitForReceiptAsync(
+                 _contracts.Deployment.BusinessPartnerStorageServiceGlobal.ContractHandler.ContractAddress,
+                ContractDeployment.CONTRACT_NAME_PO_STORAGE_LOCAL,
+                ContractDeployment.CONTRACT_NAME_FUNDING_LOCAL);
+            await act.Should().ThrowAsync<SmartContractRevertException>().WithMessage(PO_EXCEPTION_CHECK_ESHOP_MASTER_DATA); 
         }
     }
 }
